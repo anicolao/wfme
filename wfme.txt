@@ -1,0 +1,100 @@
+The War for Middle-earth
+A Strategy Board Game of Alliances, Combat, and Dominion
+1. Overview
+The War for Middle-earth is a game of deck-building and worker placement where 1–4 players lead unique Commanders—from Aragorn to the Witch-king—battling for control of the lands. You will dispatch Agents to gather resources, court the great Factions, and maneuver your armies into position.
+But influence alone is not enough. At the end of every round, steel meets steel. You must muster Levies, breed elite Uruk-hai, and perhaps even rouse the Ents of Fangorn to crush your enemies in decisive battles.
+Objective: The first player to reach 10 Victory Points (VP) triggers the endgame. Points are earned through Combat, Faction Alliances, War Efforts, and hidden Fate Cards.
+2. Core Resources & Economics
+Managing your logistics is key to survival.
+Gold: The currency of the civilized world. Used to pay for Council seats, hire mercenaries, and fund War Efforts.
+Mithril: A rare, high-value ore mined from the deep places. It is the fuel of heavy industry and essential for high-level transport via the Deep Roads.
+Provisions: Food and supplies. Essential for moving troops into the dangerous "Wild" spaces on the board.
+Ent-draught: A mystical substance required to wake and command Ents.
+3. The Armies
+Military strength is measured in generic power, but unit types determine your tactical ceiling.
+A. Levies (Standard Units)
+Strength: 1
+Description: The gathered masses—human soldiers, orcs, or easterlings. They are expendable and plentiful.
+B. Uruk-hai (Elite Units)
+Strength: 2
+Description: Bred for war. They are harder to acquire but provide superior force concentration.
+Acquisition: Primarily recruited through The Shadow faction track.
+C. Ents (Siege Units)
+Strength: 3
+Special Rule: Siege Breakers. If you have an Ent in a conflict, the rewards for winning that conflict are Doubled.
+Requirement: You must spend 1 Ent-draught to muster an Ent into battle.
+Restriction: Ents generally cannot enter the "Settled Lands" unless The Dam is broken (see Section 6).
+4. The Game Board
+The board is divided into political factions and geographical regions. To visit a space, you must play a card from your hand with a matching icon.
+I. The Four Great Factions
+Gaining influence on these tracks grants Victory Points and gameplay bonuses.
+The Elven Realms
+Theme: Ancient wisdom, foresight, and magic.
+Strategic Benefit: This track specializes in Card Draw and Deck Manipulation (filtering weak cards out of your deck).
+Key Reward: Elven Wisdom (tokens that allow you to redraw hands).
+The Dwarven Holds
+Theme: Craftsmanship, economy, and underground travel.
+Strategic Benefit: The primary source of Mithril and industrial capacity.
+Key Action: The Deep Roads. Spend Mithril to deploy massive reinforcements directly to a conflict zone.
+The Shadow
+Theme: Industrial might and ruthlessness (Mordor/Isengard).
+Strategic Benefit: The most efficient source of Gold and Uruk-hai.
+Key Reward: The Black Breath. An Alliance bonus that reduces enemy combat strength.
+The Wild
+Theme: The untamed nature of Fangorn and the Rangers.
+Strategic Benefit: Guerrilla warfare and access to Ents.
+Key Reward: Ent-draught. Necessary to activate your siege units.
+II. The White Council (Political Center)
+These green spaces represent the overarching coordination of the Wise.
+Council of Elrond: Spend Gold to gain a permanent seat (High Council), granting +2 Persuasion every round.
+Captain of the Guard: Spend Gold to permanently unlock your Third Agent.
+Summon Ally: Hire a temporary powerful agent (e.g., a Great Eagle or Nazgûl) for a single round.
+III. The Map (Conflict Zones)
+The Settled Lands: Cities like Osgiliath and Edoras. Safe terrain, but restricted for Ents.
+The Deep Wilds: Dangerous terrain (Moria, Deserts). Requires Provisions to enter but yields rich Mithril rewards.
+5. Gameplay Loop
+The game is played over a series of rounds. Each round has five phases.
+Phase 1: Round Start
+Reveal a new Conflict Card. This sets the stakes for the round (e.g., "Battle for Helm's Deep" - Reward: 2 VP).
+Phase 2: Player Turns (Agent Placement)
+Players take turns playing one card to send an Agent to the board.
+Play a Card: Match the icon on the card to the board space.
+Pay Costs: Pay any Provisions or Gold required by the space.
+Resolve Effects: Gain the benefit of the Board Space AND the benefit of the "Agent Box" on your played card.
+Muster Troops: If the space has a crossed-swords icon, you may deploy troops from your garrison to the active Conflict.
+Phase 3: Reveal Turn
+When you cannot or choose not to play more Agents, you Reveal.
+Reveal Hand: Show all remaining cards in your hand.
+Calculate Persuasion: Total the blue Persuasion numbers. Buy new cards from the Market to strengthen your deck.
+Calculate Swords: Total the sword icons in your revealed hand. Add these to your army's strength in the Conflict.
+Phase 4: Combat Resolution
+Determine Strength: Sum the strength of your deployed units (Levies + Uruks + Ents) plus any swords from your Reveal turn and Fate Cards.
+Declarations: Players may play "Combat" Fate Cards to alter the outcome.
+Awards: The highest strength wins the 1st Place reward on the Conflict Card.
+Reminder: If you have an Ent, double your rewards (Gold, VP, or Resources).
+Phase 5: Makers (Recall)
+Recall Agents. If you control certain board spaces (e.g., Mines), they may produce passive income now.
+6. Unique Mechanics
+The Scouts
+You have cylindrical Scout tokens that live on the connections between board spaces.
+Observation: Scouts act as a claim on future turns.
+Infiltration: If a space is blocked by an opponent, you may recall a Scout adjacent to that space to enter it anyway.
+Intel: You may recall a Scout to draw a card.
+The Dam & The Breach
+A physical barrier (The Dam) separates the Wild from the Settled Lands.
+Intact: Ents cannot be deployed to Settled Lands conflicts.
+Breached: Once the Dam is broken (via specific "Bomb" cards or Conflict rewards), the floodwaters—and the Ents—can rush into the cities. Ents may now be deployed anywhere.
+War Efforts
+A side board contains "War Effort" cards (Contracts).
+Send Agents to specific spaces to collect these contracts.
+Complete their conditions (e.g., "Spend 5 Mithril," "Win a Battle with 3 Uruk-hai") to gain immediate bursts of Gold, Influence, or VPs.
+Commanders
+Each player chooses a unique Commander board at the start of the game.
+XP & Leveling: You gain XP by winning battles or buying expensive cards.
+Skill Trees: Spend XP to unlock permanent abilities unique to your character (e.g., Saruman produces Uruk-hai cheaper; Galadriel can foresee the top of the Fate deck).
+7. Setup
+Board: Unfold the map. Place the 4 Alliance Tokens on the bottom of the Faction Tracks.
+Market: Deal 5 cards from the Main Deck to the Market row.
+Conflict Deck: Construct the deck with Level I, II, and III conflict cards.
+Players: Each player takes a Commander Board, 2 Agents, and a starting deck of 10 cards.
+Resources: Each player starts with 1 Provision and 0 Gold/Mithril.

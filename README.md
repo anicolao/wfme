@@ -1,0 +1,39 @@
+# The War for Middle-earth
+
+*The War for Middle-earth* is an unofficial, non-commercial strategy-game concept about uncertain alliances, hard journeys, secret designs, and armies committed at exactly the right moment. It combines deck-building with agent placement and a contested battle at the end of every round.
+
+This prototype is mechanically inspired by *Dune: Imperium – Uprising*, but its terminology, setting logic, content, and presentation are developed here as an original fan-design exercise. It is not affiliated with, endorsed by, or licensed by Middle-earth Enterprises, the Tolkien Estate, Dire Wolf Digital, or Legendary Entertainment. No generated art in this repository depicts film actors or reproduces published game art.
+
+## Start here
+
+- [VISION.md](VISION.md) states the long-term product and design goals.
+- [CONCEPT.md](CONCEPT.md) is the rewritten high-level pitch from the original `wfme.txt`.
+- [MAPPING.md](MAPPING.md) records how the reference game's systems and board spaces translate into this setting.
+- [RULES.md](RULES.md) is the complete multiplayer prototype ruleset.
+- [CARD_CATALOG.md](CARD_CATALOG.md) defines starting cards, leaders, market cards, Fate cards, battles, and War Efforts.
+- [BOARD_LAYOUT.md](BOARD_LAYOUT.md) is the production/layout specification for the board.
+- [RIVALS.md](RIVALS.md) adds automated opponents for solo and two-player games.
+- [ART_DIRECTION.md](ART_DIRECTION.md) records the visual language and generated-asset prompts.
+- [assets/README.md](assets/README.md) inventories the image assets.
+
+## Current scope
+
+Version `0.1` is a paper-prototype specification for 1–4 players, about 45 minutes per player, ages 14+. The 3–4 player competitive game is the foundation; automated Rivals fill the board at one or two players. Six-player team play is intentionally deferred until the core economy and combat loop are stable.
+
+The rules target a ten-round maximum and a 10 Renown endgame threshold. The included catalog has shared starting decks, eight asymmetric leaders, a 54-card Chronicle deck, a 30-card Fate deck, 16 Battle cards, and 12 optional War Efforts.
+
+## Prototype priorities
+
+1. Print plain text cards and use cubes before investing in finished component design.
+2. Test whether the seven normal placement icons are equally reachable from a five-card hand.
+3. Measure Ent frequency, doubled rewards, and Dam breach timing.
+4. Measure the value of Scouts at every observation post.
+5. Tune card and board-space numbers without changing several systems at once.
+
+The generated images are mood and composition targets, not print-ready production files. Labels and iconography should be typeset separately during graphic design.
+
+## Visual direction
+
+![Board key art: an original painted high-fantasy campaign map](assets/board/board-key-art.png)
+
+![Board layout concept with faction courts, map, council, roads, and battle arena](assets/board/board-layout-concept.png)
