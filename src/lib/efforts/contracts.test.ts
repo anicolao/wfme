@@ -1,0 +1,1 @@
+import { expect, it } from 'vitest'; import { acceptEffort, completeEffort, initialEffortState } from './contracts'; it('accepts and completes one active effort', () => expect(completeEffort(acceptEffort(initialEffortState(), 'iron-road'), 2).renown).toBe(2));
