@@ -46,3 +46,15 @@ The browser download is cached outside Git. It is not silently installed by an a
 ## CI
 
 GitHub Actions installs Nix with `cachix/install-nix-action`, installs the locked Bun graph and Chromium through `nix develop`, then runs the same verifier. This keeps local, hook, and hosted checks on one environment definition.
+
+After verification, same-repository pull requests are built with
+`PUBLIC_BASE_PATH=/wfme/pr<N>` and retained under that directory on the
+`gh-pages` branch. The workflow comments the stable URL on the PR:
+`https://anicolao.github.io/wfme/pr<N>/`. A push to `main` publishes the
+production site at `https://anicolao.github.io/wfme/`. Fork pull requests are
+verified but skipped by the publishing job because the repository token is not
+available to them.
+
+Configure GitHub Pages to use the `gh-pages` branch at its repository root. The
+retained-directory strategy means publishing a new PR does not remove existing
+previews.
