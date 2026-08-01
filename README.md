@@ -47,6 +47,12 @@ nix develop --command bun run verify:change
 
 Run the development server inside the shell with `nix develop` followed by `bun run dev`. The scaffold establishes responsive composition and delivery infrastructure; deterministic gameplay and Firebase rooms are intentionally sequenced as the next vertical slices.
 
+The deployment workflow publishes each same-repository pull request as a retained
+GitHub Pages preview at `https://anicolao.github.io/wfme/pr<N>/` and links it from
+the PR conversation. A push to `main` publishes the production site at
+`https://anicolao.github.io/wfme/`. Fork pull requests are fully verified but are
+not deployed because they cannot safely receive the repository write token.
+
 ## Visual direction
 
 ![Board key art: an original painted high-fantasy campaign map](assets/board/board-key-art.png)

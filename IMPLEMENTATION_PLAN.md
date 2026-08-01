@@ -18,6 +18,8 @@ PR1 establishes only the delivery contract:
 - Vitest coverage for the constants;
 - Playwright browser proof at phone and desktop widths;
 - CI for checks, unit tests, E2E, and production build;
+- retained GitHub Pages previews for same-repository pull requests under
+  `/wfme/pr<N>/`, linked from the PR conversation;
 - the architecture and E2E strategy documents.
 
 PR1 does not pretend to implement multiplayer or game rules. The next slice must connect the first visible interaction to the actual event and reducer architecture.
