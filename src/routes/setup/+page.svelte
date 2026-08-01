@@ -5,8 +5,13 @@
   let seed = 'middle-earth-001';
   let setup: SeededSetup | null = null;
   let selectedUid = 'aragorn-seat';
+  let hydrated = false;
 
-  onMount(() => { const value = new URLSearchParams(location.search).get('seed'); if (value) { seed = value; generate(); } });
+  onMount(() => {
+    hydrated = true;
+    const value = new URLSearchParams(location.search).get('seed');
+    if (value) { seed = value; generate(); }
+  });
 
   function generate() {
     setup = createSeededSetup(seed.trim() || 'middle-earth-001', ['aragorn-seat', 'galadriel-seat']);
@@ -22,8 +27,8 @@
     <p class="lede">One seed fixes player order, decks, Chronicle, Fate, and Battle. Public setup never includes another seat's hand.</p>
     <form class="seed-form" on:submit|preventDefault={generate}>
       <label for="seed">Match seed</label>
-      <input id="seed" bind:value={seed} />
-      <button type="submit" class="generate-link">Generate setup</button>
+      <input id="seed" bind:value={seed} disabled={!hydrated} />
+      <button type="submit" class="generate-link" disabled={!hydrated}>Generate setup</button>
     </form>
 
     {#if setup}

@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { replaceState } from '$app/navigation';
   import { initializeFirebase } from '$lib/firebase';
-  import { createRoomRepository, roomExists } from '$lib/rooms/repository';
+  import { createRoomRepository, roomExists, waitForRoom } from '$lib/rooms/repository';
   import { COMMANDERS, createEvent, initialRoomState, normalizeRoomCode, randomRoomCode, reduceRoomEvents, type RoomEvent, type RoomState } from '$lib/rooms/replay';
 
   let displayName = '';
@@ -52,7 +52,8 @@
     const code = normalizeRoomCode(roomCodeInput);
     if (!db || !displayName.trim() || code.length !== 5) { message = 'Enter a display name and a five-character room code.'; return; }
     backendStatus = 'connecting';
-    if (!(await roomExists(db, code))) { backendStatus = 'ready'; message = 'That room does not exist yet.'; return; }
+    message = 'Finding the room…';
+    if (!(await waitForRoom(db, code))) { backendStatus = 'ready'; message = 'That room does not exist yet.'; return; }
     roomCode = code;
     subscribe(code);
     await append('player/joined', { uid: activeUid, displayName: displayName.trim() });
