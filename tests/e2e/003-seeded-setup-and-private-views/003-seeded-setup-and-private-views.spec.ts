@@ -7,7 +7,7 @@ test('a seed fixes public setup while private hands stay seat-scoped', async ({ 
   await steps.gesture('seed', () => page.getByLabel('Match seed').fill('second-age-042'), async () => {
     await expect(page.getByLabel('Match seed')).toHaveValue('second-age-042');
   });
-  await steps.gesture('generate', () => page.getByRole('button', { name: 'Generate setup' }).click(), async () => {
+  await steps.gesture('generate', () => page.getByRole('link', { name: 'Generate setup' }).click(), async () => {
     await expect(page.getByTestId('setup-seed')).toHaveText('second-age-042');
     await expect(page.getByTestId('chronicle-row').locator('span')).toHaveCount(5);
     await expect(page.getByTestId('private-hand').locator('span')).toHaveCount(5);

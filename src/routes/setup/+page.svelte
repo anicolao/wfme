@@ -1,9 +1,12 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { createSeededSetup, privatePlayerSetup, publicSetup, type SeededSetup } from '$lib/setup/setup';
 
   let seed = 'middle-earth-001';
   let setup: SeededSetup | null = null;
   let selectedUid = 'aragorn-seat';
+
+  onMount(() => { const value = new URLSearchParams(location.search).get('seed'); if (value) { seed = value; generate(); } });
 
   function generate() {
     setup = createSeededSetup(seed.trim() || 'middle-earth-001', ['aragorn-seat', 'galadriel-seat']);
@@ -20,7 +23,7 @@
     <form class="seed-form" on:submit|preventDefault={generate}>
       <label for="seed">Match seed</label>
       <input id="seed" bind:value={seed} />
-      <button type="submit">Generate setup</button>
+      <a class="generate-link" href={`/setup/?seed=${encodeURIComponent(seed)}`} data-sveltekit-reload>Generate setup</a>
     </form>
 
     {#if setup}
@@ -60,10 +63,10 @@
   .eyebrow { color: #6d452d; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
   h1, h2 { font-family: 'Cormorant Garamond', Georgia, serif; } h1 { margin: 0 0 1rem; font-size: clamp(3rem, 8vw, 6rem); line-height: .85; } h2 { margin-top: 2rem; font-size: 2.4rem; }
   .lede { max-width: 42rem; font-size: 1.2rem; line-height: 1.5; }
-  label { display: block; margin: .4rem 0; font-weight: 700; } input { width: 100%; min-height: 48px; padding: .7rem; border: 2px solid #a8a189; border-radius: .45rem; font: inherit; } button { min-height: 48px; padding: .7rem 1rem; color: #f6efda; background: #6d452d; border: 0; border-radius: .45rem; font: 700 1rem inherit; cursor: pointer; } button:hover, button:focus-visible { background: #4e3021; }
-  .seed-form { display: flex; align-items: end; gap: .8rem; margin-top: 2rem; } .seed-form label { flex: 1; } .seed-form button { flex: 0 0 auto; }
+  label { display: block; margin: .4rem 0; font-weight: 700; } input { width: 100%; min-height: 48px; padding: .7rem; border: 2px solid #a8a189; border-radius: .45rem; font: inherit; } button, .generate-link { min-height: 48px; padding: .7rem 1rem; color: #f6efda; background: #6d452d; border: 0; border-radius: .45rem; font: 700 1rem inherit; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; } button:hover, button:focus-visible, .generate-link:hover, .generate-link:focus-visible { background: #4e3021; }
+  .seed-form { display: flex; align-items: end; gap: .8rem; margin-top: 2rem; } .seed-form label { flex: 1; } .seed-form .generate-link { flex: 0 0 auto; }
   .setup-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: .7rem; margin-top: 2rem; } .setup-meta div { padding: 1rem; background: #e7ddc5; border-radius: .5rem; } .setup-meta span, .caption { color: #5a6258; font-size: .9rem; } .setup-meta strong { display: block; margin-top: .25rem; overflow-wrap: anywhere; }
   .row, .hand { display: grid; grid-template-columns: repeat(5, 1fr); gap: .5rem; } .row span, .hand span { min-height: 5rem; padding: .7rem; background: #e7ddc5; border: 1px solid #c8b993; border-radius: .4rem; font-size: .9rem; }
   .seat-tabs { display: flex; flex-wrap: wrap; gap: .5rem; } .seat-tabs button { color: #20261f; background: #e7ddc5; } .seat-tabs button[aria-selected='true'] { color: #f6efda; background: #365444; }
-  @media (max-width: 620px) { .seed-form { display: block; } .seed-form button { width: 100%; margin-top: .7rem; } .setup-meta { grid-template-columns: 1fr; } .row, .hand { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 620px) { .seed-form { display: block; } .seed-form .generate-link { width: 100%; margin-top: .7rem; } .setup-meta { grid-template-columns: 1fr; } .row, .hand { grid-template-columns: repeat(2, 1fr); } }
 </style>
