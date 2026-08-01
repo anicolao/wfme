@@ -1,0 +1,18 @@
+{
+  "name": "The War for Middle-earth",
+  "short_name": "WFME",
+  "description": "A responsive strategy game of counsel, journeys, and dominion.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ece3cc",
+  "theme_color": "#17251f",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
