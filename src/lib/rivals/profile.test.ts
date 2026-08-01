@@ -1,0 +1,1 @@
+import { expect, it } from 'vitest'; import { RIVALS, rivalAction } from './profile'; it('chooses the first available priority deterministically', () => expect(rivalAction(RIVALS[0], ['Stronghold']).space).toBe('Stronghold'));
