@@ -17,7 +17,8 @@ PR1 establishes only the delivery contract:
 - deterministic design constants derived from the rules documents;
 - Vitest coverage for the constants;
 - Playwright browser proof at phone and desktop widths;
-- CI for checks, unit tests, E2E, and production build;
+- fast Linux CI for checks, unit tests, and production build;
+- a separate macOS E2E workflow for the complete Playwright/browser gate and visual baselines;
 - retained GitHub Pages previews for same-repository pull requests under
   `/wfme/pr<N>/`, linked from the PR conversation;
 - the architecture and E2E strategy documents.
@@ -46,7 +47,7 @@ nix develop --command bun install --frozen-lockfile
 nix develop --command bun run verify:change
 ```
 
-`verify:change` runs Svelte checks, unit tests, Playwright, production build, and whitespace checks. Firebase Rules tests join the contract in slice 2.
+`verify:change` runs Svelte checks, unit tests, production build, and whitespace checks, plus Playwright unless `SKIP_E2E=1` is explicitly set. The hosted Linux job sets that flag; the separate macOS workflow is the required browser gate. Firebase Rules tests join the contract in slice 2.
 
 ## Fixed technical decisions
 
