@@ -18,6 +18,10 @@ full state → seat-safe view models → Svelte views
 
 No Svelte component decides game legality. No Firestore snapshot is itself game state. The complete projection must be reproducible in a headless Vitest process from an ordered event array.
 
+## Environment reproducibility
+
+The repository's environment boundary is Nix, not the developer's ambient Node, Bun, browser, or shell installation. `flake.nix` declares the system tools and `flake.lock` pins their Nix inputs. `bun.lock` pins the JavaScript package graph inside that shell. CI and Git hooks use `nix develop --command`; local interactive work may enter `nix develop` once and run the same Bun commands from inside it.
+
 ## Repository layout
 
 ```text

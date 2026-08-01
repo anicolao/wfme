@@ -11,7 +11,7 @@ The sibling Jaipur and RoboRally projects establish the working model: static Sv
 PR1 establishes only the delivery contract:
 
 - static SvelteKit 5 and strict TypeScript;
-- Bun package and locked dependencies;
+- Nix flake and locked inputs for the repeatable system toolchain, with Bun package lock for JavaScript dependencies;
 - an accessible responsive landing/game-shell composition;
 - installable web-app metadata;
 - deterministic design constants derived from the rules documents;
@@ -40,14 +40,15 @@ Do not land a disconnected rules library, UI backed only by mocks, or multiplaye
 The repository verification contract is:
 
 ```sh
-bun install --frozen-lockfile
-bun run verify:change
+nix develop --command bun install --frozen-lockfile
+nix develop --command bun run verify:change
 ```
 
 `verify:change` runs Svelte checks, unit tests, Playwright, production build, and whitespace checks. Firebase Rules tests join the contract in slice 2.
 
 ## Fixed technical decisions
 
+- Nix flakes with a checked-in `flake.lock` provide the reproducible system toolchain; Bun inside that shell owns JavaScript dependency installation through `bun.lock`.
 - SvelteKit 5, TypeScript, Vite, Bun, and `@sveltejs/adapter-static`.
 - Firebase anonymous Authentication and Cloud Firestore once rooms arrive.
 - One canonical append-only event stream at `games/{gameId}/events/{eventId}`.
@@ -124,6 +125,7 @@ Every envelope includes `type`, `payload`, `actorUid`, `clientSeq`, `createdAt`,
 **Status:** PR1.
 
 - Build the static shell, local typography, board preview, project status, PWA manifest, and production base-path support.
+- Add the Nix-first development shell, locked Nix inputs, Husky hooks, and CI commands that install and verify through `nix develop`.
 - Add design-constant tests and phone/desktop Playwright coverage.
 - Add CI and a production build artifact.
 

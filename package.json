@@ -5,11 +5,13 @@
   "license": "GPL-3.0-only",
   "type": "module",
   "scripts": {
+    "prepare": "svelte-kit sync && husky",
     "dev": "vite dev --host 127.0.0.1 --port 5189 --strictPort",
     "dev:e2e": "vite dev --host 127.0.0.1 --port 5189 --strictPort",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1 --port 4189 --strictPort",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:workflow": "actionlint",
     "test:unit": "vitest run --config vitest.config.ts",
     "test:e2e": "playwright test",
     "verify:change": "bash scripts/verify-change.sh"
@@ -24,6 +26,7 @@
     "@sveltejs/kit": "^2.69.3",
     "@sveltejs/vite-plugin-svelte": "^7.2.0",
     "@types/node": "^26.1.1",
+    "husky": "^9.1.7",
     "svelte": "^5.56.5",
     "svelte-check": "^4.7.2",
     "typescript": "^5.9.3",
