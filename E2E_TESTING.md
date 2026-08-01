@@ -8,6 +8,8 @@ Playwright scenarios are the primary proof that a player-visible capability work
 
 E2E uses the real built client and local Firebase Auth/Firestore emulators once multiplayer lands. It never reads or writes production data.
 
+The runner is installed and invoked through the checked-in Nix shell. CI uses `cachix/install-nix-action`, `nix develop --command bun install --frozen-lockfile`, and `nix develop --command bunx playwright install chromium` before running the suite. This makes the browser test contract independent of the host's ambient Bun, shell utilities, and package-manager versions.
+
 Every scenario fixes:
 
 - game ID and authenticated emulator UID per seat;

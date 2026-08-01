@@ -18,6 +18,7 @@ This prototype is mechanically inspired by *Dune: Imperium – Uprising*, but it
 - [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) sequences the responsive digital game as vertical slices.
 - [TECHNICAL_DESIGN.md](TECHNICAL_DESIGN.md) defines deterministic state, events, privacy, and responsive rendering.
 - [E2E_TESTING.md](E2E_TESTING.md) defines the browser-test, accessibility, and viewport contract.
+- [DEVELOPMENT.md](DEVELOPMENT.md) defines the Nix-first repeatable development and verification environment.
 
 ## Current scope
 
@@ -37,14 +38,14 @@ The generated images are mood and composition targets, not print-ready productio
 
 ## Web scaffold
 
-The PR1 scaffold is a static SvelteKit 5 application using TypeScript, Bun, Vitest, and Playwright. Run the full local verification contract with:
+The PR1 scaffold is a static SvelteKit 5 application using TypeScript, Bun, Vitest, and Playwright. Nix supplies the repeatable toolchain and Bun installs the locked JavaScript graph. Run the full local verification contract with:
 
 ```sh
-bun install --frozen-lockfile
-bun run verify:change
+nix develop --command bun install --frozen-lockfile
+nix develop --command bun run verify:change
 ```
 
-Run the development server with `bun run dev`. The scaffold establishes responsive composition and delivery infrastructure; deterministic gameplay and Firebase rooms are intentionally sequenced as the next vertical slices.
+Run the development server inside the shell with `nix develop` followed by `bun run dev`. The scaffold establishes responsive composition and delivery infrastructure; deterministic gameplay and Firebase rooms are intentionally sequenced as the next vertical slices.
 
 ## Visual direction
 
