@@ -13,21 +13,26 @@
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:workflow": "actionlint",
     "test:unit": "vitest run --config vitest.config.ts",
-    "test:e2e": "playwright test",
-    "test:e2e:update-snapshots": "playwright test --update-snapshots",
+    "test:e2e": "firebase emulators:exec --project wfme-e2e --only auth,firestore \"playwright test\"",
+    "test:e2e:update-snapshots": "firebase emulators:exec --project wfme-e2e --only auth,firestore \"playwright test --update-snapshots\"",
+    "test:rules": "firebase emulators:exec --project wfme-e2e --only firestore \"vitest run --config vitest.rules.config.ts\"",
+    "emulators": "firebase emulators:start --project wfme-e2e",
     "verify:static": "bash scripts/verify-static.sh",
     "verify:change": "bash scripts/verify-change.sh"
   },
   "dependencies": {
     "@fontsource/atkinson-hyperlegible": "^5.2.8",
-    "@fontsource/cormorant-garamond": "^5.2.11"
+    "@fontsource/cormorant-garamond": "^5.2.11",
+    "firebase": "^12.16.0"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.1",
     "@playwright/test": "^1.61.1",
     "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/kit": "^2.69.3",
     "@sveltejs/vite-plugin-svelte": "^7.2.0",
     "@types/node": "^26.1.1",
+    "firebase-tools": "15.25.0",
     "husky": "^9.1.7",
     "svelte": "^5.56.5",
     "svelte-check": "^4.7.2",

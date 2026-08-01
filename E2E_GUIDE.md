@@ -15,7 +15,7 @@ nix develop --command bunx playwright install chromium
 nix develop --command bun run test:e2e
 ```
 
-The suite must pass with zero retries and no focused tests. Use observable
+The command starts isolated Firebase Auth and Firestore emulators. The suite must pass with zero retries and no focused tests. Use observable
 Playwright assertions; never add sleeps, arbitrary polling, or screenshot-only
 proof. Keep the fixed locale, timezone, viewport, rendering flags, and test
 data from `playwright.config.ts`.
@@ -26,7 +26,7 @@ data from `playwright.config.ts`.
 - semantic assertions prove the visible state and legal actions;
 - responsive checks show no overflow or clipped required controls;
 - accessibility checks cover names, focus, keyboard completion, and live state;
-- multiplayer scenarios prove actor/observer convergence and hidden-information privacy;
+- multiplayer scenarios use separate browser contexts and prove Firestore-backed actor/observer convergence and hidden-information privacy;
 - screenshots use the macOS baseline with `maxDiffPixels: 0`;
 - failures leave the HTML report, trace, and test-results artifact available.
 

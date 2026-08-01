@@ -38,7 +38,20 @@ export default defineConfig({
     command: 'bun run dev:e2e',
     url: 'http://127.0.0.1:5189',
     reuseExistingServer: false,
-    env: { VITE_GIT_HASH: 'e2e-test-commit' }
+    env: {
+      VITE_FIREBASE_API_KEY: 'e2e-api-key',
+      VITE_FIREBASE_AUTH_DOMAIN: 'wfme-e2e.firebaseapp.com',
+      VITE_FIREBASE_PROJECT_ID: 'wfme-e2e',
+      VITE_FIREBASE_STORAGE_BUCKET: 'wfme-e2e.firebasestorage.app',
+      VITE_FIREBASE_MESSAGING_SENDER_ID: '123456789',
+      VITE_FIREBASE_APP_ID: '1:123456789:web:e2e',
+      VITE_USE_FIREBASE_EMULATORS: 'true',
+      VITE_FIRESTORE_EMULATOR_HOST: '127.0.0.1',
+      VITE_FIRESTORE_EMULATOR_PORT: '8190',
+      VITE_FIREBASE_AUTH_EMULATOR_HOST: '127.0.0.1',
+      VITE_FIREBASE_AUTH_EMULATOR_PORT: '9204',
+      VITE_GIT_HASH: 'e2e-test-commit'
+    }
   },
   timeout: 60_000,
   expect: { timeout: 10_000 }

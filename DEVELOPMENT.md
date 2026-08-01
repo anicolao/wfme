@@ -11,7 +11,7 @@ nix develop --command bun install --frozen-lockfile
 nix develop --command bun run verify:change
 ```
 
-The shell provides Bun, Git, Bash, Coreutils, `gh`, `ripgrep`, `shellcheck`, `actionlint`, and the JDK. Browser binaries and future Firebase emulator downloads use `$XDG_CACHE_HOME` under `.firebase/cache`, which is ignored by Git but stable across separate `nix develop --command` calls.
+The shell provides Bun, Git, Bash, Coreutils, `gh`, `ripgrep`, `shellcheck`, `actionlint`, and the JDK. The pinned `firebase-tools` package runs inside that shell. Browser binaries and Firebase emulator downloads use `$XDG_CACHE_HOME` under `.firebase/cache`, which is ignored by Git but stable across separate `nix develop --command` calls.
 
 For an interactive shell:
 
@@ -21,13 +21,21 @@ bun install --frozen-lockfile
 bun run dev
 ```
 
+For local multiplayer development, use the emulator-backed E2E command or start the emulators directly:
+
+```sh
+nix develop --command bun run emulators
+```
+
+The production Firebase web configuration is injected only by the GitHub Pages deployment job from repository secrets. Local and CI E2E use the fixed `wfme-e2e` emulator project and never write production data.
+
 The interactive shell is convenient; the explicit `nix develop --command` form is the canonical CI, hook, and handoff command because it makes the environment boundary visible.
 
 ## Verification contract
 
 The full change verifier re-enters the Nix shell when invoked outside it. It
 checks staged and unstaged whitespace, Svelte diagnostics, GitHub Actions
-syntax, unit tests, Playwright E2E, and the production build.
+syntax, unit tests, Firestore security rules, Playwright E2E, and the production build.
 
 ```sh
 nix develop --command bun run verify:change

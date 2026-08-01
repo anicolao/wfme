@@ -9,7 +9,9 @@ export type RoomEventType =
   | 'game/created'
   | 'player/joined'
   | 'player/commander-selected'
-  | 'player/ready';
+  | 'player/ready'
+  | 'game/started'
+  | 'turn/action';
 
 export type RoomEvent = {
   id: string;
@@ -33,8 +35,11 @@ export type RoomPlayer = {
 export type RoomState = {
   roomCode: string;
   hostUid: string;
-  phase: 'lobby' | 'ready';
+  phase: 'lobby' | 'ready' | 'playing';
   players: RoomPlayer[];
+  turnIndex: number;
+  round: number;
+  actionLog: string[];
   eventCount: number;
   lastEventId: string | null;
 };
@@ -47,7 +52,7 @@ export const COMMANDERS: ReadonlyArray<{ id: CommanderId; name: string; epithet:
 ];
 
 export function initialRoomState(roomCode: string, hostUid: string): RoomState {
-  return { roomCode, hostUid, phase: 'lobby', players: [], eventCount: 0, lastEventId: null };
+  return { roomCode, hostUid, phase: 'lobby', players: [], turnIndex: 0, round: 1, actionLog: [], eventCount: 0, lastEventId: null };
 }
 
 export function createEvent(
@@ -72,8 +77,10 @@ export function createEvent(
 export function reduceRoomEvents(room: RoomState, events: readonly RoomEvent[]): RoomState {
   const next: RoomState = {
     ...room,
-    players: room.players.map((player) => ({ ...player }))
+    players: room.players.map((player) => ({ ...player })),
+    actionLog: [...room.actionLog]
   };
+  let started = room.phase === 'playing';
 
   for (const event of [...events].sort((a, b) => a.createdAt - b.createdAt || a.id.localeCompare(b.id))) {
     if (event.schemaVersion !== ROOM_SCHEMA_VERSION || event.reducerVersion !== ROOM_REDUCER_VERSION) {
@@ -103,12 +110,21 @@ export function reduceRoomEvents(room: RoomState, events: readonly RoomEvent[]):
     } else if (event.type === 'player/ready') {
       const player = next.players.find((candidate) => candidate.uid === event.actorUid);
       if (player && player.commander) player.ready = Boolean(event.payload.ready);
+    } else if (event.type === 'game/started') {
+      if (event.actorUid === next.hostUid && next.players.length >= 2 && next.players.every((player) => player.ready)) started = true;
+    } else if (event.type === 'turn/action' && started) {
+      const current = next.players[next.turnIndex];
+      if (current?.uid === event.actorUid) {
+        next.actionLog.push(`${current.displayName}: ${String(event.payload.action)}`);
+        next.turnIndex = (next.turnIndex + 1) % next.players.length;
+        if (next.turnIndex === 0) next.round += 1;
+      }
     }
   }
 
   next.eventCount = events.length;
   next.lastEventId = events.at(-1)?.id ?? null;
-  next.phase = next.players.length > 0 && next.players.every((player) => player.ready) ? 'ready' : 'lobby';
+  next.phase = started ? 'playing' : next.players.length > 0 && next.players.every((player) => player.ready) ? 'ready' : 'lobby';
   return next;
 }
 

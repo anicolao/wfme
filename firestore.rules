@@ -1,0 +1,30 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    match /games/{gameId}/events/{eventId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.actorUid == request.auth.uid
+        && eventId.matches(request.auth.uid + '-[0-9]+')
+        && request.resource.data.roomCode == gameId
+        && request.resource.data.schemaVersion == 1
+        && request.resource.data.reducerVersion == 'rooms-v1'
+        && request.resource.data.type in [
+          'game/created', 'player/joined', 'player/commander-selected',
+          'player/ready', 'game/started', 'turn/action'
+        ]
+        && (request.resource.data.type != 'player/joined'
+          || request.resource.data.payload.uid == request.auth.uid);
+      allow update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

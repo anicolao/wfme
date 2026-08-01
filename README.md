@@ -37,16 +37,20 @@ The rules target a ten-round maximum and a 10 Renown endgame threshold. The incl
 
 The generated images are mood and composition targets, not print-ready production files. Labels and iconography should be typeset separately during graphic design.
 
-## Web scaffold
+## Play the web prototype
 
-The PR1 scaffold is a static SvelteKit 5 application using TypeScript, Bun, Vitest, and Playwright. Nix supplies the repeatable toolchain and Bun installs the locked JavaScript graph. Run the full local verification contract with:
+The root page is the live game lobby. Create a game, share the five-character room code, and have another player join from a separate browser or device. Players choose Commanders, ready up, start the game, and take synchronized turns through Firebase.
+
+The browser client is a static SvelteKit 5 application using anonymous Firebase Authentication and an append-only Firestore event stream. The production Firebase project is `wfme-20260801`; Firestore rules reject unauthenticated, misattributed, cross-room, update, and delete operations.
+
+Nix supplies the repeatable toolchain and Bun installs the locked JavaScript graph. Run the full local verification contract with:
 
 ```sh
 nix develop --command bun install --frozen-lockfile
 nix develop --command bun run verify:change
 ```
 
-Run the development server inside the shell with `nix develop` followed by `bun run dev`. The scaffold establishes responsive composition and delivery infrastructure; deterministic gameplay and Firebase rooms are intentionally sequenced as the next vertical slices.
+Run `nix develop --command bun run emulators` in one terminal and `nix develop --command bun run dev` with the emulator environment variables described in [DEVELOPMENT.md](DEVELOPMENT.md) in another. The strict E2E command starts and stops the Auth and Firestore emulators automatically.
 
 The Linux workflow and the separate `E2E tests (macOS)` workflow are independent
 required checks: Linux runs static/unit/build verification, while macOS runs the

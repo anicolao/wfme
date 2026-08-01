@@ -25,4 +25,22 @@ describe('room replay reducer', () => {
     expect(state.players).toHaveLength(1);
     expect(state.players[0].ready).toBe(false);
   });
+
+  it('starts a two-player game and advances legal turns', () => {
+    const events = [
+      createEvent('game/created', 'host', 1, { roomCode: 'RIVEN' }, 1),
+      createEvent('player/joined', 'host', 2, { uid: 'host', displayName: 'Mara' }, 2),
+      createEvent('player/commander-selected', 'host', 3, { commander: 'aragorn' }, 3),
+      createEvent('player/ready', 'host', 4, { ready: true }, 4),
+      createEvent('player/joined', 'guest', 1, { uid: 'guest', displayName: 'Rin' }, 5),
+      createEvent('player/commander-selected', 'guest', 2, { commander: 'galadriel' }, 6),
+      createEvent('player/ready', 'guest', 3, { ready: true }, 7),
+      createEvent('game/started', 'host', 5, {}, 8),
+      createEvent('turn/action', 'host', 6, { action: 'Travel to Edoras' }, 9)
+    ];
+    const state = reduceRoomEvents(initialRoomState('RIVEN', 'host'), events);
+    expect(state.phase).toBe('playing');
+    expect(state.players[state.turnIndex].uid).toBe('guest');
+    expect(state.actionLog).toEqual(['Mara: Travel to Edoras']);
+  });
 });

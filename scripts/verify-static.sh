@@ -16,5 +16,8 @@ bun run check:workflow
 echo "Running unit tests..."
 bun run test:unit
 
+echo "Running Firestore security-rule tests..."
+bun run test:rules
+
 echo "Building the production client..."
 bun run build
