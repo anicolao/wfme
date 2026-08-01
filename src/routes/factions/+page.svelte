@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { base } from '$app/paths';
   import { FACTION_NAMES, gainStanding, initialFactionState, claimCaptain, type FactionId } from '$lib/factions/standing';
 
   let state = initialFactionState();
@@ -35,9 +36,9 @@
 <svelte:head><title>Factions and upgrades — The War for Middle-earth</title></svelte:head>
 <main class="faction-shell"><section class="faction-card" aria-labelledby="faction-title">
   <p class="eyebrow">Standing · favors · permanent upgrades</p><h1 id="faction-title">Earn the realm’s trust.</h1><p class="lede">Standing 2 opens the Council seat. Standing 4 claims an Alliance and Renown; crossing thresholds is replayed in order.</p>
-  <div class="faction-grid">{#each factions as faction}<article><h2>{FACTION_NAMES[faction]}</h2><p class="track" aria-label={`${FACTION_NAMES[faction]} standing`}><strong>{state.standing[faction]}</strong> / 6</p><a class="action-button" data-sveltekit-reload href={`/factions/?faction=${faction}&level=${state.standing[faction] + 1}`}>Gain 1 standing</a>{#if state.alliance === faction}<span class="badge">Alliance</span>{/if}</article>{/each}</div>
+  <div class="faction-grid">{#each factions as faction}<article><h2>{FACTION_NAMES[faction]}</h2><p class="track" aria-label={`${FACTION_NAMES[faction]} standing`}><strong>{state.standing[faction]}</strong> / 6</p><a class="action-button" data-sveltekit-reload href={`${base}/factions/?faction=${faction}&level=${state.standing[faction] + 1}`}>Gain 1 standing</a>{#if state.alliance === faction}<span class="badge">Alliance</span>{/if}</article>{/each}</div>
   <div class="upgrades"><p>Council seat: <strong>{state.councilSeat ? 'Unlocked' : 'Locked'}</strong></p><p>Captain of the Host: <strong>{state.captain ? 'Unlocked' : 'Locked'}</strong></p><p>Renown: <strong>{state.renown}</strong></p></div>
-  {#if state.councilSeat && !state.captain}<a class="captain" data-sveltekit-reload href="/factions/?faction=elven&level=4&captain=1">Claim Captain of the Host</a>{:else}<span class="captain disabled">Claim Captain of the Host</span>{/if}
+  {#if state.councilSeat && !state.captain}<a class="captain" data-sveltekit-reload href={`${base}/factions/?faction=elven&level=4&captain=1`}>Claim Captain of the Host</a>{:else}<span class="captain disabled">Claim Captain of the Host</span>{/if}
   <p class="message" role="status" data-testid="faction-message">{message}</p>
 </section></main>
 <style>
