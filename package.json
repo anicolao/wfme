@@ -15,6 +15,7 @@
     "test:unit": "vitest run --config vitest.config.ts",
     "test:e2e": "playwright test",
     "test:e2e:update-snapshots": "playwright test --update-snapshots",
+    "verify:static": "bash scripts/verify-static.sh",
     "verify:change": "bash scripts/verify-change.sh"
   },
   "dependencies": {

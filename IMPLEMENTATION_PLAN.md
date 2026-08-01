@@ -47,7 +47,7 @@ nix develop --command bun install --frozen-lockfile
 nix develop --command bun run verify:change
 ```
 
-`verify:change` runs Svelte checks, unit tests, production build, and whitespace checks, plus Playwright unless `SKIP_E2E=1` is explicitly set. The hosted Linux job sets that flag; the separate macOS workflow is the required browser gate. Firebase Rules tests join the contract in slice 2.
+`verify:change` runs Svelte checks, unit tests, Playwright, production build, and whitespace checks. The hosted Linux workflow runs the separate `verify:static` contract, while the macOS workflow always runs the complete browser gate. Neither workflow skips a check. Firebase Rules tests join the contract in slice 2.
 
 ## Fixed technical decisions
 

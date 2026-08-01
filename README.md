@@ -48,10 +48,10 @@ nix develop --command bun run verify:change
 
 Run the development server inside the shell with `nix develop` followed by `bun run dev`. The scaffold establishes responsive composition and delivery infrastructure; deterministic gameplay and Firebase rooms are intentionally sequenced as the next vertical slices.
 
-The fast Linux verification job intentionally skips browser E2E. The separate
-`E2E tests (macOS)` workflow on `macos-latest` is the required Playwright gate
-and the authority for future visual baselines. See [E2E_GUIDE.md](E2E_GUIDE.md)
-for the exact local command and review rules.
+The Linux workflow and the separate `E2E tests (macOS)` workflow are independent
+required checks: Linux runs static/unit/build verification, while macOS runs the
+complete Playwright gate and owns future visual baselines. No check is skipped.
+See [E2E_GUIDE.md](E2E_GUIDE.md) for the exact local command and review rules.
 
 The deployment workflow publishes each same-repository pull request as a retained
 GitHub Pages preview at `https://anicolao.github.io/wfme/pr<N>/` and links it from

@@ -25,13 +25,15 @@ The interactive shell is convenient; the explicit `nix develop --command` form i
 
 ## Verification contract
 
-The repository verifier re-enters the Nix shell when invoked outside it. It checks staged and unstaged whitespace, Svelte diagnostics, GitHub Actions syntax, unit tests, and the production build. By default it also runs Playwright E2E; pass `SKIP_E2E=1` only for the fast Linux CI/deploy path.
+The full change verifier re-enters the Nix shell when invoked outside it. It
+checks staged and unstaged whitespace, Svelte diagnostics, GitHub Actions
+syntax, unit tests, Playwright E2E, and the production build.
 
 ```sh
 nix develop --command bun run verify:change
 ```
 
-The browser gate runs separately on `macos-latest`:
+The browser gate runs separately on `macos-latest` and is always required:
 
 ```sh
 nix develop --command bunx playwright install chromium
@@ -55,7 +57,7 @@ The browser download is cached outside Git. It is not silently installed by an a
 
 ## CI
 
-GitHub Actions installs Nix with `cachix/install-nix-action`, installs the locked Bun graph and Chromium through `nix develop`, then runs the fast verifier. The separate `E2E tests (macOS)` workflow runs the complete Playwright suite on `macos-latest`, uploads its report and failure artifacts, and owns visual-baseline generation.
+GitHub Actions installs Nix with `cachix/install-nix-action`, installs the locked Bun graph and Chromium through `nix develop`, then runs two independent required workflows. The Linux workflow runs `verify:static` for checks, unit tests, and the production build. The separate `E2E tests (macOS)` workflow runs the complete Playwright suite on `macos-latest`, uploads its report and failure artifacts, and owns visual-baseline generation. No workflow, hook, or verifier skips a gate.
 
 After verification, same-repository pull requests are built with
 `PUBLIC_BASE_PATH=/wfme/pr<N>` and retained under that directory on the

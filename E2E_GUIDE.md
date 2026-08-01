@@ -2,7 +2,8 @@
 
 Playwright E2E is the browser-level gate for every player-facing slice. The
 canonical hosted run is the **E2E tests (macOS)** GitHub Actions workflow on
-`macos-latest`; the Linux workflow intentionally does not run browser tests.
+`macos-latest`. It is an independent required check alongside Linux static,
+unit, and build verification; neither workflow bypasses its contract.
 
 ## Run it locally
 
@@ -40,7 +41,7 @@ nix develop --command bun run test:e2e:update-snapshots
 
 Review every changed image, commit it with the scenario change, and confirm the
 macOS workflow passes. Do not generate or approve Linux baselines, loosen pixel
-thresholds, mask dynamic UI, or use `--no-verify` to bypass the browser gate.
+thresholds, mask dynamic UI, or use `--no-verify` to bypass any gate.
 
 The longer [E2E_TESTING.md](E2E_TESTING.md) defines scenario topology, reducer
 fixtures, privacy boundaries, responsive targets, and future multiplayer

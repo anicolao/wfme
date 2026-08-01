@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if [[ -z "${IN_NIX_SHELL:-}" ]]; then
-  exec nix develop --command bun run verify:change
+  exec nix develop --command bun run verify:static
 fi
 
 echo "Checking staged and unstaged patches..."
@@ -15,9 +15,6 @@ bun run check:workflow
 
 echo "Running unit tests..."
 bun run test:unit
-
-echo "Running the complete E2E suite..."
-bun run test:e2e
 
 echo "Building the production client..."
 bun run build
