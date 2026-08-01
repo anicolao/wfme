@@ -1,0 +1,5 @@
+export type RoundState = { round: number; renown: Record<string, number>; riches: Record<string, number>; firstPlayer: string; ended: boolean; winner: string | null };
+export function initialRoundState(): RoundState { return { round: 1, renown: { aragorn: 0, galadriel: 0 }, riches: { aragorn: 0, galadriel: 0 }, firstPlayer: 'aragorn', ended: false, winner: null }; }
+export function completeRound(state: RoundState): RoundState { if (state.ended) return state; const round = state.round + 1; return round > 10 ? finish(state) : { ...state, round, firstPlayer: state.firstPlayer === 'aragorn' ? 'galadriel' : 'aragorn' }; }
+export function addRenown(state: RoundState, uid: string, amount: number): RoundState { const renown = { ...state.renown, [uid]: (state.renown[uid] ?? 0) + amount }; return renown[uid] >= 10 ? finish({ ...state, renown }) : { ...state, renown }; }
+function finish(state: RoundState): RoundState { const winner = Object.keys(state.renown).sort((a, b) => state.renown[b] - state.renown[a] || state.riches[b] - state.riches[a] || a.localeCompare(b))[0] ?? null; return { ...state, ended: true, winner }; }
