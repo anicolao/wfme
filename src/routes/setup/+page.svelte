@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { base } from '$app/paths';
   import { createSeededSetup, privatePlayerSetup, publicSetup, type SeededSetup } from '$lib/setup/setup';
 
   let seed = 'middle-earth-001';
@@ -23,7 +24,7 @@
     <form class="seed-form" on:submit|preventDefault={generate}>
       <label for="seed">Match seed</label>
       <input id="seed" bind:value={seed} />
-      <a class="generate-link" href={`/setup/?seed=${encodeURIComponent(seed)}`} data-sveltekit-reload>Generate setup</a>
+      <a class="generate-link" href={`${base}/setup/?seed=${encodeURIComponent(seed)}`} data-sveltekit-reload>Generate setup</a>
     </form>
 
     {#if setup}
