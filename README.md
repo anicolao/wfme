@@ -15,6 +15,9 @@ This prototype is mechanically inspired by *Dune: Imperium – Uprising*, but it
 - [RIVALS.md](RIVALS.md) adds automated opponents for solo and two-player games.
 - [ART_DIRECTION.md](ART_DIRECTION.md) records the visual language and generated-asset prompts.
 - [assets/README.md](assets/README.md) inventories the image assets.
+- [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) sequences the responsive digital game as vertical slices.
+- [TECHNICAL_DESIGN.md](TECHNICAL_DESIGN.md) defines deterministic state, events, privacy, and responsive rendering.
+- [E2E_TESTING.md](E2E_TESTING.md) defines the browser-test, accessibility, and viewport contract.
 
 ## Current scope
 
@@ -31,6 +34,17 @@ The rules target a ten-round maximum and a 10 Renown endgame threshold. The incl
 5. Tune card and board-space numbers without changing several systems at once.
 
 The generated images are mood and composition targets, not print-ready production files. Labels and iconography should be typeset separately during graphic design.
+
+## Web scaffold
+
+The PR1 scaffold is a static SvelteKit 5 application using TypeScript, Bun, Vitest, and Playwright. Run the full local verification contract with:
+
+```sh
+bun install --frozen-lockfile
+bun run verify:change
+```
+
+Run the development server with `bun run dev`. The scaffold establishes responsive composition and delivery infrastructure; deterministic gameplay and Firebase rooms are intentionally sequenced as the next vertical slices.
 
 ## Visual direction
 

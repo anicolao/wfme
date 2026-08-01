@@ -1,0 +1,119 @@
+# End-to-end testing strategy
+
+## Purpose
+
+Playwright scenarios are the primary proof that a player-visible capability works through the production browser stack. Vitest covers exhaustive pure rules; Playwright proves integration, privacy presentation, multiplayer convergence, accessibility, and responsive composition.
+
+## Hermetic environment
+
+E2E uses the real built client and local Firebase Auth/Firestore emulators once multiplayer lands. It never reads or writes production data.
+
+Every scenario fixes:
+
+- game ID and authenticated emulator UID per seat;
+- player names and Commander choices;
+- match seed, manifest versions, locale, timezone, and clock;
+- browser engine, fonts, device scale, rendering flags, and viewport;
+- network allowlist and service-worker behavior.
+
+External requests are blocked. Tests use Playwright locator auto-waiting and observable state; they never use sleeps. Retries are zero so flakes remain visible.
+
+## Context topology
+
+Use one isolated browser context per human seat. A four-player case opens four contexts, not four pages sharing storage. Each action is asserted from:
+
+1. the actor's seat-safe view;
+2. at least one opponent's converged view;
+3. the deterministic full-state test projection when exact hidden-zone conservation matters.
+
+Never assert opponent secrets through ordinary UI. A dedicated E2E-only diagnostic endpoint may expose full state to the harness, but production builds must omit it.
+
+## Assertion layers
+
+Every documented step combines:
+
+- **semantic assertions:** roles, accessible names, exact resources, legal/disabled states, turn and phase;
+- **convergence assertions:** all relevant contexts reach the same public projection and event ID;
+- **privacy assertions:** hidden identities and values are absent from opponent-facing DOM and accessibility trees;
+- **geometry assertions:** no horizontal document overflow, clipped dialogs, overlapping controls, or offscreen required action;
+- **visual assertions:** stable milestone screenshots with zero differing pixels under the pinned CI renderer;
+- **accessibility assertions:** keyboard completion, focus order/restoration, live announcements, non-color cues, reduced motion, and 44×44 targets.
+
+Screenshot tests supplement semantics. They never replace assertions about exact game state.
+
+## Screenshot policy
+
+- CI Linux Chromium is the baseline authority.
+- `maxDiffPixels` is zero; animations are disabled and caret hidden.
+- Do not mask dynamic areas, loosen thresholds, add arbitrary timeouts, or accept screenshots without reviewing the semantic reason for change.
+- Generate baselines through the explicit CI workflow and download its artifact; do not hand-edit screenshots.
+- Keep one or two meaningful frames per scenario step rather than capturing every animation frame.
+
+PR1 runs semantic and geometry tests only. Pixel baselines begin after the CI renderer generates the first reviewed Linux artifact, avoiding a false macOS baseline contract.
+
+## Scenario structure
+
+```text
+tests/e2e/
+  001-responsive-shell/
+    001-responsive-shell.spec.ts
+    README.md                 # generated from step metadata after helper lands
+    screenshots/
+  helpers/
+    game-actions.ts
+    test-step-helper.ts
+```
+
+Number scenarios by coherent user journey. Extend an existing scenario when a slice continues it naturally. Add a new number when it introduces a new setup or product narrative. Never commit skipped or focused tests.
+
+## Scenario map
+
+| Scenario | Browser proof |
+| --- | --- |
+| `001-responsive-shell` | Static shell, installable metadata, design summary, phone/desktop layout, accessible navigation. |
+| `002-create-join-and-replay-room` | Anonymous identity, room membership, immutable replay, reload. |
+| `003-seeded-setup-and-private-views` | Exact manifests and seed, four contexts, hand/Fate privacy, conservation. |
+| `004-agent-placement-and-scouts` | Icon legality, payments, occupancy, infiltration, intelligence draw, deployment. |
+| `005-reveal-acquire-and-reshuffle` | Muster, Influence spending, market refill, Reserve, trash, reshuffle. |
+| `006-factions-council-and-captain` | Thresholds, favors, Alliance transfer, permanent upgrades. |
+| `007-battle-fate-rewards-and-control` | Strength, Fate pass loop, ties, rewards, Standards, Banners, cleanup. |
+| `008-ents-dam-and-doubled-reward` | Protected summon rejection, breach, Ent Strength and exact doubled exclusions. |
+| `009-complete-match` | Riches, Recall, end trigger, Endgame Fate, tiebreak, rematch. |
+| `010-war-efforts` | Optional module lifecycle. |
+| `011-rivals` | Solo and two-player deterministic automation. |
+| `012-reconnect-conflicts-and-versioning` | Offline recovery, duplicate/stale events, incompatible versions. |
+| `013-responsive-accessible-complete-game` | Complete game at phone portrait, landscape, tablet, and desktop. |
+
+## High-value rule fixtures
+
+E2E should prove representative paths, while Vitest exhausts:
+
+- all 22 destination costs, requirements, and placement icons;
+- all nine Scout-post connection sets and every infiltration collision;
+- every card-instance conservation boundary and empty-deck reshuffle;
+- faction 2/4 crossings, drops, regain, and Alliance ties;
+- deployment limits for newly recruited versus garrison Companies;
+- all tie shapes for three and four players;
+- Ent doubling for every reward atom and every explicit exclusion;
+- all Battle/Objective Standard pair combinations;
+- every Commander timing and once-per-round reset;
+- every Fate timing window and invalid target;
+- all Rival profile choices and difficulty adjustments;
+- every Endgame trigger and ordered tiebreak.
+
+## Responsive gates
+
+Target viewports:
+
+| Name | Viewport |
+| --- | --- |
+| phone | 393×852 |
+| mobile landscape | 852×393 |
+| tablet | 820×1180 |
+| desktop | 1280×960 |
+
+At each target, tests assert `document.documentElement.scrollWidth <= clientWidth`, every visible enabled control has an accessible name, and primary controls meet the minimum target size. The complete-game scenario additionally proves that the active hand, legal destinations, confirmation control, and cancel path can all be reached without changing browser zoom.
+
+## Failure artifacts
+
+Retain Playwright traces, DOM snapshots, console output, and the HTML report for every CI failure. A multiplayer failure should log the last accepted event ID and reducer diagnostic for every seat, but never production credentials. Generated walkthroughs describe intent and assertions so a reviewer can understand a scenario without reading test code.
