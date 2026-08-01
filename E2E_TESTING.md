@@ -8,7 +8,13 @@ Playwright scenarios are the primary proof that a player-visible capability work
 
 E2E uses the real built client and local Firebase Auth/Firestore emulators once multiplayer lands. It never reads or writes production data.
 
-The runner is installed and invoked through the checked-in Nix shell. CI uses `cachix/install-nix-action`, `nix develop --command bun install --frozen-lockfile`, and `nix develop --command bunx playwright install chromium` before running the suite. This makes the browser test contract independent of the host's ambient Bun, shell utilities, and package-manager versions.
+The runner is installed and invoked through the checked-in Nix shell. The
+dedicated `E2E tests (macOS)` workflow runs on `macos-latest`, using
+`cachix/install-nix-action`, `nix develop --command bun install
+--frozen-lockfile`, and `nix develop --command bunx playwright install chromium`
+before running the suite. This makes the browser test contract independent of
+the host's ambient Bun, shell utilities, and package-manager versions while
+keeping the screenshot renderer stable.
 
 Every scenario fixes:
 
@@ -45,13 +51,15 @@ Screenshot tests supplement semantics. They never replace assertions about exact
 
 ## Screenshot policy
 
-- CI Linux Chromium is the baseline authority.
+- macOS Chromium in the dedicated `E2E tests (macOS)` workflow is the baseline authority.
 - `maxDiffPixels` is zero; animations are disabled and caret hidden.
 - Do not mask dynamic areas, loosen thresholds, add arbitrary timeouts, or accept screenshots without reviewing the semantic reason for change.
-- Generate baselines through the explicit CI workflow and download its artifact; do not hand-edit screenshots.
+- Generate baselines through the macOS workflow (or the matching local command) and review the artifact; do not hand-edit screenshots.
 - Keep one or two meaningful frames per scenario step rather than capturing every animation frame.
 
-PR1 runs semantic and geometry tests only. Pixel baselines begin after the CI renderer generates the first reviewed Linux artifact, avoiding a false macOS baseline contract.
+PR1 runs semantic and geometry tests only. Pixel baselines begin after the macOS
+renderer generates the first reviewed artifact; Linux is not a screenshot
+authority.
 
 ## Scenario structure
 

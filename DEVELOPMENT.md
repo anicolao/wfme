@@ -25,11 +25,21 @@ The interactive shell is convenient; the explicit `nix develop --command` form i
 
 ## Verification contract
 
-The repository verifier re-enters the Nix shell when invoked outside it. It checks staged and unstaged whitespace, Svelte diagnostics, GitHub Actions syntax, unit tests, Playwright E2E, and the production build.
+The repository verifier re-enters the Nix shell when invoked outside it. It checks staged and unstaged whitespace, Svelte diagnostics, GitHub Actions syntax, unit tests, and the production build. By default it also runs Playwright E2E; pass `SKIP_E2E=1` only for the fast Linux CI/deploy path.
 
 ```sh
 nix develop --command bun run verify:change
 ```
+
+The browser gate runs separately on `macos-latest`:
+
+```sh
+nix develop --command bunx playwright install chromium
+nix develop --command bun run test:e2e
+```
+
+See [E2E_GUIDE.md](E2E_GUIDE.md) for the short pass/fail checklist and
+[E2E_TESTING.md](E2E_TESTING.md) for the full strategy.
 
 Before E2E runs for the first time on a machine or CI worker, install Chromium through the same shell:
 
@@ -45,7 +55,7 @@ The browser download is cached outside Git. It is not silently installed by an a
 
 ## CI
 
-GitHub Actions installs Nix with `cachix/install-nix-action`, installs the locked Bun graph and Chromium through `nix develop`, then runs the same verifier. This keeps local, hook, and hosted checks on one environment definition.
+GitHub Actions installs Nix with `cachix/install-nix-action`, installs the locked Bun graph and Chromium through `nix develop`, then runs the fast verifier. The separate `E2E tests (macOS)` workflow runs the complete Playwright suite on `macos-latest`, uploads its report and failure artifacts, and owns visual-baseline generation.
 
 After verification, same-repository pull requests are built with
 `PUBLIC_BASE_PATH=/wfme/pr<N>` and retained under that directory on the

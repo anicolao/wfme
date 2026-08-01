@@ -28,6 +28,9 @@ jobs:
       - run: nix develop --command bun run verify:change
         env:
           CI: 'true'
+          # Browser E2E, including screenshot authority, runs in e2e.yml on
+          # macos-latest. Keep this fast Linux job for static/unit/build gates.
+          SKIP_E2E: '1'
       - uses: actions/upload-artifact@v4
         if: always()
         with:

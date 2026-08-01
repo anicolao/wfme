@@ -18,6 +18,7 @@ This prototype is mechanically inspired by *Dune: Imperium – Uprising*, but it
 - [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) sequences the responsive digital game as vertical slices.
 - [TECHNICAL_DESIGN.md](TECHNICAL_DESIGN.md) defines deterministic state, events, privacy, and responsive rendering.
 - [E2E_TESTING.md](E2E_TESTING.md) defines the browser-test, accessibility, and viewport contract.
+- [E2E_GUIDE.md](E2E_GUIDE.md) is the short contributor checklist for passing E2E locally and in CI.
 - [DEVELOPMENT.md](DEVELOPMENT.md) defines the Nix-first repeatable development and verification environment.
 
 ## Current scope
@@ -46,6 +47,11 @@ nix develop --command bun run verify:change
 ```
 
 Run the development server inside the shell with `nix develop` followed by `bun run dev`. The scaffold establishes responsive composition and delivery infrastructure; deterministic gameplay and Firebase rooms are intentionally sequenced as the next vertical slices.
+
+The fast Linux verification job intentionally skips browser E2E. The separate
+`E2E tests (macOS)` workflow on `macos-latest` is the required Playwright gate
+and the authority for future visual baselines. See [E2E_GUIDE.md](E2E_GUIDE.md)
+for the exact local command and review rules.
 
 The deployment workflow publishes each same-repository pull request as a retained
 GitHub Pages preview at `https://anicolao.github.io/wfme/pr<N>/` and links it from
