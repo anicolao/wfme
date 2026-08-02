@@ -1,0 +1,68 @@
+import { describe, expect, it } from 'vitest';
+import { createEvent } from './events';
+import { legalAgentSpaces, reduceGame } from './reducer';
+
+function readyRoom(seed = 'road-0') {
+  const events = [
+    createEvent('game/created', 'host', 1, { roomCode: 'RIVEN', displayName: 'Mara' }, 1),
+    createEvent('player/joined', 'guest-a', 1, { displayName: 'Rin' }, 2),
+    createEvent('player/joined', 'guest-b', 1, { displayName: 'Pip' }, 3),
+    createEvent('player/commander-selected', 'host', 2, { commanderId: 'aragorn' }, 4),
+    createEvent('player/commander-selected', 'guest-a', 2, { commanderId: 'galadriel' }, 5),
+    createEvent('player/commander-selected', 'guest-b', 2, { commanderId: 'gandalf' }, 6),
+    createEvent('player/ready', 'host', 3, { ready: true }, 7),
+    createEvent('player/ready', 'guest-a', 3, { ready: true }, 8),
+    createEvent('player/ready', 'guest-b', 3, { ready: true }, 9),
+    createEvent('match/started', 'host', 4, { seed }, 10)
+  ];
+  return events;
+}
+
+describe('integrated Agent placement replay', () => {
+  it('creates a deterministic three-player match with conserved starting cards', () => {
+    const first = reduceGame(readyRoom());
+    const second = reduceGame(readyRoom());
+    expect(first).toEqual(second);
+    expect(first.phase).toBe('playing');
+    expect(first.match?.playerOrder).toHaveLength(3);
+    for (const player of Object.values(first.match?.players ?? {})) {
+      expect(player.hand).toHaveLength(5);
+      expect(player.drawPile).toHaveLength(5);
+      expect(new Set([...player.hand, ...player.drawPile].map((card) => card.id)).size).toBe(10);
+    }
+  });
+
+  it('resolves Diplomatic Mission at Dwarven Caravans and advances the real turn', () => {
+    const events = readyRoom();
+    const before = reduceGame(events);
+    const actorUid = before.match!.playerOrder[0];
+    const card = before.match!.players[actorUid].hand.find((candidate) => candidate.definitionId === 'diplomatic-mission');
+    expect(card, 'the committed tracer seed must put Diplomatic Mission in the first hand').toBeDefined();
+    expect(legalAgentSpaces(before, actorUid, card!.id)).toEqual(['dwarven-caravans']);
+
+    const after = reduceGame([
+      ...events,
+      createEvent('agent/placed', actorUid, 5, { cardInstanceId: card!.id, spaceId: 'dwarven-caravans' }, 11)
+    ]);
+    expect(after.diagnostics).toEqual([]);
+    expect(after.match!.boardAgents['dwarven-caravans'].uid).toBe(actorUid);
+    expect(after.match!.players[actorUid].resources.provisions).toBe(3);
+    expect(after.match!.players[actorUid].standing.dwarven).toBe(1);
+    expect(after.match!.players[actorUid].journey).toContainEqual(card);
+    expect(after.match!.playerOrder[after.match!.currentPlayerIndex]).not.toBe(actorUid);
+  });
+
+  it('rejects an occupied placement without partial mutation', () => {
+    const events = readyRoom();
+    const started = reduceGame(events);
+    const actorUid = started.match!.playerOrder[0];
+    const card = started.match!.players[actorUid].hand.find((candidate) => candidate.definitionId === 'diplomatic-mission')!;
+    const legal = createEvent('agent/placed', actorUid, 5, { cardInstanceId: card.id, spaceId: 'dwarven-caravans' }, 11);
+    const next = started.match!.playerOrder[1];
+    const rejected = createEvent('agent/placed', next, 5, { cardInstanceId: 'not-in-hand', spaceId: 'dwarven-caravans' }, 12);
+    const state = reduceGame([...events, legal, rejected]);
+    expect(state.diagnostics.at(-1)).toContain('illegal Agent placement');
+    expect(state.match!.players[next].resources.provisions).toBe(2);
+    expect(Object.keys(state.match!.boardAgents)).toEqual(['dwarven-caravans']);
+  });
+});

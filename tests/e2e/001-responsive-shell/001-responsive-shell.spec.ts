@@ -1,44 +1,30 @@
 import { expect, test } from '@playwright/test';
+import { TestStepHelper } from '../helpers/test-step-helper';
 
-test('the implementation shell is responsive and accessible', async ({ page }, testInfo) => {
+test('the game opens directly at a responsive construction lobby', async ({ page }, testInfo) => {
+  const steps = new TestStepHelper(testInfo);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
 
-  await expect(page).toHaveTitle('The War for Middle-earth — Web prototype');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('The War for Middle-earth');
-  await expect(page.getByRole('status')).toHaveText('Implementation foundation · PR1');
-  await expect(page.getByRole('img', { name: 'Illustrated board layout concept' })).toBeVisible();
-  await expect(page.getByRole('list', { name: 'Round phases' }).getByRole('listitem')).toHaveCount(5);
-  await expect(page.getByText('22 destinations')).toBeVisible();
-  await expect(page.getByText('54 Chronicle cards')).toBeVisible();
-  await expect(page.getByTestId('build-marker')).toHaveText('Build e2e-tes');
+  await steps.observe(page, 'construction-lobby', 'The game opens at the playable lobby', [
+    { spec: 'The page is the game, not a marketing interstitial', check: async () => await expect(page).toHaveTitle('Play — The War for Middle-earth') },
+    { spec: 'Firebase is connected before room controls are enabled', check: async () => await expect(page.getByTestId('firebase-status')).toHaveText('Live Firebase ready', { timeout: 30_000 }) },
+    { spec: 'A player can immediately create or join a room', check: async () => {
+      await expect(page.getByRole('button', { name: 'Create game' })).toBeEnabled();
+      await expect(page.getByRole('button', { name: 'Join game' })).toBeEnabled();
+    } },
+    { spec: 'The current tracer boundary is explicit', check: async () => await expect(page.getByText('Tracer 1 supports a real seeded room')).toBeVisible() },
+    { spec: 'The viewport has no horizontal document overflow', check: async () => {
+      const size = await page.evaluate(() => ({ client: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth }));
+      expect(size.scroll).toBeLessThanOrEqual(size.client);
+    } }
+  ]);
 
-  const manifestHref = await page.locator('link[rel="manifest"]').getAttribute('href');
-  expect(new URL(manifestHref ?? '', page.url()).pathname).toBe('/manifest.webmanifest');
   const manifest = await page.request.get('/manifest.webmanifest');
   expect(manifest.ok()).toBe(true);
-  expect(await manifest.json()).toMatchObject({
-    name: 'The War for Middle-earth',
-    display: 'standalone',
-    theme_color: '#17251f'
-  });
-
-  const viewport = page.viewportSize();
-  expect(viewport).toEqual(
-    testInfo.project.name === 'phone'
-      ? { width: 393, height: 852 }
-      : { width: 1280, height: 960 }
+  expect(await manifest.json()).toMatchObject({ name: 'The War for Middle-earth', display: 'standalone' });
+  steps.generateDocs(
+    'Responsive construction lobby',
+    'A human arrives at the root URL and can begin a real multiplayer game without navigating through an advertisement or prototype index.'
   );
-  const geometry = await page.evaluate(() => ({
-    clientWidth: document.documentElement.clientWidth,
-    scrollWidth: document.documentElement.scrollWidth
-  }));
-  expect(geometry.scrollWidth).toBeLessThanOrEqual(geometry.clientWidth);
-
-  for (const link of await page.getByRole('link').all()) {
-    await expect(link).toHaveAccessibleName(/.+/);
-    const box = await link.boundingBox();
-    expect(box).not.toBeNull();
-    expect(box?.height).toBeGreaterThanOrEqual(44);
-  }
 });

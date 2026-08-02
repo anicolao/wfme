@@ -22,12 +22,15 @@ data from `playwright.config.ts`.
 
 ## What counts as passing
 
+- every player action is a real Playwright click, tap, fill, key, or navigation gesture against a visible control;
+- every gesture is immediately followed by semantic actor/observer validations and a zero-pixel screenshot;
+- every scenario generates its adjacent `README.md`, linking both phone and desktop frames so a reviewer can validate the journey without reading test code;
 - every scenario passes on phone and desktop projects;
 - semantic assertions prove the visible state and legal actions;
 - responsive checks show no overflow or clipped required controls;
 - accessibility checks cover names, focus, keyboard completion, and live state;
 - multiplayer scenarios prove actor/observer convergence and hidden-information privacy;
-- screenshots use the macOS baseline with `maxDiffPixels: 0`;
+- screenshots use the committed macOS baseline with `maxDiffPixels: 0` and no masks;
 - failures leave the HTML report, trace, and test-results artifact available.
 
 ## Updating visual baselines

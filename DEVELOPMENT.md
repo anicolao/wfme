@@ -51,6 +51,24 @@ nix develop --command bunx playwright install chromium
 
 The browser download is cached outside Git. It is not silently installed by an arbitrary host package manager.
 
+## Firebase development
+
+Firebase CLI, the Auth emulator, and the Firestore emulator are pinned in the Bun lockfile and always invoked inside Nix. Start both emulators with:
+
+```sh
+nix develop --command bun run emulators
+```
+
+Then start the app in a second shell with `nix develop --command bun run dev`. The ordinary development server uses the live Firebase configuration only when the six `VITE_FIREBASE_*` variables are present; E2E injects its hermetic emulator configuration through `playwright.config.ts`. Never commit service-account keys or production credentials.
+
+Firestore authorization is part of the local gate:
+
+```sh
+nix develop --command bun run test:rules
+```
+
+Rules permit authenticated append-only versioned events with honest actor attribution and reject anonymous, cross-room, update, delete, and extra-field writes.
+
 ## Hooks
 
 `bun install` runs the Husky setup. Both pre-commit and pre-push invoke the complete verifier through `nix develop`, matching the sibling projects' change contract. Use a feature branch and make the smallest coherent commit; do not bypass the hook with `--no-verify`.

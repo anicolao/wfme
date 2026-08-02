@@ -57,9 +57,7 @@ Screenshot tests supplement semantics. They never replace assertions about exact
 - Generate baselines through the macOS workflow (or the matching local command) and review the artifact; do not hand-edit screenshots.
 - Keep one or two meaningful frames per scenario step rather than capturing every animation frame.
 
-PR1 runs semantic and geometry tests only. Pixel baselines begin after the macOS
-renderer generates the first reviewed artifact; Linux is not a screenshot
-authority.
+Every integrated tracer commits its macOS Chromium baselines from its first gesture onward. Linux is not a screenshot authority.
 
 ## Scenario structure
 
@@ -80,9 +78,9 @@ Number scenarios by coherent user journey. Extend an existing scenario when a sl
 
 | Scenario | Browser proof |
 | --- | --- |
-| `001-responsive-shell` | Static shell, installable metadata, design summary, phone/desktop layout, accessible navigation. |
-| `002-create-join-and-replay-room` | Anonymous identity, room membership, immutable replay, reload. |
-| `003-seeded-setup-and-private-views` | Exact manifests and seed, four contexts, hand/Fate privacy, conservation. |
+| `001-responsive-shell` | Root construction lobby, Firebase readiness, installable metadata, phone/desktop layout. |
+| `002-dwarven-caravans` | Three isolated identities create/join, set up, place an Agent on the production board, converge, and replay after reload. |
+| `003-ordinary-agent-families` | Remaining ordinary board families, exact payments/choices, observer convergence. |
 | `004-agent-placement-and-scouts` | Icon legality, payments, occupancy, infiltration, intelligence draw, deployment. |
 | `005-reveal-acquire-and-reshuffle` | Muster, Influence spending, market refill, Reserve, trash, reshuffle. |
 | `006-factions-council-and-captain` | Thresholds, favors, Alliance transfer, permanent upgrades. |

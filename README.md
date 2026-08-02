@@ -16,12 +16,13 @@ This prototype is mechanically inspired by *Dune: Imperium – Uprising*, but it
 - [ART_DIRECTION.md](ART_DIRECTION.md) records the visual language and generated-asset prompts.
 - [assets/README.md](assets/README.md) inventories the image assets.
 - [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) sequences the responsive digital game as vertical slices.
+- [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) is the honest capability ledger for the current construction build.
 - [TECHNICAL_DESIGN.md](TECHNICAL_DESIGN.md) defines deterministic state, events, privacy, and responsive rendering.
 - [E2E_TESTING.md](E2E_TESTING.md) defines the browser-test, accessibility, and viewport contract.
 - [E2E_GUIDE.md](E2E_GUIDE.md) is the short contributor checklist for passing E2E locally and in CI.
 - [DEVELOPMENT.md](DEVELOPMENT.md) defines the Nix-first repeatable development and verification environment.
 
-## Current scope
+## Current specification scope
 
 Version `0.1` is a paper-prototype specification for 1–4 players, about 45 minutes per player, ages 14+. The 3–4 player competitive game is the foundation; automated Rivals fill the board at one or two players. Six-player team play is intentionally deferred until the core economy and combat loop are stable.
 
@@ -37,23 +38,33 @@ The rules target a ten-round maximum and a 10 Renown endgame threshold. The incl
 
 The generated images are mood and composition targets, not print-ready production files. Labels and iconography should be typeset separately during graphic design.
 
-## Web scaffold
+## Play the construction build
 
-The PR1 scaffold is a static SvelteKit 5 application using TypeScript, Bun, Vitest, and Playwright. Nix supplies the repeatable toolchain and Bun installs the locked JavaScript graph. Run the full local verification contract with:
+The root URL is now the actual game lobby. Tracer 1 supports a real 3–4 player Firebase room, unique power-free Commander identities, deterministic setup, private starting hands on the production board, and one complete Agent action: play **Diplomatic Mission** at **Dwarven Caravans** to gain 1 Dwarven standing and 1 Provision. The other board destinations remain visibly unavailable until their own tracer makes them final.
+
+This is a construction build, not yet a playable alpha or complete match. The exact boundary is recorded in [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).
+
+To play locally against the Auth and Firestore emulators:
 
 ```sh
 nix develop --command bun install --frozen-lockfile
-nix develop --command bun run verify:change
+nix develop --command bun run emulators
 ```
 
-Run the development server inside the shell with `nix develop` followed by `bun run dev`. The scaffold establishes responsive composition and delivery infrastructure; deterministic gameplay and Firebase rooms are intentionally sequenced as the next vertical slices.
+In a second terminal run `nix develop --command bun run dev`, open `http://127.0.0.1:5189/` in three separate browser profiles or private contexts, and create/join the same room. The retained PR preview uses the live Firebase project and needs no local setup.
+
+Run every local gate with:
+
+```sh
+nix develop --command bun run verify:change
+```
 
 The Linux workflow and the separate `E2E tests (macOS)` workflow are independent
 required checks: Linux runs static/unit/build verification, while macOS runs the
 complete Playwright gate and owns future visual baselines. No check is skipped.
 See [E2E_GUIDE.md](E2E_GUIDE.md) for the exact local command and review rules.
 
-The deployment workflow publishes each same-repository pull request as a retained
+The deployment workflow publishes each same-repository pull request with the live Firebase configuration as a retained
 GitHub Pages preview at `https://anicolao.github.io/wfme/pr<N>/` and links it from
 the PR conversation. A push to `main` publishes the production site at
 `https://anicolao.github.io/wfme/`. Fork pull requests are fully verified but are

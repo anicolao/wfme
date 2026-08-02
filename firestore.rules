@@ -1,0 +1,51 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function validEnvelope(gameId, eventId) {
+      return request.resource.data.keys().hasAll([
+          'id', 'type', 'payload', 'actorUid', 'clientSeq', 'createdAtMillis',
+          'schemaVersion', 'reducerVersion', 'roomCode', 'committedAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'id', 'type', 'payload', 'actorUid', 'clientSeq', 'createdAtMillis',
+          'schemaVersion', 'reducerVersion', 'roomCode', 'committedAt'
+        ])
+        && request.resource.data.id == eventId
+        && request.resource.data.actorUid == request.auth.uid
+        && eventId.matches(request.auth.uid + '-[0-9]+')
+        && request.resource.data.clientSeq is int
+        && request.resource.data.clientSeq > 0
+        && request.resource.data.createdAtMillis is int
+        && request.resource.data.roomCode == gameId
+        && request.resource.data.schemaVersion == 2
+        && request.resource.data.reducerVersion == 'integrated-tracer-v1'
+        && request.resource.data.committedAt == request.time
+        && request.resource.data.type in [
+          'game/created', 'player/joined', 'player/commander-selected',
+          'player/ready', 'match/started', 'agent/placed'
+        ];
+    }
+
+    function validAttributedPayload() {
+      return request.resource.data.type != 'game/created'
+        || request.resource.data.payload.roomCode == request.resource.data.roomCode;
+    }
+
+    match /games/{gameId}/events/{eventId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && validEnvelope(gameId, eventId)
+        && validAttributedPayload();
+      allow update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
