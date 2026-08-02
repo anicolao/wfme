@@ -46,7 +46,7 @@
       </p>
     </div>
     <dl class="ledger" aria-label="Construction capability ledger">
-      <div><dt>Playable spaces</dt><dd>1 / 22</dd></div>
+      <div><dt>Playable spaces</dt><dd>2 / 22</dd></div>
       <div><dt>Agent-ready cards</dt><dd>1 / 7</dd></div>
       <div><dt>Commander powers</dt><dd>0 / 16</dd></div>
     </dl>
@@ -64,6 +64,8 @@
             <div><dt>Agents</dt><dd>{matchPlayer?.availableAgents ?? 0}</dd></div>
             <div><dt>Provision</dt><dd>{matchPlayer?.resources.provisions ?? 0}</dd></div>
             <div><dt>Dwarven</dt><dd>{matchPlayer?.standing.dwarven ?? 0}</dd></div>
+            <div><dt>Gold</dt><dd>{matchPlayer?.resources.gold ?? 0}</dd></div>
+            <div><dt>Shadow</dt><dd>{matchPlayer?.standing.shadow ?? 0}</dd></div>
           </dl>
           {#if player.uid === localUid}<small>Your seat · private hand below</small>{/if}
         </article>
@@ -79,6 +81,7 @@
             <div class="spaces">
               {#each BOARD_LAYOUT.filter((space) => space.region === region) as space}
                 {@const implemented = BOARD_SPACE_DEFINITIONS.some((definition) => definition.id === space.id)}
+                {@const definition = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === space.id)}
                 {@const occupantUid = game.match?.boardAgents[space.id]?.uid}
                 {@const occupant = game.players.find((player) => player.uid === occupantUid)?.displayName ?? null}
                 <button
@@ -94,7 +97,7 @@
                   {#if occupant}
                     <span>Agent · {occupant}</span>
                   {:else if implemented}
-                    <span>Dwarven · +1 standing · +1 Provision</span>
+                    <span>{definition?.effect.kind === 'dwarven-caravans' ? 'Dwarven · +1 standing · +1 Provision' : 'Shadow · +1 standing · +2 Gold'}</span>
                   {:else}
                     <span>Later tracer</span>
                   {/if}
@@ -116,7 +119,7 @@
       {#if selectedCardId && !selectedIsImplemented}
         <p role="status">{selectedName} is part of the final deck, but its Agent feature is not active in this tracer.</p>
       {:else if selectedCardId}
-        <p role="status">{selectedName} can send an Agent to the highlighted Dwarven Caravans.</p>
+        <p role="status">{selectedName} can send an Agent to the highlighted faction destinations.</p>
       {/if}
     </div>
     <div class="hand" data-testid="private-hand">

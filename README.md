@@ -40,7 +40,7 @@ The generated images are mood and composition targets, not print-ready productio
 
 ## Play the construction build
 
-The root URL is now the actual game lobby. Tracer 1 supports a real 3–4 player Firebase room, unique power-free Commander identities, deterministic setup, private starting hands on the production board, and one complete Agent action: play **Diplomatic Mission** at **Dwarven Caravans** to gain 1 Dwarven standing and 1 Provision. The other board destinations remain visibly unavailable until their own tracer makes them final.
+The root URL is now the actual game lobby. The construction build supports a real 3–4 player Firebase room, unique power-free Commander identities, deterministic setup, and private starting hands on the production board. Two complete Agent actions are currently live: **Diplomatic Mission** at **Dwarven Caravans** and at **Tribute to the Shadow**. The other board destinations remain visibly unavailable until their own tracer makes them final.
 
 This is a construction build, not yet a playable alpha or complete match. The exact boundary is recorded in [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).
 

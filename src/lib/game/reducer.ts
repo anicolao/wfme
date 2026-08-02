@@ -103,7 +103,7 @@ function createMatch(state: GameState, seed: string): MatchState {
           drawPile: deck.slice(5),
           journey: [],
           availableAgents: 2,
-          resources: { gold: 0, mithril: 0, provisions: 2 },
+          resources: { gold: 0, mithril: 0, provisions: 1 },
           standing: { shadow: 0, dwarven: 0, elven: 0, wild: 0 },
           companies: { supply: 9, garrison: 3 }
         }
@@ -228,15 +228,24 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       !state.match
     ) return 'illegal Agent placement';
     const player = state.match.players[event.actorUid];
+    const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === spaceId)!;
     const cardIndex = player.hand.findIndex((card) => card.id === cardInstanceId);
     const [card] = player.hand.splice(cardIndex, 1);
     player.journey.push(card);
     const agentNumber = 3 - player.availableAgents;
     player.availableAgents -= 1;
     state.match.boardAgents[spaceId] = { uid: event.actorUid, agentNumber };
-    player.resources.provisions += 1;
-    player.standing.dwarven += 1;
-    state.match.activity.push(`${actor.displayName} sends an Agent to Dwarven Caravans, gaining 1 Dwarven standing and 1 Provision.`);
+    if (space.effect.kind === 'dwarven-caravans') {
+      player.resources.provisions += space.effect.gainProvisions;
+      player.standing.dwarven += 1;
+    } else {
+      player.resources.gold += space.effect.gainGold;
+      player.standing.shadow += 1;
+    }
+    const resolution = space.effect.kind === 'dwarven-caravans'
+      ? 'gaining 1 Dwarven standing and 1 Provision'
+      : 'gaining 1 Shadow standing and 2 Gold';
+    state.match.activity.push(`${actor.displayName} sends an Agent to ${space.name}, ${resolution}.`);
     state.match.currentPlayerIndex = (state.match.currentPlayerIndex + 1) % state.match.playerOrder.length;
     return null;
   }

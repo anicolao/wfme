@@ -120,9 +120,10 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
           for (const seat of seats) await expect(seat.page.getByRole('heading', { name: 'The living board' })).toBeVisible();
         } },
         { spec: 'All 22 final board destinations are structurally present', check: async () => await expect(page.locator('.spaces button')).toHaveCount(22) },
-        { spec: 'Only Dwarven Caravans is advertised as playable', check: async () => {
-          await expect(page.getByText('Playable spaces').locator('..').getByText('1 / 22')).toBeVisible();
+        { spec: 'Exactly two faction destinations are advertised as playable', check: async () => {
+          await expect(page.getByText('Playable spaces').locator('..').getByText('2 / 22')).toBeVisible();
           await expect(page.getByTestId('space-dwarven-caravans')).toContainText('+1 standing');
+          await expect(page.getByTestId('space-tribute-shadow')).toContainText('+1 standing');
         } },
         { spec: 'Each seat exposes exactly its own five-card hand', check: async () => {
           for (const seat of seats) await expect(seat.page.getByTestId('private-hand').getByRole('button')).toHaveCount(5);
@@ -138,9 +139,10 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       () => actor!.page.getByTestId('private-hand').getByRole('button', { name: /^Diplomatic Mission/ }).click(),
       [
         { spec: 'Diplomatic Mission is visibly selected', check: async () => await expect(actor!.page.getByRole('button', { name: /^Diplomatic Mission/ })).toHaveAttribute('aria-pressed', 'true') },
-        { spec: 'Dwarven Caravans becomes the sole legal enabled destination', check: async () => {
+        { spec: 'Both matching, unoccupied faction destinations become legal', check: async () => {
           await expect(actor!.page.getByTestId('space-dwarven-caravans')).toBeEnabled();
-          await expect(actor!.page.locator('.spaces button:enabled')).toHaveCount(1);
+          await expect(actor!.page.getByTestId('space-tribute-shadow')).toBeEnabled();
+          await expect(actor!.page.locator('.spaces button:enabled')).toHaveCount(2);
         } }
       ]
     );
@@ -156,7 +158,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
         } },
         { spec: 'The acting seat gains exactly one Provision and one Dwarven standing', check: async () => {
           const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
-          await expect(player).toContainText('Provision3');
+          await expect(player).toContainText('Provision2');
           await expect(player).toContainText('Dwarven1');
         } },
         { spec: 'The Chronicle narrates the resolved shared action', check: async () => {
@@ -175,15 +177,60 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
         { spec: 'The committed Agent and rewards survive reload', check: async () => {
           await expect(actor!.page.getByTestId('space-dwarven-caravans')).toContainText(`Agent · ${actor!.name}`);
           const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
-          await expect(player).toContainText('Provision3');
+          await expect(player).toContainText('Provision2');
           await expect(player).toContainText('Dwarven1');
         } }
       ]
     );
 
+    const shadowName = ((await page.locator('footer').textContent())?.match(/Current actor ([^·]+)/)?.[1] ?? '').trim();
+    const shadowActor = seats.find((seat) => seat.name === shadowName);
+    expect(shadowActor).toBeDefined();
+    await steps.gesture(shadowActor!.page, 'play-shadow-mission', `${shadowActor!.name} chooses Diplomatic Mission`,
+      () => shadowActor!.page.getByTestId('private-hand').getByRole('button', { name: /^Diplomatic Mission/ }).click(),
+      [
+        { spec: 'Diplomatic Mission is selected through the private hand', check: async () => await expect(shadowActor!.page.getByRole('button', { name: /^Diplomatic Mission/ })).toHaveAttribute('aria-pressed', 'true') },
+        { spec: 'The occupied Dwarven space is unavailable and Tribute is the sole legal destination', check: async () => {
+          await expect(shadowActor!.page.getByTestId('space-dwarven-caravans')).toBeDisabled();
+          await expect(shadowActor!.page.getByTestId('space-tribute-shadow')).toBeEnabled();
+          await expect(shadowActor!.page.locator('.spaces button:enabled')).toHaveCount(1);
+        } }
+      ]
+    );
+    await steps.gesture(shadowActor!.page, 'tribute-shadow', `${shadowActor!.name} pays Tribute to the Shadow`,
+      () => shadowActor!.page.getByTestId('space-tribute-shadow').click(),
+      [
+        { spec: 'Every client sees the named Agent occupying Tribute to the Shadow', check: async () => {
+          for (const seat of seats) await expect(seat.page.getByTestId('space-tribute-shadow')).toContainText(`Agent · ${shadowActor!.name}`);
+        } },
+        { spec: 'The acting seat gains exactly two Gold and one Shadow standing', check: async () => {
+          const player = shadowActor!.page.locator('.players article').filter({ hasText: shadowActor!.name });
+          await expect(player).toContainText('Gold2');
+          await expect(player).toContainText('Shadow1');
+        } },
+        { spec: 'All replays accept the twelfth event without diagnostics', check: async () => {
+          for (const seat of seats) await expect(seat.page.getByTestId('replay-health')).toHaveText(' · 12 accepted events · 0 replay diagnostics');
+        } },
+        { spec: 'The next human receives the turn', check: async () => {
+          for (const seat of seats) await expect(seat.page.locator('footer')).not.toContainText(`Current actor ${shadowActor!.name}`);
+        } }
+      ]
+    );
+    await steps.gesture(shadowActor!.page, 'reload-shadow', `${shadowActor!.name} reloads the completed Shadow tribute`,
+      async () => { await shadowActor!.page.reload(); },
+      [
+        { spec: 'The Shadow occupation survives immutable replay', check: async () => await expect(shadowActor!.page.getByTestId('space-tribute-shadow')).toContainText(`Agent · ${shadowActor!.name}`) },
+        { spec: 'Shadow rewards remain exact after reload', check: async () => {
+          const player = shadowActor!.page.locator('.players article').filter({ hasText: shadowActor!.name });
+          await expect(player).toContainText('Gold2');
+          await expect(player).toContainText('Shadow1');
+        } }
+      ]
+    );
+
     steps.generateDocs(
-      'Three-player Dwarven Caravans tracer',
-      'Three isolated human browser sessions create and join a Firebase room, choose power-free Commander identities, start a seeded game on the final board, resolve one legal Agent action, converge, and replay it after reload.'
+      'Three-player faction destinations tracer',
+      'Three isolated human browser sessions create and join a Firebase room, choose power-free Commander identities, start a seeded game on the final board, resolve Dwarven and Shadow Agent actions, converge, and replay both after reload.'
     );
   } finally {
     await guestAContext.close();

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createEvent } from './events';
 import { legalAgentSpaces, reduceGame } from './reducer';
 
-function readyRoom(seed = 'road-0') {
+function readyRoom(seed = 'road-2') {
   const events = [
     createEvent('game/created', 'host', 1, { roomCode: 'RIVEN', displayName: 'Mara' }, 1),
     createEvent('player/joined', 'guest-a', 1, { displayName: 'Rin' }, 2),
@@ -26,6 +26,7 @@ describe('integrated Agent placement replay', () => {
     expect(first.phase).toBe('playing');
     expect(first.match?.playerOrder).toHaveLength(3);
     for (const player of Object.values(first.match?.players ?? {})) {
+      expect(player.resources.provisions).toBe(1);
       expect(player.hand).toHaveLength(5);
       expect(player.drawPile).toHaveLength(5);
       expect(new Set([...player.hand, ...player.drawPile].map((card) => card.id)).size).toBe(10);
@@ -38,7 +39,7 @@ describe('integrated Agent placement replay', () => {
     const actorUid = before.match!.playerOrder[0];
     const card = before.match!.players[actorUid].hand.find((candidate) => candidate.definitionId === 'diplomatic-mission');
     expect(card, 'the committed tracer seed must put Diplomatic Mission in the first hand').toBeDefined();
-    expect(legalAgentSpaces(before, actorUid, card!.id)).toEqual(['dwarven-caravans']);
+    expect(legalAgentSpaces(before, actorUid, card!.id)).toEqual(['dwarven-caravans', 'tribute-shadow']);
 
     const after = reduceGame([
       ...events,
@@ -46,7 +47,7 @@ describe('integrated Agent placement replay', () => {
     ]);
     expect(after.diagnostics).toEqual([]);
     expect(after.match!.boardAgents['dwarven-caravans'].uid).toBe(actorUid);
-    expect(after.match!.players[actorUid].resources.provisions).toBe(3);
+    expect(after.match!.players[actorUid].resources.provisions).toBe(2);
     expect(after.match!.players[actorUid].standing.dwarven).toBe(1);
     expect(after.match!.players[actorUid].journey).toContainEqual(card);
     expect(after.match!.playerOrder[after.match!.currentPlayerIndex]).not.toBe(actorUid);
@@ -62,7 +63,37 @@ describe('integrated Agent placement replay', () => {
     const rejected = createEvent('agent/placed', next, 5, { cardInstanceId: 'not-in-hand', spaceId: 'dwarven-caravans' }, 12);
     const state = reduceGame([...events, legal, rejected]);
     expect(state.diagnostics.at(-1)).toContain('illegal Agent placement');
-    expect(state.match!.players[next].resources.provisions).toBe(2);
+    expect(state.match!.players[next].resources.provisions).toBe(1);
     expect(Object.keys(state.match!.boardAgents)).toEqual(['dwarven-caravans']);
+  });
+
+  it('resolves Tribute to the Shadow for the next human and reuses placement legality', () => {
+    const events = readyRoom();
+    const started = reduceGame(events);
+    const first = started.match!.playerOrder[0];
+    const firstCard = started.match!.players[first].hand.find((card) => card.definitionId === 'diplomatic-mission')!;
+    const firstPlacement = createEvent('agent/placed', first, 5, {
+      cardInstanceId: firstCard.id,
+      spaceId: 'dwarven-caravans'
+    }, 11);
+    const afterFirst = reduceGame([...events, firstPlacement]);
+    const actor = afterFirst.match!.playerOrder[1];
+    const mission = afterFirst.match!.players[actor].hand.find((card) => card.definitionId === 'diplomatic-mission');
+    expect(mission, 'the committed seed must put Diplomatic Mission in the next hand').toBeDefined();
+    expect(legalAgentSpaces(afterFirst, actor, mission!.id)).toEqual(['tribute-shadow']);
+
+    const afterTribute = reduceGame([
+      ...events,
+      firstPlacement,
+      createEvent('agent/placed', actor, 5, {
+        cardInstanceId: mission!.id,
+        spaceId: 'tribute-shadow'
+      }, 12)
+    ]);
+    expect(afterTribute.diagnostics).toEqual([]);
+    expect(afterTribute.match!.players[actor].resources.gold).toBe(2);
+    expect(afterTribute.match!.players[actor].standing.shadow).toBe(1);
+    expect(afterTribute.match!.boardAgents['tribute-shadow'].uid).toBe(actor);
+    expect(afterTribute.match!.playerOrder[afterTribute.match!.currentPlayerIndex]).not.toBe(actor);
   });
 });

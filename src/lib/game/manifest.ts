@@ -79,7 +79,9 @@ export const BOARD_LAYOUT: readonly BoardSpaceIdentity[] = [
 
 export type BoardSpaceDefinition = BoardSpaceIdentity & {
   placementIcons: readonly PlacementIcon[];
-  effect: { gainStanding: 'dwarven'; gainProvisions: 1 };
+  effect:
+    | { kind: 'dwarven-caravans'; gainStanding: 'dwarven'; gainProvisions: 1 }
+    | { kind: 'tribute-shadow'; gainStanding: 'shadow'; gainGold: 2 };
   reviewedCapabilities: readonly ['agent-placement'];
 };
 
@@ -89,7 +91,15 @@ export const BOARD_SPACE_DEFINITIONS: readonly BoardSpaceDefinition[] = [
     name: 'Dwarven Caravans',
     region: 'Dwarven Holds',
     placementIcons: ['Dwarven'],
-    effect: { gainStanding: 'dwarven', gainProvisions: 1 },
+    effect: { kind: 'dwarven-caravans', gainStanding: 'dwarven', gainProvisions: 1 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'tribute-shadow',
+    name: 'Tribute to the Shadow',
+    region: 'Shadow Hosts',
+    placementIcons: ['Shadow'],
+    effect: { kind: 'tribute-shadow', gainStanding: 'shadow', gainGold: 2 },
     reviewedCapabilities: ['agent-placement']
   }
 ];

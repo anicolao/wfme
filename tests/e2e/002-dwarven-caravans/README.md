@@ -1,6 +1,6 @@
-# Test: Three-player Dwarven Caravans tracer
+# Test: Three-player faction destinations tracer
 
-Three isolated human browser sessions create and join a Firebase room, choose power-free Commander identities, start a seeded game on the final board, resolve one legal Agent action, converge, and replay it after reload.
+Three isolated human browser sessions create and join a Firebase room, choose power-free Commander identities, start a seeded game on the final board, resolve Dwarven and Shadow Agent actions, converge, and replay both after reload.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -212,30 +212,30 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] All three browsers transition to the production board
 - [x] All 22 final board destinations are structurally present
-- [x] Only Dwarven Caravans is advertised as playable
+- [x] Exactly two faction destinations are advertised as playable
 - [x] Each seat exposes exactly its own five-card hand
 - [x] Every connected replay has accepted exactly 10 events with no diagnostics
 
 ---
 
-## Pip chooses Diplomatic Mission
+## Mara chooses Diplomatic Mission
 
-![Phone: Pip chooses Diplomatic Mission](./screenshots/016-play-diplomatic-mission-phone.png)
+![Phone: Mara chooses Diplomatic Mission](./screenshots/016-play-diplomatic-mission-phone.png)
 
-![Desktop: Pip chooses Diplomatic Mission](./screenshots/016-play-diplomatic-mission-desktop.png)
+![Desktop: Mara chooses Diplomatic Mission](./screenshots/016-play-diplomatic-mission-desktop.png)
 
 **Verifications:**
 
 - [x] Diplomatic Mission is visibly selected
-- [x] Dwarven Caravans becomes the sole legal enabled destination
+- [x] Both matching, unoccupied faction destinations become legal
 
 ---
 
-## Pip sends an Agent to Dwarven Caravans
+## Mara sends an Agent to Dwarven Caravans
 
-![Phone: Pip sends an Agent to Dwarven Caravans](./screenshots/017-place-dwarven-agent-phone.png)
+![Phone: Mara sends an Agent to Dwarven Caravans](./screenshots/017-place-dwarven-agent-phone.png)
 
-![Desktop: Pip sends an Agent to Dwarven Caravans](./screenshots/017-place-dwarven-agent-desktop.png)
+![Desktop: Mara sends an Agent to Dwarven Caravans](./screenshots/017-place-dwarven-agent-desktop.png)
 
 **Verifications:**
 
@@ -246,15 +246,56 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip reloads and the immutable history replays
+## Mara reloads and the immutable history replays
 
-![Phone: Pip reloads and the immutable history replays](./screenshots/018-reload-replay-phone.png)
+![Phone: Mara reloads and the immutable history replays](./screenshots/018-reload-replay-phone.png)
 
-![Desktop: Pip reloads and the immutable history replays](./screenshots/018-reload-replay-desktop.png)
+![Desktop: Mara reloads and the immutable history replays](./screenshots/018-reload-replay-desktop.png)
 
 **Verifications:**
 
 - [x] The anonymous seat reconnects directly to the board
 - [x] The committed Agent and rewards survive reload
+
+---
+
+## Pip chooses Diplomatic Mission
+
+![Phone: Pip chooses Diplomatic Mission](./screenshots/019-play-shadow-mission-phone.png)
+
+![Desktop: Pip chooses Diplomatic Mission](./screenshots/019-play-shadow-mission-desktop.png)
+
+**Verifications:**
+
+- [x] Diplomatic Mission is selected through the private hand
+- [x] The occupied Dwarven space is unavailable and Tribute is the sole legal destination
+
+---
+
+## Pip pays Tribute to the Shadow
+
+![Phone: Pip pays Tribute to the Shadow](./screenshots/020-tribute-shadow-phone.png)
+
+![Desktop: Pip pays Tribute to the Shadow](./screenshots/020-tribute-shadow-desktop.png)
+
+**Verifications:**
+
+- [x] Every client sees the named Agent occupying Tribute to the Shadow
+- [x] The acting seat gains exactly two Gold and one Shadow standing
+- [x] All replays accept the twelfth event without diagnostics
+- [x] The next human receives the turn
+
+---
+
+## Pip reloads the completed Shadow tribute
+
+![Phone: Pip reloads the completed Shadow tribute](./screenshots/021-reload-shadow-phone.png)
+
+![Desktop: Pip reloads the completed Shadow tribute](./screenshots/021-reload-shadow-desktop.png)
+
+**Verifications:**
+
+- [x] The Shadow occupation survives immutable replay
+- [x] Shadow rewards remain exact after reload
 
 ---
