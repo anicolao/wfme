@@ -1,210 +1,270 @@
-# Responsive web implementation plan
+# Integrated tracer-bullet implementation plan
+
+> **Status: approved on 2026-08-02.** Implementation proceeds through coherent tracer commits and mandatory green gates.
 
 ## Objective
 
-Deliver *The War for Middle-earth* as an installable, responsive browser game for one to four players. Build it as a sequence of playable vertical slices: every slice begins with a real browser action, crosses the production UI and deterministic rules projection, and ends in a user-visible result covered by automated tests.
+Replace the disconnected prototype screens with one production game that grows through integrated tracer-bullet features. Each tracer bullet must finish a real player capability from lobby gesture, through Firebase and deterministic rules, to the final board UI seen by the actor and other players.
 
-The sibling Jaipur and RoboRally projects establish the working model: static SvelteKit, immutable multiplayer events, seeded replay, pure rules, Firebase emulators, Vitest, Playwright, retained preview deployments, and explicit phone/desktop acceptance criteria. This plan adapts that model to a longer, partially hidden-information strategy game.
+The destination remains a responsive, installable implementation of *The War for Middle-earth* for three or four human players, followed by Rivals for one- and two-player games. A playable alpha must support an entire ordinary match from room creation to winner and rematch.
 
-## PR1 scope
+## Recommended reset
 
-PR1 establishes only the delivery contract:
+Keep the repository, rules documents, artwork, Nix environment, CI, GitHub Pages configuration, Firebase project, and repository secrets. Do not merge the existing gameplay branch.
 
-- static SvelteKit 5 and strict TypeScript;
-- Nix flake and locked inputs for the repeatable system toolchain, with Bun package lock for JavaScript dependencies;
-- an accessible responsive landing/game-shell composition;
-- installable web-app metadata;
-- deterministic design constants derived from the rules documents;
-- Vitest coverage for the constants;
-- Playwright browser proof at phone and desktop widths;
-- fast Linux CI for checks, unit tests, and production build;
-- a separate macOS E2E workflow for the complete Playwright/browser gate and visual baselines;
-- retained GitHub Pages previews for same-repository pull requests under
-  `/wfme/pr<N>/`, linked from the PR conversation;
-- the architecture and E2E strategy documents.
+After approval:
 
-PR1 does not pretend to implement multiplayer or game rules. The next slice must connect the first visible interaction to the actual event and reducer architecture.
+1. Close the current draft implementation PR as an unsuccessful prototype, preserving its history.
+2. Create a fresh implementation branch from `main`.
+3. Port only the Firebase initialization, emulator configuration, useful repository mechanics, security-rule tests, and deployment-secret wiring.
+4. Do not port the demonstration routes, miniature per-feature state models, arbitrary `turn/action` reducer, or their E2E tests.
+5. Keep README and the PR description explicit that the new preview is under construction until a complete match passes.
 
-## Non-negotiable change contract
+This reset is a delivery operation, not a tracer bullet and not evidence of gameplay progress.
 
-After PR1, every gameplay change must contain:
+## What qualifies as a tracer bullet
 
-1. one smallest coherent player-facing capability;
-2. stable IDs and manifest changes required by that capability;
-3. event-schema and deterministic reducer behavior;
-4. pure legality, conservation, and replay tests;
-5. accessible UI for every new state and pending choice;
-6. a Playwright tracer proving the actor and at least one observer converge;
-7. phone and desktop layout proof, with tablet/landscape coverage for milestone scenarios;
-8. documentation changes for rules, protocol, security, or invariants.
+A tracer bullet is one finished player-facing capability in the eventual production game. It is not a rules library, manifest batch, component gallery, route demonstration, or button attached to placeholder state.
 
-Do not land a disconnected rules library, UI backed only by mocks, or multiplayer code without a browser path. Refactors preserve the complete E2E suite. Observable changes require semantic assertion updates and reviewed screenshot changes.
+Every tracer bullet must:
 
-The repository verification contract is:
+- start at the real root lobby in a new browser context;
+- continue into the same canonical game and final board component;
+- introduce only the data and rules needed by that capability;
+- express player intent as a versioned event using stable IDs;
+- validate and resolve the event in the canonical deterministic reducer;
+- update the actor and at least one observer through the Firebase stream;
+- survive reload and replay from the immutable event history;
+- expose pending choices and illegal actions accessibly;
+- work at phone and desktop sizes;
+- be driven in E2E by actual clicks, taps, or keyboard gestures;
+- produce a semantic validation and screenshot after every gesture; and
+- update the capability status only after the PR preview is manually exercised.
 
-```sh
-nix develop --command bun install --frozen-lockfile
-nix develop --command bun run verify:change
-```
+There is one production game route and one canonical state machine. Board, hand, market, Battle, faction tracks, player areas, choices, history, and scoring are parts of that game—not separate feature routes.
 
-`verify:change` runs Svelte checks, unit tests, Playwright, production build, and whitespace checks. The hosted Linux workflow runs the separate `verify:static` contract, while the macOS workflow always runs the complete browser gate. Neither workflow skips a check. Firebase Rules tests join the contract in slice 2.
+## Just-in-time game data
 
-## Fixed technical decisions
+There is no up-front manifest or engine phase.
 
-- Nix flakes with a checked-in `flake.lock` provide the reproducible system toolchain; Bun inside that shell owns JavaScript dependency installation through `bun.lock`.
-- SvelteKit 5, TypeScript, Vite, Bun, and `@sveltejs/adapter-static`.
-- Firebase anonymous Authentication and Cloud Firestore once rooms arrive.
-- One canonical append-only event stream at `games/{gameId}/events/{eventId}`.
-- A pure, deterministic reducer projects the complete game from versioned manifests, a committed seed, and ordered events.
-- Persisted payloads use stable IDs, never card titles or localized display text.
-- Both clients may read the trusted-client stream; selectors prevent the ordinary UI from exposing opponent hands, Fate cards, deck order, and unrevealed choices.
-- Security Rules provide authentication, attribution, append-only history, and path isolation—not server-authoritative move validation.
-- Rules-critical meaning is represented in semantic data and accessible labels, never only in raster art, position, or color.
-- GitHub Pages hosts production and retained pull-request previews.
+Data grows with player capabilities:
 
-## Source-data gates
+- A board space is added to the gameplay manifest only in the tracer bullet that makes every one of its costs, requirements, choices, and effects executable.
+- A card definition is added only when players can place, Reveal, acquire, play, or otherwise use every field required by its current timing windows.
+- A Commander identity may be offered before its powers are implemented when the construction ledger clearly says that the current roster is power-free. Each persistent or Ring power then arrives as its own tracer with reducer, UI, and E2E coverage. No power text is displayed as active before it works.
+- A Fate, Battle, War Effort, or Rival definition is added with the feature that first makes it usable.
+- Shared types and effect vocabulary are introduced from concrete examples in the current tracer, then generalized only when the next real feature proves generalization necessary.
+- `reviewed: true` means the definition is executable, invariant-tested, integrated into the game UI, and traced through E2E. Names and copy counts alone never qualify.
 
-Implementation uses reviewed manifests rather than prose parsing.
+The visual board may show the final geography from the first board tracer so that layout work is not discarded. A space whose rules have not been implemented is clearly marked unavailable in the construction preview and is absent from legal-action selectors. It never produces a placeholder result.
 
-| Manifest | Gate |
-| --- | --- |
-| Board | All 22 destinations, costs, requirements, effects, categories, critical-location tags, and nine observation-post connections match `RULES.md` and `BOARD_LAYOUT.md`. |
-| Starting deck | Ten stable card instances per player match `CARD_CATALOG.md`. |
-| Chronicle | 27 definitions and two stable instances each; every icon and Journey/Muster effect reviewed. |
-| Fate | Thirty stable instances with timing, targets, costs, and duration. |
-| Battles | Sixteen definitions, age, Standard, critical-location icon, and ranked rewards. |
-| Commanders | Eight persistent and Ring abilities with exact timing windows. |
-| Rivals | Four profiles and twenty-two action cards with deterministic choice rules. |
+Every slice updates a coverage table mapping implemented rules paragraphs and catalog entries to reducer tests and E2E journeys. Unimplemented content remains explicit rather than represented by inert data.
 
-Each manifest has `manifestVersion`, provenance, review state, and an invariant test for counts and unique IDs. A match records every referenced version and refuses incompatible replay instead of substituting current data.
+## Canonical path grown by the tracers
 
-## State machine
-
-The reducer projects one phase:
+The first tracer introduces only the smallest state and event path it needs. Later tracers extend the same path:
 
 ```text
-lobby
-  -> round-start
-  -> player-turns
-       -> agent-turn
-       -> reveal-started / reveal-acquisitions / reveal-complete
-  -> combat-fate-window
-  -> battle-rewards
-  -> riches
-  -> recall
-  -> next-round or endgame-fate-window
-  -> finished
+root lobby
+  -> live room
+  -> seeded match
+  -> final board and seat-safe player areas
+  -> current player decision
+  -> versioned intent event
+  -> canonical reducer
+  -> seat-safe views for every client
 ```
 
-`player-turns` maintains a clockwise active seat while skipping players who have Revealed. A pending choice records its ID, authorized actor, source, legal options, and deterministic default if one exists. Automatic consequences advance until the next genuine player decision.
+The reducer eventually projects the full phase sequence, but phases are added only when a tracer reaches them:
 
-## Initial event vocabulary
+```text
+lobby -> round start -> player turns -> Battle -> Riches -> Recall
+      -> next round or Endgame -> finished -> rematch
+```
 
-Events record player intent, not redundant results:
+No tracer may simulate reaching a phase with a query parameter or an “advance phase” control.
 
-| Event | Purpose |
-| --- | --- |
-| `game/created` | Establish room, host, protocol versions, options, and game ID. |
-| `player/joined` | Claim a seat and Commander. |
-| `player/ready` | Confirm readiness for the current configuration. |
-| `match/started` | Commit setup seed, player order, manifests, and modules. |
-| `agent/placed` | Identify Agent, played card, destination, Scout use, ordered choices, and deployment. |
-| `reveal/started` | Commit the remaining hand to its Muster boxes. |
-| `reveal/card-acquired` | Purchase one identified row or Reserve card with the projected Influence pool. |
-| `reveal/completed` | End acquisitions and lock projected Battle Strength. |
-| `fate/played` | Play one identified Plot, Combat, or Endgame Fate card with targets and choices. |
-| `battle/passed` | Pass in the current Combat Fate window. |
-| `effect/chosen` | Answer one reducer-projected finite choice. |
-| `game/rematched` | Start a new match epoch with the same room members. |
+## Tracer sequence
 
-Faction movement, recruitment, resource changes, shuffles, market refill, ranked rewards, Standards, Riches, recall, and the end condition derive from replay. They are not separate events that could contradict their cause.
+### Tracer 1 — First real Agent turn
 
-Every envelope includes `type`, `payload`, `actorUid`, `clientSeq`, `createdAt`, `schemaVersion`, and `reducerVersion`. IDs use `{actorUid}-{zero-padded clientSeq}` for retry idempotence. Canonical ordering uses server timestamp and document ID as a deterministic tie-break.
+**Player capability:** Players create and join a real room, start a deterministic match, see the production board and their own hand, and resolve one genuine Agent placement whose complete result appears for every client.
 
-## Implementation sequence
+This tracer introduces only:
 
-### 1. Responsive shell, tests, and CI
+- room, seat, readiness, seed, and match-start events;
+- the minimum Commander identity roster required by the chosen player count, initially with the roster explicitly identified as power-free;
+- the shared starting-card definitions needed for the deterministic opening hand;
+- the first fully executable board-space family used by the journey;
+- Agents, the resources, faction standing, Companies, and other pieces directly affected by that family;
+- enough Battle-area state only if the selected final board effect actually deploys to the active Battle; and
+- the exact event and reducer behavior for the chosen placement and its ordered choices.
 
-**Status:** PR1.
+The board is the production semantic HTML/SVG board, not a temporary form. Other final locations may appear geographically but remain explicitly unavailable until their own complete rules arrive.
 
-- Build the static shell, local typography, board preview, project status, PWA manifest, and production base-path support.
-- Add the Nix-first development shell, locked Nix inputs, Husky hooks, and CI commands that install and verify through `nix develop`.
-- Add design-constant tests and phone/desktop Playwright coverage.
-- Add CI and a production build artifact.
+**Acceptance journey:** At least three independent browser contexts create and join a room, select only fully supported Commanders, ready, start, select a real card, select a legal location on the board, resolve all resulting choices, converge on resources and pieces, reload, and converge again.
 
-### 2. Identity, rooms, immutable replay
+### Tracer 2 — Complete ordinary Agent placement
 
-- Add Firebase anonymous identity and emulator configuration.
-- Implement five-letter room codes, 1–4 human seats, display names, Commander selection, modules, and readiness.
-- Add event repository, envelope validation, idempotent append, deterministic ordering, diagnostics, and IndexedDB/local replay cache.
-- Add Firestore Rules tests for authenticated reads, own-UID creates, immutable events, and denial of unrelated paths.
-- E2E `002-create-join-and-replay-room`: separate contexts create, join, reload, and converge.
+**Player capability:** Players can take every non-Battle ordinary Agent action supported by the base board economy.
 
-### 3. Reviewed manifests and deterministic setup
+Add board spaces in coherent rule families, not as an advance batch. Each family lands with its effects and UI:
 
-- Implement all component manifests and a versioned PRNG.
-- Derive player order, objectives, Battle stack, Chronicle Row, shuffled personal decks, starting hands, supplies, and Rivals from one seed.
-- Enforce card, cube, Agent, Banner, Scout, and token conservation.
-- Expose full-state test selectors and trustworthy per-seat views.
-- E2E `003-seeded-setup-and-private-views`: exact public setup while opponent hands and Fate remain hidden in ordinary UI.
+1. faction access, standing movement, threshold rewards, favors, and Alliance ownership;
+2. Council economy, Council seat, Secret Bargain, and Captain of the Host;
+3. resource and card-draw spaces whose dependencies are already executable; and
+4. optional payments, ordered effects, trash choices, Agent recall, and third-Agent timing.
 
-### 4. Agent placement and board blocking
+Add card definitions only as their Journey and Muster boxes become supported by these actions. Commander powers may be added one at a time as separate tracers when their trigger becomes real. Fate cards may be represented as private physical instances when a space draws them, but a card is not declared playable or reviewed until its own Fate tracer implements its effect.
 
-- Derive legal destinations from hand icons, requirements, costs, occupancy, and Scout geometry.
-- Resolve board/Journey order, optional conversions, faction standing, recruitment, and deployment atomically.
-- Implement Scout placement, infiltration, intelligence draw, and Scout placement icon.
-- E2E `004-agent-placement-and-scouts`: actor and observer see exact occupancy and resources; blocked/infiltrated paths remain accessible.
+**Acceptance journeys:** Starting from the lobby, actors use actual hand cards on each implemented space family. Observers see occupancy, public payments, faction changes, recruitment, and choices without seeing private draws. Illegal costs, requirements, and occupied destinations remain disabled with a reason.
 
-### 5. Reveal and deck-building
+### Tracer 3 — Scouts and contested board access
 
-- Implement Reveal timing, Muster effects, Council Influence, purchases, Reserve cards, immediate acquisition effects, row refill, discard, reshuffle, and trash.
-- Preserve exact card-instance conservation across all zones.
-- E2E `005-reveal-acquire-and-reshuffle`: multiple acquisitions and a deterministic refill/reshuffle.
+**Player capability:** Players place Scouts, gather intelligence, infiltrate occupied spaces, and use Scout placement icons on the real observation network.
 
-### 6. Factions and permanent upgrades
+This tracer adds:
 
-- Implement standing 2 Renown, standing 4 favors, Alliance transfer, Council seat, and Captain of the Host.
-- Resolve simultaneous threshold changes in deterministic turn order.
-- E2E `006-factions-council-and-captain`: Alliance changes hands and a third Agent becomes usable.
+- the nine observation posts and their reviewed connections;
+- Scout supplies and occupancy conservation;
+- the card definitions that place or consume Scouts;
+- Scout-specific legal-destination derivation and ordered recall choices; and
+- final board overlays, touch targets, keyboard equivalents, and announcements for the network.
 
-### 7. Deployment and ordinary Battle
+**Acceptance journey:** A player places a Scout, another Agent blocks a connected space, the player later recalls the Scout to infiltrate through a legal card, and every client converges after reload. A second path gathers intelligence without infiltration.
 
-- Implement battle-space deployment, current-turn recruits, garrison limit, Reveal swords, Strength, Combat Fate passes, ties, ranked rewards, Standards, control, and cleanup.
-- E2E `007-battle-fate-rewards-and-control`: a complete ordinary battle with actor/observer convergence.
+### Tracer 4 — Reveal and deck-building
 
-### 8. Ents and the Dam
+**Player capability:** A player ends Agent play, Reveals the actual remaining hand, resolves Muster effects, and changes their deck by acquiring cards from the real market.
 
-- Add Ent-draught, Ent summoning, protected battles, Dam breach, reward doubling, and all exclusions.
-- E2E `008-ents-dam-and-doubled-reward`: prove both an illegal protected summon and a legal post-breach doubled reward.
+Only now add:
 
-### 9. Complete round and Endgame
+- complete Muster boxes for starting cards already in play;
+- Reserve cards;
+- Chronicle definitions in executable batches, with each batch's placement icons, Journey effects, Muster effects, costs, immediate effects, and choices implemented together;
+- Chronicle deck, Row, refill, Influence, discard, draw, reshuffle, and trash zones; and
+- Council Reveal bonuses and Commander abilities whose real trigger is now available.
 
-- Add Riches accumulation, Recall, first-player rotation, ten-round exhaustion, 10-Renown trigger, Endgame Fate, and tiebreaks.
-- E2E `009-complete-match`: play a short seeded fixture through terminal scoring and rematch.
+The first batch must be large enough to operate the market correctly; later Chronicle batches are separate integrated content tracers, not names-only manifest commits.
 
-### 10. War Effort module
+**Acceptance journey:** Players take their real Agent turns, Reveal, resolve ordered Muster choices, make multiple legal purchases, trigger an acquisition effect, refill the Row, and later draw an acquired card after a genuine reshuffle. Card-instance conservation is asserted throughout.
 
-- Add public row, one-active limit, completion triggers, payments, and rewards.
-- E2E `010-war-efforts`: accept, replace, complete, and decline contracts without hidden state drift.
+### Tracer 5 — Turn rotation and an ordinary Battle
 
-### 11. Solo and two-player Rivals
+**Player capability:** All players complete their turns, pass through a real Combat Fate window, receive ranked Battle rewards, and finish an ordinary round.
 
-- Implement Rival profiles, shared action deck, choice precedence, Captain rounds, escalation, rewards, and difficulty settings.
-- E2E `011-rivals`: a solo game and two-player shared Rival reach deterministic terminal states.
+This tracer adds only the Battle content used by executable play:
 
-### 12. Reconnect, conflicts, and compatibility
+- active Battle setup and contested-location state;
+- Battle board spaces and deployment rules;
+- garrison, supply, current-turn recruits, Strength, swords, and pass order;
+- Battle cards in executable batches with exact ranked rewards;
+- Combat Fate cards in executable batches with their complete effects and targets;
+- Standards, critical-location control, ties, cleanup, and Battle history; and
+- Commander abilities triggered by deployment, Strength, Combat Fate, or Battle resolution.
 
-- Resume from cache and immutable stream after offline use.
-- Reject duplicate, unauthorized, stale, and incompatible events without partial mutation.
-- Display conflicts and protocol mismatch accessibly.
-- E2E `012-reconnect-conflicts-and-versioning`: disconnect during a pending choice, reconnect, and replay the identical projection.
+**Acceptance journey:** From a real lobby and ordinary Agent/Reveal turns, at least three players deploy, Reveal swords, play or pass Combat Fate through the UI, resolve ties and ranked rewards, and agree on control and cleanup. Reload during the Fate window must restore the same authorized decision.
 
-### 13. Responsive, accessible complete game
+### Tracer 6 — Ents, Dam, Riches, and Recall
 
-- Exercise a complete production game at phone portrait, phone landscape, tablet, and desktop viewports.
-- Prove keyboard-only interaction, touch targets, focus restoration, reduced motion, text alternatives, zoom/pan, no horizontal overflow, and no hidden required hover.
-- E2E `013-responsive-accessible-complete-game` becomes the release gate.
+**Player capability:** Players use the complete Ent and Riches subsystem and advance from one finished round into the next.
+
+Add the Fangorn, Deep Fangorn, Entwash, and Edoras definitions only here if their effects were not already executable. Add Ent-draught, summon legality, protected critical Battles, Dam breach, reward doubling, Riches accumulation, Recall, first-player rotation, redraw, and related Commander abilities.
+
+**Acceptance journey:** A real match demonstrates a protected illegal summon, obtains Ent-draught, breaches the Dam through a legal effect, completes a legal doubled reward, accumulates Riches, recalls all pieces, and opens the next round with the correct player and hands.
+
+### Tracer 7 — Complete match, Fate timings, and rematch
+
+**Player capability:** Human players finish a complete base match and agree on the winner.
+
+Add remaining base content only with its usable timing window:
+
+- Plot Fate cards during Agent and Reveal turns;
+- remaining Combat Fate cards during Battle;
+- Endgame Fate cards at final scoring;
+- remaining Battle and Chronicle batches required for a production-length match;
+- any remaining Commander identities and powers, each already covered by its own tracer;
+- ten-round exhaustion, 10-Renown trigger, final scoring, and tiebreaks; and
+- finished-game history and rematch epoch.
+
+**Acceptance journey:** Three ordinary browser clients play a deterministic production match from room creation to winner using only visible controls. The journey reloads during a pending choice, confirms hidden-information boundaries, verifies the same result in every client, and starts a clean rematch.
+
+This is the first point where README and the landing page may call the build a playable alpha.
+
+### Tracer 8 — War Efforts
+
+**Player capability:** The host enables the optional module and players accept, replace, complete, and decline public War Efforts during ordinary play.
+
+Add the War Effort row and definitions in executable batches with their triggers, payments, rewards, replacement behavior, and affected board-space variants. The disabled-module game must remain unchanged.
+
+### Tracer 9 — Solo and two-player Rivals
+
+**Player capability:** One or two humans complete the same production game with deterministic Rivals.
+
+Add one complete Rival profile and the action cards it needs first. Later profiles are separate content tracers. Rival actions use the same legality and reducer paths as human actions rather than a parallel rules engine.
+
+### Tracer 10 — Durable production game
+
+**Player capability:** Long matches remain operable across connectivity, devices, and accessibility needs.
+
+Add offline cache recovery, duplicate/conflicting event handling, version compatibility, keyboard-only play, screen-reader decision flow, reduced motion, phone landscape, tablet, board pan/zoom, performance budgets, and installability. Each reliability feature receives a real mid-match browser journey rather than a standalone status page.
+
+## Content completion rule
+
+The growing game may contain fewer available cards, spaces, Commanders, Battles, or modules than the final catalog, but every available item must be final and fully executable. The construction preview displays an exact completion ledger. It never implies that an inert or names-only entry is supported.
+
+Before playable alpha, the ledger must cover:
+
+- all 22 destinations and nine observation posts;
+- all ten starting-card instances;
+- all Reserve cards and 54 Chronicle instances;
+- all 30 Fate instances;
+- all 16 Battle cards;
+- all eight Commanders; and
+- every base-game phase, choice, invariant, and end condition.
+
+War Efforts and Rivals remain explicitly optional later tracers.
+
+## Testing contract
+
+### Reducer and manifest tests
+
+Every tracer adds tests for its exact legal and illegal commands, effect ordering, deterministic replay, conservation, hidden-information selectors, and incompatibility behavior. Tests cover concrete feature data before shared abstractions are generalized.
+
+### Browser tests
+
+- Begin at `/` and use separate browser contexts with separate anonymous Firebase identities.
+- Use the Auth and Firestore emulators locally and in CI.
+- Configure deterministic seeds through the same host control available in the construction preview.
+- Never navigate directly to an internal feature route.
+- Never call reducers, repositories, Firebase, `page.evaluate`, or storage APIs to manufacture game state.
+- Never use forced clicks or bypass disabled controls.
+- Reach later states by performing earlier user gestures through reusable E2E player helpers.
+- After every gesture, validate the actor and affected observers, then capture a screenshot.
+- Generate a concise scenario README that lets a reviewer understand the behavior from validations and screenshots.
+
+The complete-match helper may follow a deterministic strategy for speed, but every decision is still made through a real visible control.
+
+### Delivery gates
+
+The Nix environment remains the only supported toolchain boundary. Every commit and push runs the full local hooks. Linux verification/deployment and the separate macOS E2E workflow remain mandatory and cannot be skipped.
+
+After each push, work may begin on the next commit while CI runs, but the next push waits for the previous push's checks to pass. Every completed tracer receives a manual test on its retained GitHub Pages preview before its status changes.
+
+## Definition of done for one tracer
+
+A tracer is complete only when:
+
+1. its player capability is reachable from the lobby in the canonical game;
+2. every data definition introduced by it is fully executable;
+3. the reducer independently rejects illegal intent;
+4. actor and observer clients converge;
+5. reload and replay reproduce the same projection;
+6. private state remains seat-safe in the ordinary UI;
+7. phone and desktop E2E gestures, validations, screenshots, and README pass;
+8. all previous tracer journeys remain green; and
+9. a human has exercised the deployed PR preview.
 
 ## Definition of playable alpha
 
-The alpha is complete only when four ordinary browser clients can create a room, finish a seeded match with all core systems, reconnect from the immutable stream, and agree on the winner; the same build must complete solo play with Rivals. Every state must remain operable on a 393×852 phone and a 1280×960 desktop without rules knowledge hidden in imagery.
+The alpha is complete only when three or four ordinary browser clients can create a room, select from the complete base content, finish a seeded match through every base-game phase, reconnect during a pending choice, agree on the winner, and start a rematch. The same build must remain operable at 393×852 and 1280×960 without rules-critical information hidden solely in artwork, color, hover, or another player's client.
