@@ -201,22 +201,34 @@ export const BATTLE_CARD_DEFINITIONS: readonly BattleCardDefinition[] = [
 ];
 
 export type FateCardDefinition = {
-  id: 'sudden-charge';
+  id: 'sudden-charge' | 'hold-line';
   name: string;
   copies: 2;
   timing: 'Combat';
-  effect: { kind: 'gain-battle-strength'; amount: 3 };
+  effect:
+    | { kind: 'gain-battle-strength'; amount: 3 }
+    | { kind: 'hold-line'; amount: 2; controlledLocationBonus: 2 };
   reviewedCapabilities: readonly ['combat-fate'];
 };
 
-export const FATE_CARD_DEFINITIONS: readonly FateCardDefinition[] = [{
-  id: 'sudden-charge',
-  name: 'Sudden Charge',
-  copies: 2,
-  timing: 'Combat',
-  effect: { kind: 'gain-battle-strength', amount: 3 },
-  reviewedCapabilities: ['combat-fate']
-}];
+export const FATE_CARD_DEFINITIONS: readonly FateCardDefinition[] = [
+  {
+    id: 'sudden-charge',
+    name: 'Sudden Charge',
+    copies: 2,
+    timing: 'Combat',
+    effect: { kind: 'gain-battle-strength', amount: 3 },
+    reviewedCapabilities: ['combat-fate']
+  },
+  {
+    id: 'hold-line',
+    name: 'Hold the Line',
+    copies: 2,
+    timing: 'Combat',
+    effect: { kind: 'hold-line', amount: 2, controlledLocationBonus: 2 },
+    reviewedCapabilities: ['combat-fate']
+  }
+];
 
 export type BoardRegion = 'Shadow Hosts' | 'Dwarven Holds' | 'Elven Realms' | 'Wild Kindreds' | 'White Council' | 'Strongholds' | 'Roads';
 

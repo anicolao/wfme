@@ -306,8 +306,27 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
       converged(accepted + 1)
     ]);
 
-    for (let reveal = 0; reveal < 3; reveal += 1) {
+    let drewHoldLine = false;
+    for (let reveal = 0; reveal < 3;) {
       const actor = await currentSeat();
+      if (actor === controllerSeat && !drewHoldLine) {
+        await steps.gesture(actor.page, 'choose-pelennor-hall-card', `${actor.name} chooses Armed Escort for Hall of Fire`, async () => {
+          await actor.page.getByTestId('private-hand').getByRole('button', { name: /^Armed Escort/ }).first().click();
+        }, [{ spec: 'The real Council icon enables Hall of Fire during the contested round', check: async () => {
+          await expect(actor.page.getByTestId('space-hall-fire')).toBeEnabled();
+        } }]);
+        await steps.gesture(actor.page, 'draw-hold-line', `${actor.name} visits Hall of Fire to draw Hold the Line`, async () => {
+          await actor.page.getByTestId('space-hall-fire').click(); accepted += 1;
+        }, [
+          { spec: 'Every observer sees one private Fate card and only its owner can later identify it', check: async () => {
+            for (const observer of seats) await expect(observer.page.locator('.players article').filter({ hasText: actor.name })).toContainText('Fate1');
+            for (const observer of seats.filter((seat) => seat !== actor)) await expect(observer.page.getByRole('button', { name: /Hold the Line/ })).toHaveCount(0);
+          } },
+          converged(accepted + 1)
+        ]);
+        drewHoldLine = true;
+        continue;
+      }
       await steps.gesture(actor.page, `pelennor-reveal-${reveal + 1}`, `${actor.name} Reveals without deploying at Pelennor`, async () => {
         await actor.page.getByRole('button', { name: 'Reveal remaining hand' }).click(); accepted += 1;
       }, [{ spec: 'Every observer sees the current public Pelennor Muster row', check: async () => {
@@ -315,7 +334,7 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
       } }, converged(accepted + 1)]);
       await steps.gesture(actor.page, `pelennor-finish-${reveal + 1}`, `${actor.name} finishes the Pelennor Reveal`, async () => {
         await actor.page.getByRole('button', { name: 'Finish Reveal' }).click(); accepted += 1;
-      }, [{ spec: reveal < 2 ? 'Turn authority advances to the next human' : 'Only the automatic defender enters Combat', check: async () => {
+      }, [{ spec: reveal < 2 ? 'Turn authority advances to the next human' : 'Only the deployed defender enters Combat', check: async () => {
         if (reveal === 2) for (const observer of seats) {
           await expect(observer.page.getByText(/Round 3 · Combat Fate/)).toBeVisible();
           for (const nonController of seats.filter((seat) => seat !== controllerSeat)) {
@@ -323,10 +342,26 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
           }
         }
       } }, converged(accepted + 1)]);
+      reveal += 1;
     }
 
     const defender = await currentSeat();
     if (defender !== controllerSeat) throw new Error('Combat authority did not begin with the sole Pelennor defender');
+    const strengthBeforeHold = Number((await defender.page.getByTestId('active-battle').locator('article').filter({ hasText: defender.name }).getByText(/Strength/).textContent())?.match(/(\d+)/)?.[1] ?? '0');
+    await steps.gesture(defender.page, 'play-hold-line', `${defender.name} plays Hold the Line while controlling Minas Tirith`, async () => {
+      await defender.page.getByRole('button', { name: /Play Hold the Line/ }).click(); accepted += 1;
+    }, [
+      { spec: 'Control of the contested location raises the printed two Strength bonus to four', check: async () => {
+        for (const observer of seats) {
+          await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: defender.name })).toContainText(`${strengthBeforeHold + 4} Strength`);
+          await expect(observer.page.getByTestId('fate-discard')).toContainText('2 cards');
+        }
+      } },
+      { spec: 'The same defender retains Combat authority after playing the Fate card', check: async () => {
+        await expect(defender.page.getByTestId('pass-battle')).toBeEnabled();
+      } },
+      converged(accepted + 1)
+    ]);
     await steps.gesture(defender.page, 'pelennor-pass', `${defender.name} passes and wins Pelennor`, async () => {
       await defender.page.getByTestId('pass-battle').click(); accepted += 1;
     }, [
@@ -354,7 +389,7 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
 
     steps.generateDocs(
       'Three-player ordinary Battle',
-      'Three isolated humans start in the real lobby, resolve an ordinary Battle with Combat Fate, establish Minas Tirith control, then defend it at Pelennor and pair matching White Tree Standards.'
+      'Three isolated humans start in the real lobby, resolve an ordinary Battle with Combat Fate, establish Minas Tirith control, then defend it at Pelennor, play Hold the Line for its controlled-location bonus, and pair matching White Tree Standards.'
     );
   } finally {
     await guestAContext.close();

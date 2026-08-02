@@ -58,6 +58,12 @@
     ].filter(Boolean).join(' + ');
   }
 
+  function fateEffectText(definition: (typeof FATE_CARD_DEFINITIONS)[number]): string {
+    return definition.effect.kind === 'hold-line'
+      ? '+2 Strength · +2 more while controlling the contested location'
+      : `+${definition.effect.amount} Strength`;
+  }
+
 </script>
 
 <section class="table" aria-labelledby="table-title">
@@ -108,7 +114,7 @@
             {@const fateDefinition = FATE_CARD_DEFINITIONS.find((definition) => definition.id === fate.definitionId)}
             {#if fateDefinition}
               <button type="button" data-testid={`play-fate-${fate.id}`} disabled={currentUid !== localUid} onclick={() => onPlayFate(fate.id)}>
-                Play {fateDefinition.name} · +{fateDefinition.effect.amount} Strength
+                Play {fateDefinition.name} · {fateEffectText(fateDefinition)}
               </button>
             {/if}
           {/each}

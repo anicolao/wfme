@@ -232,7 +232,7 @@ function createMatch(state: GameState, seed: string): MatchState {
     boardScouts: {},
     fateDeck: shuffled(Array.from({ length: 30 }, (_, index) => ({
       id: `fate:${index + 1}`,
-      definitionId: index < 2 ? 'sudden-charge' : 'sealed-fate'
+      definitionId: index < 2 ? 'sudden-charge' : index === 20 || index === 25 ? 'hold-line' : 'sealed-fate'
     })), `${seed}:fate-deck`),
     fateDiscard: [],
     activeBattleId: BATTLE_CARD_DEFINITIONS[0]?.id ?? null,
@@ -1200,9 +1200,15 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     if (!card || !definition || definition.timing !== 'Combat') return 'illegal Fate play';
     player.fateHand.splice(cardIndex, 1);
     state.match.fateDiscard.push(card);
-    state.match.battleBonusStrength[event.actorUid] = (state.match.battleBonusStrength[event.actorUid] ?? 0) + definition.effect.amount;
+    const activeBattle = BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === state.match!.activeBattleId);
+    const controlledBonus = definition.effect.kind === 'hold-line' && activeBattle?.contestedLocationId &&
+      state.match.criticalControl[activeBattle.contestedLocationId] === event.actorUid
+      ? definition.effect.controlledLocationBonus
+      : 0;
+    const strengthBonus = definition.effect.amount + controlledBonus;
+    state.match.battleBonusStrength[event.actorUid] = (state.match.battleBonusStrength[event.actorUid] ?? 0) + strengthBonus;
     state.match.consecutiveBattlePasses = 0;
-    state.match.activity.push(`${actor.displayName} plays ${definition.name} for ${definition.effect.amount} Strength.`);
+    state.match.activity.push(`${actor.displayName} plays ${definition.name} for +${strengthBonus} Strength.`);
     return null;
   }
 

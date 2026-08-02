@@ -57,6 +57,7 @@ describe('integrated Agent placement replay', () => {
       expect(new Set([...player.hand, ...player.drawPile].map((card) => card.id)).size).toBe(10);
     }
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'sudden-charge')).toHaveLength(2);
+    expect(first.match!.fateDeck.filter((card) => card.definitionId === 'hold-line')).toHaveLength(2);
     const rejectedFate = reduceGame([...readyRoom(), createEvent('fate/played', currentPlayerUid(first)!, 5, { cardInstanceId: 'fate:1' }, 11)]);
     expect(rejectedFate.diagnostics.at(-1)).toContain('illegal Fate play');
     expect(rejectedFate.match!.fateDiscard).toEqual([]);
@@ -1145,15 +1146,30 @@ describe('integrated Agent placement replay', () => {
     expect(afterDefense.match!.activity).toContain(`${afterDefense.players.find((player) => player.uid === controller)?.displayName} deploys 1 defending Company from supply at Minas Tirith.`);
 
     const renownBeforePelennor = afterDefense.match!.players[controller!].renown;
-    for (let reveals = 0; reveals < 3; reveals += 1) {
+    let controllerDrewHold = false;
+    for (let guard = 0; guard < 12; guard += 1) {
       const state = reduceGame(stream);
+      if (state.match!.turnMode === 'battle') break;
       const current = currentPlayerUid(state)!;
-      append(current, 'turn/revealed', {});
-      append(current, 'reveal/finished', {});
+      if (state.match!.turnMode === 'reveal') append(current, 'reveal/finished', {});
+      else if (current === controller && !controllerDrewHold) {
+        const hallCard = state.match!.players[current].hand.find((card) => legalAgentSpaces(state, current, card.id).includes('hall-fire'));
+        expect(hallCard, 'the controller must have a real Council card for Hall of Fire').toBeDefined();
+        append(current, 'agent/placed', { cardInstanceId: hallCard!.id, spaceId: 'hall-fire' });
+        controllerDrewHold = true;
+        expect(reduceGame(stream).match!.players[current].fateHand).toContainEqual(expect.objectContaining({ definitionId: 'hold-line' }));
+      } else append(current, 'turn/revealed', {});
     }
     const pelennorCombat = reduceGame(stream);
     expect(pelennorCombat.match!.turnMode).toBe('battle');
     expect(Object.entries(pelennorCombat.match!.battleCompanies).filter(([, amount]) => amount > 0)).toEqual([[controller, 1]]);
+    const holdLine = pelennorCombat.match!.players[controller!].fateHand.find((card) => card.definitionId === 'hold-line')!;
+    const strengthBeforeHold = battleStrength(pelennorCombat.match!, controller!);
+    append(controller!, 'fate/played', { cardInstanceId: holdLine.id });
+    const afterHold = reduceGame(stream);
+    expect(battleStrength(afterHold.match!, controller!)).toBe(strengthBeforeHold + 4);
+    expect(afterHold.match!.fateDiscard.at(-1)?.definitionId).toBe('hold-line');
+    expect(afterHold.match!.activity).toContain(`${afterHold.players.find((player) => player.uid === controller)?.displayName} plays Hold the Line for +4 Strength.`);
     append(controller!, 'battle/passed', {});
     const afterPelennor = reduceGame(stream);
     expect(afterPelennor.diagnostics).toEqual([]);

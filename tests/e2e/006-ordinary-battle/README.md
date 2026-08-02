@@ -1,6 +1,6 @@
 # Test: Three-player ordinary Battle
 
-Three isolated humans start in the real lobby, resolve an ordinary Battle with Combat Fate, establish Minas Tirith control, then defend it at Pelennor and pair matching White Tree Standards.
+Three isolated humans start in the real lobby, resolve an ordinary Battle with Combat Fate, establish Minas Tirith control, then defend it at Pelennor, play Hold the Line for its controlled-location bonus, and pair matching White Tree Standards.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -837,69 +837,108 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals without deploying at Pelennor
+## Mara chooses Armed Escort for Hall of Fire
 
-![Phone: Mara Reveals without deploying at Pelennor](./screenshots/065-pelennor-reveal-2-phone.png)
+![Phone: Mara chooses Armed Escort for Hall of Fire](./screenshots/065-choose-pelennor-hall-card-phone.png)
 
-![Desktop: Mara Reveals without deploying at Pelennor](./screenshots/065-pelennor-reveal-2-desktop.png)
+![Desktop: Mara chooses Armed Escort for Hall of Fire](./screenshots/065-choose-pelennor-hall-card-desktop.png)
 
 **Verifications:**
 
-- [x] Every observer sees the current public Pelennor Muster row
-- [x] Every connected browser replays 50 accepted events with no diagnostics
+- [x] The real Council icon enables Hall of Fire during the contested round
 
 ---
 
-## Mara finishes the Pelennor Reveal
+## Mara visits Hall of Fire to draw Hold the Line
 
-![Phone: Mara finishes the Pelennor Reveal](./screenshots/066-pelennor-finish-2-phone.png)
+![Phone: Mara visits Hall of Fire to draw Hold the Line](./screenshots/066-draw-hold-line-phone.png)
 
-![Desktop: Mara finishes the Pelennor Reveal](./screenshots/066-pelennor-finish-2-desktop.png)
+![Desktop: Mara visits Hall of Fire to draw Hold the Line](./screenshots/066-draw-hold-line-desktop.png)
 
 **Verifications:**
 
-- [x] Turn authority advances to the next human
-- [x] Every connected browser replays 51 accepted events with no diagnostics
+- [x] Every observer sees one private Fate card and only its owner can later identify it
+- [x] Every connected browser replays 50 accepted events with no diagnostics
 
 ---
 
 ## Rin Reveals without deploying at Pelennor
 
-![Phone: Rin Reveals without deploying at Pelennor](./screenshots/067-pelennor-reveal-3-phone.png)
+![Phone: Rin Reveals without deploying at Pelennor](./screenshots/067-pelennor-reveal-2-phone.png)
 
-![Desktop: Rin Reveals without deploying at Pelennor](./screenshots/067-pelennor-reveal-3-desktop.png)
+![Desktop: Rin Reveals without deploying at Pelennor](./screenshots/067-pelennor-reveal-2-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees the current public Pelennor Muster row
-- [x] Every connected browser replays 52 accepted events with no diagnostics
+- [x] Every connected browser replays 51 accepted events with no diagnostics
 
 ---
 
 ## Rin finishes the Pelennor Reveal
 
-![Phone: Rin finishes the Pelennor Reveal](./screenshots/068-pelennor-finish-3-phone.png)
+![Phone: Rin finishes the Pelennor Reveal](./screenshots/068-pelennor-finish-2-phone.png)
 
-![Desktop: Rin finishes the Pelennor Reveal](./screenshots/068-pelennor-finish-3-desktop.png)
+![Desktop: Rin finishes the Pelennor Reveal](./screenshots/068-pelennor-finish-2-desktop.png)
 
 **Verifications:**
 
-- [x] Only the automatic defender enters Combat
+- [x] Turn authority advances to the next human
+- [x] Every connected browser replays 52 accepted events with no diagnostics
+
+---
+
+## Mara Reveals without deploying at Pelennor
+
+![Phone: Mara Reveals without deploying at Pelennor](./screenshots/069-pelennor-reveal-3-phone.png)
+
+![Desktop: Mara Reveals without deploying at Pelennor](./screenshots/069-pelennor-reveal-3-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees the current public Pelennor Muster row
 - [x] Every connected browser replays 53 accepted events with no diagnostics
+
+---
+
+## Mara finishes the Pelennor Reveal
+
+![Phone: Mara finishes the Pelennor Reveal](./screenshots/070-pelennor-finish-3-phone.png)
+
+![Desktop: Mara finishes the Pelennor Reveal](./screenshots/070-pelennor-finish-3-desktop.png)
+
+**Verifications:**
+
+- [x] Only the deployed defender enters Combat
+- [x] Every connected browser replays 54 accepted events with no diagnostics
+
+---
+
+## Mara plays Hold the Line while controlling Minas Tirith
+
+![Phone: Mara plays Hold the Line while controlling Minas Tirith](./screenshots/071-play-hold-line-phone.png)
+
+![Desktop: Mara plays Hold the Line while controlling Minas Tirith](./screenshots/071-play-hold-line-desktop.png)
+
+**Verifications:**
+
+- [x] Control of the contested location raises the printed two Strength bonus to four
+- [x] The same defender retains Combat authority after playing the Fate card
+- [x] Every connected browser replays 55 accepted events with no diagnostics
 
 ---
 
 ## Mara passes and wins Pelennor
 
-![Phone: Mara passes and wins Pelennor](./screenshots/069-pelennor-pass-phone.png)
+![Phone: Mara passes and wins Pelennor](./screenshots/072-pelennor-pass-phone.png)
 
-![Desktop: Mara passes and wins Pelennor](./screenshots/069-pelennor-pass-desktop.png)
+![Desktop: Mara passes and wins Pelennor](./screenshots/072-pelennor-pass-desktop.png)
 
 **Verifications:**
 
 - [x] The two White Tree Battle cards turn face down as one paired Standard
 - [x] Printed Pelennor Renown and separate Standard-pair Renown total four
 - [x] Cleanup opens round four with Minas Tirith still controlled by the winner
-- [x] Every connected browser replays 54 accepted events with no diagnostics
+- [x] Every connected browser replays 56 accepted events with no diagnostics
 
 ---
