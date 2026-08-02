@@ -58,6 +58,7 @@ describe('integrated Agent placement replay', () => {
     }
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'sudden-charge')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'hold-line')).toHaveLength(2);
+    expect(first.match!.fateDeck.filter((card) => card.definitionId === 'hidden-archers')).toHaveLength(2);
     const rejectedFate = reduceGame([...readyRoom(), createEvent('fate/played', currentPlayerUid(first)!, 5, { cardInstanceId: 'fate:1' }, 11)]);
     expect(rejectedFate.diagnostics.at(-1)).toContain('illegal Fate play');
     expect(rejectedFate.match!.fateDiscard).toEqual([]);
@@ -1147,6 +1148,7 @@ describe('integrated Agent placement replay', () => {
 
     const renownBeforePelennor = afterDefense.match!.players[controller!].renown;
     let controllerDrewHold = false;
+    let controllerDrewArchers = false;
     for (let guard = 0; guard < 12; guard += 1) {
       const state = reduceGame(stream);
       if (state.match!.turnMode === 'battle') break;
@@ -1158,6 +1160,14 @@ describe('integrated Agent placement replay', () => {
         append(current, 'agent/placed', { cardInstanceId: hallCard!.id, spaceId: 'hall-fire' });
         controllerDrewHold = true;
         expect(reduceGame(stream).match!.players[current].fateHand).toContainEqual(expect.objectContaining({ definitionId: 'hold-line' }));
+      } else if (current === controller && !controllerDrewArchers) {
+        const counselCard = state.match!.players[current].hand.find((card) => legalAgentSpaces(state, current, card.id).includes('hidden-counsel'));
+        expect(counselCard, 'the controller must have a real faction card for Hidden Counsel').toBeDefined();
+        append(current, 'agent/placed', { cardInstanceId: counselCard!.id, spaceId: 'hidden-counsel' });
+        const pending = reduceGame(stream).match!.pendingChoice;
+        if (pending?.kind === 'seek-allies') append(current, 'choice/resolved', { choice: 'keep-card' });
+        controllerDrewArchers = true;
+        expect(reduceGame(stream).match!.players[current].fateHand).toContainEqual(expect.objectContaining({ definitionId: 'hidden-archers' }));
       } else append(current, 'turn/revealed', {});
     }
     const pelennorCombat = reduceGame(stream);
@@ -1170,6 +1180,13 @@ describe('integrated Agent placement replay', () => {
     expect(battleStrength(afterHold.match!, controller!)).toBe(strengthBeforeHold + 4);
     expect(afterHold.match!.fateDiscard.at(-1)?.definitionId).toBe('hold-line');
     expect(afterHold.match!.activity).toContain(`${afterHold.players.find((player) => player.uid === controller)?.displayName} plays Hold the Line for +4 Strength.`);
+    const hiddenArchers = afterHold.match!.players[controller!].fateHand.find((card) => card.definitionId === 'hidden-archers')!;
+    const scoutsOnBoard = Object.values(afterHold.match!.boardScouts).filter((uid) => uid === controller).length;
+    const strengthBeforeArchers = battleStrength(afterHold.match!, controller!);
+    append(controller!, 'fate/played', { cardInstanceId: hiddenArchers.id });
+    const afterArchers = reduceGame(stream);
+    expect(battleStrength(afterArchers.match!, controller!)).toBe(strengthBeforeArchers + Math.min(3, scoutsOnBoard));
+    expect(afterArchers.match!.fateDiscard.at(-1)?.definitionId).toBe('hidden-archers');
     append(controller!, 'battle/passed', {});
     const afterPelennor = reduceGame(stream);
     expect(afterPelennor.diagnostics).toEqual([]);

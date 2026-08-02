@@ -252,25 +252,67 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
       } }, converged(accepted + 1)]);
     }
 
-    for (let reveal = 0; reveal < 3; reveal += 1) {
+    let drewHiddenArchers = false;
+    for (let reveal = 0; reveal < 3;) {
       const actor = await currentSeat();
-      await steps.gesture(actor.page, `siege-reveal-${reveal + 1}`, `${actor.name} Reveals for the Siege`, async () => {
+      if (actor === fateHolder && !drewHiddenArchers) {
+        await steps.gesture(actor.page, 'choose-siege-hall-card', `${actor.name} chooses Armed Escort for the round-two Hall of Fire`, async () => {
+          await actor.page.getByTestId('private-hand').getByRole('button', { name: /^Armed Escort/ }).first().click();
+        }, [{ spec: 'The retained Council icon enables a legal second-round Hall visit', check: async () => {
+          await expect(actor.page.getByTestId('space-hall-fire')).toBeEnabled();
+        } }]);
+        await steps.gesture(actor.page, 'draw-hidden-archers', `${actor.name} draws Hidden Archers before the Siege`, async () => {
+          await actor.page.getByTestId('space-hall-fire').click(); accepted += 1;
+        }, [
+          { spec: 'Every observer sees the private Fate count without learning the card identity', check: async () => {
+            for (const observer of seats) await expect(observer.page.locator('.players article').filter({ hasText: actor.name })).toContainText('Fate1');
+            for (const observer of seats.filter((seat) => seat !== actor)) await expect(observer.page.getByRole('button', { name: /Hidden Archers/ })).toHaveCount(0);
+          } },
+          converged(accepted + 1)
+        ]);
+        drewHiddenArchers = true;
+        continue;
+      }
+      const revealNumber = reveal + 1;
+      await steps.gesture(actor.page, `siege-reveal-${revealNumber}`, `${actor.name} Reveals for the Siege`, async () => {
         await actor.page.getByRole('button', { name: 'Reveal remaining hand' }).click(); accepted += 1;
       }, [{ spec: 'The public Muster row is visible', check: async () => {
         for (const observer of seats) await expect(observer.page.getByTestId('reveal-panel')).toContainText(`${actor.name} Reveals`);
       } }, converged(accepted + 1)]);
-      await steps.gesture(actor.page, `siege-finish-${reveal + 1}`, `${actor.name} finishes the Siege Reveal`, async () => {
+      await steps.gesture(actor.page, `siege-finish-${revealNumber}`, `${actor.name} finishes the Siege Reveal`, async () => {
         await actor.page.getByRole('button', { name: 'Finish Reveal' }).click(); accepted += 1;
       }, [{ spec: reveal < 2 ? 'Turn authority advances' : 'The Siege Combat window opens', check: async () => {
         if (reveal === 2) for (const observer of seats) await expect(observer.page.getByText(/Round 2 · Combat Fate/)).toBeVisible();
       } }, converged(accepted + 1)]);
+      reveal += 1;
     }
-    for (let pass = 0; pass < 3; pass += 1) {
+    let playedHiddenArchers = false;
+    for (let pass = 0; pass < 5; pass += 1) {
       const actor = await currentSeat();
+      if (actor === fateHolder && !playedHiddenArchers) {
+        const scoutsOnBoard = await actor.page.getByTestId('scout-network').locator('button').filter({ hasText: `Scout · ${actor.name}` }).count();
+        if (scoutsOnBoard < 1) throw new Error('The Hidden Archers player has no persistent Scout on the board');
+        const strengthBeforeArchers = Number((await actor.page.getByTestId('active-battle').locator('article').filter({ hasText: actor.name }).getByText(/Strength/).textContent())?.match(/(\d+)/)?.[1] ?? '0');
+        await steps.gesture(actor.page, 'play-hidden-archers', `${actor.name} plays Hidden Archers with ${scoutsOnBoard} Scout on the board`, async () => {
+          await actor.page.getByRole('button', { name: /Play Hidden Archers/ }).click(); accepted += 1;
+        }, [
+          { spec: 'Every observer sees one Strength per persistent Scout, capped by the printed maximum of three', check: async () => {
+            for (const observer of seats) {
+              await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: actor.name })).toContainText(`${strengthBeforeArchers + Math.min(3, scoutsOnBoard)} Strength`);
+              await expect(observer.page.getByTestId('fate-discard')).toContainText('2 cards');
+            }
+          } },
+          { spec: 'Hidden Archers breaks the leading tie without ending the player’s Combat action', check: async () => {
+            await expect(actor.page.getByTestId('pass-battle')).toBeEnabled();
+          } },
+          converged(accepted + 1)
+        ]);
+        playedHiddenArchers = true;
+      }
       await steps.gesture(actor.page, `siege-pass-${pass + 1}`, `${actor.name} passes in the Siege`, async () => {
         await actor.page.getByTestId('pass-battle').click(); accepted += 1;
-      }, [{ spec: pass < 2 ? 'Pass authority advances among Siege participants' : 'The sole winner controls Minas Tirith', check: async () => {
-        if (pass === 2) for (const observer of seats) {
+      }, [{ spec: pass < 4 ? 'Pass authority advances; playing Hidden Archers reset the consecutive-pass streak' : 'The sole winner controls Minas Tirith', check: async () => {
+        if (pass === 4) for (const observer of seats) {
           await expect(observer.page.getByTestId('control-minas-tirith')).not.toContainText('Uncontrolled');
           await expect(observer.page.getByTestId('activity-log')).toContainText('Siege of Minas Tirith is won');
           await expect(observer.page.getByTestId('active-battle')).toContainText('Battle of the Pelennor Fields');
@@ -310,7 +352,7 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
     for (let reveal = 0; reveal < 3;) {
       const actor = await currentSeat();
       if (actor === controllerSeat && !drewHoldLine) {
-        await steps.gesture(actor.page, 'choose-pelennor-hall-card', `${actor.name} chooses Armed Escort for Hall of Fire`, async () => {
+        await steps.gesture(actor.page, 'choose-hold-hall-card', `${actor.name} chooses Armed Escort for Hall of Fire`, async () => {
           await actor.page.getByTestId('private-hand').getByRole('button', { name: /^Armed Escort/ }).first().click();
         }, [{ spec: 'The real Council icon enables Hall of Fire during the contested round', check: async () => {
           await expect(actor.page.getByTestId('space-hall-fire')).toBeEnabled();
@@ -354,7 +396,7 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
       { spec: 'Control of the contested location raises the printed two Strength bonus to four', check: async () => {
         for (const observer of seats) {
           await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: defender.name })).toContainText(`${strengthBeforeHold + 4} Strength`);
-          await expect(observer.page.getByTestId('fate-discard')).toContainText('2 cards');
+          await expect(observer.page.getByTestId('fate-discard')).toContainText('3 cards');
         }
       } },
       { spec: 'The same defender retains Combat authority after playing the Fate card', check: async () => {
@@ -389,7 +431,7 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
 
     steps.generateDocs(
       'Three-player ordinary Battle',
-      'Three isolated humans start in the real lobby, resolve an ordinary Battle with Combat Fate, establish Minas Tirith control, then defend it at Pelennor, play Hold the Line for its controlled-location bonus, and pair matching White Tree Standards.'
+      'Three isolated humans start in the real lobby, resolve an ordinary Battle with Combat Fate, establish Minas Tirith control, then defend it at Pelennor, play Hold the Line and Hidden Archers from private Fate, and pair matching White Tree Standards.'
     );
   } finally {
     await guestAContext.close();

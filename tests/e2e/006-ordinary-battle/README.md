@@ -1,6 +1,6 @@
 # Test: Three-player ordinary Battle
 
-Three isolated humans start in the real lobby, resolve an ordinary Battle with Combat Fate, establish Minas Tirith control, then defend it at Pelennor, play Hold the Line for its controlled-location bonus, and pair matching White Tree Standards.
+Three isolated humans start in the real lobby, resolve an ordinary Battle with Combat Fate, establish Minas Tirith control, then defend it at Pelennor, play Hold the Line and Hidden Archers from private Fate, and pair matching White Tree Standards.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -720,128 +720,193 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
+## Mara chooses Armed Escort for the round-two Hall of Fire
+
+![Phone: Mara chooses Armed Escort for the round-two Hall of Fire](./screenshots/056-choose-siege-hall-card-phone.png)
+
+![Desktop: Mara chooses Armed Escort for the round-two Hall of Fire](./screenshots/056-choose-siege-hall-card-desktop.png)
+
+**Verifications:**
+
+- [x] The retained Council icon enables a legal second-round Hall visit
+
+---
+
+## Mara draws Hidden Archers before the Siege
+
+![Phone: Mara draws Hidden Archers before the Siege](./screenshots/057-draw-hidden-archers-phone.png)
+
+![Desktop: Mara draws Hidden Archers before the Siege](./screenshots/057-draw-hidden-archers-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees the private Fate count without learning the card identity
+- [x] Every connected browser replays 42 accepted events with no diagnostics
+
+---
+
 ## Mara Reveals for the Siege
 
-![Phone: Mara Reveals for the Siege](./screenshots/056-siege-reveal-3-phone.png)
+![Phone: Mara Reveals for the Siege](./screenshots/058-siege-reveal-3-phone.png)
 
-![Desktop: Mara Reveals for the Siege](./screenshots/056-siege-reveal-3-desktop.png)
+![Desktop: Mara Reveals for the Siege](./screenshots/058-siege-reveal-3-desktop.png)
 
 **Verifications:**
 
 - [x] The public Muster row is visible
-- [x] Every connected browser replays 42 accepted events with no diagnostics
+- [x] Every connected browser replays 43 accepted events with no diagnostics
 
 ---
 
 ## Mara finishes the Siege Reveal
 
-![Phone: Mara finishes the Siege Reveal](./screenshots/057-siege-finish-3-phone.png)
+![Phone: Mara finishes the Siege Reveal](./screenshots/059-siege-finish-3-phone.png)
 
-![Desktop: Mara finishes the Siege Reveal](./screenshots/057-siege-finish-3-desktop.png)
+![Desktop: Mara finishes the Siege Reveal](./screenshots/059-siege-finish-3-desktop.png)
 
 **Verifications:**
 
 - [x] The Siege Combat window opens
-- [x] Every connected browser replays 43 accepted events with no diagnostics
+- [x] Every connected browser replays 44 accepted events with no diagnostics
 
 ---
 
 ## Rin passes in the Siege
 
-![Phone: Rin passes in the Siege](./screenshots/058-siege-pass-1-phone.png)
+![Phone: Rin passes in the Siege](./screenshots/060-siege-pass-1-phone.png)
 
-![Desktop: Rin passes in the Siege](./screenshots/058-siege-pass-1-desktop.png)
+![Desktop: Rin passes in the Siege](./screenshots/060-siege-pass-1-desktop.png)
 
 **Verifications:**
 
-- [x] Pass authority advances among Siege participants
-- [x] Every connected browser replays 44 accepted events with no diagnostics
+- [x] Pass authority advances; playing Hidden Archers reset the consecutive-pass streak
+- [x] Every connected browser replays 45 accepted events with no diagnostics
 
 ---
 
 ## Pip passes in the Siege
 
-![Phone: Pip passes in the Siege](./screenshots/059-siege-pass-2-phone.png)
+![Phone: Pip passes in the Siege](./screenshots/061-siege-pass-2-phone.png)
 
-![Desktop: Pip passes in the Siege](./screenshots/059-siege-pass-2-desktop.png)
+![Desktop: Pip passes in the Siege](./screenshots/061-siege-pass-2-desktop.png)
 
 **Verifications:**
 
-- [x] Pass authority advances among Siege participants
-- [x] Every connected browser replays 45 accepted events with no diagnostics
+- [x] Pass authority advances; playing Hidden Archers reset the consecutive-pass streak
+- [x] Every connected browser replays 46 accepted events with no diagnostics
+
+---
+
+## Mara plays Hidden Archers with 1 Scout on the board
+
+![Phone: Mara plays Hidden Archers with 1 Scout on the board](./screenshots/062-play-hidden-archers-phone.png)
+
+![Desktop: Mara plays Hidden Archers with 1 Scout on the board](./screenshots/062-play-hidden-archers-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees one Strength per persistent Scout, capped by the printed maximum of three
+- [x] Hidden Archers breaks the leading tie without ending the player’s Combat action
+- [x] Every connected browser replays 47 accepted events with no diagnostics
 
 ---
 
 ## Mara passes in the Siege
 
-![Phone: Mara passes in the Siege](./screenshots/060-siege-pass-3-phone.png)
+![Phone: Mara passes in the Siege](./screenshots/063-siege-pass-3-phone.png)
 
-![Desktop: Mara passes in the Siege](./screenshots/060-siege-pass-3-desktop.png)
+![Desktop: Mara passes in the Siege](./screenshots/063-siege-pass-3-desktop.png)
+
+**Verifications:**
+
+- [x] Pass authority advances; playing Hidden Archers reset the consecutive-pass streak
+- [x] Every connected browser replays 48 accepted events with no diagnostics
+
+---
+
+## Rin passes in the Siege
+
+![Phone: Rin passes in the Siege](./screenshots/064-siege-pass-4-phone.png)
+
+![Desktop: Rin passes in the Siege](./screenshots/064-siege-pass-4-desktop.png)
+
+**Verifications:**
+
+- [x] Pass authority advances; playing Hidden Archers reset the consecutive-pass streak
+- [x] Every connected browser replays 49 accepted events with no diagnostics
+
+---
+
+## Pip passes in the Siege
+
+![Phone: Pip passes in the Siege](./screenshots/065-siege-pass-5-phone.png)
+
+![Desktop: Pip passes in the Siege](./screenshots/065-siege-pass-5-desktop.png)
 
 **Verifications:**
 
 - [x] The sole winner controls Minas Tirith
-- [x] Every connected browser replays 46 accepted events with no diagnostics
+- [x] Every connected browser replays 50 accepted events with no diagnostics
 
 ---
 
 ## Mara reloads before the Pelennor defense choice
 
-![Phone: Mara reloads before the Pelennor defense choice](./screenshots/061-reload-pelennor-decision-phone.png)
+![Phone: Mara reloads before the Pelennor defense choice](./screenshots/066-reload-pelennor-decision-phone.png)
 
-![Desktop: Mara reloads before the Pelennor defense choice](./screenshots/061-reload-pelennor-decision-desktop.png)
+![Desktop: Mara reloads before the Pelennor defense choice](./screenshots/066-reload-pelennor-decision-desktop.png)
 
 **Verifications:**
 
 - [x] The contested Age III Battle and controller-only defense choice survive replay
-- [x] Every connected browser replays 46 accepted events with no diagnostics
+- [x] Every connected browser replays 50 accepted events with no diagnostics
 
 ---
 
 ## Mara deploys from supply to defend Minas Tirith
 
-![Phone: Mara deploys from supply to defend Minas Tirith](./screenshots/062-deploy-pelennor-defender-phone.png)
+![Phone: Mara deploys from supply to defend Minas Tirith](./screenshots/067-deploy-pelennor-defender-phone.png)
 
-![Desktop: Mara deploys from supply to defend Minas Tirith](./screenshots/062-deploy-pelennor-defender-desktop.png)
+![Desktop: Mara deploys from supply to defend Minas Tirith](./screenshots/067-deploy-pelennor-defender-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees exactly one defending Company before Agent turns
-- [x] Every connected browser replays 47 accepted events with no diagnostics
+- [x] Every connected browser replays 51 accepted events with no diagnostics
 
 ---
 
 ## Pip Reveals without deploying at Pelennor
 
-![Phone: Pip Reveals without deploying at Pelennor](./screenshots/063-pelennor-reveal-1-phone.png)
+![Phone: Pip Reveals without deploying at Pelennor](./screenshots/068-pelennor-reveal-1-phone.png)
 
-![Desktop: Pip Reveals without deploying at Pelennor](./screenshots/063-pelennor-reveal-1-desktop.png)
+![Desktop: Pip Reveals without deploying at Pelennor](./screenshots/068-pelennor-reveal-1-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees the current public Pelennor Muster row
-- [x] Every connected browser replays 48 accepted events with no diagnostics
+- [x] Every connected browser replays 52 accepted events with no diagnostics
 
 ---
 
 ## Pip finishes the Pelennor Reveal
 
-![Phone: Pip finishes the Pelennor Reveal](./screenshots/064-pelennor-finish-1-phone.png)
+![Phone: Pip finishes the Pelennor Reveal](./screenshots/069-pelennor-finish-1-phone.png)
 
-![Desktop: Pip finishes the Pelennor Reveal](./screenshots/064-pelennor-finish-1-desktop.png)
+![Desktop: Pip finishes the Pelennor Reveal](./screenshots/069-pelennor-finish-1-desktop.png)
 
 **Verifications:**
 
 - [x] Turn authority advances to the next human
-- [x] Every connected browser replays 49 accepted events with no diagnostics
+- [x] Every connected browser replays 53 accepted events with no diagnostics
 
 ---
 
 ## Mara chooses Armed Escort for Hall of Fire
 
-![Phone: Mara chooses Armed Escort for Hall of Fire](./screenshots/065-choose-pelennor-hall-card-phone.png)
+![Phone: Mara chooses Armed Escort for Hall of Fire](./screenshots/070-choose-hold-hall-card-phone.png)
 
-![Desktop: Mara chooses Armed Escort for Hall of Fire](./screenshots/065-choose-pelennor-hall-card-desktop.png)
+![Desktop: Mara chooses Armed Escort for Hall of Fire](./screenshots/070-choose-hold-hall-card-desktop.png)
 
 **Verifications:**
 
@@ -851,94 +916,94 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Mara visits Hall of Fire to draw Hold the Line
 
-![Phone: Mara visits Hall of Fire to draw Hold the Line](./screenshots/066-draw-hold-line-phone.png)
+![Phone: Mara visits Hall of Fire to draw Hold the Line](./screenshots/071-draw-hold-line-phone.png)
 
-![Desktop: Mara visits Hall of Fire to draw Hold the Line](./screenshots/066-draw-hold-line-desktop.png)
+![Desktop: Mara visits Hall of Fire to draw Hold the Line](./screenshots/071-draw-hold-line-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees one private Fate card and only its owner can later identify it
-- [x] Every connected browser replays 50 accepted events with no diagnostics
+- [x] Every connected browser replays 54 accepted events with no diagnostics
 
 ---
 
 ## Rin Reveals without deploying at Pelennor
 
-![Phone: Rin Reveals without deploying at Pelennor](./screenshots/067-pelennor-reveal-2-phone.png)
+![Phone: Rin Reveals without deploying at Pelennor](./screenshots/072-pelennor-reveal-2-phone.png)
 
-![Desktop: Rin Reveals without deploying at Pelennor](./screenshots/067-pelennor-reveal-2-desktop.png)
+![Desktop: Rin Reveals without deploying at Pelennor](./screenshots/072-pelennor-reveal-2-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees the current public Pelennor Muster row
-- [x] Every connected browser replays 51 accepted events with no diagnostics
+- [x] Every connected browser replays 55 accepted events with no diagnostics
 
 ---
 
 ## Rin finishes the Pelennor Reveal
 
-![Phone: Rin finishes the Pelennor Reveal](./screenshots/068-pelennor-finish-2-phone.png)
+![Phone: Rin finishes the Pelennor Reveal](./screenshots/073-pelennor-finish-2-phone.png)
 
-![Desktop: Rin finishes the Pelennor Reveal](./screenshots/068-pelennor-finish-2-desktop.png)
+![Desktop: Rin finishes the Pelennor Reveal](./screenshots/073-pelennor-finish-2-desktop.png)
 
 **Verifications:**
 
 - [x] Turn authority advances to the next human
-- [x] Every connected browser replays 52 accepted events with no diagnostics
+- [x] Every connected browser replays 56 accepted events with no diagnostics
 
 ---
 
 ## Mara Reveals without deploying at Pelennor
 
-![Phone: Mara Reveals without deploying at Pelennor](./screenshots/069-pelennor-reveal-3-phone.png)
+![Phone: Mara Reveals without deploying at Pelennor](./screenshots/074-pelennor-reveal-3-phone.png)
 
-![Desktop: Mara Reveals without deploying at Pelennor](./screenshots/069-pelennor-reveal-3-desktop.png)
+![Desktop: Mara Reveals without deploying at Pelennor](./screenshots/074-pelennor-reveal-3-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees the current public Pelennor Muster row
-- [x] Every connected browser replays 53 accepted events with no diagnostics
+- [x] Every connected browser replays 57 accepted events with no diagnostics
 
 ---
 
 ## Mara finishes the Pelennor Reveal
 
-![Phone: Mara finishes the Pelennor Reveal](./screenshots/070-pelennor-finish-3-phone.png)
+![Phone: Mara finishes the Pelennor Reveal](./screenshots/075-pelennor-finish-3-phone.png)
 
-![Desktop: Mara finishes the Pelennor Reveal](./screenshots/070-pelennor-finish-3-desktop.png)
+![Desktop: Mara finishes the Pelennor Reveal](./screenshots/075-pelennor-finish-3-desktop.png)
 
 **Verifications:**
 
 - [x] Only the deployed defender enters Combat
-- [x] Every connected browser replays 54 accepted events with no diagnostics
+- [x] Every connected browser replays 58 accepted events with no diagnostics
 
 ---
 
 ## Mara plays Hold the Line while controlling Minas Tirith
 
-![Phone: Mara plays Hold the Line while controlling Minas Tirith](./screenshots/071-play-hold-line-phone.png)
+![Phone: Mara plays Hold the Line while controlling Minas Tirith](./screenshots/076-play-hold-line-phone.png)
 
-![Desktop: Mara plays Hold the Line while controlling Minas Tirith](./screenshots/071-play-hold-line-desktop.png)
+![Desktop: Mara plays Hold the Line while controlling Minas Tirith](./screenshots/076-play-hold-line-desktop.png)
 
 **Verifications:**
 
 - [x] Control of the contested location raises the printed two Strength bonus to four
 - [x] The same defender retains Combat authority after playing the Fate card
-- [x] Every connected browser replays 55 accepted events with no diagnostics
+- [x] Every connected browser replays 59 accepted events with no diagnostics
 
 ---
 
 ## Mara passes and wins Pelennor
 
-![Phone: Mara passes and wins Pelennor](./screenshots/072-pelennor-pass-phone.png)
+![Phone: Mara passes and wins Pelennor](./screenshots/077-pelennor-pass-phone.png)
 
-![Desktop: Mara passes and wins Pelennor](./screenshots/072-pelennor-pass-desktop.png)
+![Desktop: Mara passes and wins Pelennor](./screenshots/077-pelennor-pass-desktop.png)
 
 **Verifications:**
 
 - [x] The two White Tree Battle cards turn face down as one paired Standard
 - [x] Printed Pelennor Renown and separate Standard-pair Renown total four
 - [x] Cleanup opens round four with Minas Tirith still controlled by the winner
-- [x] Every connected browser replays 56 accepted events with no diagnostics
+- [x] Every connected browser replays 60 accepted events with no diagnostics
 
 ---

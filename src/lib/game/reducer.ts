@@ -232,7 +232,13 @@ function createMatch(state: GameState, seed: string): MatchState {
     boardScouts: {},
     fateDeck: shuffled(Array.from({ length: 30 }, (_, index) => ({
       id: `fate:${index + 1}`,
-      definitionId: index < 2 ? 'sudden-charge' : index === 20 || index === 25 ? 'hold-line' : 'sealed-fate'
+      definitionId: index < 2
+        ? 'sudden-charge'
+        : index === 20 || index === 29
+          ? 'hold-line'
+          : index === 9 || index === 14
+            ? 'hidden-archers'
+            : 'sealed-fate'
     })), `${seed}:fate-deck`),
     fateDiscard: [],
     activeBattleId: BATTLE_CARD_DEFINITIONS[0]?.id ?? null,
@@ -1201,11 +1207,17 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     player.fateHand.splice(cardIndex, 1);
     state.match.fateDiscard.push(card);
     const activeBattle = BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === state.match!.activeBattleId);
-    const controlledBonus = definition.effect.kind === 'hold-line' && activeBattle?.contestedLocationId &&
-      state.match.criticalControl[activeBattle.contestedLocationId] === event.actorUid
-      ? definition.effect.controlledLocationBonus
-      : 0;
-    const strengthBonus = definition.effect.amount + controlledBonus;
+    const strengthBonus = definition.effect.kind === 'hidden-archers'
+      ? Math.min(
+          definition.effect.maximum,
+          Object.values(state.match.boardScouts).filter((uid) => uid === event.actorUid).length
+        )
+      : definition.effect.amount + (
+          definition.effect.kind === 'hold-line' && activeBattle?.contestedLocationId &&
+          state.match.criticalControl[activeBattle.contestedLocationId] === event.actorUid
+            ? definition.effect.controlledLocationBonus
+            : 0
+        );
     state.match.battleBonusStrength[event.actorUid] = (state.match.battleBonusStrength[event.actorUid] ?? 0) + strengthBonus;
     state.match.consecutiveBattlePasses = 0;
     state.match.activity.push(`${actor.displayName} plays ${definition.name} for +${strengthBonus} Strength.`);
