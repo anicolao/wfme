@@ -31,6 +31,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | Dwarven Caravans occupancy and +1 Dwarven/+1 Provision | resolution and no-partial-mutation tests | gesture 019 validates all three clients |
 | Tribute to the Shadow occupancy and +1 Shadow/+2 Gold | resolution and turn-advance test | gesture 022 validates all three clients |
 | Standing 2 respect and persistent Renown | multi-round threshold replay test | gestures 055–057 revisit Dwarven Caravans after Recall |
+| Dwarven standing 4 favor, Alliance claim, strict-lead transfer | claim/tie/transfer and Renown ownership tests | gestures 094–113 reach standing three, conserve the faction card, claim publicly, and reload |
 | Take Up a War Effort draw and disabled-module +2 Gold | card-zone conservation test | gestures 016–017 validate private draw and public reward |
 | Armed Escort + Muster ordered recruitment and optional payment | pending-choice legality and conservation tests | gestures 024–027 validate actor, observers, and replay |
 | Seek Allies optional self-trash and permanent Trash zone | choice authorization and keep/trash branch tests | gestures 060–063 validate ordering, privacy, convergence, and replay |

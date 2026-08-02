@@ -1,6 +1,6 @@
 # Test: Three-player Agent, deck-building, and Scout tracer
 
-Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross a faction threshold, trash a card, place a persistent Scout, and later recall it to gather intelligence before resolving an Agent action.
+Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross faction thresholds, trash a card, use both Scout timings, and publicly claim a faction Alliance.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -1235,5 +1235,292 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] Scout recall, both draws, Gold, and Agent occupation replay exactly
 - [x] Every connected replay has accepted exactly 62 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/092-round-7-seat-3-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/092-round-7-seat-3-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 63 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/093-round-7-seat-3-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/093-round-7-seat-3-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 64 events with no diagnostics
+
+---
+
+## Pip chooses another Diplomatic Mission
+
+![Phone: Pip chooses another Diplomatic Mission](./screenshots/094-choose-third-dwarven-mission-phone.png)
+
+![Desktop: Pip chooses another Diplomatic Mission](./screenshots/094-choose-third-dwarven-mission-desktop.png)
+
+**Verifications:**
+
+- [x] The faction card was genuinely drawn through the intelligence and board draws
+- [x] Dwarven Caravans is open for the actor’s second Agent
+
+---
+
+## Pip reaches Dwarven standing three
+
+![Phone: Pip reaches Dwarven standing three](./screenshots/095-reach-dwarven-three-phone.png)
+
+![Desktop: Pip reaches Dwarven standing three](./screenshots/095-reach-dwarven-three-desktop.png)
+
+**Verifications:**
+
+- [x] Standing rises to three without repeating the standing-two Renown
+- [x] The Dwarven Alliance remains unclaimed below standing four
+- [x] Every connected replay has accepted exactly 65 events with no diagnostics
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/096-round-7-seat-2-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/096-round-7-seat-2-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 66 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/097-round-7-seat-2-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/097-round-7-seat-2-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 67 events with no diagnostics
+
+---
+
+## Recall opens round 8 with the Dwarven Alliance in reach
+
+![Phone: Recall opens round 8 with the Dwarven Alliance in reach](./screenshots/098-round-8-alliance-opportunity-phone.png)
+
+![Desktop: Recall opens round 8 with the Dwarven Alliance in reach](./screenshots/098-round-8-alliance-opportunity-desktop.png)
+
+**Verifications:**
+
+- [x] The first-player marker rotates to the standing leader
+- [x] Standing three persists while the Alliance remains unclaimed
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/099-round-8-seat-2-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/099-round-8-seat-2-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 68 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/100-round-8-seat-2-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/100-round-8-seat-2-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 69 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/101-round-8-seat-3-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/101-round-8-seat-3-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 70 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/102-round-8-seat-3-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/102-round-8-seat-3-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 71 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/103-round-8-seat-1-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/103-round-8-seat-1-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 72 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/104-round-8-seat-1-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/104-round-8-seat-1-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 73 events with no diagnostics
+
+---
+
+## Recall opens round 9 from the second half of the deck
+
+![Phone: Recall opens round 9 from the second half of the deck](./screenshots/105-round-9-second-deck-half-phone.png)
+
+![Desktop: Recall opens round 9 from the second half of the deck](./screenshots/105-round-9-second-deck-half-desktop.png)
+
+**Verifications:**
+
+- [x] The faction card remains conserved in the undrawn half
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/106-round-9-seat-3-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/106-round-9-seat-3-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 74 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/107-round-9-seat-3-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/107-round-9-seat-3-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 75 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/108-round-9-seat-1-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/108-round-9-seat-1-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 76 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/109-round-9-seat-1-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/109-round-9-seat-1-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 77 events with no diagnostics
+
+---
+
+## The standing leader receives the conserved faction card
+
+![Phone: The standing leader receives the conserved faction card](./screenshots/110-round-9-alliance-hand-phone.png)
+
+![Desktop: The standing leader receives the conserved faction card](./screenshots/110-round-9-alliance-hand-desktop.png)
+
+**Verifications:**
+
+- [x] Diplomatic Mission is genuinely present in the private hand
+- [x] The active decision belongs to the standing leader
+
+---
+
+## Pip chooses the Alliance-clinching mission
+
+![Phone: Pip chooses the Alliance-clinching mission](./screenshots/111-choose-alliance-mission-phone.png)
+
+![Desktop: Pip chooses the Alliance-clinching mission](./screenshots/111-choose-alliance-mission-desktop.png)
+
+**Verifications:**
+
+- [x] The deterministic round-9 hand contains its real faction access card
+
+---
+
+## Pip claims the Dwarven Alliance
+
+![Phone: Pip claims the Dwarven Alliance](./screenshots/112-claim-dwarven-alliance-phone.png)
+
+![Desktop: Pip claims the Dwarven Alliance](./screenshots/112-claim-dwarven-alliance-desktop.png)
+
+**Verifications:**
+
+- [x] Crossing standing four grants the two-Provision Dwarven favor
+- [x] The Alliance is publicly named for every human
+- [x] Standing and the Alliance token produce exactly two total Renown
+- [x] Every connected replay has accepted exactly 78 events with no diagnostics
+
+---
+
+## Pip reloads the claimed Alliance
+
+![Phone: Pip reloads the claimed Alliance](./screenshots/113-reload-dwarven-alliance-phone.png)
+
+![Desktop: Pip reloads the claimed Alliance](./screenshots/113-reload-dwarven-alliance-desktop.png)
+
+**Verifications:**
+
+- [x] Standing, favor, Alliance owner, Renown, and Agent replay exactly
+- [x] Every connected replay has accepted exactly 78 events with no diagnostics
 
 ---

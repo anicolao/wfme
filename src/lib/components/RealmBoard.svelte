@@ -62,6 +62,11 @@
     </dl>
   </header>
 
+  <dl class="alliances" aria-label="Reviewed faction Alliances">
+    <div data-testid="alliance-dwarven"><dt>Dwarven Alliance</dt><dd>{game.players.find((player) => player.uid === game.match?.alliances.dwarven)?.displayName ?? 'Unclaimed'}</dd></div>
+    <div data-testid="alliance-shadow"><dt>Shadow Alliance</dt><dd>{game.players.find((player) => player.uid === game.match?.alliances.shadow)?.displayName ?? 'Unclaimed'}</dd></div>
+  </dl>
+
   <div class="game-grid">
     <aside class="players" aria-label="Players">
       {#each game.players as player}
@@ -297,6 +302,10 @@
   .ledger div { min-width: 8rem; padding: .65rem; color: #29291f; background: #efe3c4; border-radius: .5rem; }
   .ledger dt { font-size: .78rem; }
   .ledger dd { margin: .15rem 0 0; font-weight: 700; }
+  .alliances { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; margin: 0 0 1rem; }
+  .alliances div { padding: .55rem .7rem; color: #29291f; background: #d8dfc7; border-radius: .5rem; }
+  .alliances dt { font-size: .76rem; }
+  .alliances dd { margin: .1rem 0 0; font-weight: 700; }
   .game-grid { display: grid; grid-template-columns: 15rem 1fr; gap: 1rem; }
   .players { display: grid; align-content: start; gap: .6rem; }
   .players article { padding: .8rem; color: #28291f; background: #e8dcc0; border: 2px solid transparent; border-radius: .6rem; }

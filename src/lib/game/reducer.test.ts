@@ -476,4 +476,59 @@ describe('integrated Agent placement replay', () => {
     expect(infiltrated.match!.players[actor].resources.provisions).toBe(2);
     expect(infiltrated.match!.players[actor].standing.dwarven).toBe(1);
   });
+
+  it('awards the Dwarven favor and transfers its Alliance only for a strict standing lead', () => {
+    const stream = readyRoom('alliance-transfer');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const started = reduceGame(stream);
+    const claimant = started.match!.playerOrder[0];
+    const challenger = started.match!.playerOrder[1];
+
+    const advanceUntilStanding = (target: string, standing: number) => {
+      for (let step = 0; step < 500; step += 1) {
+        const state = reduceGame(stream);
+        if (state.match!.players[target].standing.dwarven >= standing) return state;
+        const current = currentPlayerUid(state)!;
+        const match = state.match!;
+        const player = match.players[current];
+        const append = (type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+          sequences[current] += 1;
+          stream.push(createEvent(type, current, sequences[current], payload, timestamp++));
+        };
+        if (match.pendingChoice?.kind === 'seek-allies') {
+          append('choice/resolved', { choice: 'keep-card' });
+        } else if (match.turnMode === 'reveal') {
+          append('reveal/finished', {});
+        } else {
+          const factionCard = current === target
+            ? player.hand.find((card) => card.definitionId === 'diplomatic-mission' || card.definitionId === 'seek-allies')
+            : undefined;
+          if (factionCard && !match.boardAgents['dwarven-caravans'] && player.availableAgents > 0) {
+            append('agent/placed', { cardInstanceId: factionCard.id, spaceId: 'dwarven-caravans' });
+          } else {
+            append('turn/revealed', {});
+          }
+        }
+      }
+      throw new Error(`standing ${standing} was not reached`);
+    };
+
+    const claimed = advanceUntilStanding(claimant, 4);
+    expect(claimed.diagnostics).toEqual([]);
+    expect(claimed.match!.alliances.dwarven).toBe(claimant);
+    expect(claimed.match!.players[claimant].resources.provisions).toBe(7);
+    expect(claimed.match!.players[claimant].renown).toBe(2);
+
+    const tied = advanceUntilStanding(challenger, 4);
+    expect(tied.match!.alliances.dwarven).toBe(claimant);
+    expect(tied.match!.players[claimant].renown).toBe(2);
+    expect(tied.match!.players[challenger].renown).toBe(1);
+
+    const transferred = advanceUntilStanding(challenger, 5);
+    expect(transferred.diagnostics).toEqual([]);
+    expect(transferred.match!.alliances.dwarven).toBe(challenger);
+    expect(transferred.match!.players[claimant].renown).toBe(1);
+    expect(transferred.match!.players[challenger].renown).toBe(2);
+  });
 });

@@ -752,9 +752,106 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
 
+    await revealAndFinish(shadowActor!, 'round-7-seat-3', 63, 64);
+    await steps.gesture(actor!.page, 'choose-third-dwarven-mission', `${actor!.name} chooses another Diplomatic Mission`,
+      () => actor!.page.getByTestId('private-hand').getByRole('button', { name: /^Diplomatic Mission/ }).click(),
+      [
+        { spec: 'The faction card was genuinely drawn through the intelligence and board draws', check: async () => await expect(actor!.page.getByRole('button', { name: /^Diplomatic Mission/ })).toHaveAttribute('aria-pressed', 'true') },
+        { spec: 'Dwarven Caravans is open for the actor’s second Agent', check: async () => await expect(actor!.page.getByTestId('space-dwarven-caravans')).toBeEnabled() }
+      ]
+    );
+    await steps.gesture(actor!.page, 'reach-dwarven-three', `${actor!.name} reaches Dwarven standing three`,
+      () => actor!.page.getByTestId('space-dwarven-caravans').click(),
+      [
+        { spec: 'Standing rises to three without repeating the standing-two Renown', check: async () => {
+          for (const seat of seats) {
+            const player = seat.page.locator('.players article').filter({ hasText: actor!.name });
+            await expect(player).toContainText('Dwarven3');
+            await expect(player).toContainText('Renown1');
+            await expect(player).toContainText('Provision4');
+          }
+        } },
+        { spec: 'The Dwarven Alliance remains unclaimed below standing four', check: async () => {
+          for (const seat of seats) await expect(seat.page.getByTestId('alliance-dwarven')).toContainText('Unclaimed');
+        } },
+        convergedEvents(65)
+      ]
+    );
+    await revealAndFinish(actor!, 'round-7-seat-2', 66, 67);
+    await steps.observe(actor!.page, 'round-8-alliance-opportunity', 'Recall opens round 8 with the Dwarven Alliance in reach', [
+      { spec: 'The first-player marker rotates to the standing leader', check: async () => {
+        for (const seat of seats) {
+          await expect(seat.page.getByText('Round 8 · Agent turns')).toBeVisible();
+          await expect(seat.page.locator('footer')).toContainText(`Current actor ${actor!.name}`);
+        }
+      } },
+      { spec: 'Standing three persists while the Alliance remains unclaimed', check: async () => {
+        for (const seat of seats) {
+          await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Dwarven3');
+          await expect(seat.page.getByTestId('alliance-dwarven')).toContainText('Unclaimed');
+        }
+      } }
+    ]);
+    await revealAndFinish(actor!, 'round-8-seat-2', 68, 69);
+    await revealAndFinish(shadowActor!, 'round-8-seat-3', 70, 71);
+    await revealAndFinish(roadActor!, 'round-8-seat-1', 72, 73);
+    await steps.observe(shadowActor!.page, 'round-9-second-deck-half', 'Recall opens round 9 from the second half of the deck', [
+      { spec: 'The faction card remains conserved in the undrawn half', check: async () => {
+        for (const seat of seats) {
+          await expect(seat.page.getByText('Round 9 · Agent turns')).toBeVisible();
+          await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Dwarven3');
+        }
+      } }
+    ]);
+    await revealAndFinish(shadowActor!, 'round-9-seat-3', 74, 75);
+    await revealAndFinish(roadActor!, 'round-9-seat-1', 76, 77);
+    await steps.observe(actor!.page, 'round-9-alliance-hand', 'The standing leader receives the conserved faction card', [
+      { spec: 'Diplomatic Mission is genuinely present in the private hand', check: async () => await expect(actor!.page.getByTestId('private-hand').getByRole('button', { name: /^Diplomatic Mission/ })).toBeVisible() },
+      { spec: 'The active decision belongs to the standing leader', check: async () => {
+        for (const seat of seats) await expect(seat.page.locator('footer')).toContainText(`Current actor ${actor!.name}`);
+      } }
+    ]);
+    await steps.gesture(actor!.page, 'choose-alliance-mission', `${actor!.name} chooses the Alliance-clinching mission`,
+      () => actor!.page.getByTestId('private-hand').getByRole('button', { name: /^Diplomatic Mission/ }).click(),
+      [{ spec: 'The deterministic round-9 hand contains its real faction access card', check: async () => await expect(actor!.page.getByRole('button', { name: /^Diplomatic Mission/ })).toHaveAttribute('aria-pressed', 'true') }]
+    );
+    await steps.gesture(actor!.page, 'claim-dwarven-alliance', `${actor!.name} claims the Dwarven Alliance`,
+      () => actor!.page.getByTestId('space-dwarven-caravans').click(),
+      [
+        { spec: 'Crossing standing four grants the two-Provision Dwarven favor', check: async () => {
+          for (const seat of seats) await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Provision7');
+        } },
+        { spec: 'The Alliance is publicly named for every human', check: async () => {
+          for (const seat of seats) await expect(seat.page.getByTestId('alliance-dwarven')).toContainText(actor!.name);
+        } },
+        { spec: 'Standing and the Alliance token produce exactly two total Renown', check: async () => {
+          for (const seat of seats) {
+            const player = seat.page.locator('.players article').filter({ hasText: actor!.name });
+            await expect(player).toContainText('Dwarven4');
+            await expect(player).toContainText('Renown2');
+          }
+        } },
+        convergedEvents(78)
+      ]
+    );
+    await steps.gesture(actor!.page, 'reload-dwarven-alliance', `${actor!.name} reloads the claimed Alliance`,
+      async () => { await actor!.page.reload(); },
+      [
+        { spec: 'Standing, favor, Alliance owner, Renown, and Agent replay exactly', check: async () => {
+          await expect(actor!.page.getByTestId('alliance-dwarven')).toContainText(actor!.name);
+          await expect(actor!.page.getByTestId('space-dwarven-caravans')).toContainText(`Agent · ${actor!.name}`);
+          const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
+          await expect(player).toContainText('Dwarven4');
+          await expect(player).toContainText('Provision7');
+          await expect(player).toContainText('Renown2');
+        } },
+        convergedEvents(78)
+      ]
+    );
+
     steps.generateDocs(
       'Three-player Agent, deck-building, and Scout tracer',
-      'Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross a faction threshold, trash a card, place a persistent Scout, and later recall it to gather intelligence before resolving an Agent action.'
+      'Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross faction thresholds, trash a card, use both Scout timings, and publicly claim a faction Alliance.'
     );
   } finally {
     await guestAContext.close();
