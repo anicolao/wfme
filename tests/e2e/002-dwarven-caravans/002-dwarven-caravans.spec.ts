@@ -666,9 +666,95 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
 
+    await revealAndFinish(actor!, 'round-6-seat-2', 57, 58);
+    await steps.observe(roadActor!.page, 'round-7-persistent-scout', 'Recall opens round 7 while the Scout remains on the road', [
+      { spec: 'Agents return but the observation network persists across rounds', check: async () => {
+        for (const seat of seats) {
+          await expect(seat.page.getByText('Round 7 · Agent turns')).toBeVisible();
+          await expect(seat.page.locator('.spaces button.occupied')).toHaveCount(0);
+          await expect(seat.page.getByTestId('post-old-south-road')).toContainText(`Scout · ${actor!.name}`);
+        }
+      } },
+      { spec: 'The first-player marker rotates to the next human', check: async () => {
+        for (const seat of seats) await expect(seat.page.locator('footer')).toContainText(`Current actor ${roadActor!.name}`);
+      } }
+    ]);
+    await revealAndFinish(roadActor!, 'round-7-seat-1', 59, 60);
+    await steps.gesture(actor!.page, 'choose-connected-road-card', `${actor!.name} chooses a Roads card beside their persistent Scout`,
+      () => actor!.page.getByTestId('private-hand').getByRole('button', { name: /^(The Open Road|Muster the Host)/ }).first().click(),
+      [
+        { spec: 'A genuine Roads card is selected from the round-7 hand', check: async () => await expect(actor!.page.getByTestId('private-hand').getByRole('button', { name: /^(The Open Road|Muster the Host)/ }).first()).toHaveAttribute('aria-pressed', 'true') },
+        { spec: 'The recalled Roads space is legal through its normal icon', check: async () => await expect(actor!.page.getByTestId('space-take-war-effort')).toBeEnabled() }
+      ]
+    );
+    await steps.gesture(actor!.page, 'open-intelligence-window', `${actor!.name} places an Agent beside the Old South Road Scout`,
+      () => actor!.page.getByTestId('space-take-war-effort').click(),
+      [
+        { spec: 'The Agent is visibly placed before the connected Scout decision', check: async () => {
+          for (const seat of seats) await expect(seat.page.getByTestId('space-take-war-effort')).toContainText(`Agent · ${actor!.name}`);
+        } },
+        { spec: 'Neither the board draw nor Gold reward resolves before intelligence', check: async () => {
+          const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
+          await expect(player).toContainText('Gold6');
+          await expect(player).toContainText('Hand4');
+        } },
+        { spec: 'Every client sees the blocking Gather Intelligence timing window', check: async () => {
+          for (const seat of seats) {
+            await expect(seat.page.getByTestId('pending-choice')).toContainText('Recall a Scout to gather intelligence?');
+            await expect(seat.page.getByTestId('pending-choice')).toContainText('neither the board nor Journey effect has resolved yet');
+          }
+        } },
+        { spec: 'Only the acting human may recall the connected Scout', check: async () => {
+          await expect(actor!.page.getByRole('button', { name: 'Recall Old South Road Scout and draw 1' })).toBeEnabled();
+          for (const observer of seats.filter((seat) => seat !== actor)) await expect(observer.page.getByRole('button', { name: 'Recall Old South Road Scout and draw 1' })).toBeDisabled();
+        } },
+        convergedEvents(61)
+      ]
+    );
+    await steps.gesture(actor!.page, 'gather-road-intelligence', `${actor!.name} recalls the Scout to gather intelligence`,
+      () => actor!.page.getByRole('button', { name: 'Recall Old South Road Scout and draw 1' }).click(),
+      [
+        { spec: 'The Scout returns to supply and its post becomes empty everywhere', check: async () => {
+          for (const seat of seats) {
+            await expect(seat.page.getByTestId('post-old-south-road')).not.toContainText('Scout ·');
+            await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Scouts3 supply');
+          }
+        } },
+        { spec: 'The intelligence draw resolves before the board draw for six cards total', check: async () => {
+          const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
+          await expect(player).toContainText('Hand6');
+          await expect(player).toContainText('Gold8');
+        } },
+        { spec: 'The Chronicle preserves the ordered Scout and board resolutions', check: async () => {
+          for (const seat of seats) {
+            await expect(seat.page.getByTestId('activity-log')).toContainText(`${actor!.name} recalls their Scout from Old South Road and draws 1 card`);
+            await expect(seat.page.getByTestId('activity-log')).toContainText(`${actor!.name} sends an Agent to Take Up a War Effort`);
+          }
+        } },
+        { spec: 'The blocking choice closes after all effects complete', check: async () => {
+          for (const seat of seats) await expect(seat.page.getByTestId('pending-choice')).toHaveCount(0);
+        } },
+        convergedEvents(62)
+      ]
+    );
+    await steps.gesture(actor!.page, 'reload-gathered-intelligence', `${actor!.name} reloads the completed intelligence action`,
+      async () => { await actor!.page.reload(); },
+      [
+        { spec: 'Scout recall, both draws, Gold, and Agent occupation replay exactly', check: async () => {
+          await expect(actor!.page.getByTestId('post-old-south-road')).not.toContainText('Scout ·');
+          await expect(actor!.page.getByTestId('space-take-war-effort')).toContainText(`Agent · ${actor!.name}`);
+          const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
+          await expect(player).toContainText('Scouts3 supply');
+          await expect(player).toContainText('Hand6');
+          await expect(player).toContainText('Gold8');
+        } },
+        convergedEvents(62)
+      ]
+    );
+
     steps.generateDocs(
       'Three-player Agent, deck-building, and Scout tracer',
-      'Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross a faction threshold, trash a card, and place a persistent Scout with convergence and replay.'
+      'Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross a faction threshold, trash a card, place a persistent Scout, and later recall it to gather intelligence before resolving an Agent action.'
     );
   } finally {
     await guestAContext.close();

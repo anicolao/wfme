@@ -1,6 +1,6 @@
 # Test: Three-player Agent, deck-building, and Scout tracer
 
-Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross a faction threshold, trash a card, and place a persistent Scout with convergence and replay.
+Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross a faction threshold, trash a card, place a persistent Scout, and later recall it to gather intelligence before resolving an Agent action.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -1112,5 +1112,128 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] Scout, Agent, and board reward replay identically
 - [x] Every connected replay has accepted exactly 56 events with no diagnostics
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/083-round-6-seat-2-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/083-round-6-seat-2-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 57 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/084-round-6-seat-2-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/084-round-6-seat-2-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 58 events with no diagnostics
+
+---
+
+## Recall opens round 7 while the Scout remains on the road
+
+![Phone: Recall opens round 7 while the Scout remains on the road](./screenshots/085-round-7-persistent-scout-phone.png)
+
+![Desktop: Recall opens round 7 while the Scout remains on the road](./screenshots/085-round-7-persistent-scout-desktop.png)
+
+**Verifications:**
+
+- [x] Agents return but the observation network persists across rounds
+- [x] The first-player marker rotates to the next human
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/086-round-7-seat-1-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/086-round-7-seat-1-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 59 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/087-round-7-seat-1-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/087-round-7-seat-1-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 60 events with no diagnostics
+
+---
+
+## Pip chooses a Roads card beside their persistent Scout
+
+![Phone: Pip chooses a Roads card beside their persistent Scout](./screenshots/088-choose-connected-road-card-phone.png)
+
+![Desktop: Pip chooses a Roads card beside their persistent Scout](./screenshots/088-choose-connected-road-card-desktop.png)
+
+**Verifications:**
+
+- [x] A genuine Roads card is selected from the round-7 hand
+- [x] The recalled Roads space is legal through its normal icon
+
+---
+
+## Pip places an Agent beside the Old South Road Scout
+
+![Phone: Pip places an Agent beside the Old South Road Scout](./screenshots/089-open-intelligence-window-phone.png)
+
+![Desktop: Pip places an Agent beside the Old South Road Scout](./screenshots/089-open-intelligence-window-desktop.png)
+
+**Verifications:**
+
+- [x] The Agent is visibly placed before the connected Scout decision
+- [x] Neither the board draw nor Gold reward resolves before intelligence
+- [x] Every client sees the blocking Gather Intelligence timing window
+- [x] Only the acting human may recall the connected Scout
+- [x] Every connected replay has accepted exactly 61 events with no diagnostics
+
+---
+
+## Pip recalls the Scout to gather intelligence
+
+![Phone: Pip recalls the Scout to gather intelligence](./screenshots/090-gather-road-intelligence-phone.png)
+
+![Desktop: Pip recalls the Scout to gather intelligence](./screenshots/090-gather-road-intelligence-desktop.png)
+
+**Verifications:**
+
+- [x] The Scout returns to supply and its post becomes empty everywhere
+- [x] The intelligence draw resolves before the board draw for six cards total
+- [x] The Chronicle preserves the ordered Scout and board resolutions
+- [x] The blocking choice closes after all effects complete
+- [x] Every connected replay has accepted exactly 62 events with no diagnostics
+
+---
+
+## Pip reloads the completed intelligence action
+
+![Phone: Pip reloads the completed intelligence action](./screenshots/091-reload-gathered-intelligence-phone.png)
+
+![Desktop: Pip reloads the completed intelligence action](./screenshots/091-reload-gathered-intelligence-desktop.png)
+
+**Verifications:**
+
+- [x] Scout recall, both draws, Gold, and Agent occupation replay exactly
+- [x] Every connected replay has accepted exactly 62 events with no diagnostics
 
 ---

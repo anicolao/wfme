@@ -356,4 +356,76 @@ describe('integrated Agent placement replay', () => {
     expect(placed.match!.pendingChoice).toBeNull();
     expect(currentPlayerUid(placed)).not.toBe(actor);
   });
+
+  it('gathers intelligence before resolving the connected board and Journey effects', () => {
+    let events = readyRoom('intelligence-0');
+    let started = reduceGame(events);
+    for (let index = 1; index < 100; index += 1) {
+      const actor = started.match!.playerOrder[0];
+      const hand = started.match!.players[actor].hand;
+      if (
+        hand.some((card) => card.definitionId === 'reconnaissance') &&
+        hand.some((card) => card.definitionId === 'diplomatic-mission')
+      ) break;
+      events = readyRoom(`intelligence-${index}`);
+      started = reduceGame(events);
+    }
+    const [actor, second, third] = started.match!.playerOrder;
+    const reconnaissance = started.match!.players[actor].hand.find((card) => card.definitionId === 'reconnaissance')!;
+    const mission = started.match!.players[actor].hand.find((card) => card.definitionId === 'diplomatic-mission')!;
+    expect(reconnaissance).toBeDefined();
+    expect(mission).toBeDefined();
+    const setup = [
+      ...events,
+      createEvent('agent/placed', actor, 5, { cardInstanceId: reconnaissance.id, spaceId: 'take-war-effort' }, 11),
+      createEvent('scout/placed', actor, 6, { postId: 'redhorn-pass' }, 12),
+      createEvent('turn/revealed', second, 4, {}, 13),
+      createEvent('reveal/finished', second, 5, {}, 14),
+      createEvent('turn/revealed', third, 4, {}, 15),
+      createEvent('reveal/finished', third, 5, {}, 16)
+    ];
+    const beforeGather = reduceGame(setup);
+    const intelligenceCard = beforeGather.match!.players[actor].hand.find((card) => card.id === mission.id)!;
+    const nextDraw = beforeGather.match!.players[actor].drawPile[0];
+    const placement = createEvent('agent/placed', actor, 7, {
+      cardInstanceId: intelligenceCard.id, spaceId: 'dwarven-caravans'
+    }, 17);
+    const pending = reduceGame([...setup, placement]);
+    expect(pending.diagnostics).toEqual([]);
+    expect(pending.match!.pendingChoice).toEqual({
+      kind: 'gather-intelligence',
+      actorUid: actor,
+      cardInstanceId: intelligenceCard.id,
+      spaceId: 'dwarven-caravans',
+      postIds: ['redhorn-pass'],
+      options: ['recall:redhorn-pass', 'decline-intelligence']
+    });
+    expect(pending.match!.boardAgents['dwarven-caravans'].uid).toBe(actor);
+    expect(pending.match!.players[actor].resources.provisions).toBe(1);
+    expect(pending.match!.players[actor].standing.dwarven).toBe(0);
+
+    const gathered = reduceGame([
+      ...setup,
+      placement,
+      createEvent('choice/resolved', actor, 8, { choice: 'recall:redhorn-pass' }, 18)
+    ]);
+    expect(gathered.diagnostics).toEqual([]);
+    expect(gathered.match!.boardScouts['redhorn-pass']).toBeUndefined();
+    expect(gathered.match!.players[actor].scouts.supply).toBe(3);
+    expect(gathered.match!.players[actor].hand).toContainEqual(nextDraw);
+    expect(gathered.match!.players[actor].resources.provisions).toBe(2);
+    expect(gathered.match!.players[actor].standing.dwarven).toBe(1);
+    expect(gathered.match!.pendingChoice).toBeNull();
+
+    const declined = reduceGame([
+      ...setup,
+      placement,
+      createEvent('choice/resolved', actor, 8, { choice: 'decline-intelligence' }, 18)
+    ]);
+    expect(declined.diagnostics).toEqual([]);
+    expect(declined.match!.boardScouts['redhorn-pass']).toBe(actor);
+    expect(declined.match!.players[actor].scouts.supply).toBe(2);
+    expect(declined.match!.players[actor].hand).not.toContainEqual(nextDraw);
+    expect(declined.match!.players[actor].resources.provisions).toBe(2);
+  });
 });

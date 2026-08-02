@@ -73,6 +73,13 @@ export type MatchState = {
     kind: 'place-scout';
     actorUid: string;
     options: readonly [];
+  } | {
+    kind: 'gather-intelligence';
+    actorUid: string;
+    cardInstanceId: string;
+    spaceId: string;
+    postIds: readonly string[];
+    options: readonly string[];
   };
   reserveSupply: Record<ReserveCardId, number>;
   alliances: Record<'shadow' | 'dwarven' | 'elven' | 'wild', string | null>;
@@ -257,6 +264,61 @@ function gainStanding(match: MatchState, player: MatchPlayer, faction: 'shadow' 
   }
 }
 
+function resolveAgentEffects(
+  state: GameState,
+  actorName: string,
+  card: CardInstance,
+  space: (typeof BOARD_SPACE_DEFINITIONS)[number]
+): void {
+  const match = state.match!;
+  const player = match.players[match.boardAgents[space.id].uid];
+  const cardDefinition = AGENT_CARD_DEFINITIONS.find((candidate) => candidate.id === card.definitionId)!;
+  let resolution: string;
+  if (cardDefinition.journeyEffect?.kind === 'recruit-companies') {
+    recruitCompanies(player, cardDefinition.journeyEffect.amount);
+  }
+  if (space.effect.kind === 'dwarven-caravans') {
+    player.resources.provisions += space.effect.gainProvisions;
+    gainStanding(match, player, 'dwarven');
+    resolution = 'gaining 1 Dwarven standing and 1 Provision';
+  } else if (space.effect.kind === 'tribute-shadow') {
+    player.resources.gold += space.effect.gainGold;
+    gainStanding(match, player, 'shadow');
+    resolution = 'gaining 1 Shadow standing and 2 Gold';
+  } else if (space.effect.kind === 'take-war-effort') {
+    const drawn = player.drawPile.shift();
+    if (drawn) player.hand.push(drawn);
+    player.resources.gold += space.effect.gainGoldWithoutModule;
+    resolution = `drawing ${drawn ? '1 card' : 'no card'} and gaining 2 Gold because War Efforts are disabled`;
+  } else {
+    const recruited = recruitCompanies(player, space.effect.recruitCompanies);
+    resolution = `recruiting ${recruited} Companies`;
+    if (player.resources.gold >= space.effect.optionalGoldCost) {
+      match.pendingChoice = {
+        kind: 'muster-free-peoples',
+        actorUid: player.uid,
+        options: ['pay-2-gold', 'decline']
+      };
+    }
+  }
+  if (cardDefinition.journeyEffect?.kind === 'optional-trash-self') {
+    match.pendingChoice = {
+      kind: 'seek-allies',
+      actorUid: player.uid,
+      cardInstanceId: card.id,
+      options: ['trash-self', 'keep-card']
+    };
+  }
+  if (cardDefinition.journeyEffect?.kind === 'place-scout') {
+    match.pendingChoice = {
+      kind: 'place-scout',
+      actorUid: player.uid,
+      options: []
+    };
+  }
+  match.activity.push(`${actorName} sends an Agent to ${space.name}, ${resolution}.`);
+}
+
 function applyEvent(state: GameState, event: GameEvent): string | null {
   if (event.type === 'game/created') {
     const roomCode = event.payload.roomCode;
@@ -342,55 +404,26 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === spaceId)!;
     const cardIndex = player.hand.findIndex((card) => card.id === cardInstanceId);
     const [card] = player.hand.splice(cardIndex, 1);
-    const cardDefinition = AGENT_CARD_DEFINITIONS.find((candidate) => candidate.id === card.definitionId)!;
     player.journey.push(card);
     const agentNumber = 3 - player.availableAgents;
     player.availableAgents -= 1;
     state.match.boardAgents[spaceId] = { uid: event.actorUid, agentNumber };
-    let resolution: string;
-    if (cardDefinition.journeyEffect?.kind === 'recruit-companies') {
-      recruitCompanies(player, cardDefinition.journeyEffect.amount);
-    }
-    if (space.effect.kind === 'dwarven-caravans') {
-      player.resources.provisions += space.effect.gainProvisions;
-      gainStanding(state.match, player, 'dwarven');
-      resolution = 'gaining 1 Dwarven standing and 1 Provision';
-    } else if (space.effect.kind === 'tribute-shadow') {
-      player.resources.gold += space.effect.gainGold;
-      gainStanding(state.match, player, 'shadow');
-      resolution = 'gaining 1 Shadow standing and 2 Gold';
-    } else if (space.effect.kind === 'take-war-effort') {
-      const drawn = player.drawPile.shift();
-      if (drawn) player.hand.push(drawn);
-      player.resources.gold += space.effect.gainGoldWithoutModule;
-      resolution = `drawing ${drawn ? '1 card' : 'no card'} and gaining 2 Gold because War Efforts are disabled`;
-    } else {
-      const recruited = recruitCompanies(player, space.effect.recruitCompanies);
-      resolution = `recruiting ${recruited} Companies`;
-      if (player.resources.gold >= space.effect.optionalGoldCost) {
-        state.match.pendingChoice = {
-          kind: 'muster-free-peoples',
-          actorUid: event.actorUid,
-          options: ['pay-2-gold', 'decline']
-        };
-      }
-    }
-    if (cardDefinition.journeyEffect?.kind === 'optional-trash-self') {
+    const gatheringPosts = OBSERVATION_POSTS.filter(
+      (post) => post.connectedSpaceIds.includes(spaceId) && state.match!.boardScouts[post.id] === event.actorUid
+    ).map((post) => post.id);
+    if (gatheringPosts.length > 0) {
       state.match.pendingChoice = {
-        kind: 'seek-allies',
+        kind: 'gather-intelligence',
         actorUid: event.actorUid,
         cardInstanceId: card.id,
-        options: ['trash-self', 'keep-card']
+        spaceId,
+        postIds: gatheringPosts,
+        options: [...gatheringPosts.map((postId) => `recall:${postId}`), 'decline-intelligence']
       };
+      state.match.activity.push(`${actor.displayName} places an Agent at ${space.name} and may gather intelligence before resolving it.`);
+      return null;
     }
-    if (cardDefinition.journeyEffect?.kind === 'place-scout') {
-      state.match.pendingChoice = {
-        kind: 'place-scout',
-        actorUid: event.actorUid,
-        options: []
-      };
-    }
-    state.match.activity.push(`${actor.displayName} sends an Agent to ${space.name}, ${resolution}.`);
+    resolveAgentEffects(state, actor.displayName, card, space);
     if (!state.match.pendingChoice) advanceToNextAgentPlayer(state.match);
     return null;
   }
@@ -408,6 +441,29 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       !pending.options.some((option) => option === choice)
     ) return 'illegal choice resolution';
     const player = state.match.players[event.actorUid];
+    if (pending.kind === 'gather-intelligence') {
+      if (choice.startsWith('recall:')) {
+        const postId = choice.slice('recall:'.length);
+        if (!pending.postIds.includes(postId) || state.match.boardScouts[postId] !== event.actorUid) {
+          return 'illegal choice resolution';
+        }
+        delete state.match.boardScouts[postId];
+        player.scouts.supply += 1;
+        const drawn = player.drawPile.shift();
+        if (drawn) player.hand.push(drawn);
+        const postName = OBSERVATION_POSTS.find((post) => post.id === postId)!.name;
+        state.match.activity.push(`${actor.displayName} recalls their Scout from ${postName} and draws ${drawn ? '1 card' : 'no card'}.`);
+      } else {
+        state.match.activity.push(`${actor.displayName} leaves their Scouts in place.`);
+      }
+      const card = player.journey.find((candidate) => candidate.id === pending.cardInstanceId);
+      const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === pending.spaceId);
+      if (!card || !space) return 'illegal choice resolution';
+      state.match.pendingChoice = null;
+      resolveAgentEffects(state, actor.displayName, card, space);
+      if (!state.match.pendingChoice) advanceToNextAgentPlayer(state.match);
+      return null;
+    }
     if (pending.kind === 'muster-free-peoples') {
       if (choice === 'pay-2-gold') {
         if (player.resources.gold < 2) return 'illegal choice resolution';

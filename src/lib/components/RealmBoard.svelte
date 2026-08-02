@@ -18,7 +18,7 @@
   export let selectedCardId = '';
   export let onSelectCard: (cardId: string) => void;
   export let onPlaceAgent: (spaceId: string) => void;
-  export let onResolveChoice: (choice: 'pay-2-gold' | 'decline' | 'trash-self' | 'keep-card') => void;
+  export let onResolveChoice: (choice: string) => void;
   export let onReveal: () => void;
   export let onAcquire: (definitionId: string) => void;
   export let onFinishReveal: () => void;
@@ -171,17 +171,22 @@
   {#if game.match?.pendingChoice && game.match.pendingChoice.kind !== 'place-scout'}
     <section class="pending-choice" data-testid="pending-choice" aria-labelledby="choice-title">
       <div>
-        <p class="eyebrow">Ordered {game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Council' : 'Journey'} choice</p>
-        <h2 id="choice-title">{game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Pay 2 Gold to gain 1 Provision?' : 'Trash Seek Allies?'}</h2>
-        <p>{game.match.pendingChoice.kind === 'muster-free-peoples' ? 'The Companies have already been recruited.' : 'The board space has resolved.'} Resolve this choice before the turn advances.</p>
+        <p class="eyebrow">Ordered {game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Council' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Scout' : 'Journey'} choice</p>
+        <h2 id="choice-title">{game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Pay 2 Gold to gain 1 Provision?' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Recall a Scout to gather intelligence?' : 'Trash Seek Allies?'}</h2>
+        <p>{game.match.pendingChoice.kind === 'muster-free-peoples' ? 'The Companies have already been recruited.' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'The Agent is placed, but neither the board nor Journey effect has resolved yet.' : 'The board space has resolved.'} Resolve this choice before the turn advances.</p>
       </div>
       <div class="choice-actions">
         {#if game.match.pendingChoice.kind === 'muster-free-peoples'}
           <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('pay-2-gold')}>Pay 2 Gold</button>
           <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('decline')}>Keep the Gold</button>
-        {:else}
+        {:else if game.match.pendingChoice.kind === 'seek-allies'}
           <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('trash-self')}>Trash Seek Allies</button>
           <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('keep-card')}>Keep Seek Allies</button>
+        {:else}
+          {#each game.match.pendingChoice.postIds as postId}
+            <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice(`recall:${postId}`)}>Recall {OBSERVATION_POSTS.find((post) => post.id === postId)?.name} Scout and draw 1</button>
+          {/each}
+          <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('decline-intelligence')}>Leave Scouts in place</button>
         {/if}
       </div>
     </section>
