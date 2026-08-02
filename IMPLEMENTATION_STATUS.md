@@ -8,7 +8,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | --- | ---: | --- |
 | Root lobby and live room | 1 / 1 | `002-dwarven-caravans` creates and joins with three isolated Firebase identities |
 | Seeded match and private opening hands | 1 / 1 | Reducer conservation tests and the three-seat browser journey |
-| Board destinations | 17 / 22 | All eight faction destinations, five White Council destinations, Take Up a War Effort, Minas Tirith, Edoras, and Fangorn Moot are executable; the other five are disabled |
+| Board destinations | 18 / 22 | All eight faction destinations, five White Council destinations, Take Up a War Effort, Minas Tirith, Edoras, Fangorn Moot, and Deep Fangorn are executable; the other four are disabled |
 | Starting card instances | 10 / 10 | Exact deterministic deck composition and conservation |
 | Starting cards with executable Agent boxes | 5 / 7 definitions | Diplomatic Mission, The Open Road, Armed Escort, Seek Allies, and Reconnaissance |
 | Observation posts | 9 / 9 structure; placement, intelligence, and infiltration live | Exact named connections, finite Scout supply, multi-Agent occupation, both recall timings, authority, and replay |
@@ -17,9 +17,9 @@ This is the construction ledger for the one canonical game at the repository roo
 | Commander identities | 8 / 8 | Unique lobby identities, explicitly power-free |
 | Commander powers | 0 / 16 | No power text is presented as active |
 | Fate physical instances | 30 / 30; effects 10 / 30 | Deterministically shuffled deck, private hands, public discard, keep-one choice, deterministic transfer and cycle, conservation, and replay; both copies of Sudden Charge, Hold the Line, Hidden Archers, Reinforcements, and Desperate Valor are fully playable during Combat |
-| Battle cards | 4 / 16 | Crossing of the Isen, Siege of Minas Tirith, Battle of the Pelennor Fields, and Battle of Helm's Deep have final setup, Standards, all ranked rewards, ownership/discard, and cleanup |
+| Battle cards | 10 / 16 | The four opening Battles plus Wargs in the Wild, Battle for Osgiliath, Raid on Westfold, Skirmish at Amon Hen, Contest for Aglarond, and Muster at Edoras have final setup, Standards, all ranked rewards, ownership/discard, and cleanup |
 | Chronicle, War Effort, and Rival content | 0 | Introduced only with the tracer that makes each item executable |
-| Round phases | Agent, Reveal, ordinary Battle, Riches, Recall | Combat passing, ranked resolution, Edoras Riches, and first-player rotation are live; the remaining Riches and Ent rules arrive in subsequent vertical slices |
+| Round phases | Agent, Reveal, ordinary Battle, Riches, Recall | Combat passing, ranked resolution, Edoras and Deep Fangorn Riches, Ent participation and doubled rewards, and first-player rotation are live; Entwash remains |
 | Complete matches | 0 | Endgame and rematch are not yet available |
 
 ## Implemented rules coverage
@@ -46,6 +46,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | Helm's Deep and Edoras control | final Horse Standard, critical-location display, exact ranked rewards, sole-winner control, cleanup, and replay | `006-ordinary-battle` opens the reviewed Battle after Pelennor, deploys two humans through distinct real destinations, Reveals all three seats, resolves Combat Fate and pass reset, then validates Edoras control and the exact Renown reward |
 | Edoras and Riches | one-Mithril printed reward, one-Mithril controller tribute, empty-round accumulation, full-pool collection, reset, occupation, and replay | `006-ordinary-battle` leaves Edoras empty for four genuine rounds, wins its control at Helm's Deep, uses a real Roads card to visit it, and validates the six-Mithril total and reset on three clients |
 | Fangorn Moot, Ent-draught, and the Dam | Wild-two requirement, one-time persistent Ent-draught, finite Company recruitment, exact Provision rewards, optional permanent Dam breach, ordered Journey continuation, public state, illegal paths, and replay | `002-dwarven-caravans` earns Wild respect through the two real Wild destinations, visits the Moot twice with real Stronghold cards, takes Ent-draught, returns after Recall to breach the Dam, and reloads the exact result on three clients |
+| Deep Fangorn, protected Battles, and Ent rewards | three-Provision payment, accumulating Riches, four-Mithril branch, Ent-draught and Dam/critical-location summon legality, two finite Ents, three Strength each, Ent-only participation, doubled ranked rewards, cleanup, illegal paths, and replay | `007-deep-fangorn` reaches every state through ordinary three-human play, proves the protected choice, breaches the Dam, summons, resolves the doubled reward, and captures 91 validated phone/desktop frames through reload |
 | Siege and Minas Tirith control | contested-location display, sole-winner control, printed Renown, runner-up Fate/Gold, persistent controller identity, controller visit income, and deterministic replay | `006-ordinary-battle` continues into round two, deploys three humans through real spaces, resolves the Siege, and validates the same Minas Tirith controller on every client; reducer replay proves the controller's later +1 Gold visit trigger |
 | Pelennor defense and Standard pairing | controller-authorized optional round-start defense from supply, exact Age III rewards, retained control, face-up matching, both cards turned face down, separate +1 Renown, and replay | `006-ordinary-battle` reloads the Minas Tirith controller while the defense choice is pending, deploys through the real control, Reveals all three humans, resolves the sole-participant Combat window, and validates paired White Tree Standards plus exact Renown on every client |
 | Standing 2 respect and persistent Renown | multi-round threshold replay test | gestures 055–057 revisit Dwarven Caravans after Recall |
@@ -66,4 +67,4 @@ This is the construction ledger for the one canonical game at the repository roo
 
 ## Next accepted tracer
 
-Tracer 6 continues with Deep Fangorn and the first legal Ent summon.
+Tracer 6 continues with Entwash and its one-Ent branch, completing the base Ent/Riches subsystem.

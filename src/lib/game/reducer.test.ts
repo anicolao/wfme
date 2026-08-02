@@ -309,6 +309,76 @@ describe('integrated Agent placement replay', () => {
     expect(breach.match!.players[target].resources.provisions).toBe(provisions + 1);
     expect(breach.match!.players[target].companies.garrison).toBe(garrison);
     expect(breach.match!.damBreached).toBe(true);
+
+    const entStream = [...draughtStream];
+    let nextTimestamp = timestamp + 1;
+    let beforeDeep: ReturnType<typeof reduceGame> | null = null;
+    let protectedDeepChecked = false;
+    const appendEnt = (state: ReturnType<typeof reduceGame>, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      const actorUid = currentPlayerUid(state)!;
+      sequences[actorUid] += 1;
+      entStream.push(createEvent(type, actorUid, sequences[actorUid], payload, nextTimestamp++));
+    };
+    for (let guard = 0; guard < 160; guard += 1) {
+      const state = reduceGame(entStream);
+      const match = state.match!;
+      if (match.pendingChoice?.kind === 'deep-fangorn') {
+        if (!match.damBreached) {
+          expect(match.pendingChoice.options).toEqual(['gain-4-mithril']);
+          const rejected = reduceGame([...entStream, createEvent('choice/resolved', target, sequences[target] + 1, { choice: 'summon-2-ents' }, nextTimestamp)]);
+          expect(rejected.diagnostics.at(-1)).toContain('illegal choice resolution');
+          expect(rejected.match!.battleEnts[target] ?? 0).toBe(0);
+          protectedDeepChecked = true;
+          appendEnt(state, 'choice/resolved', { choice: 'gain-4-mithril' });
+          continue;
+        }
+        beforeDeep = state;
+        break;
+      }
+      const current = currentPlayerUid(state)!;
+      const player = match.players[current];
+      const pendingChoice = match.pendingChoice;
+      if (pendingChoice?.kind === 'fangorn-moot') appendEnt(state, 'choice/resolved', { choice: 'gain-provision-breach-dam' });
+      else if (pendingChoice?.kind === 'battle-deployment') appendEnt(state, 'choice/resolved', { choice: 'deploy:0' });
+      else if (pendingChoice?.kind === 'place-scout') {
+        const post = OBSERVATION_POSTS.find((candidate) => !match.boardScouts[candidate.id])!;
+        appendEnt(state, 'scout/placed', { postId: post.id });
+      } else if (pendingChoice?.kind === 'gather-intelligence') appendEnt(state, 'choice/resolved', { choice: 'decline-intelligence' });
+      else if (pendingChoice?.kind === 'seek-allies') appendEnt(state, 'choice/resolved', { choice: 'keep-card' });
+      else if (pendingChoice?.kind === 'critical-defense') appendEnt(state, 'choice/resolved', { choice: 'decline-defender' });
+      else if (match.turnMode === 'battle') appendEnt(state, 'battle/passed', {});
+      else if (match.turnMode === 'reveal') appendEnt(state, 'reveal/finished', {});
+      else if (current === target) {
+        const destination = !match.damBreached && player.resources.provisions < 3
+          ? 'dwarven-caravans'
+          : !match.damBreached && !protectedDeepChecked
+            ? 'deep-fangorn'
+            : !match.damBreached
+              ? 'fangorn-moot'
+            : player.resources.provisions < 3
+              ? 'dwarven-caravans'
+              : 'deep-fangorn';
+        const card = player.hand.find((candidate) => legalAgentSpaces(state, current, candidate.id).includes(destination));
+        if (card) appendEnt(state, 'agent/placed', { cardInstanceId: card.id, spaceId: destination });
+        else appendEnt(state, 'turn/revealed', {});
+      } else appendEnt(state, 'turn/revealed', {});
+    }
+    expect(beforeDeep, 'the real event stream must reach a paid Deep Fangorn choice').not.toBeNull();
+    expect(protectedDeepChecked).toBe(true);
+    expect(beforeDeep!.diagnostics).toEqual([]);
+    expect(beforeDeep!.match!.damBreached).toBe(true);
+    expect(beforeDeep!.match!.pendingChoice).toEqual(expect.objectContaining({
+      kind: 'deep-fangorn', options: ['gain-4-mithril', 'summon-2-ents']
+    }));
+    const richesTaken = beforeDeep!.match!.round - 1;
+    expect(beforeDeep!.match!.players[target].resources.provisions).toBeGreaterThanOrEqual(0);
+    expect(beforeDeep!.match!.players[target].resources.mithril).toBeGreaterThanOrEqual(richesTaken);
+    sequences[target] += 1;
+    entStream.push(createEvent('choice/resolved', target, sequences[target], { choice: 'summon-2-ents' }, nextTimestamp++));
+    const summoned = reduceGame(entStream);
+    expect(summoned.diagnostics).toEqual([]);
+    expect(summoned.match!.battleEnts[target]).toBe(2);
+    expect(battleStrength(summoned.match!, target)).toBeGreaterThanOrEqual(6);
   });
 
   it('orders Armed Escort recruitment before the optional Muster payment', () => {

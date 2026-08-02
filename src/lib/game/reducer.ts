@@ -79,12 +79,13 @@ export type MatchState = {
   battleDeck: string[];
   battleDiscard: string[];
   battleCompanies: Record<string, number>;
+  battleEnts: Record<string, number>;
   battleParticipantUids: string[];
   battleBonusStrength: Record<string, number>;
   consecutiveBattlePasses: number;
   battleHistory: Array<{ battleId: string; winnerUid: string | null; strengths: Record<string, number> }>;
   criticalControl: Record<'minas-tirith' | 'osgiliath' | 'edoras', string | null>;
-  richesMithril: Record<'edoras', number>;
+  richesMithril: Record<'deep-fangorn' | 'entwash' | 'edoras', number>;
   damBreached: boolean;
   queuedBattleDeployment: { actorUid: string; spaceId: string } | null;
   pendingChoice: null | {
@@ -98,6 +99,12 @@ export type MatchState = {
     followupSeekAlliesCardId: string | null;
     followupPlaceScout: boolean;
     options: readonly ('take-ent-draught' | 'gain-provision-breach-dam' | 'gain-provision-leave-dam')[];
+  } | {
+    kind: 'deep-fangorn';
+    actorUid: string;
+    followupSeekAlliesCardId: string | null;
+    followupPlaceScout: boolean;
+    options: readonly ('gain-4-mithril' | 'summon-2-ents')[];
   } | {
     kind: 'battle-deployment';
     actorUid: string;
@@ -260,12 +267,13 @@ function createMatch(state: GameState, seed: string): MatchState {
     battleDeck: BATTLE_CARD_DEFINITIONS.slice(1).map((battle) => battle.id),
     battleDiscard: [],
     battleCompanies: {},
+    battleEnts: {},
     battleParticipantUids: [],
     battleBonusStrength: {},
     consecutiveBattlePasses: 0,
     battleHistory: [],
     criticalControl: { 'minas-tirith': null, osgiliath: null, edoras: null },
-    richesMithril: { edoras: 0 },
+    richesMithril: { 'deep-fangorn': 0, entwash: 0, edoras: 0 },
     damBreached: false,
     queuedBattleDeployment: null,
     pendingChoice: null,
@@ -302,6 +310,7 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
     if (space.effect.kind === 'pits-isengard' && player.resources.mithril < space.effect.costMithril) return false;
     if (space.effect.kind === 'deep-roads' && player.resources.mithril < space.effect.costMithril) return false;
     if (space.effect.kind === 'ranger-mustering' && player.resources.provisions < space.effect.costProvisions) return false;
+    if (space.effect.kind === 'deep-fangorn' && player.resources.provisions < space.effect.costProvisions) return false;
     if (space.effect.kind === 'fangorn-moot' && player.standing.wild < space.effect.requiredWildStanding) return false;
     if (space.effect.kind === 'secret-bargain') {
       const hasOtherAgent = Object.entries(match.boardAgents).some(([, occupations]) =>
@@ -378,6 +387,7 @@ function drawOneCard(match: MatchState, uid: string, reason: string): CardInstan
 }
 
 function recallAndBeginNextRound(match: MatchState): void {
+  if (!(match.boardAgents['deep-fangorn']?.length > 0)) match.richesMithril['deep-fangorn'] += 1;
   if (!(match.boardAgents.edoras?.length > 0)) {
     match.richesMithril.edoras += 1;
   }
@@ -425,6 +435,12 @@ function isBattleSpace(space: (typeof BOARD_SPACE_DEFINITIONS)[number]): boolean
   return 'battleSpace' in space.effect && space.effect.battleSpace === true;
 }
 
+function canSummonEnts(match: MatchState, player: MatchPlayer): boolean {
+  if (!player.entDraught || !match.activeBattleId) return false;
+  const contested = BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === match.activeBattleId)?.contestedLocationId;
+  return match.damBreached || (contested !== 'minas-tirith' && contested !== 'osgiliath' && contested !== 'edoras');
+}
+
 function openBattleDeployment(match: MatchState, actorUid: string, spaceId: string): boolean {
   if (!match.activeBattleId) return false;
   const player = match.players[actorUid];
@@ -449,15 +465,16 @@ function finishAgentAction(match: MatchState, actorUid: string): void {
 
 export function battleStrength(match: MatchState, uid: string): number {
   const companies = match.battleCompanies[uid] ?? 0;
-  if (companies < 1) return 0;
-  return companies * 2 + match.players[uid].revealedSwords + (match.battleBonusStrength[uid] ?? 0);
+  const ents = match.battleEnts[uid] ?? 0;
+  if (companies + ents < 1) return 0;
+  return companies * 2 + ents * 3 + match.players[uid].revealedSwords + (match.battleBonusStrength[uid] ?? 0);
 }
 
 function clockwiseParticipants(match: MatchState): string[] {
   if (match.turnMode === 'battle' && match.battleParticipantUids.length > 0) return match.battleParticipantUids;
   return Array.from({ length: match.playerOrder.length }, (_, offset) =>
     match.playerOrder[(match.firstPlayerIndex + offset) % match.playerOrder.length]
-  ).filter((uid) => (match.battleCompanies[uid] ?? 0) > 0);
+  ).filter((uid) => (match.battleCompanies[uid] ?? 0) + (match.battleEnts[uid] ?? 0) > 0);
 }
 
 function applyBattleReward(match: MatchState, uid: string, rank: 0 | 1 | 2): void {
@@ -465,13 +482,17 @@ function applyBattleReward(match: MatchState, uid: string, rank: 0 | 1 | 2): voi
   if (!definition) return;
   const reward = definition.rewards[rank];
   const player = match.players[uid];
-  if (reward.gold) player.resources.gold += reward.gold;
-  if (reward.mithril) player.resources.mithril += reward.mithril;
-  if (reward.recruitCompanies) recruitCompanies(player, reward.recruitCompanies);
-  if (reward.renown) player.renown += reward.renown;
-  if (reward.drawFate) {
-    const drawn = match.fateDeck.splice(0, reward.drawFate);
-    player.fateHand.push(...drawn);
+  const copies = (match.battleEnts[uid] ?? 0) > 0 ? 2 : 1;
+  for (let copy = 0; copy < copies; copy += 1) {
+    if (reward.gold) player.resources.gold += reward.gold;
+    if (reward.mithril) player.resources.mithril += reward.mithril;
+    if (reward.provisions) player.resources.provisions += reward.provisions;
+    if (reward.recruitCompanies) recruitCompanies(player, reward.recruitCompanies);
+    if (reward.renown) player.renown += reward.renown;
+    if (reward.drawFate) {
+      const drawn = match.fateDeck.splice(0, reward.drawFate);
+      player.fateHand.push(...drawn);
+    }
   }
   if (reward.controlLocationId) match.criticalControl[reward.controlLocationId] = uid;
 }
@@ -530,6 +551,7 @@ function resolveBattle(match: MatchState): void {
   for (const uid of match.playerOrder) {
     match.players[uid].companies.supply += match.battleCompanies[uid] ?? 0;
     match.battleCompanies[uid] = 0;
+    match.battleEnts[uid] = 0;
     match.battleBonusStrength[uid] = 0;
   }
   match.battleParticipantUids = [];
@@ -729,6 +751,17 @@ function resolveAgentEffects(
       followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout', options
     };
     resolution = 'calling the Moot to choose Ent-draught or the fate of the Dam';
+  } else if (space.effect.kind === 'deep-fangorn') {
+    const riches = match.richesMithril['deep-fangorn'];
+    player.resources.mithril += riches;
+    match.richesMithril['deep-fangorn'] = 0;
+    const options: ('gain-4-mithril' | 'summon-2-ents')[] = ['gain-4-mithril'];
+    if (canSummonEnts(match, player)) options.push('summon-2-ents');
+    match.pendingChoice = {
+      kind: 'deep-fangorn', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
+      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout', options
+    };
+    resolution = `paying 3 Provisions, taking ${riches} Riches, and choosing Mithril or Ents`;
   } else if (space.effect.kind === 'edoras') {
     const riches = match.richesMithril.edoras;
     player.resources.mithril += space.effect.gainMithril + riches;
@@ -871,6 +904,10 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       if (player.resources.provisions < space.effect.costProvisions) return 'illegal Agent placement';
       player.resources.provisions -= space.effect.costProvisions;
     }
+    if (space.effect.kind === 'deep-fangorn') {
+      if (player.resources.provisions < space.effect.costProvisions) return 'illegal Agent placement';
+      player.resources.provisions -= space.effect.costProvisions;
+    }
     if (space.effect.kind === 'secret-bargain') {
       if (
         player.standing.shadow < space.effect.requiredShadowStanding ||
@@ -981,6 +1018,30 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
           state.match.damBreached = true;
           state.match.activity.push(`${actor.displayName} gains 1 Provision and breaches the Dam at Fangorn Moot.`);
         } else state.match.activity.push(`${actor.displayName} gains 1 Provision and leaves the Dam intact at Fangorn Moot.`);
+      }
+      if (pending.followupSeekAlliesCardId) {
+        state.match.pendingChoice = {
+          kind: 'seek-allies', actorUid: player.uid, cardInstanceId: pending.followupSeekAlliesCardId,
+          options: ['trash-self', 'keep-card']
+        };
+      } else if (pending.followupPlaceScout) {
+        state.match.pendingChoice = {
+          kind: 'place-scout', actorUid: player.uid, followupSeekAlliesCardId: null, options: []
+        };
+      } else {
+        state.match.pendingChoice = null;
+        finishAgentAction(state.match, event.actorUid);
+      }
+      return null;
+    }
+    if (pending.kind === 'deep-fangorn') {
+      if (choice === 'summon-2-ents') {
+        if (!canSummonEnts(state.match, player)) return 'illegal choice resolution';
+        state.match.battleEnts[event.actorUid] = (state.match.battleEnts[event.actorUid] ?? 0) + 2;
+        state.match.activity.push(`${actor.displayName} summons 2 Ents from Deep Fangorn directly into the active Battle.`);
+      } else {
+        player.resources.mithril += 4;
+        state.match.activity.push(`${actor.displayName} gains 4 Mithril in Deep Fangorn.`);
       }
       if (pending.followupSeekAlliesCardId) {
         state.match.pendingChoice = {

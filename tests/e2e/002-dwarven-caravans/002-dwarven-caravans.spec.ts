@@ -120,8 +120,8 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
           for (const seat of seats) await expect(seat.page.getByRole('heading', { name: 'The living board' })).toBeVisible();
         } },
         { spec: 'All 22 final board destinations are structurally present', check: async () => await expect(page.locator('.spaces button')).toHaveCount(22) },
-        { spec: 'Exactly seventeen complete destinations are advertised as playable', check: async () => {
-          await expect(page.getByText('Playable spaces').locator('..').getByText('17 / 22')).toBeVisible();
+        { spec: 'Exactly eighteen complete destinations are advertised as playable', check: async () => {
+          await expect(page.getByText('Playable spaces').locator('..').getByText('18 / 22')).toBeVisible();
           await expect(page.getByTestId('space-dwarven-caravans')).toContainText('+1 standing');
           await expect(page.getByTestId('space-tribute-shadow')).toContainText('+1 standing');
         } },

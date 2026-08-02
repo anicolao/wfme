@@ -141,6 +141,7 @@ export const RESERVE_CARD_DEFINITIONS: readonly ReserveCardDefinition[] = [
 export type BattleReward = {
   gold?: number;
   mithril?: number;
+  provisions?: number;
   recruitCompanies?: number;
   renown?: number;
   drawFate?: number;
@@ -208,6 +209,84 @@ export const BATTLE_CARD_DEFINITIONS: readonly BattleCardDefinition[] = [
       { controlLocationId: 'edoras', renown: 2 },
       { renown: 1, gold: 2 },
       { gold: 3 }
+    ],
+    reviewedCapabilities: ['battle-resolution']
+  },
+  {
+    id: 'wargs-wild',
+    name: 'Wargs in the Wild',
+    age: 2,
+    standard: 'Star',
+    contestedLocationId: null,
+    rewards: [
+      { renown: 1, provisions: 1 },
+      { provisions: 2 },
+      { provisions: 1 }
+    ],
+    reviewedCapabilities: ['battle-resolution']
+  },
+  {
+    id: 'battle-osgiliath',
+    name: 'Battle for Osgiliath',
+    age: 2,
+    standard: 'White Tree',
+    contestedLocationId: 'osgiliath',
+    rewards: [
+      { controlLocationId: 'osgiliath', renown: 1 },
+      { mithril: 2 },
+      { mithril: 1 }
+    ],
+    reviewedCapabilities: ['battle-resolution']
+  },
+  {
+    id: 'raid-westfold',
+    name: 'Raid on the Westfold',
+    age: 1,
+    standard: 'Horse',
+    contestedLocationId: 'edoras',
+    rewards: [
+      { controlLocationId: 'edoras', provisions: 1 },
+      { mithril: 1 },
+      { gold: 1 }
+    ],
+    reviewedCapabilities: ['battle-resolution']
+  },
+  {
+    id: 'skirmish-amon-hen',
+    name: 'Skirmish at Amon Hen',
+    age: 1,
+    standard: 'White Tree',
+    contestedLocationId: null,
+    rewards: [
+      { mithril: 2, drawFate: 1 },
+      { mithril: 1 },
+      { gold: 1 }
+    ],
+    reviewedCapabilities: ['battle-resolution']
+  },
+  {
+    id: 'contest-aglarond',
+    name: 'Contest for Aglarond',
+    age: 2,
+    standard: 'Star',
+    contestedLocationId: 'edoras',
+    rewards: [
+      { controlLocationId: 'edoras', renown: 1 },
+      { mithril: 3 },
+      { mithril: 1 }
+    ],
+    reviewedCapabilities: ['battle-resolution']
+  },
+  {
+    id: 'muster-edoras',
+    name: 'Muster at Edoras',
+    age: 2,
+    standard: 'Horse',
+    contestedLocationId: 'edoras',
+    rewards: [
+      { controlLocationId: 'edoras', recruitCompanies: 3 },
+      { recruitCompanies: 2, gold: 2 },
+      { recruitCompanies: 1, gold: 1 }
     ],
     reviewedCapabilities: ['battle-resolution']
   }
@@ -321,6 +400,7 @@ export type BoardSpaceDefinition = BoardSpaceIdentity & {
     | { kind: 'hall-of-fire'; drawFate: 1; revealInfluence: 1 }
     | { kind: 'minas-tirith'; recruitCompanies: 1; drawCards: 1; controllerBonusGold: 1; battleSpace: true }
     | { kind: 'fangorn-moot'; requiredWildStanding: 2; grantEntDraught: true; recruitCompanies: 1; gainProvisions: 1; mayBreachDam: true; battleSpace: true }
+    | { kind: 'deep-fangorn'; costProvisions: 3; gainMithril: 4; summonEnts: 2; riches: true; battleSpace: true }
     | { kind: 'edoras'; gainMithril: 1; controllerBonusMithril: 1; riches: true; battleSpace: true }
     | { kind: 'white-council-seat'; costGold: 5; repeatGainMithril: 2; repeatDrawFate: 1; repeatRecruitCompanies: 3; revealInfluence: 2 };
   reviewedCapabilities: readonly ['agent-placement'];
@@ -453,6 +533,14 @@ export const BOARD_SPACE_DEFINITIONS: readonly BoardSpaceDefinition[] = [
     region: 'Strongholds',
     placementIcons: ['Stronghold'],
     effect: { kind: 'fangorn-moot', requiredWildStanding: 2, grantEntDraught: true, recruitCompanies: 1, gainProvisions: 1, mayBreachDam: true, battleSpace: true },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'deep-fangorn',
+    name: 'Deep Fangorn',
+    region: 'Roads',
+    placementIcons: ['Roads'],
+    effect: { kind: 'deep-fangorn', costProvisions: 3, gainMithril: 4, summonEnts: 2, riches: true, battleSpace: true },
     reviewedCapabilities: ['agent-placement']
   },
   {
