@@ -152,11 +152,11 @@
     }
   }
 
-  async function placeAgent(spaceId: string) {
+  async function placeAgent(spaceId: string, infiltrationPostId?: string) {
     if (!selectedCardId) return;
     busy = true;
     try {
-      await append('agent/placed', { cardInstanceId: selectedCardId, spaceId });
+      await append('agent/placed', { cardInstanceId: selectedCardId, spaceId, ...(infiltrationPostId ? { infiltrationPostId } : {}) });
       selectedCardId = '';
       message = 'Agent placement committed to the shared Chronicle.';
     } catch (error) {

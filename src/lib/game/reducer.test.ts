@@ -70,7 +70,7 @@ describe('integrated Agent placement replay', () => {
       createEvent('agent/placed', actorUid, 5, { cardInstanceId: card!.id, spaceId: 'dwarven-caravans' }, 11)
     ]);
     expect(after.diagnostics).toEqual([]);
-    expect(after.match!.boardAgents['dwarven-caravans'].uid).toBe(actorUid);
+    expect(after.match!.boardAgents['dwarven-caravans'][0].uid).toBe(actorUid);
     expect(after.match!.players[actorUid].resources.provisions).toBe(2);
     expect(after.match!.players[actorUid].standing.dwarven).toBe(1);
     expect(after.match!.players[actorUid].journey).toContainEqual(card);
@@ -117,7 +117,7 @@ describe('integrated Agent placement replay', () => {
     expect(afterTribute.diagnostics).toEqual([]);
     expect(afterTribute.match!.players[actor].resources.gold).toBe(2);
     expect(afterTribute.match!.players[actor].standing.shadow).toBe(1);
-    expect(afterTribute.match!.boardAgents['tribute-shadow'].uid).toBe(actor);
+    expect(afterTribute.match!.boardAgents['tribute-shadow'][0].uid).toBe(actor);
     expect(afterTribute.match!.playerOrder[afterTribute.match!.currentPlayerIndex]).not.toBe(actor);
   });
 
@@ -138,7 +138,7 @@ describe('integrated Agent placement replay', () => {
     expect(after.match!.players[actor].hand).toContainEqual(drawn);
     expect(after.match!.players[actor].hand).toHaveLength(5);
     expect(after.match!.players[actor].drawPile).toHaveLength(4);
-    expect(after.match!.boardAgents['take-war-effort'].uid).toBe(actor);
+    expect(after.match!.boardAgents['take-war-effort'][0].uid).toBe(actor);
   });
 
   it('orders Armed Escort recruitment before the optional Muster payment', () => {
@@ -400,7 +400,7 @@ describe('integrated Agent placement replay', () => {
       postIds: ['redhorn-pass'],
       options: ['recall:redhorn-pass', 'decline-intelligence']
     });
-    expect(pending.match!.boardAgents['dwarven-caravans'].uid).toBe(actor);
+    expect(pending.match!.boardAgents['dwarven-caravans'][0].uid).toBe(actor);
     expect(pending.match!.players[actor].resources.provisions).toBe(1);
     expect(pending.match!.players[actor].standing.dwarven).toBe(0);
 
@@ -427,5 +427,53 @@ describe('integrated Agent placement replay', () => {
     expect(declined.match!.players[actor].scouts.supply).toBe(2);
     expect(declined.match!.players[actor].hand).not.toContainEqual(nextDraw);
     expect(declined.match!.players[actor].resources.provisions).toBe(2);
+  });
+
+  it('recalls a connected Scout to infiltrate without replacing the blocking Agent', () => {
+    const events = readyRoom('infiltration-20');
+    const started = reduceGame(events);
+    const [actor, blocker, third] = started.match!.playerOrder;
+    const reconnaissance = started.match!.players[actor].hand.find((card) => card.definitionId === 'reconnaissance')!;
+    const blockerMission = started.match!.players[blocker].hand.find((card) => card.definitionId === 'diplomatic-mission')!;
+    const setup = [
+      ...events,
+      createEvent('agent/placed', actor, 5, { cardInstanceId: reconnaissance.id, spaceId: 'take-war-effort' }, 11),
+      createEvent('scout/placed', actor, 6, { postId: 'redhorn-pass' }, 12),
+      createEvent('agent/placed', blocker, 5, { cardInstanceId: blockerMission.id, spaceId: 'dwarven-caravans' }, 13),
+      createEvent('turn/revealed', third, 4, {}, 14),
+      createEvent('reveal/finished', third, 5, {}, 15)
+    ];
+    const before = reduceGame(setup);
+    const infiltratingMission = before.match!.players[actor].hand.find((card) => card.definitionId === 'diplomatic-mission')!;
+    expect(infiltratingMission).toBeDefined();
+    expect(legalAgentSpaces(before, actor, infiltratingMission.id)).toContain('dwarven-caravans');
+
+    const missingScoutIntent = reduceGame([
+      ...setup,
+      createEvent('agent/placed', actor, 7, {
+        cardInstanceId: infiltratingMission.id, spaceId: 'dwarven-caravans'
+      }, 16)
+    ]);
+    expect(missingScoutIntent.diagnostics.at(-1)).toContain('illegal Agent infiltration');
+    expect(missingScoutIntent.match!.boardAgents['dwarven-caravans']).toEqual([{ uid: blocker, agentNumber: 1 }]);
+    expect(missingScoutIntent.match!.boardScouts['redhorn-pass']).toBe(actor);
+
+    const infiltrated = reduceGame([
+      ...setup,
+      createEvent('agent/placed', actor, 7, {
+        cardInstanceId: infiltratingMission.id,
+        spaceId: 'dwarven-caravans',
+        infiltrationPostId: 'redhorn-pass'
+      }, 16)
+    ]);
+    expect(infiltrated.diagnostics).toEqual([]);
+    expect(infiltrated.match!.boardAgents['dwarven-caravans']).toEqual([
+      { uid: blocker, agentNumber: 1 },
+      { uid: actor, agentNumber: 2 }
+    ]);
+    expect(infiltrated.match!.boardScouts['redhorn-pass']).toBeUndefined();
+    expect(infiltrated.match!.players[actor].scouts.supply).toBe(3);
+    expect(infiltrated.match!.players[actor].resources.provisions).toBe(2);
+    expect(infiltrated.match!.players[actor].standing.dwarven).toBe(1);
   });
 });

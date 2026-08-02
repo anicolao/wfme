@@ -17,13 +17,14 @@
   export let localUid: string;
   export let selectedCardId = '';
   export let onSelectCard: (cardId: string) => void;
-  export let onPlaceAgent: (spaceId: string) => void;
+  export let onPlaceAgent: (spaceId: string, infiltrationPostId?: string) => void;
   export let onResolveChoice: (choice: string) => void;
   export let onReveal: () => void;
   export let onAcquire: (definitionId: string) => void;
   export let onFinishReveal: () => void;
   export let onPlaceScout: (postId: string, recallPostId?: string) => void;
   let selectedScoutRecall = '';
+  let selectedInfiltrationSpace = '';
 
   const regions: BoardRegion[] = [
     'Shadow Hosts',
@@ -98,20 +99,23 @@
               {#each BOARD_LAYOUT.filter((space) => space.region === region) as space}
                 {@const implemented = BOARD_SPACE_DEFINITIONS.some((definition) => definition.id === space.id)}
                 {@const definition = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === space.id)}
-                {@const occupantUid = game.match?.boardAgents[space.id]?.uid}
-                {@const occupant = game.players.find((player) => player.uid === occupantUid)?.displayName ?? null}
+                {@const occupants = (game.match?.boardAgents[space.id] ?? []).map((occupation) => game.players.find((player) => player.uid === occupation.uid)?.displayName).filter(Boolean)}
+                {@const infiltrationPosts = OBSERVATION_POSTS.filter((post) => post.connectedSpaceIds.includes(space.id) && game.match?.boardScouts[post.id] === localUid)}
                 <button
                   type="button"
                   class:implemented
-                  class:occupied={Boolean(occupant)}
+                  class:occupied={occupants.length > 0}
                   disabled={!legal.includes(space.id)}
-                  aria-label={`${space.name}${occupant ? `, occupied by ${occupant}` : implemented ? ', implemented' : ', unavailable in current tracer'}`}
+                  aria-label={`${space.name}${occupants.length ? `, occupied by ${occupants.join(' and ')}` : implemented ? ', implemented' : ', unavailable in current tracer'}`}
                   data-testid={`space-${space.id}`}
-                  onclick={() => void onPlaceAgent(space.id)}
+                  onclick={() => {
+                    if (occupants.length && infiltrationPosts.length) selectedInfiltrationSpace = space.id;
+                    else void onPlaceAgent(space.id);
+                  }}
                 >
                   <strong>{space.name}</strong>
-                  {#if occupant}
-                    <span>Agent · {occupant}</span>
+                  {#if occupants.length}
+                    <span>Agent · {occupants.join(' · ')}</span>
                   {:else if implemented}
                     <span>
                       {definition?.effect.kind === 'dwarven-caravans'
@@ -133,6 +137,26 @@
       </div>
     </div>
   </div>
+
+  {#if selectedInfiltrationSpace}
+    {@const infiltrationSpace = BOARD_LAYOUT.find((space) => space.id === selectedInfiltrationSpace)!}
+    <section class="pending-choice" data-testid="infiltration-choice" aria-labelledby="infiltration-title">
+      <div>
+        <p class="eyebrow">Scout infiltration</p>
+        <h2 id="infiltration-title">Recall a connected Scout to enter {infiltrationSpace.name}?</h2>
+        <p>The blocking Agent remains. Your matching card and recalled Scout allow another Agent to share this space.</p>
+      </div>
+      <div class="choice-actions">
+        {#each OBSERVATION_POSTS.filter((post) => post.connectedSpaceIds.includes(selectedInfiltrationSpace) && game.match?.boardScouts[post.id] === localUid) as post}
+          <button type="button" onclick={() => {
+            onPlaceAgent(selectedInfiltrationSpace, post.id);
+            selectedInfiltrationSpace = '';
+          }}>Recall {post.name} Scout</button>
+        {/each}
+        <button type="button" onclick={() => selectedInfiltrationSpace = ''}>Cancel</button>
+      </div>
+    </section>
+  {/if}
 
   <section class="scout-network" data-testid="scout-network" aria-labelledby="scout-title">
     <div>

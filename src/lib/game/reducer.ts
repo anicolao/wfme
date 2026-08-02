@@ -58,7 +58,7 @@ export type MatchState = {
   firstPlayerIndex: number;
   turnMode: 'agent' | 'reveal';
   players: Record<string, MatchPlayer>;
-  boardAgents: Record<string, AgentOccupation>;
+  boardAgents: Record<string, AgentOccupation[]>;
   boardScouts: Record<string, string>;
   pendingChoice: null | {
     kind: 'muster-free-peoples';
@@ -191,11 +191,16 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
   const card = player.hand.find((candidate) => candidate.id === cardInstanceId);
   const definition = card && AGENT_CARD_DEFINITIONS.find((candidate) => candidate.id === card.definitionId);
   if (!definition) return [];
-  return BOARD_SPACE_DEFINITIONS.filter(
-    (space) =>
-      !match.boardAgents[space.id] &&
-      definition.placementIcons.some((icon) => space.placementIcons.includes(icon))
-  ).map((space) => space.id);
+  return BOARD_SPACE_DEFINITIONS.filter((space) => {
+    const connectedOwnScout = OBSERVATION_POSTS.some(
+      (post) => post.connectedSpaceIds.includes(space.id) && match.boardScouts[post.id] === actorUid
+    );
+    const iconMatches = definition.placementIcons.some((icon) => space.placementIcons.includes(icon))
+      || (definition.placementIcons.includes('Scout') && connectedOwnScout);
+    const occupants = match.boardAgents[space.id] ?? [];
+    const canInfiltrate = connectedOwnScout && occupants.some((occupant) => occupant.uid !== actorUid);
+    return iconMatches && (occupants.length === 0 || canInfiltrate);
+  }).map((space) => space.id);
 }
 
 function advanceToNextAgentPlayer(match: MatchState): void {
@@ -267,11 +272,12 @@ function gainStanding(match: MatchState, player: MatchPlayer, faction: 'shadow' 
 function resolveAgentEffects(
   state: GameState,
   actorName: string,
+  actorUid: string,
   card: CardInstance,
   space: (typeof BOARD_SPACE_DEFINITIONS)[number]
 ): void {
   const match = state.match!;
-  const player = match.players[match.boardAgents[space.id].uid];
+  const player = match.players[actorUid];
   const cardDefinition = AGENT_CARD_DEFINITIONS.find((candidate) => candidate.id === card.definitionId)!;
   let resolution: string;
   if (cardDefinition.journeyEffect?.kind === 'recruit-companies') {
@@ -393,6 +399,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
   if (event.type === 'agent/placed') {
     const cardInstanceId = event.payload.cardInstanceId;
     const spaceId = event.payload.spaceId;
+    const infiltrationPostId = event.payload.infiltrationPostId;
     if (
       state.phase !== 'playing' ||
       typeof cardInstanceId !== 'string' ||
@@ -402,12 +409,29 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     ) return 'illegal Agent placement';
     const player = state.match.players[event.actorUid];
     const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === spaceId)!;
+    const occupants = state.match.boardAgents[spaceId] ?? [];
+    if (occupants.length > 0) {
+      const post = typeof infiltrationPostId === 'string'
+        ? OBSERVATION_POSTS.find((candidate) => candidate.id === infiltrationPostId)
+        : undefined;
+      if (
+        !post ||
+        !post.connectedSpaceIds.includes(spaceId) ||
+        state.match.boardScouts[post.id] !== event.actorUid ||
+        !occupants.some((occupant) => occupant.uid !== event.actorUid)
+      ) return 'illegal Agent infiltration';
+      delete state.match.boardScouts[post.id];
+      player.scouts.supply += 1;
+      state.match.activity.push(`${actor.displayName} recalls their Scout from ${post.name} to infiltrate ${space.name}.`);
+    } else if (infiltrationPostId !== undefined) {
+      return 'illegal Agent infiltration';
+    }
     const cardIndex = player.hand.findIndex((card) => card.id === cardInstanceId);
     const [card] = player.hand.splice(cardIndex, 1);
     player.journey.push(card);
     const agentNumber = 3 - player.availableAgents;
     player.availableAgents -= 1;
-    state.match.boardAgents[spaceId] = { uid: event.actorUid, agentNumber };
+    state.match.boardAgents[spaceId] = [...occupants, { uid: event.actorUid, agentNumber }];
     const gatheringPosts = OBSERVATION_POSTS.filter(
       (post) => post.connectedSpaceIds.includes(spaceId) && state.match!.boardScouts[post.id] === event.actorUid
     ).map((post) => post.id);
@@ -423,7 +447,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       state.match.activity.push(`${actor.displayName} places an Agent at ${space.name} and may gather intelligence before resolving it.`);
       return null;
     }
-    resolveAgentEffects(state, actor.displayName, card, space);
+    resolveAgentEffects(state, actor.displayName, event.actorUid, card, space);
     if (!state.match.pendingChoice) advanceToNextAgentPlayer(state.match);
     return null;
   }
@@ -460,7 +484,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === pending.spaceId);
       if (!card || !space) return 'illegal choice resolution';
       state.match.pendingChoice = null;
-      resolveAgentEffects(state, actor.displayName, card, space);
+      resolveAgentEffects(state, actor.displayName, event.actorUid, card, space);
       if (!state.match.pendingChoice) advanceToNextAgentPlayer(state.match);
       return null;
     }
