@@ -1,6 +1,6 @@
-# Test: Deep Fangorn and the Ents
+# Test: Deep Fangorn, Entwash, and the Ents
 
-Three isolated humans earn Wild respect, obtain persistent Ent-draught, see an intact Dam prevent a protected summon, take accumulated Riches, breach the Dam through a later Moot, summon two Ents into an active Battle, receive the ranked reward twice, clean up, and replay the result after reload.
+Three isolated humans earn Wild respect, obtain persistent Ent-draught, see an intact Dam prevent a protected summon, take accumulated Riches, breach the Dam through a later Moot, summon two Ents into an active Battle, receive the ranked reward twice, clean up, then pay for Entwash, collect its Riches, summon one Ent, and replay both results after reload.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -193,7 +193,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] All three browsers open the same production board and first Battle
-- [x] Deep Fangorn is a complete eighteenth destination
+- [x] Deep Fangorn and Entwash complete nineteen destinations
 - [x] Every connected browser replays 10 accepted events with no diagnostics
 
 ---
@@ -1161,5 +1161,56 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] The doubled reward, Dam, and Ent-draught replay without diagnostics
 - [x] Every connected browser replays 74 accepted events with no diagnostics
+
+---
+
+## Mara chooses a Roads card for Entwash
+
+![Phone: Mara chooses a Roads card for Entwash](./screenshots/091-choose-entwash-road-phone.png)
+
+![Desktop: Mara chooses a Roads card for Entwash](./screenshots/091-choose-entwash-road-desktop.png)
+
+**Verifications:**
+
+- [x] Entwash is enabled by a real Roads card
+
+---
+
+## Mara pays one Provision and visits Entwash
+
+![Phone: Mara pays one Provision and visits Entwash](./screenshots/092-visit-entwash-phone.png)
+
+![Desktop: Mara pays one Provision and visits Entwash](./screenshots/092-visit-entwash-desktop.png)
+
+**Verifications:**
+
+- [x] The one-Provision cost and all accumulated Riches resolve before the choice
+- [x] Every connected browser replays 75 accepted events with no diagnostics
+
+---
+
+## Mara summons one Ent at Entwash
+
+![Phone: Mara summons one Ent at Entwash](./screenshots/093-summon-one-entwash-ent-phone.png)
+
+![Desktop: Mara summons one Ent at Entwash](./screenshots/093-summon-one-entwash-ent-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees exactly one Ent add three Strength in the new Battle
+- [x] Every connected browser replays 76 accepted events with no diagnostics
+
+---
+
+## Mara reloads the Entwash summon
+
+![Phone: Mara reloads the Entwash summon](./screenshots/094-reload-entwash-summon-phone.png)
+
+![Desktop: Mara reloads the Entwash summon](./screenshots/094-reload-entwash-summon-desktop.png)
+
+**Verifications:**
+
+- [x] Entwash occupation, one Ent, Dam state, and immutable history replay cleanly
+- [x] Every connected browser replays 76 accepted events with no diagnostics
 
 ---

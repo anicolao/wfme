@@ -401,6 +401,7 @@ export type BoardSpaceDefinition = BoardSpaceIdentity & {
     | { kind: 'minas-tirith'; recruitCompanies: 1; drawCards: 1; controllerBonusGold: 1; battleSpace: true }
     | { kind: 'fangorn-moot'; requiredWildStanding: 2; grantEntDraught: true; recruitCompanies: 1; gainProvisions: 1; mayBreachDam: true; battleSpace: true }
     | { kind: 'deep-fangorn'; costProvisions: 3; gainMithril: 4; summonEnts: 2; riches: true; battleSpace: true }
+    | { kind: 'entwash'; costProvisions: 1; gainMithril: 2; summonEnts: 1; riches: true; battleSpace: true }
     | { kind: 'edoras'; gainMithril: 1; controllerBonusMithril: 1; riches: true; battleSpace: true }
     | { kind: 'white-council-seat'; costGold: 5; repeatGainMithril: 2; repeatDrawFate: 1; repeatRecruitCompanies: 3; revealInfluence: 2 };
   reviewedCapabilities: readonly ['agent-placement'];
@@ -541,6 +542,14 @@ export const BOARD_SPACE_DEFINITIONS: readonly BoardSpaceDefinition[] = [
     region: 'Roads',
     placementIcons: ['Roads'],
     effect: { kind: 'deep-fangorn', costProvisions: 3, gainMithril: 4, summonEnts: 2, riches: true, battleSpace: true },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'entwash',
+    name: 'Entwash',
+    region: 'Roads',
+    placementIcons: ['Roads'],
+    effect: { kind: 'entwash', costProvisions: 1, gainMithril: 2, summonEnts: 1, riches: true, battleSpace: true },
     reviewedCapabilities: ['agent-placement']
   },
   {

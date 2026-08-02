@@ -208,7 +208,7 @@ describe('integrated Agent placement replay', () => {
     const actor = before.match!.playerOrder[0];
     const road = before.match!.players[actor].hand.find((card) => card.definitionId === 'the-open-road')!;
     const drawn = before.match!.players[actor].drawPile[0];
-    expect(legalAgentSpaces(before, actor, road.id)).toEqual(['take-war-effort', 'edoras']);
+    expect(legalAgentSpaces(before, actor, road.id)).toEqual(['take-war-effort', 'edoras', 'entwash']);
 
     const after = reduceGame([...events, createEvent('agent/placed', actor, 5, {
       cardInstanceId: road.id,
@@ -379,6 +379,47 @@ describe('integrated Agent placement replay', () => {
     expect(summoned.diagnostics).toEqual([]);
     expect(summoned.match!.battleEnts[target]).toBe(2);
     expect(battleStrength(summoned.match!, target)).toBeGreaterThanOrEqual(6);
+
+    let beforeEntwash: ReturnType<typeof reduceGame> | null = null;
+    for (let guard = 0; guard < 180; guard += 1) {
+      const state = reduceGame(entStream);
+      const match = state.match!;
+      if (match.pendingChoice?.kind === 'entwash') {
+        beforeEntwash = state;
+        break;
+      }
+      const current = currentPlayerUid(state)!;
+      const player = match.players[current];
+      const pendingChoice = match.pendingChoice;
+      if (pendingChoice?.kind === 'battle-deployment') appendEnt(state, 'choice/resolved', { choice: 'deploy:0' });
+      else if (pendingChoice?.kind === 'place-scout') {
+        const post = OBSERVATION_POSTS.find((candidate) => !match.boardScouts[candidate.id])!;
+        appendEnt(state, 'scout/placed', { postId: post.id });
+      } else if (pendingChoice?.kind === 'gather-intelligence') appendEnt(state, 'choice/resolved', { choice: 'decline-intelligence' });
+      else if (pendingChoice?.kind === 'seek-allies') appendEnt(state, 'choice/resolved', { choice: 'keep-card' });
+      else if (pendingChoice?.kind === 'critical-defense') appendEnt(state, 'choice/resolved', { choice: 'decline-defender' });
+      else if (match.turnMode === 'battle') appendEnt(state, 'battle/passed', {});
+      else if (match.turnMode === 'reveal') appendEnt(state, 'reveal/finished', {});
+      else if (current === target) {
+        const road = player.hand.find((card) => legalAgentSpaces(state, current, card.id).includes('entwash'));
+        const provision = player.hand.find((card) => legalAgentSpaces(state, current, card.id).includes('dwarven-caravans'));
+        if (player.resources.provisions >= 1 && road) appendEnt(state, 'agent/placed', { cardInstanceId: road.id, spaceId: 'entwash' });
+        else if (provision) appendEnt(state, 'agent/placed', { cardInstanceId: provision.id, spaceId: 'dwarven-caravans' });
+        else appendEnt(state, 'turn/revealed', {});
+      } else appendEnt(state, 'turn/revealed', {});
+    }
+    expect(beforeEntwash, 'ordinary play must reach Entwash after the Deep Fangorn Battle').not.toBeNull();
+    expect(beforeEntwash!.diagnostics).toEqual([]);
+    expect(beforeEntwash!.match!.pendingChoice).toEqual(expect.objectContaining({
+      kind: 'entwash', options: ['gain-2-mithril', 'summon-1-ent']
+    }));
+    sequences[target] += 1;
+    entStream.push(createEvent('choice/resolved', target, sequences[target], { choice: 'summon-1-ent' }, nextTimestamp++));
+    const oneEnt = reduceGame(entStream);
+    expect(oneEnt.diagnostics).toEqual([]);
+    expect(oneEnt.match!.battleEnts[target]).toBe((beforeEntwash!.match!.battleEnts[target] ?? 0) + 1);
+    expect(battleStrength(oneEnt.match!, target)).toBe(battleStrength(beforeEntwash!.match!, target) + 3);
+    expect(oneEnt.match!.richesMithril.entwash).toBe(0);
   });
 
   it('orders Armed Escort recruitment before the optional Muster payment', () => {

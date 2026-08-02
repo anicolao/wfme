@@ -106,6 +106,12 @@ export type MatchState = {
     followupPlaceScout: boolean;
     options: readonly ('gain-4-mithril' | 'summon-2-ents')[];
   } | {
+    kind: 'entwash';
+    actorUid: string;
+    followupSeekAlliesCardId: string | null;
+    followupPlaceScout: boolean;
+    options: readonly ('gain-2-mithril' | 'summon-1-ent')[];
+  } | {
     kind: 'battle-deployment';
     actorUid: string;
     spaceId: string;
@@ -311,6 +317,7 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
     if (space.effect.kind === 'deep-roads' && player.resources.mithril < space.effect.costMithril) return false;
     if (space.effect.kind === 'ranger-mustering' && player.resources.provisions < space.effect.costProvisions) return false;
     if (space.effect.kind === 'deep-fangorn' && player.resources.provisions < space.effect.costProvisions) return false;
+    if (space.effect.kind === 'entwash' && player.resources.provisions < space.effect.costProvisions) return false;
     if (space.effect.kind === 'fangorn-moot' && player.standing.wild < space.effect.requiredWildStanding) return false;
     if (space.effect.kind === 'secret-bargain') {
       const hasOtherAgent = Object.entries(match.boardAgents).some(([, occupations]) =>
@@ -388,6 +395,7 @@ function drawOneCard(match: MatchState, uid: string, reason: string): CardInstan
 
 function recallAndBeginNextRound(match: MatchState): void {
   if (!(match.boardAgents['deep-fangorn']?.length > 0)) match.richesMithril['deep-fangorn'] += 1;
+  if (!(match.boardAgents.entwash?.length > 0)) match.richesMithril.entwash += 1;
   if (!(match.boardAgents.edoras?.length > 0)) {
     match.richesMithril.edoras += 1;
   }
@@ -762,6 +770,17 @@ function resolveAgentEffects(
       followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout', options
     };
     resolution = `paying 3 Provisions, taking ${riches} Riches, and choosing Mithril or Ents`;
+  } else if (space.effect.kind === 'entwash') {
+    const riches = match.richesMithril.entwash;
+    player.resources.mithril += riches;
+    match.richesMithril.entwash = 0;
+    const options: ('gain-2-mithril' | 'summon-1-ent')[] = ['gain-2-mithril'];
+    if (canSummonEnts(match, player)) options.push('summon-1-ent');
+    match.pendingChoice = {
+      kind: 'entwash', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
+      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout', options
+    };
+    resolution = `paying 1 Provision, taking ${riches} Riches, and choosing Mithril or an Ent`;
   } else if (space.effect.kind === 'edoras') {
     const riches = match.richesMithril.edoras;
     player.resources.mithril += space.effect.gainMithril + riches;
@@ -908,6 +927,10 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       if (player.resources.provisions < space.effect.costProvisions) return 'illegal Agent placement';
       player.resources.provisions -= space.effect.costProvisions;
     }
+    if (space.effect.kind === 'entwash') {
+      if (player.resources.provisions < space.effect.costProvisions) return 'illegal Agent placement';
+      player.resources.provisions -= space.effect.costProvisions;
+    }
     if (space.effect.kind === 'secret-bargain') {
       if (
         player.standing.shadow < space.effect.requiredShadowStanding ||
@@ -1042,6 +1065,30 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       } else {
         player.resources.mithril += 4;
         state.match.activity.push(`${actor.displayName} gains 4 Mithril in Deep Fangorn.`);
+      }
+      if (pending.followupSeekAlliesCardId) {
+        state.match.pendingChoice = {
+          kind: 'seek-allies', actorUid: player.uid, cardInstanceId: pending.followupSeekAlliesCardId,
+          options: ['trash-self', 'keep-card']
+        };
+      } else if (pending.followupPlaceScout) {
+        state.match.pendingChoice = {
+          kind: 'place-scout', actorUid: player.uid, followupSeekAlliesCardId: null, options: []
+        };
+      } else {
+        state.match.pendingChoice = null;
+        finishAgentAction(state.match, event.actorUid);
+      }
+      return null;
+    }
+    if (pending.kind === 'entwash') {
+      if (choice === 'summon-1-ent') {
+        if (!canSummonEnts(state.match, player)) return 'illegal choice resolution';
+        state.match.battleEnts[event.actorUid] = (state.match.battleEnts[event.actorUid] ?? 0) + 1;
+        state.match.activity.push(`${actor.displayName} summons 1 Ent from Entwash directly into the active Battle.`);
+      } else {
+        player.resources.mithril += 2;
+        state.match.activity.push(`${actor.displayName} gains 2 Mithril at Entwash.`);
       }
       if (pending.followupSeekAlliesCardId) {
         state.match.pendingChoice = {

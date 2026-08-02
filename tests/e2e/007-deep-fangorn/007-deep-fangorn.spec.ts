@@ -4,7 +4,7 @@ import { TestStepHelper, type Verification } from '../helpers/test-step-helper';
 type Seat = { name: string; page: Page; context?: BrowserContext };
 
 test('Ent-draught breaches the Dam and summons reward-doubling Ents', async ({ browser, page }, testInfo) => {
-  test.setTimeout(600_000);
+  test.setTimeout(900_000);
   const steps = new TestStepHelper(testInfo);
   const viewport = page.viewportSize() ?? { width: 1280, height: 960 };
   const guestAContext = await browser.newContext({ baseURL: 'http://127.0.0.1:5189', viewport, reducedMotion: 'reduce', serviceWorkers: 'block' });
@@ -79,7 +79,7 @@ test('Ent-draught breaches the Dam and summons reward-doubling Ents', async ({ b
           await expect(seat.page.getByTestId('active-battle')).toContainText('Crossing of the Isen');
         }
       } },
-      { spec: 'Deep Fangorn is a complete eighteenth destination', check: async () => await expect(page.getByText('18 / 22')).toBeVisible() },
+      { spec: 'Deep Fangorn and Entwash complete nineteen destinations', check: async () => await expect(page.getByText('19 / 22')).toBeVisible() },
       converged(accepted + 1)
     ]);
 
@@ -260,7 +260,105 @@ test('Ent-draught breaches the Dam and summons reward-doubling Ents', async ({ b
       await expect(target.page.getByTestId('replay-health')).toContainText('0 replay diagnostics');
     } }, converged(accepted)]);
 
-    steps.generateDocs('Deep Fangorn and the Ents', 'Three isolated humans earn Wild respect, obtain persistent Ent-draught, see an intact Dam prevent a protected summon, take accumulated Riches, breach the Dam through a later Moot, summon two Ents into an active Battle, receive the ranked reward twice, clean up, and replay the result after reload.');
+    let entwashSummoned = false;
+    for (let guard = 0; guard < 120; guard += 1) {
+      const actor = await currentSeat();
+      const pending = actor.page.getByTestId('pending-choice');
+      if (await pending.isVisible().catch(() => false)) {
+        if (await actor.page.getByRole('heading', { name: 'Call one Ent or take Mithril?' }).isVisible().catch(() => false)) {
+          await steps.gesture(actor.page, 'summon-one-entwash-ent', `${actor.name} summons one Ent at Entwash`, async () => {
+            await actor.page.getByRole('button', { name: 'Summon 1 Ent' }).click(); accepted += 1; entwashSummoned = true;
+          }, [
+            { spec: 'Every observer sees exactly one Ent add three Strength in the new Battle', check: async () => {
+              for (const observer of seats) {
+                const force = observer.page.getByTestId('active-battle').locator('article').filter({ hasText: target.name });
+                await expect(force).toContainText('1 Ents');
+                await expect(force.locator('b')).toContainText(/(?:3|[4-9]|\d{2,}) Strength/);
+              }
+            } }, converged(accepted + 1)
+          ]);
+          break;
+        }
+        if (await actor.page.getByRole('button', { name: 'Decline defense' }).isVisible().catch(() => false)) {
+          await steps.gesture(actor.page, `decline-entwash-defense-${guard}`, `${actor.name} declines the optional defense`, async () => {
+            await actor.page.getByRole('button', { name: 'Decline defense' }).click(); accepted += 1;
+          }, [{ spec: 'The ordinary Agent phase opens', check: async () => await expect(actor.page.getByText(/Round \d+ · Agent turns/)).toBeVisible() }, converged(accepted + 1)]);
+          continue;
+        }
+        if (await actor.page.getByRole('button', { name: 'Deploy 0', exact: true }).isVisible().catch(() => false)) {
+          await steps.gesture(actor.page, `entwash-deploy-zero-${guard}`, `${actor.name} leaves Companies in garrison`, async () => {
+            await actor.page.getByRole('button', { name: 'Deploy 0', exact: true }).click(); accepted += 1;
+          }, [{ spec: 'The ordered Battle deployment closes', check: async () => await expect(actor.page.getByRole('button', { name: 'Deploy 0', exact: true })).toHaveCount(0) }, converged(accepted + 1)]);
+          continue;
+        }
+        if (await actor.page.getByRole('button', { name: 'Keep Seek Allies' }).isVisible().catch(() => false)) {
+          await steps.gesture(actor.page, `entwash-keep-seek-${guard}`, `${actor.name} keeps Seek Allies`, async () => {
+            await actor.page.getByRole('button', { name: 'Keep Seek Allies' }).click(); accepted += 1;
+          }, [{ spec: 'The ordered Journey choice closes', check: async () => await expect(actor.page.getByRole('button', { name: 'Keep Seek Allies' })).toHaveCount(0) }, converged(accepted + 1)]);
+          continue;
+        }
+      }
+      if (await actor.page.getByTestId('scout-network').getByText('Choose an empty post for the Scout.').isVisible().catch(() => false)) {
+        await steps.gesture(actor.page, `entwash-place-scout-${guard}`, `${actor.name} places an ordered Scout`, async () => {
+          await actor.page.locator('[data-testid^="post-"]:enabled').first().click(); accepted += 1;
+        }, [{ spec: 'The Scout placement completes', check: async () => await expect(actor.page.getByTestId('scout-network')).toContainText('Scouts watch the roads.') }, converged(accepted + 1)]);
+        continue;
+      }
+      if (await actor.page.getByTestId('pass-battle').isEnabled().catch(() => false)) {
+        await steps.gesture(actor.page, `entwash-pass-battle-${guard}`, `${actor.name} passes the intervening Battle`, async () => {
+          await actor.page.getByTestId('pass-battle').click(); accepted += 1;
+        }, [{ spec: 'The Battle advances without diagnostics', check: async () => await expect(actor.page.getByTestId('replay-health')).toContainText('0 replay diagnostics') }, converged(accepted + 1)]);
+        continue;
+      }
+      if (await actor.page.getByRole('button', { name: 'Finish Reveal' }).isVisible().catch(() => false)) {
+        await steps.gesture(actor.page, `entwash-finish-reveal-${guard}`, `${actor.name} finishes Reveal`, async () => {
+          await actor.page.getByRole('button', { name: 'Finish Reveal' }).click(); accepted += 1;
+        }, [{ spec: 'Authority advances normally', check: async () => await expect(actor.page.getByTestId('replay-health')).toContainText('0 replay diagnostics') }, converged(accepted + 1)]);
+        continue;
+      }
+      if (actor !== target) {
+        await steps.gesture(actor.page, `entwash-reveal-other-${guard}`, `${actor.name} Reveals while Entwash approaches`, async () => {
+          await actor.page.getByRole('button', { name: 'Reveal remaining hand' }).click(); accepted += 1;
+        }, [{ spec: 'The public Reveal names the acting human', check: async () => await expect(actor.page.getByTestId('reveal-panel')).toContainText(`${actor.name} Reveals`) }, converged(accepted + 1)]);
+        continue;
+      }
+      const provisions = await numberFrom(target, 'Provision');
+      const roadCard = target.page.getByTestId('private-hand').getByRole('button', { name: /^(The Open Road|Reconnaissance|Muster the Host)/ }).first();
+      const entwash = target.page.getByTestId('space-entwash');
+      const occupied = (await entwash.getAttribute('class'))?.includes('occupied') ?? false;
+      if (provisions >= 1 && !occupied && await roadCard.count()) {
+        const beforeProvision = provisions;
+        const beforeMithril = await numberFrom(target, 'Mithril');
+        const riches = Number((await entwash.textContent())?.match(/take (\d+) Riches/)?.[1] ?? '0');
+        await steps.gesture(target.page, 'choose-entwash-road', `${target.name} chooses a Roads card for Entwash`, async () => {
+          await roadCard.click();
+        }, [{ spec: 'Entwash is enabled by a real Roads card', check: async () => await expect(entwash).toBeEnabled() }]);
+        await steps.gesture(target.page, 'visit-entwash', `${target.name} pays one Provision and visits Entwash`, async () => {
+          await entwash.click(); accepted += 1;
+        }, [
+          { spec: 'The one-Provision cost and all accumulated Riches resolve before the choice', check: async () => {
+            await expect(row(target).getByText('Provision', { exact: true }).locator('..')).toContainText(`${beforeProvision - 1}`);
+            await expect(row(target).getByText('Mithril', { exact: true }).locator('..')).toContainText(`${beforeMithril + riches}`);
+            await expect(target.page.getByRole('heading', { name: 'Call one Ent or take Mithril?' })).toBeVisible();
+          } }, converged(accepted + 1)
+        ]);
+      } else {
+        await steps.gesture(target.page, `entwash-reveal-target-${guard}`, `${target.name} Reveals while waiting for a Roads card`, async () => {
+          await target.page.getByRole('button', { name: 'Reveal remaining hand' }).click(); accepted += 1;
+        }, [{ spec: 'The target advances through ordinary play', check: async () => await expect(target.page.getByTestId('reveal-panel')).toContainText(`${target.name} Reveals`) }, converged(accepted + 1)]);
+      }
+    }
+    expect(entwashSummoned, 'the browser journey must summon the one Ent available at Entwash').toBe(true);
+    await steps.gesture(target.page, 'reload-entwash-summon', `${target.name} reloads the Entwash summon`, async () => {
+      await target.page.reload();
+    }, [{ spec: 'Entwash occupation, one Ent, Dam state, and immutable history replay cleanly', check: async () => {
+      await expect(target.page.getByTestId('space-entwash')).toContainText(`Agent · ${target.name}`);
+      await expect(target.page.getByTestId('active-battle').locator('article').filter({ hasText: target.name })).toContainText('1 Ents');
+      await expect(target.page.getByTestId('dam-status')).toContainText('Breached');
+      await expect(target.page.getByTestId('replay-health')).toContainText('0 replay diagnostics');
+    } }, converged(accepted)]);
+
+    steps.generateDocs('Deep Fangorn, Entwash, and the Ents', 'Three isolated humans earn Wild respect, obtain persistent Ent-draught, see an intact Dam prevent a protected summon, take accumulated Riches, breach the Dam through a later Moot, summon two Ents into an active Battle, receive the ranked reward twice, clean up, then pay for Entwash, collect its Riches, summon one Ent, and replay both results after reload.');
   } finally {
     await guestAContext.close();
     await guestBContext.close();
