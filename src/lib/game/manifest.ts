@@ -178,6 +178,7 @@ export type BoardSpaceDefinition = BoardSpaceIdentity & {
     | { kind: 'tribute-shadow'; gainStanding: 'shadow'; gainGold: 2 }
     | { kind: 'hidden-counsel'; gainStanding: 'elven'; drawFate: 1; stealFromOpponentsAtFateCount: 4 }
     | { kind: 'mirror-galadriel'; costMithril: 1; gainStanding: 'elven'; drawCards: 1; placeScouts: 1 }
+    | { kind: 'secret-bargain'; requiredShadowStanding: 2; costGold: 3; optionalCycleFate: 1; recallOtherAgents: 1; drawCards: 1 }
     | { kind: 'take-war-effort'; drawCards: 1; gainGoldWithoutModule: 2 }
     | { kind: 'muster-free-peoples'; recruitCompanies: 2; optionalGoldCost: 2; optionalGainProvisions: 1 }
     | { kind: 'hall-of-fire'; drawFate: 1; revealInfluence: 1 }
@@ -232,6 +233,14 @@ export const BOARD_SPACE_DEFINITIONS: readonly BoardSpaceDefinition[] = [
     region: 'White Council',
     placementIcons: ['Council'],
     effect: { kind: 'hall-of-fire', drawFate: 1, revealInfluence: 1 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'secret-bargain',
+    name: 'Secret Bargain',
+    region: 'White Council',
+    placementIcons: ['Council'],
+    effect: { kind: 'secret-bargain', requiredShadowStanding: 2, costGold: 3, optionalCycleFate: 1, recallOtherAgents: 1, drawCards: 1 },
     reviewedCapabilities: ['agent-placement']
   },
   {

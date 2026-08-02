@@ -113,7 +113,7 @@ test('Hall of Fire grants private Fate and temporary Reveal Influence', async ({
         { spec: 'All three humans reach the canonical production board', check: async () => {
           for (const seat of seats) {
             await expect(seat.page.getByRole('heading', { name: 'The living board' })).toBeVisible();
-            await expect(seat.page.getByText('Playable spaces').locator('..').getByText('8 / 22')).toBeVisible();
+            await expect(seat.page.getByText('Playable spaces').locator('..').getByText('9 / 22')).toBeVisible();
           }
         } },
         convergedEvents(10)

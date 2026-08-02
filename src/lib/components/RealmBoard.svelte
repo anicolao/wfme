@@ -56,7 +56,7 @@
       </p>
     </div>
     <dl class="ledger" aria-label="Construction capability ledger">
-      <div><dt>Playable spaces</dt><dd>8 / 22</dd></div>
+      <div><dt>Playable spaces</dt><dd>9 / 22</dd></div>
       <div><dt>Agent-ready cards</dt><dd>5 / 7</dd></div>
       <div><dt>Commander powers</dt><dd>0 / 16</dd></div>
     </dl>
@@ -66,6 +66,7 @@
     <div data-testid="alliance-dwarven"><dt>Dwarven Alliance</dt><dd>{game.players.find((player) => player.uid === game.match?.alliances.dwarven)?.displayName ?? 'Unclaimed'}</dd></div>
     <div data-testid="alliance-shadow"><dt>Shadow Alliance</dt><dd>{game.players.find((player) => player.uid === game.match?.alliances.shadow)?.displayName ?? 'Unclaimed'}</dd></div>
     <div data-testid="alliance-elven"><dt>Elven Alliance</dt><dd>{game.players.find((player) => player.uid === game.match?.alliances.elven)?.displayName ?? 'Unclaimed'}</dd></div>
+    <div data-testid="fate-discard"><dt>Fate discard</dt><dd>{game.match?.fateDiscard.length ?? 0} cards</dd></div>
   </dl>
 
   <div class="game-grid">
@@ -136,6 +137,8 @@
                             ? 'Elven · +1 standing · draw 1 Fate · gather Fate from opponents holding 4+'
                             : definition?.effect.kind === 'mirror-galadriel'
                               ? 'Pay 1 Mithril · Elven +1 · draw 1 card · place 1 Scout'
+                              : definition?.effect.kind === 'secret-bargain'
+                                ? 'Need Shadow 2 · pay 3 Gold · cycle Fate · recall another Agent · draw 1 card'
                           : definition?.effect.kind === 'take-war-effort'
                           ? 'Draw 1 card · +2 Gold'
                             : definition?.effect.kind === 'muster-free-peoples'
@@ -213,9 +216,9 @@
   {#if game.match?.pendingChoice && game.match.pendingChoice.kind !== 'place-scout'}
     <section class="pending-choice" data-testid="pending-choice" aria-labelledby="choice-title">
       <div>
-        <p class="eyebrow">Ordered {game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Council' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Scout' : game.match.pendingChoice.kind === 'elven-favor' ? 'Elven favor' : 'Journey'} choice</p>
-        <h2 id="choice-title">{game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Pay 2 Gold to gain 1 Provision?' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Recall a Scout to gather intelligence?' : game.match.pendingChoice.kind === 'elven-favor' ? 'Keep one of the two Fate cards?' : 'Trash Seek Allies?'}</h2>
-        <p>{game.match.pendingChoice.kind === 'muster-free-peoples' ? 'The Companies have already been recruited.' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'The Agent is placed, but neither the board nor Journey effect has resolved yet.' : game.match.pendingChoice.kind === 'elven-favor' ? 'The two private cards are identified only to you; the unchosen card enters the public Fate discard.' : 'The board space has resolved.'} Resolve this choice before the turn advances.</p>
+        <p class="eyebrow">Ordered {game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Council' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Scout' : game.match.pendingChoice.kind === 'elven-favor' ? 'Elven favor' : game.match.pendingChoice.kind.startsWith('secret-bargain') ? 'Secret Bargain' : 'Journey'} choice</p>
+        <h2 id="choice-title">{game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Pay 2 Gold to gain 1 Provision?' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Recall a Scout to gather intelligence?' : game.match.pendingChoice.kind === 'elven-favor' ? 'Keep one of the two Fate cards?' : game.match.pendingChoice.kind === 'secret-bargain-fate' ? 'Cycle one Fate card?' : game.match.pendingChoice.kind === 'secret-bargain-recall' ? 'Recall another Agent?' : 'Trash Seek Allies?'}</h2>
+        <p>{game.match.pendingChoice.kind === 'muster-free-peoples' ? 'The Companies have already been recruited.' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'The Agent is placed, but neither the board nor Journey effect has resolved yet.' : game.match.pendingChoice.kind === 'elven-favor' ? 'The two private cards are identified only to you; the unchosen card enters the public Fate discard.' : game.match.pendingChoice.kind === 'secret-bargain-fate' ? 'The cycled identity remains private; its old instance enters the public discard before a replacement is drawn.' : game.match.pendingChoice.kind === 'secret-bargain-recall' ? 'Choose one of your other occupied spaces. The recalled Agent becomes available again before the private draw.' : 'The board space has resolved.'} Resolve this choice before the turn advances.</p>
       </div>
       <div class="choice-actions">
         {#if game.match.pendingChoice.kind === 'muster-free-peoples'}
@@ -224,6 +227,13 @@
         {:else if game.match.pendingChoice.kind === 'seek-allies'}
           <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('trash-self')}>Trash Seek Allies</button>
           <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('keep-card')}>Keep Seek Allies</button>
+        {:else if game.match.pendingChoice.kind === 'secret-bargain-fate'}
+          <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('cycle-fate')}>Cycle 1 Fate</button>
+          <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('keep-fate')}>Keep Fate</button>
+        {:else if game.match.pendingChoice.kind === 'secret-bargain-recall'}
+          {#each game.match.pendingChoice.spaceIds as spaceId}
+            <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice(`recall:${spaceId}`)}>Recall {BOARD_LAYOUT.find((space) => space.id === spaceId)?.name} Agent</button>
+          {/each}
         {:else if game.match.pendingChoice.kind === 'gather-intelligence'}
           {#each game.match.pendingChoice.postIds as postId}
             <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice(`recall:${postId}`)}>Recall {OBSERVATION_POSTS.find((post) => post.id === postId)?.name} Scout and draw 1</button>

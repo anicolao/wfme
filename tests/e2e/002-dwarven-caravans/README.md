@@ -1,6 +1,6 @@
 # Test: Three-player Agent, deck-building, and Scout tracer
 
-Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross faction thresholds, trash a card, use both Scout timings, publicly claim a faction Alliance, earn Mithril, and complete the paid Mirror of Galadriel action.
+Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross faction thresholds, trash a card, use both Scout timings, publicly claim a faction Alliance, earn Mithril, complete the paid Mirror action, and execute a fully ordered Secret Bargain.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -212,7 +212,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] All three browsers transition to the production board
 - [x] All 22 final board destinations are structurally present
-- [x] Exactly eight complete destinations are advertised as playable
+- [x] Exactly nine complete destinations are advertised as playable
 - [x] Each seat exposes exactly its own five-card hand
 - [x] Every connected replay has accepted exactly 10 events with no diagnostics
 
@@ -1945,5 +1945,329 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] Payment, Elven standing, draw count, Agent, and Scout replay exactly
 - [x] Every connected replay has accepted exactly 103 events with no diagnostics
+
+---
+
+## Pip chooses a Roads card with the recalled Agent
+
+![Phone: Pip chooses a Roads card with the recalled Agent](./screenshots/146-choose-bargain-funding-road-phone.png)
+
+![Desktop: Pip chooses a Roads card with the recalled Agent](./screenshots/146-choose-bargain-funding-road-desktop.png)
+
+**Verifications:**
+
+- [x] The remaining Agent can reach the real funding space
+
+---
+
+## Pip takes up another War Effort
+
+![Phone: Pip takes up another War Effort](./screenshots/147-fund-secret-bargain-phone.png)
+
+![Desktop: Pip takes up another War Effort](./screenshots/147-fund-secret-bargain-desktop.png)
+
+**Verifications:**
+
+- [x] The base-game road pays exactly two public Gold
+- [x] Every connected replay has accepted exactly 104 events with no diagnostics
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/148-round-12-seat-2-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/148-round-12-seat-2-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 105 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/149-round-12-seat-2-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/149-round-12-seat-2-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 106 events with no diagnostics
+
+---
+
+## Recall opens round 13 with the bargain funding conserved
+
+![Phone: Recall opens round 13 with the bargain funding conserved](./screenshots/150-round-13-bargain-opportunity-phone.png)
+
+![Desktop: Recall opens round 13 with the bargain funding conserved](./screenshots/150-round-13-bargain-opportunity-desktop.png)
+
+**Verifications:**
+
+- [x] The first player rotates while the future bargain actor keeps two Gold and Shadow one
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/151-round-13-seat-1-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/151-round-13-seat-1-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 107 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/152-round-13-seat-1-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/152-round-13-seat-1-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 108 events with no diagnostics
+
+---
+
+## Pip chooses a faction card for Shadow respect
+
+![Phone: Pip chooses a faction card for Shadow respect](./screenshots/153-choose-shadow-two-card-phone.png)
+
+![Desktop: Pip chooses a faction card for Shadow respect](./screenshots/153-choose-shadow-two-card-desktop.png)
+
+**Verifications:**
+
+- [x] Tribute is legal but Secret Bargain remains locked below Shadow two
+
+---
+
+## Pip reaches Shadow standing two
+
+![Phone: Pip reaches Shadow standing two](./screenshots/154-reach-shadow-two-phone.png)
+
+![Desktop: Pip reaches Shadow standing two](./screenshots/154-reach-shadow-two-desktop.png)
+
+**Verifications:**
+
+- [x] Every human sees Shadow two, four Gold, and the standing-two Renown
+- [x] Every connected replay has accepted exactly 109 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/155-round-13-seat-3-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/155-round-13-seat-3-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 110 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/156-round-13-seat-3-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/156-round-13-seat-3-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 111 events with no diagnostics
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/157-round-13-seat-2-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/157-round-13-seat-2-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 112 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/158-round-13-seat-2-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/158-round-13-seat-2-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 113 events with no diagnostics
+
+---
+
+## Recall opens round 14 with the Council card in the next deck half
+
+![Phone: Recall opens round 14 with the Council card in the next deck half](./screenshots/159-round-14-council-card-phone.png)
+
+![Desktop: Recall opens round 14 with the Council card in the next deck half](./screenshots/159-round-14-council-card-desktop.png)
+
+**Verifications:**
+
+- [x] Shadow two and four Gold persist into the reviewed Council-card hand
+
+---
+
+## Pip chooses a Roads card to establish the recall target
+
+![Phone: Pip chooses a Roads card to establish the recall target](./screenshots/160-place-pre-bargain-agent-card-phone.png)
+
+![Desktop: Pip chooses a Roads card to establish the recall target](./screenshots/160-place-pre-bargain-agent-card-desktop.png)
+
+**Verifications:**
+
+- [x] Take Up a War Effort is enabled for the first Agent
+
+---
+
+## Pip places the Agent that Secret Bargain can recall
+
+![Phone: Pip places the Agent that Secret Bargain can recall](./screenshots/161-place-pre-bargain-agent-phone.png)
+
+![Desktop: Pip places the Agent that Secret Bargain can recall](./screenshots/161-place-pre-bargain-agent-desktop.png)
+
+**Verifications:**
+
+- [x] The recall target is public and funding rises to six Gold
+- [x] Every connected replay has accepted exactly 114 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/162-round-14-seat-3-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/162-round-14-seat-3-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 115 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/163-round-14-seat-3-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/163-round-14-seat-3-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 116 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/164-round-14-seat-1-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/164-round-14-seat-1-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 117 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/165-round-14-seat-1-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/165-round-14-seat-1-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 118 events with no diagnostics
+
+---
+
+## Pip chooses Armed Escort for Secret Bargain
+
+![Phone: Pip chooses Armed Escort for Secret Bargain](./screenshots/166-choose-secret-bargain-escort-phone.png)
+
+![Desktop: Pip chooses Armed Escort for Secret Bargain](./screenshots/166-choose-secret-bargain-escort-desktop.png)
+
+**Verifications:**
+
+- [x] The Council destination is legal only with Shadow two, three Gold, and another Agent to recall
+- [x] The exact requirement and ordered effects remain visible before commitment
+
+---
+
+## Pip enters the Secret Bargain
+
+![Phone: Pip enters the Secret Bargain](./screenshots/167-enter-secret-bargain-phone.png)
+
+![Desktop: Pip enters the Secret Bargain](./screenshots/167-enter-secret-bargain-desktop.png)
+
+**Verifications:**
+
+- [x] Three Gold is paid and the Secret Bargain Agent is public
+- [x] The private Fate count remains one while only the actor can choose to cycle it
+- [x] Every connected replay has accepted exactly 119 events with no diagnostics
+
+---
+
+## Pip cycles one private Fate
+
+![Phone: Pip cycles one private Fate](./screenshots/168-cycle-bargain-fate-phone.png)
+
+![Desktop: Pip cycles one private Fate](./screenshots/168-cycle-bargain-fate-desktop.png)
+
+**Verifications:**
+
+- [x] The public discard grows while the private hand count remains one
+- [x] The ordered choice advances to the specific other Agent recall
+- [x] Every connected replay has accepted exactly 120 events with no diagnostics
+
+---
+
+## Pip recalls the earlier Agent and draws
+
+![Phone: Pip recalls the earlier Agent and draws](./screenshots/169-recall-bargain-agent-phone.png)
+
+![Desktop: Pip recalls the earlier Agent and draws](./screenshots/169-recall-bargain-agent-desktop.png)
+
+**Verifications:**
+
+- [x] The recalled Agent leaves Tribute and is immediately available again
+- [x] The private draw occurs after recall for four cards in hand
+- [x] The Chronicle exposes timing without either Fate identity or the drawn card
+- [x] Every connected replay has accepted exactly 121 events with no diagnostics
+
+---
+
+## Pip reloads the completed Secret Bargain
+
+![Phone: Pip reloads the completed Secret Bargain](./screenshots/170-reload-secret-bargain-phone.png)
+
+![Desktop: Pip reloads the completed Secret Bargain](./screenshots/170-reload-secret-bargain-desktop.png)
+
+**Verifications:**
+
+- [x] Payment, Fate cycle, recall, private draw, and reusable Agent replay exactly
+- [x] Every connected replay has accepted exactly 121 events with no diagnostics
 
 ---

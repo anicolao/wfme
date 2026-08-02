@@ -120,8 +120,8 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
           for (const seat of seats) await expect(seat.page.getByRole('heading', { name: 'The living board' })).toBeVisible();
         } },
         { spec: 'All 22 final board destinations are structurally present', check: async () => await expect(page.locator('.spaces button')).toHaveCount(22) },
-        { spec: 'Exactly eight complete destinations are advertised as playable', check: async () => {
-          await expect(page.getByText('Playable spaces').locator('..').getByText('8 / 22')).toBeVisible();
+        { spec: 'Exactly nine complete destinations are advertised as playable', check: async () => {
+          await expect(page.getByText('Playable spaces').locator('..').getByText('9 / 22')).toBeVisible();
           await expect(page.getByTestId('space-dwarven-caravans')).toContainText('+1 standing');
           await expect(page.getByTestId('space-tribute-shadow')).toContainText('+1 standing');
         } },
@@ -1066,6 +1066,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
     let mirrorEventCount = 103;
+    let shadowRevealEvent = 110;
     if (await actor!.page.getByRole('button', { name: 'Keep Seek Allies' }).isVisible()) {
       await steps.gesture(actor!.page, 'keep-mirror-seek-allies', `${actor!.name} keeps Seek Allies after the mandatory Scout`,
         () => actor!.page.getByRole('button', { name: 'Keep Seek Allies' }).click(),
@@ -1093,9 +1094,172 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
 
+    await steps.gesture(actor!.page, 'choose-bargain-funding-road', `${actor!.name} chooses a Roads card with the recalled Agent`,
+      () => actor!.page.getByTestId('private-hand').getByRole('button', { name: /^(The Open Road|Muster the Host)/ }).first().click(),
+      [{ spec: 'The remaining Agent can reach the real funding space', check: async () => await expect(actor!.page.getByTestId('space-take-war-effort')).toBeEnabled() }]
+    );
+    await steps.gesture(actor!.page, 'fund-secret-bargain', `${actor!.name} takes up another War Effort`,
+      () => actor!.page.getByTestId('space-take-war-effort').click(),
+      [
+        { spec: 'The base-game road pays exactly two public Gold', check: async () => {
+          for (const seat of seats) await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Gold2');
+        } },
+        convergedEvents(104)
+      ]
+    );
+    await revealAndFinish(actor!, 'round-12-seat-2', 105, 106);
+    await steps.observe(roadActor!.page, 'round-13-bargain-opportunity', 'Recall opens round 13 with the bargain funding conserved', [
+      { spec: 'The first player rotates while the future bargain actor keeps two Gold and Shadow one', check: async () => {
+        for (const seat of seats) {
+          await expect(seat.page.getByText('Round 13 · Agent turns')).toBeVisible();
+          const player = seat.page.locator('.players article').filter({ hasText: actor!.name });
+          await expect(player).toContainText('Gold2');
+          await expect(player).toContainText('Shadow1');
+        }
+      } }
+    ]);
+    await revealAndFinish(roadActor!, 'round-13-seat-1', 107, 108);
+    await steps.gesture(actor!.page, 'choose-shadow-two-card', `${actor!.name} chooses a faction card for Shadow respect`,
+      () => actor!.page.getByTestId('private-hand').getByRole('button', { name: /^(Diplomatic Mission|Seek Allies)/ }).first().click(),
+      [{ spec: 'Tribute is legal but Secret Bargain remains locked below Shadow two', check: async () => {
+        await expect(actor!.page.getByTestId('space-tribute-shadow')).toBeEnabled();
+        await expect(actor!.page.getByTestId('space-secret-bargain')).toBeDisabled();
+      } }]
+    );
+    await steps.gesture(actor!.page, 'reach-shadow-two', `${actor!.name} reaches Shadow standing two`,
+      () => actor!.page.getByTestId('space-tribute-shadow').click(),
+      [
+        { spec: 'Every human sees Shadow two, four Gold, and the standing-two Renown', check: async () => {
+          for (const seat of seats) {
+            const player = seat.page.locator('.players article').filter({ hasText: actor!.name });
+            await expect(player).toContainText('Shadow2');
+            await expect(player).toContainText('Gold4');
+            await expect(player).toContainText('Renown3');
+          }
+        } },
+        convergedEvents(109)
+      ]
+    );
+    if (await actor!.page.getByRole('button', { name: 'Keep Seek Allies' }).isVisible()) {
+      await steps.gesture(actor!.page, 'keep-shadow-two-seek-allies', `${actor!.name} keeps the faction card after Tribute`,
+        () => actor!.page.getByRole('button', { name: 'Keep Seek Allies' }).click(),
+        [{ spec: 'The Journey choice resolves before another human acts', check: async () => await expect(actor!.page.getByTestId('pending-choice')).toHaveCount(0) }, convergedEvents(110)]
+      );
+      shadowRevealEvent = 111;
+    }
+    await revealAndFinish(shadowActor!, 'round-13-seat-3', shadowRevealEvent, shadowRevealEvent + 1);
+    let beforeBargainEvents = shadowRevealEvent + 1;
+    let bargainRecallSpaceName = 'Tribute to the Shadow';
+    let goldAfterBargain = 1;
+    if (await actor!.page.getByTestId('private-hand').getByRole('button', { name: /^Armed Escort/ }).count() === 0) {
+      bargainRecallSpaceName = 'Take Up a War Effort';
+      goldAfterBargain = 3;
+      await revealAndFinish(actor!, 'round-13-seat-2', beforeBargainEvents + 1, beforeBargainEvents + 2);
+      beforeBargainEvents += 2;
+      await steps.observe(actor!.page, 'round-14-council-card', 'Recall opens round 14 with the Council card in the next deck half', [
+        { spec: 'Shadow two and four Gold persist into the reviewed Council-card hand', check: async () => {
+          await expect(actor!.page.getByTestId('private-hand').getByRole('button', { name: /^Armed Escort/ }).first()).toBeVisible();
+          const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
+          await expect(player).toContainText('Shadow2');
+          await expect(player).toContainText('Gold4');
+        } }
+      ]);
+      await steps.gesture(actor!.page, 'place-pre-bargain-agent-card', `${actor!.name} chooses a Roads card to establish the recall target`,
+        () => actor!.page.getByTestId('private-hand').getByRole('button', { name: /^(The Open Road|Muster the Host)/ }).first().click(),
+        [{ spec: 'Take Up a War Effort is enabled for the first Agent', check: async () => await expect(actor!.page.getByTestId('space-take-war-effort')).toBeEnabled() }]
+      );
+      await steps.gesture(actor!.page, 'place-pre-bargain-agent', `${actor!.name} places the Agent that Secret Bargain can recall`,
+        () => actor!.page.getByTestId('space-take-war-effort').click(),
+        [
+          { spec: 'The recall target is public and funding rises to six Gold', check: async () => {
+            for (const seat of seats) {
+              await expect(seat.page.getByTestId('space-take-war-effort')).toContainText(`Agent · ${actor!.name}`);
+              await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Gold6');
+            }
+          } },
+          convergedEvents(beforeBargainEvents + 1)
+        ]
+      );
+      beforeBargainEvents += 1;
+      await revealAndFinish(shadowActor!, 'round-14-seat-3', beforeBargainEvents + 1, beforeBargainEvents + 2);
+      beforeBargainEvents += 2;
+      await revealAndFinish(roadActor!, 'round-14-seat-1', beforeBargainEvents + 1, beforeBargainEvents + 2);
+      beforeBargainEvents += 2;
+    }
+    await steps.gesture(actor!.page, 'choose-secret-bargain-escort', `${actor!.name} chooses Armed Escort for Secret Bargain`,
+      () => actor!.page.getByTestId('private-hand').getByRole('button', { name: /^Armed Escort/ }).first().click(),
+      [
+        { spec: 'The Council destination is legal only with Shadow two, three Gold, and another Agent to recall', check: async () => await expect(actor!.page.getByTestId('space-secret-bargain')).toBeEnabled() },
+        { spec: 'The exact requirement and ordered effects remain visible before commitment', check: async () => await expect(actor!.page.getByTestId('space-secret-bargain')).toContainText('Need Shadow 2 · pay 3 Gold · cycle Fate · recall another Agent · draw 1 card') }
+      ]
+    );
+    await steps.gesture(actor!.page, 'enter-secret-bargain', `${actor!.name} enters the Secret Bargain`,
+      () => actor!.page.getByTestId('space-secret-bargain').click(),
+      [
+        { spec: 'Three Gold is paid and the Secret Bargain Agent is public', check: async () => {
+          for (const seat of seats) {
+            await expect(seat.page.getByTestId('space-secret-bargain')).toContainText(`Agent · ${actor!.name}`);
+            await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText(`Gold${goldAfterBargain}`);
+          }
+        } },
+        { spec: 'The private Fate count remains one while only the actor can choose to cycle it', check: async () => {
+          await expect(actor!.page.getByRole('button', { name: 'Cycle 1 Fate' })).toBeEnabled();
+          for (const observer of seats.filter((seat) => seat !== actor)) await expect(observer.page.getByRole('button', { name: 'Cycle 1 Fate' })).toBeDisabled();
+        } },
+        convergedEvents(beforeBargainEvents + 1)
+      ]
+    );
+    await steps.gesture(actor!.page, 'cycle-bargain-fate', `${actor!.name} cycles one private Fate`,
+      () => actor!.page.getByRole('button', { name: 'Cycle 1 Fate' }).click(),
+      [
+        { spec: 'The public discard grows while the private hand count remains one', check: async () => {
+          for (const seat of seats) {
+            await expect(seat.page.getByTestId('fate-discard')).toContainText('1 cards');
+            await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Fate1');
+          }
+        } },
+        { spec: 'The ordered choice advances to the specific other Agent recall', check: async () => await expect(actor!.page.getByRole('button', { name: `Recall ${bargainRecallSpaceName} Agent` })).toBeEnabled() },
+        convergedEvents(beforeBargainEvents + 2)
+      ]
+    );
+    await steps.gesture(actor!.page, 'recall-bargain-agent', `${actor!.name} recalls the earlier Agent and draws`,
+      () => actor!.page.getByRole('button', { name: `Recall ${bargainRecallSpaceName} Agent` }).click(),
+      [
+        { spec: 'The recalled Agent leaves Tribute and is immediately available again', check: async () => {
+          for (const seat of seats) {
+            await expect(seat.page.getByTestId(bargainRecallSpaceName === 'Tribute to the Shadow' ? 'space-tribute-shadow' : 'space-take-war-effort')).not.toContainText('Agent ·');
+            await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Agents1');
+          }
+        } },
+        { spec: 'The private draw occurs after recall for four cards in hand', check: async () => await expect(actor!.page.getByTestId('private-hand').getByRole('button')).toHaveCount(4) },
+        { spec: 'The Chronicle exposes timing without either Fate identity or the drawn card', check: async () => {
+          const log = actor!.page.getByTestId('activity-log');
+          await expect(log).toContainText('cycles one Fate card through the public discard');
+          await expect(log).toContainText(`recalls their Agent from ${bargainRecallSpaceName} and draws 1 card`);
+          await expect(log).not.toContainText('fate:');
+        } },
+        convergedEvents(beforeBargainEvents + 3)
+      ]
+    );
+    await steps.gesture(actor!.page, 'reload-secret-bargain', `${actor!.name} reloads the completed Secret Bargain`,
+      async () => { await actor!.page.reload(); },
+      [
+        { spec: 'Payment, Fate cycle, recall, private draw, and reusable Agent replay exactly', check: async () => {
+          const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
+          await expect(player).toContainText(`Gold${goldAfterBargain}`);
+          await expect(player).toContainText('Fate1');
+          await expect(player).toContainText('Agents1');
+          await expect(actor!.page.getByTestId('fate-discard')).toContainText('1 cards');
+          await expect(actor!.page.getByTestId('space-secret-bargain')).toContainText(`Agent · ${actor!.name}`);
+          await expect(actor!.page.getByTestId(bargainRecallSpaceName === 'Tribute to the Shadow' ? 'space-tribute-shadow' : 'space-take-war-effort')).not.toContainText('Agent ·');
+        } },
+        convergedEvents(beforeBargainEvents + 3)
+      ]
+    );
+
     steps.generateDocs(
       'Three-player Agent, deck-building, and Scout tracer',
-      'Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross faction thresholds, trash a card, use both Scout timings, publicly claim a faction Alliance, earn Mithril, and complete the paid Mirror of Galadriel action.'
+      'Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross faction thresholds, trash a card, use both Scout timings, publicly claim a faction Alliance, earn Mithril, complete the paid Mirror action, and execute a fully ordered Secret Bargain.'
     );
   } finally {
     await guestAContext.close();

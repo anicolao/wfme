@@ -674,7 +674,7 @@ describe('integrated Agent placement replay', () => {
 
     let beforeMirror: ReturnType<typeof reduceGame> | null = null;
     let mirrorCardId = '';
-    let expectedDrawId = '';
+    let beforeMirrorHandSize = 0;
     for (let step = 0; step < 100; step += 1) {
       const state = reduceGame(stream);
       const current = currentPlayerUid(state)!;
@@ -688,7 +688,7 @@ describe('integrated Agent placement replay', () => {
         if (factionCard && player.availableAgents > 0 && !state.match!.boardAgents['mirror-galadriel']) {
           beforeMirror = state;
           mirrorCardId = factionCard.id;
-          expectedDrawId = player.drawPile[0]?.id ?? '';
+          beforeMirrorHandSize = player.hand.length;
           append(state, 'agent/placed', { cardInstanceId: factionCard.id, spaceId: 'mirror-galadriel' });
           break;
         }
@@ -701,7 +701,7 @@ describe('integrated Agent placement replay', () => {
     expect(awaitingScout.diagnostics).toEqual([]);
     expect(awaitingScout.match!.players[target].resources.mithril).toBe(1);
     expect(awaitingScout.match!.players[target].standing.elven).toBe(1);
-    expect(awaitingScout.match!.players[target].hand.some((card) => card.id === expectedDrawId)).toBe(true);
+    expect(awaitingScout.match!.players[target].hand).toHaveLength(beforeMirrorHandSize);
     expect(awaitingScout.match!.pendingChoice).toMatchObject({
       kind: 'place-scout', actorUid: target
     });
@@ -717,6 +717,61 @@ describe('integrated Agent placement replay', () => {
     expect(completedMirror.match!.boardScouts['last-homely-house']).toBe(target);
     expect(completedMirror.match!.players[target].scouts.supply).toBe(2);
     expect(completedMirror.match!.pendingChoice).toBeNull();
+
+    let beforeBargain: ReturnType<typeof reduceGame> | null = null;
+    for (let step = 0; step < 400; step += 1) {
+      const state = reduceGame(stream);
+      const current = currentPlayerUid(state)!;
+      const match = state.match!;
+      const player = match.players[current];
+      if (match.pendingChoice?.kind === 'seek-allies') append(state, 'choice/resolved', { choice: 'keep-card' });
+      else if (match.pendingChoice?.kind === 'place-scout') append(state, 'scout/placed', { postId: 'northern-eaves' });
+      else if (match.turnMode === 'reveal') append(state, 'reveal/finished', {});
+      else if (current !== target) append(state, 'turn/revealed', {});
+      else {
+        const councilCard = player.hand.find((card) => card.definitionId === 'armed-escort');
+        const roadCard = player.hand.find((card) => card.definitionId === 'the-open-road' || card.definitionId === 'muster-host');
+        const hasOtherAgent = Object.entries(match.boardAgents).some(([spaceId, occupations]) =>
+          spaceId !== 'secret-bargain' && occupations.some((occupation) => occupation.uid === target)
+        );
+        if (
+          councilCard && hasOtherAgent &&
+          legalAgentSpaces(state, target, councilCard.id).includes('secret-bargain')
+        ) {
+          beforeBargain = state;
+          append(state, 'agent/placed', { cardInstanceId: councilCard.id, spaceId: 'secret-bargain' });
+          break;
+        }
+        if (roadCard && !match.boardAgents['take-war-effort'] && player.availableAgents > 0) {
+          append(state, 'agent/placed', { cardInstanceId: roadCard.id, spaceId: 'take-war-effort' });
+        } else append(state, 'turn/revealed', {});
+      }
+    }
+    expect(beforeBargain, 'the real economy must fund a legal Secret Bargain').not.toBeNull();
+    const oldFateId = beforeBargain!.match!.players[target].fateHand[0].id;
+    const replacementFateId = beforeBargain!.match!.fateDeck[0].id;
+    const beforeBargainHandSize = beforeBargain!.match!.players[target].hand.length;
+    const awaitingCycle = reduceGame(stream);
+    expect(awaitingCycle.match!.players[target].resources.gold).toBe(beforeBargain!.match!.players[target].resources.gold - 3);
+    expect(awaitingCycle.match!.pendingChoice).toEqual({
+      kind: 'secret-bargain-fate', actorUid: target, options: ['cycle-fate', 'keep-fate']
+    });
+    append(awaitingCycle, 'choice/resolved', { choice: 'cycle-fate' });
+    const awaitingRecall = reduceGame(stream);
+    expect(awaitingRecall.match!.fateDiscard.map((fate) => fate.id)).toContain(oldFateId);
+    expect(awaitingRecall.match!.players[target].fateHand.map((fate) => fate.id)).toContain(replacementFateId);
+    expect(awaitingRecall.match!.pendingChoice?.kind).toBe('secret-bargain-recall');
+    if (awaitingRecall.match!.pendingChoice?.kind !== 'secret-bargain-recall') throw new Error('Agent recall must follow Fate cycling');
+    const recallChoice = awaitingRecall.match!.pendingChoice.options[0];
+    const recalledSpace = recallChoice.slice('recall:'.length);
+    const availableBeforeRecall = awaitingRecall.match!.players[target].availableAgents;
+    append(awaitingRecall, 'choice/resolved', { choice: recallChoice });
+    const bargained = reduceGame(stream);
+    expect(bargained.diagnostics).toEqual([]);
+    expect(bargained.match!.boardAgents[recalledSpace]?.some((occupation) => occupation.uid === target) ?? false).toBe(false);
+    expect(bargained.match!.players[target].availableAgents).toBe(availableBeforeRecall + 1);
+    expect(bargained.match!.players[target].hand).toHaveLength(beforeBargainHandSize);
+    expect(bargained.match!.pendingChoice).toBeNull();
   });
 
   it('draws Fate at Hall of Fire and grants Influence only while its Agent remains that round', () => {

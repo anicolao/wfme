@@ -67,6 +67,15 @@ export type MatchState = {
   fateDeck: FateInstance[];
   fateDiscard: FateInstance[];
   pendingChoice: null | {
+    kind: 'secret-bargain-fate';
+    actorUid: string;
+    options: readonly ['cycle-fate', 'keep-fate'];
+  } | {
+    kind: 'secret-bargain-recall';
+    actorUid: string;
+    spaceIds: readonly string[];
+    options: readonly string[];
+  } | {
     kind: 'muster-free-peoples';
     actorUid: string;
     options: readonly ['pay-2-gold', 'decline'];
@@ -212,6 +221,16 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
   return BOARD_SPACE_DEFINITIONS.filter((space) => {
     if (space.effect.kind === 'white-council-seat' && player.resources.gold < space.effect.costGold) return false;
     if (space.effect.kind === 'mirror-galadriel' && player.resources.mithril < space.effect.costMithril) return false;
+    if (space.effect.kind === 'secret-bargain') {
+      const hasOtherAgent = Object.entries(match.boardAgents).some(([, occupations]) =>
+        occupations.some((occupation) => occupation.uid === actorUid)
+      );
+      if (
+        player.standing.shadow < space.effect.requiredShadowStanding ||
+        player.resources.gold < space.effect.costGold ||
+        !hasOtherAgent
+      ) return false;
+    }
     const connectedOwnScout = OBSERVATION_POSTS.some(
       (post) => post.connectedSpaceIds.includes(space.id) && match.boardScouts[post.id] === actorUid
     );
@@ -245,6 +264,22 @@ function drawToFive(match: MatchState, uid: string): void {
     if (!card) break;
     player.hand.push(card);
   }
+}
+
+function drawOneCard(match: MatchState, uid: string, reason: string): CardInstance | undefined {
+  const player = match.players[uid];
+  if (player.drawPile.length === 0 && player.discardPile.length > 0) {
+    const seat = match.playerOrder.indexOf(uid) + 1;
+    player.drawPile = shuffled(
+      player.discardPile,
+      `${match.seed}:round-${match.round}:seat-${seat}:${reason}:midround-reshuffle:${match.activity.length}`
+    );
+    player.discardPile = [];
+    match.activity.push(`${reason} causes a deterministic discard reshuffle before the draw.`);
+  }
+  const drawn = player.drawPile.shift();
+  if (drawn) player.hand.push(drawn);
+  return drawn;
 }
 
 function recallAndBeginNextRound(match: MatchState): void {
@@ -313,6 +348,20 @@ function gainStanding(
   }
 }
 
+function beginSecretBargainRecall(match: MatchState, actorUid: string): void {
+  const spaceIds = Object.entries(match.boardAgents)
+    .filter(([spaceId, occupations]) =>
+      spaceId !== 'secret-bargain' && occupations.some((occupation) => occupation.uid === actorUid)
+    )
+    .map(([spaceId]) => spaceId);
+  match.pendingChoice = {
+    kind: 'secret-bargain-recall',
+    actorUid,
+    spaceIds,
+    options: spaceIds.map((spaceId) => `recall:${spaceId}`)
+  };
+}
+
 function resolveAgentEffects(
   state: GameState,
   actorName: string,
@@ -363,6 +412,13 @@ function resolveAgentEffects(
         kind: 'place-scout', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId, options: []
       };
     }
+  } else if (space.effect.kind === 'secret-bargain') {
+    resolution = 'preparing an optional Fate cycle, recalling another Agent, and drawing 1 card';
+    if (player.fateHand.length > 0) {
+      match.pendingChoice = {
+        kind: 'secret-bargain-fate', actorUid: player.uid, options: ['cycle-fate', 'keep-fate']
+      };
+    } else beginSecretBargainRecall(match, player.uid);
   } else if (space.effect.kind === 'take-war-effort') {
     const drawn = player.drawPile.shift();
     if (drawn) player.hand.push(drawn);
@@ -503,6 +559,13 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       if (player.resources.mithril < space.effect.costMithril) return 'illegal Agent placement';
       player.resources.mithril -= space.effect.costMithril;
     }
+    if (space.effect.kind === 'secret-bargain') {
+      if (
+        player.standing.shadow < space.effect.requiredShadowStanding ||
+        player.resources.gold < space.effect.costGold
+      ) return 'illegal Agent placement';
+      player.resources.gold -= space.effect.costGold;
+    }
     const occupants = state.match.boardAgents[spaceId] ?? [];
     if (occupants.length > 0) {
       const post = typeof infiltrationPostId === 'string'
@@ -559,6 +622,37 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       !pending.options.some((option) => option === choice)
     ) return 'illegal choice resolution';
     const player = state.match.players[event.actorUid];
+    if (pending.kind === 'secret-bargain-fate') {
+      if (choice === 'cycle-fate') {
+        const discarded = player.fateHand.shift();
+        if (!discarded) return 'illegal choice resolution';
+        state.match.fateDiscard.push(discarded);
+        const drawn = state.match.fateDeck.shift();
+        if (drawn) player.fateHand.push(drawn);
+        state.match.activity.push(`${actor.displayName} cycles one Fate card through the public discard.`);
+      } else {
+        state.match.activity.push(`${actor.displayName} keeps their Fate cards.`);
+      }
+      beginSecretBargainRecall(state.match, event.actorUid);
+      return null;
+    }
+    if (pending.kind === 'secret-bargain-recall') {
+      const spaceId = choice.slice('recall:'.length);
+      if (!pending.spaceIds.includes(spaceId)) return 'illegal choice resolution';
+      const occupations = state.match.boardAgents[spaceId] ?? [];
+      const occupationIndex = occupations.findIndex((occupation) => occupation.uid === event.actorUid);
+      if (occupationIndex < 0) return 'illegal choice resolution';
+      occupations.splice(occupationIndex, 1);
+      if (occupations.length === 0) delete state.match.boardAgents[spaceId];
+      else state.match.boardAgents[spaceId] = occupations;
+      player.availableAgents += 1;
+      const drawn = drawOneCard(state.match, event.actorUid, 'Secret Bargain');
+      const spaceName = BOARD_SPACE_DEFINITIONS.find((space) => space.id === spaceId)?.name ?? spaceId;
+      state.match.activity.push(`${actor.displayName} recalls their Agent from ${spaceName} and draws ${drawn ? '1 card' : 'no card'}.`);
+      state.match.pendingChoice = null;
+      advanceToNextAgentPlayer(state.match);
+      return null;
+    }
     if (pending.kind === 'gather-intelligence') {
       if (choice.startsWith('recall:')) {
         const postId = choice.slice('recall:'.length);

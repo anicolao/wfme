@@ -213,7 +213,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 **Verifications:**
 
-- [x] Every human sees eight fully playable spaces
+- [x] Every human sees nine fully playable spaces
 - [x] Every connected immutable replay accepts 10 events with no diagnostics
 
 ---
