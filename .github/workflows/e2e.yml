@@ -18,7 +18,9 @@ jobs:
   e2e:
     name: Playwright E2E
     runs-on: macos-latest
-    timeout-minutes: 30
+    # Fresh macOS runners spend several minutes populating Nix, Bun, Firebase,
+    # and Playwright caches before the complete no-skip browser suite begins.
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: cachix/install-nix-action@v31
