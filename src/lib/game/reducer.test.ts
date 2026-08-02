@@ -240,6 +240,77 @@ describe('integrated Agent placement replay', () => {
     expect(after.match!.activity.at(-1)).toContain('taking 0 bonus Mithril from Riches');
   });
 
+  it('requires Wild respect and resolves both final Fangorn Moot decisions', () => {
+    const stream = readyRoom('fangorn-moot');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const opening = reduceGame(stream);
+    const target = opening.match!.playerOrder[0];
+    const openingStronghold = opening.match!.players[target].hand.find((card) => card.definitionId === 'armed-escort' || card.definitionId === 'reconnaissance');
+    expect(openingStronghold).toBeDefined();
+    expect(legalAgentSpaces(opening, target, openingStronghold!.id)).not.toContain('fangorn-moot');
+    const append = (state: ReturnType<typeof reduceGame>, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      const actorUid = currentPlayerUid(state)!;
+      sequences[actorUid] += 1;
+      stream.push(createEvent(type, actorUid, sequences[actorUid], payload, timestamp++));
+    };
+
+    for (let guard = 0; guard < 120; guard += 1) {
+      const state = reduceGame(stream);
+      const match = state.match!;
+      const current = currentPlayerUid(state)!;
+      const player = match.players[current];
+      if (current === target && match.turnMode === 'agent' && player.standing.wild >= 2) {
+        const stronghold = player.hand.find((card) => legalAgentSpaces(state, current, card.id).includes('fangorn-moot'));
+        if (stronghold) {
+          append(state, 'agent/placed', { cardInstanceId: stronghold.id, spaceId: 'fangorn-moot' });
+          break;
+        }
+      }
+      const pending = match.pendingChoice;
+      if (pending?.kind === 'battle-deployment') append(state, 'choice/resolved', { choice: 'deploy:0' });
+      else if (pending?.kind === 'seek-allies') append(state, 'choice/resolved', { choice: 'keep-card' });
+      else if (pending?.kind === 'gather-intelligence') append(state, 'choice/resolved', { choice: 'decline-intelligence' });
+      else if (pending?.kind === 'ranger-mustering-trash') append(state, 'choice/resolved', { choice: 'decline-trash' });
+      else if (pending?.kind === 'critical-defense') append(state, 'choice/resolved', { choice: 'decline-defender' });
+      else if (match.turnMode === 'battle') append(state, 'battle/passed', {});
+      else if (match.turnMode === 'reveal') append(state, 'reveal/finished', {});
+      else if (current === target && player.standing.wild < 2) {
+        const wild = player.hand.find((card) => legalAgentSpaces(state, current, card.id).includes('hidden-paths'));
+        if (wild) append(state, 'agent/placed', { cardInstanceId: wild.id, spaceId: 'hidden-paths' });
+        else append(state, 'turn/revealed', {});
+      } else append(state, 'turn/revealed', {});
+    }
+
+    const pending = reduceGame(stream);
+    expect(pending.diagnostics).toEqual([]);
+    expect(pending.match!.players[target].standing.wild).toBeGreaterThanOrEqual(2);
+    expect(pending.match!.pendingChoice).toEqual(expect.objectContaining({
+      kind: 'fangorn-moot',
+      actorUid: target,
+      options: ['take-ent-draught', 'gain-provision-breach-dam', 'gain-provision-leave-dam']
+    }));
+    const provisions = pending.match!.players[target].resources.provisions;
+    const garrison = pending.match!.players[target].companies.garrison;
+    const supply = pending.match!.players[target].companies.supply;
+
+    sequences[target] += 1;
+    const draughtStream = [...stream, createEvent('choice/resolved', target, sequences[target], { choice: 'take-ent-draught' }, timestamp)];
+    const draught = reduceGame(draughtStream);
+    expect(draught.diagnostics).toEqual([]);
+    expect(draught.match!.players[target].entDraught).toBe(true);
+    expect(draught.match!.players[target].resources.provisions).toBe(provisions + 1);
+    expect(draught.match!.players[target].companies.garrison).toBe(garrison + Math.min(1, supply));
+    expect(draught.match!.damBreached).toBe(false);
+
+    const breach = reduceGame([...stream, createEvent('choice/resolved', target, sequences[target], { choice: 'gain-provision-breach-dam' }, timestamp)]);
+    expect(breach.diagnostics).toEqual([]);
+    expect(breach.match!.players[target].entDraught).toBe(false);
+    expect(breach.match!.players[target].resources.provisions).toBe(provisions + 1);
+    expect(breach.match!.players[target].companies.garrison).toBe(garrison);
+    expect(breach.match!.damBreached).toBe(true);
+  });
+
   it('orders Armed Escort recruitment before the optional Muster payment', () => {
     const events = readyRoom();
     const started = reduceGame(events);

@@ -1,6 +1,6 @@
 # Test: Three-player Agent, deck-building, and Scout tracer
 
-Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross faction thresholds, trash cards, use both Scout timings, publicly claim a faction Alliance, earn Mithril, complete the paid Mirror action, execute a fully ordered Secret Bargain, fund the first delayed third-Agent Captain, and complete all eight faction destinations.
+Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross faction thresholds, trash cards, use both Scout timings, publicly claim a faction Alliance, earn Mithril, complete the paid Mirror action, execute a fully ordered Secret Bargain, fund the first delayed third-Agent Captain, complete all eight faction destinations, take persistent Ent-draught at Fangorn Moot, and return later to breach the Dam.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -212,7 +212,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] All three browsers transition to the production board
 - [x] All 22 final board destinations are structurally present
-- [x] Exactly fifteen complete destinations are advertised as playable
+- [x] Exactly seventeen complete destinations are advertised as playable
 - [x] Each seat exposes exactly its own five-card hand
 - [x] Every connected replay has accepted exactly 10 events with no diagnostics
 
@@ -4343,5 +4343,278 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] Paid resources, faction standing, draws, recruitment, trash, and occupations replay exactly
 - [x] Every connected replay has accepted exactly 253 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/332-fangorn-draught-approach-0-rin-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/332-fangorn-draught-approach-0-rin-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 254 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/333-fangorn-draught-approach-0-rin-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/333-fangorn-draught-approach-0-rin-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 255 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/334-fangorn-draught-approach-1-mara-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/334-fangorn-draught-approach-1-mara-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 256 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/335-fangorn-draught-approach-1-mara-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/335-fangorn-draught-approach-1-mara-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 257 events with no diagnostics
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/336-fangorn-draught-approach-2-pip-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/336-fangorn-draught-approach-2-pip-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 258 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/337-fangorn-draught-approach-2-pip-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/337-fangorn-draught-approach-2-pip-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 259 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/338-fangorn-draught-approach-3-rin-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/338-fangorn-draught-approach-3-rin-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 260 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/339-fangorn-draught-approach-3-rin-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/339-fangorn-draught-approach-3-rin-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 261 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/340-fangorn-draught-approach-4-mara-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/340-fangorn-draught-approach-4-mara-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 262 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/341-fangorn-draught-approach-4-mara-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/341-fangorn-draught-approach-4-mara-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 263 events with no diagnostics
+
+---
+
+## Pip chooses Muster the Host Agent: Stronghold for Fangorn Moot
+
+![Phone: Pip chooses Muster the Host Agent: Stronghold for Fangorn Moot](./screenshots/342-choose-fangorn-draught-phone.png)
+
+![Desktop: Pip chooses Muster the Host Agent: Stronghold for Fangorn Moot](./screenshots/342-choose-fangorn-draught-desktop.png)
+
+**Verifications:**
+
+- [x] Wild respect and the selected Stronghold icon make Fangorn Moot legal
+
+---
+
+## Pip convenes Fangorn Moot
+
+![Phone: Pip convenes Fangorn Moot](./screenshots/343-visit-fangorn-draught-phone.png)
+
+![Desktop: Pip convenes Fangorn Moot](./screenshots/343-visit-fangorn-draught-desktop.png)
+
+**Verifications:**
+
+- [x] Every client sees the Agent and the ordered final Moot decision
+- [x] Both complete branches are offered while the Dam is intact
+- [x] Every connected replay has accepted exactly 264 events with no diagnostics
+
+---
+
+## Pip takes the persistent Ent-draught
+
+![Phone: Pip takes the persistent Ent-draught](./screenshots/344-resolve-fangorn-draught-phone.png)
+
+![Desktop: Pip takes the persistent Ent-draught](./screenshots/344-resolve-fangorn-draught-desktop.png)
+
+**Verifications:**
+
+- [x] Ent-draught, one Provision, and finite recruitment resolve publicly
+- [x] Every connected replay has accepted exactly 265 events with no diagnostics
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/345-fangorn-breach-approach-0-pip-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/345-fangorn-breach-approach-0-pip-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 266 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/346-fangorn-breach-approach-0-pip-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/346-fangorn-breach-approach-0-pip-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 267 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/347-fangorn-breach-approach-1-mara-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/347-fangorn-breach-approach-1-mara-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 268 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/348-fangorn-breach-approach-1-mara-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/348-fangorn-breach-approach-1-mara-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 269 events with no diagnostics
+
+---
+
+## Pip chooses Armed Escort Agent: Council for Fangorn Moot
+
+![Phone: Pip chooses Armed Escort Agent: Council for Fangorn Moot](./screenshots/349-choose-fangorn-breach-phone.png)
+
+![Desktop: Pip chooses Armed Escort Agent: Council for Fangorn Moot](./screenshots/349-choose-fangorn-breach-desktop.png)
+
+**Verifications:**
+
+- [x] Wild respect and the selected Stronghold icon make Fangorn Moot legal
+
+---
+
+## Pip convenes Fangorn Moot
+
+![Phone: Pip convenes Fangorn Moot](./screenshots/350-visit-fangorn-breach-phone.png)
+
+![Desktop: Pip convenes Fangorn Moot](./screenshots/350-visit-fangorn-breach-desktop.png)
+
+**Verifications:**
+
+- [x] Every client sees the Agent and the ordered final Moot decision
+- [x] The persistent Ent-draught cannot be taken a second time
+- [x] Every connected replay has accepted exactly 270 events with no diagnostics
+
+---
+
+## Pip breaches the Dam
+
+![Phone: Pip breaches the Dam](./screenshots/351-resolve-fangorn-breach-phone.png)
+
+![Desktop: Pip breaches the Dam](./screenshots/351-resolve-fangorn-breach-desktop.png)
+
+**Verifications:**
+
+- [x] One Provision is gained and every client sees the permanent breach
+- [x] Every connected replay has accepted exactly 271 events with no diagnostics
+
+---
+
+## Pip reloads the completed Fangorn decisions
+
+![Phone: Pip reloads the completed Fangorn decisions](./screenshots/352-reload-fangorn-moot-phone.png)
+
+![Desktop: Pip reloads the completed Fangorn decisions](./screenshots/352-reload-fangorn-moot-desktop.png)
+
+**Verifications:**
+
+- [x] Ent-draught ownership and the breached Dam replay exactly
+- [x] Every connected replay has accepted exactly 271 events with no diagnostics
 
 ---

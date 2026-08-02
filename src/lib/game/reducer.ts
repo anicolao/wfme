@@ -55,6 +55,7 @@ export type MatchPlayer = {
   scouts: { supply: number };
   fateHand: FateInstance[];
   councilSeat: boolean;
+  entDraught: boolean;
 };
 
 export type AgentOccupation = {
@@ -84,12 +85,19 @@ export type MatchState = {
   battleHistory: Array<{ battleId: string; winnerUid: string | null; strengths: Record<string, number> }>;
   criticalControl: Record<'minas-tirith' | 'osgiliath' | 'edoras', string | null>;
   richesMithril: Record<'edoras', number>;
+  damBreached: boolean;
   queuedBattleDeployment: { actorUid: string; spaceId: string } | null;
   pendingChoice: null | {
     kind: 'critical-defense';
     actorUid: string;
     locationId: 'minas-tirith' | 'osgiliath' | 'edoras';
     options: readonly ['deploy-defender', 'decline-defender'];
+  } | {
+    kind: 'fangorn-moot';
+    actorUid: string;
+    followupSeekAlliesCardId: string | null;
+    followupPlaceScout: boolean;
+    options: readonly ('take-ent-draught' | 'gain-provision-breach-dam' | 'gain-provision-leave-dam')[];
   } | {
     kind: 'battle-deployment';
     actorUid: string;
@@ -216,8 +224,9 @@ function createMatch(state: GameState, seed: string): MatchState {
           wonBattleIds: [],
           pairedBattleIds: [],
           scouts: { supply: 3 },
-          fateHand: [],
-          councilSeat: false
+      fateHand: [],
+      councilSeat: false,
+      entDraught: false
         }
       ];
     })
@@ -257,6 +266,7 @@ function createMatch(state: GameState, seed: string): MatchState {
     battleHistory: [],
     criticalControl: { 'minas-tirith': null, osgiliath: null, edoras: null },
     richesMithril: { edoras: 0 },
+    damBreached: false,
     queuedBattleDeployment: null,
     pendingChoice: null,
     reserveSupply: { 'muster-host': 8 },
@@ -292,6 +302,7 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
     if (space.effect.kind === 'pits-isengard' && player.resources.mithril < space.effect.costMithril) return false;
     if (space.effect.kind === 'deep-roads' && player.resources.mithril < space.effect.costMithril) return false;
     if (space.effect.kind === 'ranger-mustering' && player.resources.provisions < space.effect.costProvisions) return false;
+    if (space.effect.kind === 'fangorn-moot' && player.standing.wild < space.effect.requiredWildStanding) return false;
     if (space.effect.kind === 'secret-bargain') {
       const hasOtherAgent = Object.entries(match.boardAgents).some(([, occupations]) =>
         occupations.some((occupation) => occupation.uid === actorUid)
@@ -708,6 +719,16 @@ function resolveAgentEffects(
     const recruited = recruitCompanies(player, space.effect.recruitCompanies);
     const drawn = drawOneCard(match, player.uid, 'Minas Tirith');
     resolution = `recruiting ${recruited} Company, drawing ${drawn ? '1 card' : 'no card'}, and preparing forces for Battle`;
+  } else if (space.effect.kind === 'fangorn-moot') {
+    const options: ('take-ent-draught' | 'gain-provision-breach-dam' | 'gain-provision-leave-dam')[] = [];
+    if (!player.entDraught) options.push('take-ent-draught');
+    if (!match.damBreached) options.push('gain-provision-breach-dam');
+    options.push('gain-provision-leave-dam');
+    match.pendingChoice = {
+      kind: 'fangorn-moot', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
+      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout', options
+    };
+    resolution = 'calling the Moot to choose Ent-draught or the fate of the Dam';
   } else if (space.effect.kind === 'edoras') {
     const riches = match.richesMithril.edoras;
     player.resources.mithril += space.effect.gainMithril + riches;
@@ -731,7 +752,7 @@ function resolveAgentEffects(
       options: ['trash-self', 'keep-card']
     };
   }
-  if (cardDefinition.journeyEffect?.kind === 'place-scout') {
+  if (cardDefinition.journeyEffect?.kind === 'place-scout' && !match.pendingChoice) {
     match.pendingChoice = {
       kind: 'place-scout',
       actorUid: player.uid,
@@ -944,6 +965,36 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         state.match.activity.push(`${actor.displayName} declines to deploy a defending Company at ${BOARD_SPACE_DEFINITIONS.find((space) => space.id === pending.locationId)?.name}.`);
       }
       state.match.pendingChoice = null;
+      return null;
+    }
+    if (pending.kind === 'fangorn-moot') {
+      if (choice === 'take-ent-draught') {
+        if (player.entDraught) return 'illegal choice resolution';
+        player.entDraught = true;
+        const recruited = recruitCompanies(player, 1);
+        player.resources.provisions += 1;
+        state.match.activity.push(`${actor.displayName} takes Ent-draught, recruits ${recruited} Company, and gains 1 Provision at Fangorn Moot.`);
+      } else {
+        player.resources.provisions += 1;
+        if (choice === 'gain-provision-breach-dam') {
+          if (state.match.damBreached) return 'illegal choice resolution';
+          state.match.damBreached = true;
+          state.match.activity.push(`${actor.displayName} gains 1 Provision and breaches the Dam at Fangorn Moot.`);
+        } else state.match.activity.push(`${actor.displayName} gains 1 Provision and leaves the Dam intact at Fangorn Moot.`);
+      }
+      if (pending.followupSeekAlliesCardId) {
+        state.match.pendingChoice = {
+          kind: 'seek-allies', actorUid: player.uid, cardInstanceId: pending.followupSeekAlliesCardId,
+          options: ['trash-self', 'keep-card']
+        };
+      } else if (pending.followupPlaceScout) {
+        state.match.pendingChoice = {
+          kind: 'place-scout', actorUid: player.uid, followupSeekAlliesCardId: null, options: []
+        };
+      } else {
+        state.match.pendingChoice = null;
+        finishAgentAction(state.match, event.actorUid);
+      }
       return null;
     }
     if (pending.kind === 'ranger-mustering-trash') {

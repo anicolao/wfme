@@ -120,8 +120,8 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
           for (const seat of seats) await expect(seat.page.getByRole('heading', { name: 'The living board' })).toBeVisible();
         } },
         { spec: 'All 22 final board destinations are structurally present', check: async () => await expect(page.locator('.spaces button')).toHaveCount(22) },
-        { spec: 'Exactly fifteen complete destinations are advertised as playable', check: async () => {
-          await expect(page.getByText('Playable spaces').locator('..').getByText('16 / 22')).toBeVisible();
+        { spec: 'Exactly seventeen complete destinations are advertised as playable', check: async () => {
+          await expect(page.getByText('Playable spaces').locator('..').getByText('17 / 22')).toBeVisible();
           await expect(page.getByTestId('space-dwarven-caravans')).toContainText('+1 standing');
           await expect(page.getByTestId('space-tribute-shadow')).toContainText('+1 standing');
         } },
@@ -1627,9 +1627,100 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
 
+    const visitFangorn = async (visit: 'draught' | 'breach') => {
+      for (let turn = 0; turn < 24; turn += 1) {
+        const currentName = ((await page.locator('footer').textContent())?.match(/Current actor ([^·]+)/)?.[1] ?? '').trim();
+        const currentSeat = seats.find((seat) => seat.name === currentName)!;
+        if (currentSeat !== actor) {
+          await revealAndFinish(currentSeat, `fangorn-${visit}-approach-${turn}-${currentSeat.name.toLowerCase()}`, factionEvents + 1, factionEvents + 2);
+          factionEvents += 2;
+          continue;
+        }
+        const stats = await publicStats();
+        const fangornOccupied = (await actor!.page.getByTestId('space-fangorn-moot').getAttribute('class'))?.includes('occupied') ?? false;
+        const strongholdCard = actor!.page.getByTestId('private-hand').getByRole('button', { name: /^(Armed Escort|Reconnaissance|Muster the Host)/ }).first();
+        if (stats.agents > 0 && !fangornOccupied && await strongholdCard.count()) {
+          const cardName = ((await strongholdCard.textContent()) ?? 'a Stronghold card').split(' · ')[0];
+          await steps.gesture(actor!.page, `choose-fangorn-${visit}`, `${actor!.name} chooses ${cardName} for Fangorn Moot`,
+            () => strongholdCard.click(),
+            [{ spec: 'Wild respect and the selected Stronghold icon make Fangorn Moot legal', check: async () => await expect(actor!.page.getByTestId('space-fangorn-moot')).toBeEnabled() }]
+          );
+          await steps.gesture(actor!.page, `visit-fangorn-${visit}`, `${actor!.name} convenes Fangorn Moot`,
+            () => actor!.page.getByTestId('space-fangorn-moot').click(),
+            [
+              { spec: 'Every client sees the Agent and the ordered final Moot decision', check: async () => {
+                for (const seat of seats) {
+                  await expect(seat.page.getByTestId('space-fangorn-moot')).toContainText(`Agent · ${actor!.name}`);
+                  await expect(seat.page.getByRole('heading', { name: 'What does the Moot decide?' })).toBeVisible();
+                }
+              } },
+              { spec: visit === 'breach' ? 'The persistent Ent-draught cannot be taken a second time' : 'Both complete branches are offered while the Dam is intact', check: async () => {
+                if (visit === 'breach') await expect(actor!.page.getByRole('button', { name: /Take Ent-draught/ })).toHaveCount(0);
+                else {
+                  await expect(actor!.page.getByRole('button', { name: /Take Ent-draught/ })).toBeEnabled();
+                  await expect(actor!.page.getByRole('button', { name: /breach the Dam/ })).toBeEnabled();
+                }
+              } },
+              convergedEvents(factionEvents + 1)
+            ]
+          );
+          factionEvents += 1;
+          const decision = visit === 'draught'
+            ? actor!.page.getByRole('button', { name: /Take Ent-draught/ })
+            : actor!.page.getByRole('button', { name: /Gain 1 Provision and breach the Dam/ });
+          await steps.gesture(actor!.page, `resolve-fangorn-${visit}`, visit === 'draught' ? `${actor!.name} takes the persistent Ent-draught` : `${actor!.name} breaches the Dam`,
+            () => decision.click(),
+            [
+              { spec: visit === 'draught' ? 'Ent-draught, one Provision, and finite recruitment resolve publicly' : 'One Provision is gained and every client sees the permanent breach', check: async () => {
+                for (const seat of seats) {
+                  const row = seat.page.locator('.players article').filter({ hasText: actor!.name });
+                  await expect(row).toContainText(`Provision${stats.provisions + 1}`);
+                  if (visit === 'draught') {
+                    await expect(row).toContainText('Ent-draughtReady');
+                    await expect(row).toContainText(`Garrison${stats.garrison + Math.min(1, stats.supply)}`);
+                    await expect(seat.page.getByTestId('dam-status')).toContainText('Intact');
+                  } else await expect(seat.page.getByTestId('dam-status')).toContainText('Breached');
+                }
+              } },
+              convergedEvents(factionEvents + 1)
+            ]
+          );
+          factionEvents += 1;
+          if (await actor!.page.getByTestId('scout-network').getByText('Choose an empty post for the Scout.').isVisible().catch(() => false)) {
+            await steps.gesture(actor!.page, `place-fangorn-${visit}-scout`, `${actor!.name} completes the ordered Reconnaissance placement`,
+              () => actor!.page.locator('[data-testid^="post-"]:enabled').first().click(),
+              [
+                { spec: 'The Scout is placed only after the Moot decision', check: async () => await expect(actor!.page.getByTestId('scout-network').getByText('Scouts watch the roads.')).toBeVisible() },
+                convergedEvents(factionEvents + 1)
+              ]
+            );
+            factionEvents += 1;
+          }
+          return;
+        }
+        await revealAndFinish(actor!, `fangorn-${visit}-approach-${turn}-${actor!.name.toLowerCase()}`, factionEvents + 1, factionEvents + 2);
+        factionEvents += 2;
+      }
+      throw new Error(`Fangorn Moot ${visit} branch was not reached through real player gestures`);
+    };
+
+    await visitFangorn('draught');
+    await visitFangorn('breach');
+    await steps.gesture(actor!.page, 'reload-fangorn-moot', `${actor!.name} reloads the completed Fangorn decisions`,
+      async () => { await actor!.page.reload(); },
+      [
+        { spec: 'Ent-draught ownership and the breached Dam replay exactly', check: async () => {
+          await expect(actor!.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Ent-draughtReady');
+          await expect(actor!.page.getByTestId('dam-status')).toContainText('Breached');
+          await expect(actor!.page.getByTestId('space-fangorn-moot')).toContainText(`Agent · ${actor!.name}`);
+        } },
+        convergedEvents(factionEvents)
+      ]
+    );
+
     steps.generateDocs(
       'Three-player Agent, deck-building, and Scout tracer',
-      'Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross faction thresholds, trash cards, use both Scout timings, publicly claim a faction Alliance, earn Mithril, complete the paid Mirror action, execute a fully ordered Secret Bargain, fund the first delayed third-Agent Captain, and complete all eight faction destinations.'
+      'Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross faction thresholds, trash cards, use both Scout timings, publicly claim a faction Alliance, earn Mithril, complete the paid Mirror action, execute a fully ordered Secret Bargain, fund the first delayed third-Agent Captain, complete all eight faction destinations, take persistent Ent-draught at Fangorn Moot, and return later to breach the Dam.'
     );
   } finally {
     await guestAContext.close();

@@ -320,6 +320,7 @@ export type BoardSpaceDefinition = BoardSpaceIdentity & {
     | { kind: 'muster-free-peoples'; recruitCompanies: 2; optionalGoldCost: 2; optionalGainProvisions: 1 }
     | { kind: 'hall-of-fire'; drawFate: 1; revealInfluence: 1 }
     | { kind: 'minas-tirith'; recruitCompanies: 1; drawCards: 1; controllerBonusGold: 1; battleSpace: true }
+    | { kind: 'fangorn-moot'; requiredWildStanding: 2; grantEntDraught: true; recruitCompanies: 1; gainProvisions: 1; mayBreachDam: true; battleSpace: true }
     | { kind: 'edoras'; gainMithril: 1; controllerBonusMithril: 1; riches: true; battleSpace: true }
     | { kind: 'white-council-seat'; costGold: 5; repeatGainMithril: 2; repeatDrawFate: 1; repeatRecruitCompanies: 3; revealInfluence: 2 };
   reviewedCapabilities: readonly ['agent-placement'];
@@ -444,6 +445,14 @@ export const BOARD_SPACE_DEFINITIONS: readonly BoardSpaceDefinition[] = [
     region: 'Roads',
     placementIcons: ['Roads'],
     effect: { kind: 'edoras', gainMithril: 1, controllerBonusMithril: 1, riches: true, battleSpace: true },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'fangorn-moot',
+    name: 'Fangorn Moot',
+    region: 'Strongholds',
+    placementIcons: ['Stronghold'],
+    effect: { kind: 'fangorn-moot', requiredWildStanding: 2, grantEntDraught: true, recruitCompanies: 1, gainProvisions: 1, mayBreachDam: true, battleSpace: true },
     reviewedCapabilities: ['agent-placement']
   },
   {

@@ -83,7 +83,7 @@
       </p>
     </div>
     <dl class="ledger" aria-label="Construction capability ledger">
-      <div><dt>Playable spaces</dt><dd>16 / 22</dd></div>
+      <div><dt>Playable spaces</dt><dd>17 / 22</dd></div>
       <div><dt>Agent-ready cards</dt><dd>5 / 7</dd></div>
       <div><dt>Commander powers</dt><dd>0 / 16</dd></div>
     </dl>
@@ -94,6 +94,7 @@
     <div data-testid="alliance-shadow"><dt>Shadow Alliance</dt><dd>{game.players.find((player) => player.uid === game.match?.alliances.shadow)?.displayName ?? 'Unclaimed'}</dd></div>
     <div data-testid="alliance-elven"><dt>Elven Alliance</dt><dd>{game.players.find((player) => player.uid === game.match?.alliances.elven)?.displayName ?? 'Unclaimed'}</dd></div>
     <div data-testid="fate-discard"><dt>Fate discard</dt><dd>{game.match?.fateDiscard.length ?? 0} cards</dd></div>
+    <div data-testid="dam-status"><dt>Dam of Isengard</dt><dd>{game.match?.damBreached ? 'Breached' : 'Intact'}</dd></div>
   </dl>
 
   {#if game.match?.activeBattleId}
@@ -168,6 +169,7 @@
             <div><dt>Trash</dt><dd>{matchPlayer?.trashPile.length ?? 0}</dd></div>
             <div><dt>Scouts</dt><dd>{matchPlayer?.scouts.supply ?? 0} supply</dd></div>
             <div><dt>Fate</dt><dd>{matchPlayer?.fateHand.length ?? 0}</dd></div>
+            <div><dt>Ent-draught</dt><dd>{matchPlayer?.entDraught ? 'Ready' : '—'}</dd></div>
             <div><dt>Council</dt><dd>{matchPlayer?.councilSeat ? 'Seated' : '—'}</dd></div>
             <div><dt>Captain</dt><dd>{matchPlayer?.captainUnlocked ? 'Appointed' : matchPlayer?.captainAgentPending ? 'Arriving next turn' : '—'}</dd></div>
           </dl>
@@ -237,6 +239,8 @@
                                 ? 'Draw 1 Fate · +1 Reveal Influence this round while your Agent remains'
                                 : definition?.effect.kind === 'minas-tirith'
                                   ? 'Battle · recruit 1 · draw 1 card · controller gains 1 Gold'
+                                  : definition?.effect.kind === 'fangorn-moot'
+                                    ? `Battle · need Wild 2 · take Ent-draught or gain 1 Provision and ${game.match?.damBreached ? 'leave the Dam breached' : 'breach the Dam'}`
                                   : definition?.effect.kind === 'edoras'
                                     ? `Battle · gain 1 Mithril + ${game.match?.richesMithril.edoras ?? 0} Riches · controller gains 1 Mithril`
                                   : 'Pay 5 Gold · gain a permanent +2 Reveal Influence; repeat for 2 Mithril, 1 Fate, recruit 3'}
@@ -310,9 +314,9 @@
   {#if game.match?.pendingChoice && game.match.pendingChoice.kind !== 'place-scout'}
     <section class="pending-choice" data-testid="pending-choice" aria-labelledby="choice-title">
       <div>
-        <p class="eyebrow">Ordered {game.match.pendingChoice.kind === 'critical-defense' || game.match.pendingChoice.kind === 'battle-deployment' ? 'Battle' : game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Council' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'Ranger' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Scout' : game.match.pendingChoice.kind === 'elven-favor' ? 'Elven favor' : game.match.pendingChoice.kind.startsWith('secret-bargain') ? 'Secret Bargain' : 'Journey'} choice</p>
-        <h2 id="choice-title">{game.match.pendingChoice.kind === 'critical-defense' ? 'Defend the contested location?' : game.match.pendingChoice.kind === 'battle-deployment' ? 'Deploy Companies to the active Battle?' : game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Pay 2 Gold to gain 1 Provision?' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'Trash a card from hand or discard?' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Recall a Scout to gather intelligence?' : game.match.pendingChoice.kind === 'elven-favor' ? 'Keep one of the two Fate cards?' : game.match.pendingChoice.kind === 'secret-bargain-fate' ? 'Cycle one Fate card?' : game.match.pendingChoice.kind === 'secret-bargain-recall' ? 'Recall another Agent?' : 'Trash Seek Allies?'}</h2>
-        <p>{game.match.pendingChoice.kind === 'critical-defense' ? 'The controller may deploy one Company directly from supply before the first Agent turn.' : game.match.pendingChoice.kind === 'battle-deployment' ? `Deploy any Companies recruited this round plus up to two existing garrison Companies; ${game.match.pendingChoice.maximum} are currently eligible.` : game.match.pendingChoice.kind === 'muster-free-peoples' ? 'The Companies have already been recruited.' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'The Provision, standing, and Company have already resolved; only you can see the eligible card names.' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'The Agent is placed, but neither the board nor Journey effect has resolved yet.' : game.match.pendingChoice.kind === 'elven-favor' ? 'The two private cards are identified only to you; the unchosen card enters the public Fate discard.' : game.match.pendingChoice.kind === 'secret-bargain-fate' ? 'The cycled identity remains private; its old instance enters the public discard before a replacement is drawn.' : game.match.pendingChoice.kind === 'secret-bargain-recall' ? 'Choose one of your other occupied spaces. The recalled Agent becomes available again before the private draw.' : 'The board space has resolved.'} Resolve this choice before the turn advances.</p>
+        <p class="eyebrow">Ordered {game.match.pendingChoice.kind === 'critical-defense' || game.match.pendingChoice.kind === 'battle-deployment' ? 'Battle' : game.match.pendingChoice.kind === 'fangorn-moot' ? 'Fangorn Moot' : game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Council' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'Ranger' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Scout' : game.match.pendingChoice.kind === 'elven-favor' ? 'Elven favor' : game.match.pendingChoice.kind.startsWith('secret-bargain') ? 'Secret Bargain' : 'Journey'} choice</p>
+        <h2 id="choice-title">{game.match.pendingChoice.kind === 'critical-defense' ? 'Defend the contested location?' : game.match.pendingChoice.kind === 'battle-deployment' ? 'Deploy Companies to the active Battle?' : game.match.pendingChoice.kind === 'fangorn-moot' ? 'What does the Moot decide?' : game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Pay 2 Gold to gain 1 Provision?' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'Trash a card from hand or discard?' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Recall a Scout to gather intelligence?' : game.match.pendingChoice.kind === 'elven-favor' ? 'Keep one of the two Fate cards?' : game.match.pendingChoice.kind === 'secret-bargain-fate' ? 'Cycle one Fate card?' : game.match.pendingChoice.kind === 'secret-bargain-recall' ? 'Recall another Agent?' : 'Trash Seek Allies?'}</h2>
+        <p>{game.match.pendingChoice.kind === 'critical-defense' ? 'The controller may deploy one Company directly from supply before the first Agent turn.' : game.match.pendingChoice.kind === 'battle-deployment' ? `Deploy any Companies recruited this round plus up to two existing garrison Companies; ${game.match.pendingChoice.maximum} are currently eligible.` : game.match.pendingChoice.kind === 'fangorn-moot' ? 'Take the persistent Ent-draught with one Company and one Provision, or gain one Provision and decide whether to breach the Dam.' : game.match.pendingChoice.kind === 'muster-free-peoples' ? 'The Companies have already been recruited.' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'The Provision, standing, and Company have already resolved; only you can see the eligible card names.' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'The Agent is placed, but neither the board nor Journey effect has resolved yet.' : game.match.pendingChoice.kind === 'elven-favor' ? 'The two private cards are identified only to you; the unchosen card enters the public Fate discard.' : game.match.pendingChoice.kind === 'secret-bargain-fate' ? 'The cycled identity remains private; its old instance enters the public discard before a replacement is drawn.' : game.match.pendingChoice.kind === 'secret-bargain-recall' ? 'Choose one of your other occupied spaces. The recalled Agent becomes available again before the private draw.' : 'The board space has resolved.'} Resolve this choice before the turn advances.</p>
       </div>
       <div class="choice-actions">
         {#if game.match.pendingChoice.kind === 'critical-defense'}
@@ -323,6 +327,14 @@
             {@const amount = option.slice('deploy:'.length)}
             <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice(option)}>Deploy {amount}</button>
           {/each}
+        {:else if game.match.pendingChoice.kind === 'fangorn-moot'}
+          {#if game.match.pendingChoice.options.includes('take-ent-draught')}
+            <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('take-ent-draught')}>Take Ent-draught, recruit 1, gain 1 Provision</button>
+          {/if}
+          {#if game.match.pendingChoice.options.includes('gain-provision-breach-dam')}
+            <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('gain-provision-breach-dam')}>Gain 1 Provision and breach the Dam</button>
+          {/if}
+          <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('gain-provision-leave-dam')}>Gain 1 Provision and leave the Dam</button>
         {:else if game.match.pendingChoice.kind === 'muster-free-peoples'}
           <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('pay-2-gold')}>Pay 2 Gold</button>
           <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('decline')}>Keep the Gold</button>

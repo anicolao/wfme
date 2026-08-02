@@ -214,7 +214,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] Every human sees Crossing of the Isen as the active Battle
-- [x] The production board reports all sixteen executable destinations
+- [x] The production board reports all seventeen executable destinations
 - [x] Every connected browser replays 10 accepted events with no diagnostics
 
 ---

@@ -8,7 +8,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | --- | ---: | --- |
 | Root lobby and live room | 1 / 1 | `002-dwarven-caravans` creates and joins with three isolated Firebase identities |
 | Seeded match and private opening hands | 1 / 1 | Reducer conservation tests and the three-seat browser journey |
-| Board destinations | 16 / 22 | All eight faction destinations, five White Council destinations, Take Up a War Effort, Minas Tirith, and Edoras are executable; the other six are disabled |
+| Board destinations | 17 / 22 | All eight faction destinations, five White Council destinations, Take Up a War Effort, Minas Tirith, Edoras, and Fangorn Moot are executable; the other five are disabled |
 | Starting card instances | 10 / 10 | Exact deterministic deck composition and conservation |
 | Starting cards with executable Agent boxes | 5 / 7 definitions | Diplomatic Mission, The Open Road, Armed Escort, Seek Allies, and Reconnaissance |
 | Observation posts | 9 / 9 structure; placement, intelligence, and infiltration live | Exact named connections, finite Scout supply, multi-Agent occupation, both recall timings, authority, and replay |
@@ -45,6 +45,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | Desperate Valor Combat Fate | private two-copy identity, return from Battle to supply, +5 temporary Strength, zero Strength when the last unit leaves, persistent Combat participation, public discard, and replay | `006-ordinary-battle` carries the Pelennor runner-up's reward into a real fourth round, deploys exactly one Company, returns it through the Fate UI, proves zero Strength without losing pass authority, and resolves Helm's Deep on three clients |
 | Helm's Deep and Edoras control | final Horse Standard, critical-location display, exact ranked rewards, sole-winner control, cleanup, and replay | `006-ordinary-battle` opens the reviewed Battle after Pelennor, deploys two humans through distinct real destinations, Reveals all three seats, resolves Combat Fate and pass reset, then validates Edoras control and the exact Renown reward |
 | Edoras and Riches | one-Mithril printed reward, one-Mithril controller tribute, empty-round accumulation, full-pool collection, reset, occupation, and replay | `006-ordinary-battle` leaves Edoras empty for four genuine rounds, wins its control at Helm's Deep, uses a real Roads card to visit it, and validates the six-Mithril total and reset on three clients |
+| Fangorn Moot, Ent-draught, and the Dam | Wild-two requirement, one-time persistent Ent-draught, finite Company recruitment, exact Provision rewards, optional permanent Dam breach, ordered Journey continuation, public state, illegal paths, and replay | `002-dwarven-caravans` earns Wild respect through the two real Wild destinations, visits the Moot twice with real Stronghold cards, takes Ent-draught, returns after Recall to breach the Dam, and reloads the exact result on three clients |
 | Siege and Minas Tirith control | contested-location display, sole-winner control, printed Renown, runner-up Fate/Gold, persistent controller identity, controller visit income, and deterministic replay | `006-ordinary-battle` continues into round two, deploys three humans through real spaces, resolves the Siege, and validates the same Minas Tirith controller on every client; reducer replay proves the controller's later +1 Gold visit trigger |
 | Pelennor defense and Standard pairing | controller-authorized optional round-start defense from supply, exact Age III rewards, retained control, face-up matching, both cards turned face down, separate +1 Renown, and replay | `006-ordinary-battle` reloads the Minas Tirith controller while the defense choice is pending, deploys through the real control, Reveals all three humans, resolves the sole-participant Combat window, and validates paired White Tree Standards plus exact Renown on every client |
 | Standing 2 respect and persistent Renown | multi-round threshold replay test | gestures 055–057 revisit Dwarven Caravans after Recall |
@@ -65,4 +66,4 @@ This is the construction ledger for the one canonical game at the repository roo
 
 ## Next accepted tracer
 
-Tracer 5 continues with the remaining Combat Fate effects and Battle-card batches.
+Tracer 6 continues with Deep Fangorn and the first legal Ent summon.
