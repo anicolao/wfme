@@ -120,8 +120,8 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
           for (const seat of seats) await expect(seat.page.getByRole('heading', { name: 'The living board' })).toBeVisible();
         } },
         { spec: 'All 22 final board destinations are structurally present', check: async () => await expect(page.locator('.spaces button')).toHaveCount(22) },
-        { spec: 'Exactly two faction destinations are advertised as playable', check: async () => {
-          await expect(page.getByText('Playable spaces').locator('..').getByText('2 / 22')).toBeVisible();
+        { spec: 'Exactly three complete destinations are advertised as playable', check: async () => {
+          await expect(page.getByText('Playable spaces').locator('..').getByText('3 / 22')).toBeVisible();
           await expect(page.getByTestId('space-dwarven-caravans')).toContainText('+1 standing');
           await expect(page.getByTestId('space-tribute-shadow')).toContainText('+1 standing');
         } },
@@ -129,6 +129,37 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
           for (const seat of seats) await expect(seat.page.getByTestId('private-hand').getByRole('button')).toHaveCount(5);
         } },
         convergedEvents(10)
+      ]
+    );
+
+    const roadName = ((await page.locator('footer').textContent())?.match(/Current actor ([^·]+)/)?.[1] ?? '').trim();
+    const roadActor = seats.find((seat) => seat.name === roadName);
+    expect(roadActor).toBeDefined();
+    await steps.gesture(roadActor!.page, 'play-open-road', `${roadActor!.name} chooses The Open Road`,
+      () => roadActor!.page.getByTestId('private-hand').getByRole('button', { name: /^The Open Road/ }).first().click(),
+      [
+        { spec: 'The Open Road is selected through the private hand', check: async () => await expect(roadActor!.page.getByRole('button', { name: /^The Open Road/ }).first()).toHaveAttribute('aria-pressed', 'true') },
+        { spec: 'Take Up a War Effort is the sole legal Roads destination', check: async () => {
+          await expect(roadActor!.page.getByTestId('space-take-war-effort')).toBeEnabled();
+          await expect(roadActor!.page.locator('.spaces button:enabled')).toHaveCount(1);
+        } }
+      ]
+    );
+    await steps.gesture(roadActor!.page, 'take-war-effort', `${roadActor!.name} takes up the road in the base game`,
+      () => roadActor!.page.getByTestId('space-take-war-effort').click(),
+      [
+        { spec: 'Every client sees the named Agent occupying the Roads space', check: async () => {
+          for (const seat of seats) await expect(seat.page.getByTestId('space-take-war-effort')).toContainText(`Agent · ${roadActor!.name}`);
+        } },
+        { spec: 'The public reward is exactly two Gold while War Efforts are disabled', check: async () => {
+          const player = roadActor!.page.locator('.players article').filter({ hasText: roadActor!.name });
+          await expect(player).toContainText('Gold2');
+        } },
+        { spec: 'The actor privately draws Armed Escort and still has five cards', check: async () => {
+          await expect(roadActor!.page.getByTestId('private-hand').getByRole('button')).toHaveCount(5);
+          await expect(roadActor!.page.getByTestId('private-hand').getByRole('button', { name: /^Armed Escort/ })).toBeVisible();
+        } },
+        convergedEvents(11)
       ]
     );
 
@@ -209,7 +240,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
           await expect(player).toContainText('Shadow1');
         } },
         { spec: 'All replays accept the twelfth event without diagnostics', check: async () => {
-          for (const seat of seats) await expect(seat.page.getByTestId('replay-health')).toHaveText(' · 12 accepted events · 0 replay diagnostics');
+          for (const seat of seats) await expect(seat.page.getByTestId('replay-health')).toHaveText(' · 13 accepted events · 0 replay diagnostics');
         } },
         { spec: 'The next human receives the turn', check: async () => {
           for (const seat of seats) await expect(seat.page.locator('footer')).not.toContainText(`Current actor ${shadowActor!.name}`);
@@ -229,8 +260,8 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
     );
 
     steps.generateDocs(
-      'Three-player faction destinations tracer',
-      'Three isolated human browser sessions create and join a Firebase room, choose power-free Commander identities, start a seeded game on the final board, resolve Dwarven and Shadow Agent actions, converge, and replay both after reload.'
+      'Three-player ordinary Agent destinations tracer',
+      'Three isolated human browser sessions create and join a Firebase room, choose power-free Commander identities, start a seeded game on the final board, then resolve a Roads draw and base-game reward plus Dwarven and Shadow faction actions with convergence and replay.'
     );
   } finally {
     await guestAContext.close();

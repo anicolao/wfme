@@ -235,16 +235,21 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     const agentNumber = 3 - player.availableAgents;
     player.availableAgents -= 1;
     state.match.boardAgents[spaceId] = { uid: event.actorUid, agentNumber };
+    let resolution: string;
     if (space.effect.kind === 'dwarven-caravans') {
       player.resources.provisions += space.effect.gainProvisions;
       player.standing.dwarven += 1;
-    } else {
+      resolution = 'gaining 1 Dwarven standing and 1 Provision';
+    } else if (space.effect.kind === 'tribute-shadow') {
       player.resources.gold += space.effect.gainGold;
       player.standing.shadow += 1;
+      resolution = 'gaining 1 Shadow standing and 2 Gold';
+    } else {
+      const drawn = player.drawPile.shift();
+      if (drawn) player.hand.push(drawn);
+      player.resources.gold += space.effect.gainGoldWithoutModule;
+      resolution = `drawing ${drawn ? '1 card' : 'no card'} and gaining 2 Gold because War Efforts are disabled`;
     }
-    const resolution = space.effect.kind === 'dwarven-caravans'
-      ? 'gaining 1 Dwarven standing and 1 Provision'
-      : 'gaining 1 Shadow standing and 2 Gold';
     state.match.activity.push(`${actor.displayName} sends an Agent to ${space.name}, ${resolution}.`);
     state.match.currentPlayerIndex = (state.match.currentPlayerIndex + 1) % state.match.playerOrder.length;
     return null;

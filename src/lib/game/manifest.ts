@@ -36,6 +36,13 @@ export type AgentCardDefinition = StartingCardIdentity & {
 
 export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
   {
+    id: 'the-open-road',
+    name: 'The Open Road',
+    copies: 2,
+    placementIcons: ['Roads'],
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
     id: 'diplomatic-mission',
     name: 'Diplomatic Mission',
     copies: 1,
@@ -81,7 +88,8 @@ export type BoardSpaceDefinition = BoardSpaceIdentity & {
   placementIcons: readonly PlacementIcon[];
   effect:
     | { kind: 'dwarven-caravans'; gainStanding: 'dwarven'; gainProvisions: 1 }
-    | { kind: 'tribute-shadow'; gainStanding: 'shadow'; gainGold: 2 };
+    | { kind: 'tribute-shadow'; gainStanding: 'shadow'; gainGold: 2 }
+    | { kind: 'take-war-effort'; drawCards: 1; gainGoldWithoutModule: 2 };
   reviewedCapabilities: readonly ['agent-placement'];
 };
 
@@ -100,6 +108,14 @@ export const BOARD_SPACE_DEFINITIONS: readonly BoardSpaceDefinition[] = [
     region: 'Shadow Hosts',
     placementIcons: ['Shadow'],
     effect: { kind: 'tribute-shadow', gainStanding: 'shadow', gainGold: 2 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'take-war-effort',
+    name: 'Take Up a War Effort',
+    region: 'Roads',
+    placementIcons: ['Roads'],
+    effect: { kind: 'take-war-effort', drawCards: 1, gainGoldWithoutModule: 2 },
     reviewedCapabilities: ['agent-placement']
   }
 ];

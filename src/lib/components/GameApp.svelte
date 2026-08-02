@@ -217,7 +217,7 @@
       <h1 id="lobby-title">Gather at the real table.</h1>
       <p class="lede">
         This preview grows one final capability at a time. Tracer 1 supports a real seeded room,
-        production board, private starting hand, and complete Dwarven and Shadow faction actions.
+        production board, private starting hand, faction actions, and the first complete Roads action.
       </p>
 
       {#if !game.roomCode}

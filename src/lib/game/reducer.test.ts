@@ -96,4 +96,24 @@ describe('integrated Agent placement replay', () => {
     expect(afterTribute.match!.boardAgents['tribute-shadow'].uid).toBe(actor);
     expect(afterTribute.match!.playerOrder[afterTribute.match!.currentPlayerIndex]).not.toBe(actor);
   });
+
+  it('draws a private card and applies the disabled-module reward at Take Up a War Effort', () => {
+    const events = readyRoom();
+    const before = reduceGame(events);
+    const actor = before.match!.playerOrder[0];
+    const road = before.match!.players[actor].hand.find((card) => card.definitionId === 'the-open-road')!;
+    const drawn = before.match!.players[actor].drawPile[0];
+    expect(legalAgentSpaces(before, actor, road.id)).toEqual(['take-war-effort']);
+
+    const after = reduceGame([...events, createEvent('agent/placed', actor, 5, {
+      cardInstanceId: road.id,
+      spaceId: 'take-war-effort'
+    }, 11)]);
+    expect(after.diagnostics).toEqual([]);
+    expect(after.match!.players[actor].resources.gold).toBe(2);
+    expect(after.match!.players[actor].hand).toContainEqual(drawn);
+    expect(after.match!.players[actor].hand).toHaveLength(5);
+    expect(after.match!.players[actor].drawPile).toHaveLength(4);
+    expect(after.match!.boardAgents['take-war-effort'].uid).toBe(actor);
+  });
 });

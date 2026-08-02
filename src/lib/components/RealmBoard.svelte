@@ -46,8 +46,8 @@
       </p>
     </div>
     <dl class="ledger" aria-label="Construction capability ledger">
-      <div><dt>Playable spaces</dt><dd>2 / 22</dd></div>
-      <div><dt>Agent-ready cards</dt><dd>1 / 7</dd></div>
+      <div><dt>Playable spaces</dt><dd>3 / 22</dd></div>
+      <div><dt>Agent-ready cards</dt><dd>2 / 7</dd></div>
       <div><dt>Commander powers</dt><dd>0 / 16</dd></div>
     </dl>
   </header>
@@ -97,7 +97,13 @@
                   {#if occupant}
                     <span>Agent · {occupant}</span>
                   {:else if implemented}
-                    <span>{definition?.effect.kind === 'dwarven-caravans' ? 'Dwarven · +1 standing · +1 Provision' : 'Shadow · +1 standing · +2 Gold'}</span>
+                    <span>
+                      {definition?.effect.kind === 'dwarven-caravans'
+                        ? 'Dwarven · +1 standing · +1 Provision'
+                        : definition?.effect.kind === 'tribute-shadow'
+                          ? 'Shadow · +1 standing · +2 Gold'
+                          : 'Draw 1 card · +2 Gold'}
+                    </span>
                   {:else}
                     <span>Later tracer</span>
                   {/if}
@@ -119,12 +125,13 @@
       {#if selectedCardId && !selectedIsImplemented}
         <p role="status">{selectedName} is part of the final deck, but its Agent feature is not active in this tracer.</p>
       {:else if selectedCardId}
-        <p role="status">{selectedName} can send an Agent to the highlighted faction destinations.</p>
+        <p role="status">{selectedName} can send an Agent to the highlighted board destinations.</p>
       {/if}
     </div>
     <div class="hand" data-testid="private-hand">
       {#each localMatch?.hand ?? [] as card}
-        {@const implemented = AGENT_CARD_DEFINITIONS.some((definition) => definition.id === card.definitionId)}
+        {@const cardDefinition = AGENT_CARD_DEFINITIONS.find((definition) => definition.id === card.definitionId)}
+        {@const implemented = Boolean(cardDefinition)}
         <button
           type="button"
           class:selected={card.id === selectedCardId}
@@ -133,7 +140,7 @@
           onclick={() => onSelectCard(card.id)}
         >
           <strong>{cardName(card.definitionId)}</strong>
-          <span>{implemented ? 'Agent: Shadow · Dwarven · Elven · Wild' : 'Agent feature arrives in a later tracer'}</span>
+          <span>{cardDefinition ? `Agent: ${cardDefinition.placementIcons.join(' · ')}` : 'Agent feature arrives in a later tracer'}</span>
         </button>
       {/each}
     </div>

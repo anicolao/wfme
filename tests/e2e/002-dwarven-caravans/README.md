@@ -1,6 +1,6 @@
-# Test: Three-player faction destinations tracer
+# Test: Three-player ordinary Agent destinations tracer
 
-Three isolated human browser sessions create and join a Firebase room, choose power-free Commander identities, start a seeded game on the final board, resolve Dwarven and Shadow Agent actions, converge, and replay both after reload.
+Three isolated human browser sessions create and join a Firebase room, choose power-free Commander identities, start a seeded game on the final board, then resolve a Roads draw and base-game reward plus Dwarven and Shadow faction actions with convergence and replay.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -212,17 +212,45 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] All three browsers transition to the production board
 - [x] All 22 final board destinations are structurally present
-- [x] Exactly two faction destinations are advertised as playable
+- [x] Exactly three complete destinations are advertised as playable
 - [x] Each seat exposes exactly its own five-card hand
 - [x] Every connected replay has accepted exactly 10 events with no diagnostics
 
 ---
 
-## Mara chooses Diplomatic Mission
+## Mara chooses The Open Road
 
-![Phone: Mara chooses Diplomatic Mission](./screenshots/016-play-diplomatic-mission-phone.png)
+![Phone: Mara chooses The Open Road](./screenshots/016-play-open-road-phone.png)
 
-![Desktop: Mara chooses Diplomatic Mission](./screenshots/016-play-diplomatic-mission-desktop.png)
+![Desktop: Mara chooses The Open Road](./screenshots/016-play-open-road-desktop.png)
+
+**Verifications:**
+
+- [x] The Open Road is selected through the private hand
+- [x] Take Up a War Effort is the sole legal Roads destination
+
+---
+
+## Mara takes up the road in the base game
+
+![Phone: Mara takes up the road in the base game](./screenshots/017-take-war-effort-phone.png)
+
+![Desktop: Mara takes up the road in the base game](./screenshots/017-take-war-effort-desktop.png)
+
+**Verifications:**
+
+- [x] Every client sees the named Agent occupying the Roads space
+- [x] The public reward is exactly two Gold while War Efforts are disabled
+- [x] The actor privately draws Armed Escort and still has five cards
+- [x] Every connected replay has accepted exactly 11 events with no diagnostics
+
+---
+
+## Pip chooses Diplomatic Mission
+
+![Phone: Pip chooses Diplomatic Mission](./screenshots/018-play-diplomatic-mission-phone.png)
+
+![Desktop: Pip chooses Diplomatic Mission](./screenshots/018-play-diplomatic-mission-desktop.png)
 
 **Verifications:**
 
@@ -231,11 +259,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara sends an Agent to Dwarven Caravans
+## Pip sends an Agent to Dwarven Caravans
 
-![Phone: Mara sends an Agent to Dwarven Caravans](./screenshots/017-place-dwarven-agent-phone.png)
+![Phone: Pip sends an Agent to Dwarven Caravans](./screenshots/019-place-dwarven-agent-phone.png)
 
-![Desktop: Mara sends an Agent to Dwarven Caravans](./screenshots/017-place-dwarven-agent-desktop.png)
+![Desktop: Pip sends an Agent to Dwarven Caravans](./screenshots/019-place-dwarven-agent-desktop.png)
 
 **Verifications:**
 
@@ -246,11 +274,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara reloads and the immutable history replays
+## Pip reloads and the immutable history replays
 
-![Phone: Mara reloads and the immutable history replays](./screenshots/018-reload-replay-phone.png)
+![Phone: Pip reloads and the immutable history replays](./screenshots/020-reload-replay-phone.png)
 
-![Desktop: Mara reloads and the immutable history replays](./screenshots/018-reload-replay-desktop.png)
+![Desktop: Pip reloads and the immutable history replays](./screenshots/020-reload-replay-desktop.png)
 
 **Verifications:**
 
@@ -259,11 +287,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip chooses Diplomatic Mission
+## Rin chooses Diplomatic Mission
 
-![Phone: Pip chooses Diplomatic Mission](./screenshots/019-play-shadow-mission-phone.png)
+![Phone: Rin chooses Diplomatic Mission](./screenshots/021-play-shadow-mission-phone.png)
 
-![Desktop: Pip chooses Diplomatic Mission](./screenshots/019-play-shadow-mission-desktop.png)
+![Desktop: Rin chooses Diplomatic Mission](./screenshots/021-play-shadow-mission-desktop.png)
 
 **Verifications:**
 
@@ -272,11 +300,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip pays Tribute to the Shadow
+## Rin pays Tribute to the Shadow
 
-![Phone: Pip pays Tribute to the Shadow](./screenshots/020-tribute-shadow-phone.png)
+![Phone: Rin pays Tribute to the Shadow](./screenshots/022-tribute-shadow-phone.png)
 
-![Desktop: Pip pays Tribute to the Shadow](./screenshots/020-tribute-shadow-desktop.png)
+![Desktop: Rin pays Tribute to the Shadow](./screenshots/022-tribute-shadow-desktop.png)
 
 **Verifications:**
 
@@ -287,11 +315,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip reloads the completed Shadow tribute
+## Rin reloads the completed Shadow tribute
 
-![Phone: Pip reloads the completed Shadow tribute](./screenshots/021-reload-shadow-phone.png)
+![Phone: Rin reloads the completed Shadow tribute](./screenshots/023-reload-shadow-phone.png)
 
-![Desktop: Pip reloads the completed Shadow tribute](./screenshots/021-reload-shadow-desktop.png)
+![Desktop: Rin reloads the completed Shadow tribute](./screenshots/023-reload-shadow-desktop.png)
 
 **Verifications:**
 
