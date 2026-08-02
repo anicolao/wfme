@@ -8,7 +8,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | --- | ---: | --- |
 | Root lobby and live room | 1 / 1 | `002-dwarven-caravans` creates and joins with three isolated Firebase identities |
 | Seeded match and private opening hands | 1 / 1 | Reducer conservation tests and the three-seat browser journey |
-| Board destinations | 6 / 22 | Two faction spaces, Take Up a War Effort, and all three reviewed White Council spaces; the other 16 are disabled |
+| Board destinations | 7 / 22 | Hidden Counsel joins the two earlier faction spaces, Take Up a War Effort, and all three reviewed White Council spaces; the other 15 are disabled |
 | Starting card instances | 10 / 10 | Exact deterministic deck composition and conservation |
 | Starting cards with executable Agent boxes | 5 / 7 definitions | Diplomatic Mission, The Open Road, Armed Escort, Seek Allies, and Reconnaissance |
 | Observation posts | 9 / 9 structure; placement, intelligence, and infiltration live | Exact named connections, finite Scout supply, multi-Agent occupation, both recall timings, authority, and replay |
@@ -16,7 +16,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | Reserve cards | 1 / 2 definitions | Muster the Host cost, finite supply, discard destination, reshuffle, and later Agent use are executable |
 | Commander identities | 8 / 8 | Unique lobby identities, explicitly power-free |
 | Commander powers | 0 / 16 | No power text is presented as active |
-| Fate physical instances | 30 / 30 | Deterministically shuffled shared deck, private draw, conservation, and replay; individual Fate effects remain 0 / 30 |
+| Fate physical instances | 30 / 30 | Deterministically shuffled deck, private hands, public discard, keep-one choice, deterministic transfer, conservation, and replay; individual Fate effects remain 0 / 30 |
 | Chronicle, Battle, War Effort, and Rival content | 0 | Introduced only with the tracer that makes each item executable |
 | Round phases | Agent, Reveal, Recall | Battle and Riches arrive with their own complete subsystems |
 | Complete matches | 0 | Endgame and rematch are not yet available |
@@ -31,6 +31,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | Diplomatic Mission placement icon legality | legal-space selector and illegal placement tests | gesture 018 enables only matching, unoccupied faction spaces |
 | Dwarven Caravans occupancy and +1 Dwarven/+1 Provision | resolution and no-partial-mutation tests | gesture 019 validates all three clients |
 | Tribute to the Shadow occupancy and +1 Shadow/+2 Gold | resolution and turn-advance test | gesture 022 validates all three clients |
+| Hidden Counsel and Elven standing family | private physical draw, standing-two respect, standing-four draw-two/keep-one favor, public discard, Alliance, deterministic transfers from opponents holding four Fate, ordered Seek Allies continuation, and 30-instance conservation | `005-hidden-counsel` gestures 017–019 validate real icon legality, synchronized occupation, public Elven/Fate counts, hidden identity, exact Chronicle result, and reload |
 | Standing 2 respect and persistent Renown | multi-round threshold replay test | gestures 055–057 revisit Dwarven Caravans after Recall |
 | Dwarven standing 4 favor, Alliance claim, strict-lead transfer | claim/tie/transfer and Renown ownership tests | gestures 094–113 reach standing three, conserve the faction card, claim publicly, and reload |
 | Take Up a War Effort draw and disabled-module +2 Gold | card-zone conservation test | gestures 016–017 validate private draw and public reward |
@@ -49,4 +50,4 @@ This is the construction ledger for the one canonical game at the repository roo
 
 ## Next accepted tracer
 
-Tracer 2 continues with the remaining ordinary Agent-space families, beginning with Pits of Isengard. Reveal and Recall provide the genuine multi-round path needed to exercise costs, standing thresholds, Scouts, and later-acquired cards without manufactured state.
+Tracer 2 continues with Mirror of Galadriel, completing the ordinary Elven family through a genuine Mithril cost, private draw, and ordered Scout placement before Battle spaces are enabled.

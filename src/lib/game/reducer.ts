@@ -65,10 +65,17 @@ export type MatchState = {
   boardAgents: Record<string, AgentOccupation[]>;
   boardScouts: Record<string, string>;
   fateDeck: FateInstance[];
+  fateDiscard: FateInstance[];
   pendingChoice: null | {
     kind: 'muster-free-peoples';
     actorUid: string;
     options: readonly ['pay-2-gold', 'decline'];
+  } | {
+    kind: 'elven-favor';
+    actorUid: string;
+    drawnFateIds: readonly string[];
+    followupSeekAlliesCardId: string | null;
+    options: readonly string[];
   } | {
     kind: 'seek-allies';
     actorUid: string;
@@ -174,6 +181,7 @@ function createMatch(state: GameState, seed: string): MatchState {
     boardAgents: {},
     boardScouts: {},
     fateDeck: shuffled(Array.from({ length: 30 }, (_, index) => ({ id: `fate:${index + 1}` })), `${seed}:fate-deck`),
+    fateDiscard: [],
     pendingChoice: null,
     reserveSupply: { 'muster-host': 8 },
     alliances: { shadow: null, dwarven: null, elven: null, wild: null },
@@ -261,7 +269,12 @@ function recruitCompanies(player: MatchPlayer, amount: number): number {
   return recruited;
 }
 
-function gainStanding(match: MatchState, player: MatchPlayer, faction: 'shadow' | 'dwarven'): void {
+function gainStanding(
+  match: MatchState,
+  player: MatchPlayer,
+  faction: 'shadow' | 'dwarven' | 'elven' | 'wild',
+  followupSeekAlliesCardId: string | null = null
+): void {
   const before = player.standing[faction];
   player.standing[faction] = Math.min(6, before + 1);
   const after = player.standing[faction];
@@ -269,6 +282,23 @@ function gainStanding(match: MatchState, player: MatchPlayer, faction: 'shadow' 
   if (before < 4 && after >= 4) {
     if (faction === 'shadow') recruitCompanies(player, 2);
     if (faction === 'dwarven') player.resources.provisions += 2;
+    if (faction === 'elven') {
+      const drawn = match.fateDeck.splice(0, 2);
+      player.fateHand.push(...drawn);
+      if (drawn.length > 1) {
+        match.pendingChoice = {
+          kind: 'elven-favor',
+          actorUid: player.uid,
+          drawnFateIds: drawn.map((fate) => fate.id),
+          followupSeekAlliesCardId,
+          options: drawn.map((fate) => `keep:${fate.id}`)
+        };
+      }
+    }
+    if (faction === 'wild') {
+      player.resources.provisions += 1;
+      recruitCompanies(player, 1);
+    }
   }
   const holder = match.alliances[faction];
   if (after >= 4 && (!holder || match.players[holder].standing[faction] < after)) {
@@ -288,6 +318,7 @@ function resolveAgentEffects(
   const match = state.match!;
   const player = match.players[actorUid];
   const cardDefinition = AGENT_CARD_DEFINITIONS.find((candidate) => candidate.id === card.definitionId)!;
+  const seekAlliesCardId = cardDefinition.journeyEffect?.kind === 'optional-trash-self' ? card.id : null;
   let resolution: string;
   if (cardDefinition.journeyEffect?.kind === 'recruit-companies') {
     recruitCompanies(player, cardDefinition.journeyEffect.amount);
@@ -300,6 +331,23 @@ function resolveAgentEffects(
     player.resources.gold += space.effect.gainGold;
     gainStanding(match, player, 'shadow');
     resolution = 'gaining 1 Shadow standing and 2 Gold';
+  } else if (space.effect.kind === 'hidden-counsel') {
+    gainStanding(match, player, 'elven', seekAlliesCardId);
+    const drawn = match.fateDeck.shift();
+    if (drawn) player.fateHand.push(drawn);
+    let transfers = 0;
+    for (const opponentUid of match.playerOrder.filter((uid) => uid !== actorUid)) {
+      const opponent = match.players[opponentUid];
+      if (opponent.fateHand.length < space.effect.stealFromOpponentsAtFateCount) continue;
+      const [transferred] = shuffled(
+        opponent.fateHand,
+        `${match.seed}:round-${match.round}:hidden-counsel:${actorUid}:${opponentUid}:${match.activity.length}`
+      );
+      opponent.fateHand.splice(opponent.fateHand.findIndex((fate) => fate.id === transferred.id), 1);
+      player.fateHand.push(transferred);
+      transfers += 1;
+    }
+    resolution = `gaining 1 Elven standing, drawing ${drawn ? '1 Fate' : 'no Fate'}, and receiving ${transfers} Fate from opponents holding four or more`;
   } else if (space.effect.kind === 'take-war-effort') {
     const drawn = player.drawPile.shift();
     if (drawn) player.hand.push(drawn);
@@ -329,7 +377,7 @@ function resolveAgentEffects(
     const recruited = recruitCompanies(player, space.effect.repeatRecruitCompanies);
     resolution = `gaining 2 Mithril, drawing ${fate ? '1 Fate' : 'no Fate'}, and recruiting ${recruited} Companies`;
   }
-  if (cardDefinition.journeyEffect?.kind === 'optional-trash-self') {
+  if (cardDefinition.journeyEffect?.kind === 'optional-trash-self' && !match.pendingChoice) {
     match.pendingChoice = {
       kind: 'seek-allies',
       actorUid: player.uid,
@@ -512,6 +560,28 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       state.match.pendingChoice = null;
       resolveAgentEffects(state, actor.displayName, event.actorUid, card, space);
       if (!state.match.pendingChoice) advanceToNextAgentPlayer(state.match);
+      return null;
+    }
+    if (pending.kind === 'elven-favor') {
+      const keptId = choice.slice('keep:'.length);
+      if (!pending.drawnFateIds.includes(keptId)) return 'illegal choice resolution';
+      const discardedId = pending.drawnFateIds.find((id) => id !== keptId);
+      const discardedIndex = player.fateHand.findIndex((fate) => fate.id === discardedId);
+      if (discardedIndex < 0) return 'illegal choice resolution';
+      const [discarded] = player.fateHand.splice(discardedIndex, 1);
+      state.match.fateDiscard.push(discarded);
+      state.match.activity.push(`${actor.displayName} keeps one of the two Fate cards granted by Elven favor and discards the other.`);
+      if (pending.followupSeekAlliesCardId) {
+        state.match.pendingChoice = {
+          kind: 'seek-allies',
+          actorUid: player.uid,
+          cardInstanceId: pending.followupSeekAlliesCardId,
+          options: ['trash-self', 'keep-card']
+        };
+      } else {
+        state.match.pendingChoice = null;
+        advanceToNextAgentPlayer(state.match);
+      }
       return null;
     }
     if (pending.kind === 'muster-free-peoples') {

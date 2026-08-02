@@ -63,7 +63,7 @@ describe('integrated Agent placement replay', () => {
     const actorUid = before.match!.playerOrder[0];
     const card = before.match!.players[actorUid].hand.find((candidate) => candidate.definitionId === 'diplomatic-mission');
     expect(card, 'the committed tracer seed must put Diplomatic Mission in the first hand').toBeDefined();
-    expect(legalAgentSpaces(before, actorUid, card!.id)).toEqual(['dwarven-caravans', 'tribute-shadow']);
+    expect(legalAgentSpaces(before, actorUid, card!.id)).toEqual(['dwarven-caravans', 'tribute-shadow', 'hidden-counsel']);
 
     const after = reduceGame([
       ...events,
@@ -104,7 +104,7 @@ describe('integrated Agent placement replay', () => {
     const actor = afterFirst.match!.playerOrder[1];
     const mission = afterFirst.match!.players[actor].hand.find((card) => card.definitionId === 'diplomatic-mission');
     expect(mission, 'the committed seed must put Diplomatic Mission in the next hand').toBeDefined();
-    expect(legalAgentSpaces(afterFirst, actor, mission!.id)).toEqual(['tribute-shadow']);
+    expect(legalAgentSpaces(afterFirst, actor, mission!.id)).toEqual(['tribute-shadow', 'hidden-counsel']);
 
     const afterTribute = reduceGame([
       ...events,
@@ -119,6 +119,74 @@ describe('integrated Agent placement replay', () => {
     expect(afterTribute.match!.players[actor].standing.shadow).toBe(1);
     expect(afterTribute.match!.boardAgents['tribute-shadow'][0].uid).toBe(actor);
     expect(afterTribute.match!.playerOrder[afterTribute.match!.currentPlayerIndex]).not.toBe(actor);
+  });
+
+  it('resolves Hidden Counsel with a private physical Fate draw', () => {
+    const events = readyRoom();
+    const before = reduceGame(events);
+    const actor = before.match!.playerOrder[0];
+    const mission = before.match!.players[actor].hand.find((card) => card.definitionId === 'diplomatic-mission')!;
+    const expectedFate = before.match!.fateDeck[0];
+    const after = reduceGame([...events, createEvent('agent/placed', actor, 5, {
+      cardInstanceId: mission.id, spaceId: 'hidden-counsel'
+    }, 11)]);
+
+    expect(after.diagnostics).toEqual([]);
+    expect(after.match!.players[actor].standing.elven).toBe(1);
+    expect(after.match!.players[actor].fateHand).toEqual([expectedFate]);
+    expect(after.match!.fateDeck).toHaveLength(29);
+    expect(after.match!.fateDiscard).toEqual([]);
+    expect(after.match!.activity.at(-1)).toContain('receiving 0 Fate from opponents');
+  });
+
+  it('resolves Elven favor as an ordered keep-one choice and conserves every Fate instance', () => {
+    const stream = readyRoom('elven-favor');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const target = reduceGame(stream).match!.playerOrder[0];
+
+    for (let step = 0; step < 500; step += 1) {
+      const state = reduceGame(stream);
+      if (state.match!.players[target].standing.elven >= 4) break;
+      const current = currentPlayerUid(state)!;
+      const match = state.match!;
+      const player = match.players[current];
+      const append = (type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+        sequences[current] += 1;
+        stream.push(createEvent(type, current, sequences[current], payload, timestamp++));
+      };
+      if (match.pendingChoice?.kind === 'seek-allies') append('choice/resolved', { choice: 'keep-card' });
+      else if (match.turnMode === 'reveal') append('reveal/finished', {});
+      else {
+        const factionCard = current === target
+          ? player.hand.find((card) => card.definitionId === 'diplomatic-mission' || card.definitionId === 'seek-allies')
+          : undefined;
+        if (factionCard && !match.boardAgents['hidden-counsel'] && player.availableAgents > 0) {
+          append('agent/placed', { cardInstanceId: factionCard.id, spaceId: 'hidden-counsel' });
+        } else append('turn/revealed', {});
+      }
+    }
+
+    const pending = reduceGame(stream);
+    expect(pending.diagnostics).toEqual([]);
+    expect(pending.match!.players[target].standing.elven).toBe(4);
+    expect(pending.match!.players[target].renown).toBe(2);
+    expect(pending.match!.alliances.elven).toBe(target);
+    expect(pending.match!.pendingChoice?.kind).toBe('elven-favor');
+    if (pending.match!.pendingChoice?.kind !== 'elven-favor') throw new Error('Elven favor must be pending');
+    const chosen = pending.match!.pendingChoice.options[0];
+    sequences[target] += 1;
+    stream.push(createEvent('choice/resolved', target, sequences[target], { choice: chosen }, timestamp));
+    const resolved = reduceGame(stream);
+    const allFate = [
+      ...resolved.match!.fateDeck,
+      ...resolved.match!.fateDiscard,
+      ...Object.values(resolved.match!.players).flatMap((player) => player.fateHand)
+    ];
+    expect(resolved.diagnostics).toEqual([]);
+    expect(resolved.match!.fateDiscard).toHaveLength(1);
+    expect(new Set(allFate.map((fate) => fate.id)).size).toBe(30);
+    expect(allFate).toHaveLength(30);
   });
 
   it('draws a private card and applies the disabled-module reward at Take Up a War Effort', () => {

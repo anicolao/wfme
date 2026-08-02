@@ -120,8 +120,8 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
           for (const seat of seats) await expect(seat.page.getByRole('heading', { name: 'The living board' })).toBeVisible();
         } },
         { spec: 'All 22 final board destinations are structurally present', check: async () => await expect(page.locator('.spaces button')).toHaveCount(22) },
-        { spec: 'Exactly six complete destinations are advertised as playable', check: async () => {
-          await expect(page.getByText('Playable spaces').locator('..').getByText('6 / 22')).toBeVisible();
+        { spec: 'Exactly seven complete destinations are advertised as playable', check: async () => {
+          await expect(page.getByText('Playable spaces').locator('..').getByText('7 / 22')).toBeVisible();
           await expect(page.getByTestId('space-dwarven-caravans')).toContainText('+1 standing');
           await expect(page.getByTestId('space-tribute-shadow')).toContainText('+1 standing');
         } },
@@ -170,10 +170,11 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       () => actor!.page.getByTestId('private-hand').getByRole('button', { name: /^Diplomatic Mission/ }).click(),
       [
         { spec: 'Diplomatic Mission is visibly selected', check: async () => await expect(actor!.page.getByRole('button', { name: /^Diplomatic Mission/ })).toHaveAttribute('aria-pressed', 'true') },
-        { spec: 'Both matching, unoccupied faction destinations become legal', check: async () => {
+        { spec: 'All three matching, unoccupied reviewed faction destinations become legal', check: async () => {
           await expect(actor!.page.getByTestId('space-dwarven-caravans')).toBeEnabled();
           await expect(actor!.page.getByTestId('space-tribute-shadow')).toBeEnabled();
-          await expect(actor!.page.locator('.spaces button:enabled')).toHaveCount(2);
+          await expect(actor!.page.getByTestId('space-hidden-counsel')).toBeEnabled();
+          await expect(actor!.page.locator('.spaces button:enabled')).toHaveCount(3);
         } }
       ]
     );
@@ -221,10 +222,11 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       () => shadowActor!.page.getByTestId('private-hand').getByRole('button', { name: /^Diplomatic Mission/ }).click(),
       [
         { spec: 'Diplomatic Mission is selected through the private hand', check: async () => await expect(shadowActor!.page.getByRole('button', { name: /^Diplomatic Mission/ })).toHaveAttribute('aria-pressed', 'true') },
-        { spec: 'The occupied Dwarven space is unavailable and Tribute is the sole legal destination', check: async () => {
+        { spec: 'The occupied Dwarven space is unavailable while Shadow and Elven destinations remain legal', check: async () => {
           await expect(shadowActor!.page.getByTestId('space-dwarven-caravans')).toBeDisabled();
           await expect(shadowActor!.page.getByTestId('space-tribute-shadow')).toBeEnabled();
-          await expect(shadowActor!.page.locator('.spaces button:enabled')).toHaveCount(1);
+          await expect(shadowActor!.page.getByTestId('space-hidden-counsel')).toBeEnabled();
+          await expect(shadowActor!.page.locator('.spaces button:enabled')).toHaveCount(2);
         } }
       ]
     );

@@ -176,6 +176,7 @@ export type BoardSpaceDefinition = BoardSpaceIdentity & {
   effect:
     | { kind: 'dwarven-caravans'; gainStanding: 'dwarven'; gainProvisions: 1 }
     | { kind: 'tribute-shadow'; gainStanding: 'shadow'; gainGold: 2 }
+    | { kind: 'hidden-counsel'; gainStanding: 'elven'; drawFate: 1; stealFromOpponentsAtFateCount: 4 }
     | { kind: 'take-war-effort'; drawCards: 1; gainGoldWithoutModule: 2 }
     | { kind: 'muster-free-peoples'; recruitCompanies: 2; optionalGoldCost: 2; optionalGainProvisions: 1 }
     | { kind: 'hall-of-fire'; drawFate: 1; revealInfluence: 1 }
@@ -198,6 +199,14 @@ export const BOARD_SPACE_DEFINITIONS: readonly BoardSpaceDefinition[] = [
     region: 'Shadow Hosts',
     placementIcons: ['Shadow'],
     effect: { kind: 'tribute-shadow', gainStanding: 'shadow', gainGold: 2 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'hidden-counsel',
+    name: 'Hidden Counsel',
+    region: 'Elven Realms',
+    placementIcons: ['Elven'],
+    effect: { kind: 'hidden-counsel', gainStanding: 'elven', drawFate: 1, stealFromOpponentsAtFateCount: 4 },
     reviewedCapabilities: ['agent-placement']
   },
   {

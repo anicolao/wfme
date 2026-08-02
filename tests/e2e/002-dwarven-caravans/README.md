@@ -212,7 +212,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] All three browsers transition to the production board
 - [x] All 22 final board destinations are structurally present
-- [x] Exactly six complete destinations are advertised as playable
+- [x] Exactly seven complete destinations are advertised as playable
 - [x] Each seat exposes exactly its own five-card hand
 - [x] Every connected replay has accepted exactly 10 events with no diagnostics
 
@@ -255,7 +255,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] Diplomatic Mission is visibly selected
-- [x] Both matching, unoccupied faction destinations become legal
+- [x] All three matching, unoccupied reviewed faction destinations become legal
 
 ---
 
@@ -296,7 +296,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] Diplomatic Mission is selected through the private hand
-- [x] The occupied Dwarven space is unavailable and Tribute is the sole legal destination
+- [x] The occupied Dwarven space is unavailable while Shadow and Elven destinations remain legal
 
 ---
 
