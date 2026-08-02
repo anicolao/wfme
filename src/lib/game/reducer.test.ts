@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createEvent } from './events';
 import { OBSERVATION_POSTS } from './manifest';
-import { currentPlayerUid, legalAgentSpaces, reduceGame } from './reducer';
+import { battleStrength, currentPlayerUid, legalAgentSpaces, reduceGame } from './reducer';
 
 function readyRoom(seed = 'road-2') {
   const events = [
@@ -228,7 +228,7 @@ describe('integrated Agent placement replay', () => {
     const shadowEvent = createEvent('agent/placed', shadowActor, 5, { cardInstanceId: shadow.id, spaceId: 'tribute-shadow' }, 13);
     const beforeMuster = reduceGame([...events, afterRoadEvent, dwarfEvent, shadowEvent]);
     const escort = beforeMuster.match!.players[roadActor].hand.find((card) => card.definitionId === 'armed-escort')!;
-    expect(legalAgentSpaces(beforeMuster, roadActor, escort.id)).toEqual(['hall-fire', 'muster-free-peoples']);
+    expect(legalAgentSpaces(beforeMuster, roadActor, escort.id)).toEqual(['hall-fire', 'muster-free-peoples', 'minas-tirith']);
 
     const musterEvent = createEvent('agent/placed', roadActor, 6, { cardInstanceId: escort.id, spaceId: 'muster-free-peoples' }, 14);
     const pending = reduceGame([...events, afterRoadEvent, dwarfEvent, shadowEvent, musterEvent]);
@@ -1031,5 +1031,68 @@ describe('integrated Agent placement replay', () => {
     expect(plainReveal.diagnostics).toEqual([]);
     expect(plainReveal.match!.players[roadActor].revealInfluence).toBe(secondBase);
     expect(plainReveal.match!.players[roadActor].fateHand).toHaveLength(1);
+  });
+
+  it('runs a three-player Battle from legal deployments through ranked rewards and cleanup', () => {
+    const stream = readyRoom('battle-three');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      sequences[uid] += 1;
+      stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+    };
+    const battleSpaces = ['minas-tirith', 'hidden-paths', 'ranger-mustering'];
+    const used = new Set<string>();
+
+    for (let guard = 0; guard < 80; guard += 1) {
+      const state = reduceGame(stream);
+      const match = state.match!;
+      if (match.turnMode === 'battle') break;
+      const current = currentPlayerUid(state)!;
+      const pending = match.pendingChoice;
+      if (pending?.kind === 'battle-deployment') {
+        append(current, 'choice/resolved', { choice: `deploy:${pending.maximum}` });
+      } else if (pending?.kind === 'ranger-mustering-trash') {
+        append(current, 'choice/resolved', { choice: 'decline-trash' });
+      } else if (pending?.kind === 'seek-allies') {
+        append(current, 'choice/resolved', { choice: 'keep-card' });
+      } else if (match.turnMode === 'reveal') {
+        append(current, 'reveal/finished', {});
+      } else if ((match.battleCompanies[current] ?? 0) > 0) {
+        append(current, 'turn/revealed', {});
+      } else {
+        const player = match.players[current];
+        const placement = player.hand
+          .flatMap((card) => legalAgentSpaces(state, current, card.id)
+            .filter((spaceId) => battleSpaces.includes(spaceId) && !used.has(spaceId))
+            .map((spaceId) => ({ card, spaceId })))
+          .sort((left, right) => {
+            const preference = (id: string) => id === 'armed-escort' ? 0 : id === 'diplomatic-mission' ? 1 : 2;
+            return preference(left.card.definitionId) - preference(right.card.definitionId);
+          })[0];
+        expect(placement, `${current} must reach an unused Battle space from a real opening hand`).toBeDefined();
+        used.add(placement!.spaceId);
+        append(current, 'agent/placed', { cardInstanceId: placement!.card.id, spaceId: placement!.spaceId });
+      }
+    }
+
+    const fateWindow = reduceGame(stream);
+    expect(fateWindow.diagnostics).toEqual([]);
+    expect(fateWindow.match!.turnMode).toBe('battle');
+    expect(Object.values(fateWindow.match!.battleCompanies).filter((amount) => amount > 0)).toHaveLength(3);
+    const strengthBefore = Object.fromEntries(fateWindow.match!.playerOrder.map((uid) => [uid, battleStrength(fateWindow.match!, uid)]));
+    const expectedWinner = Object.entries(strengthBefore).sort(([, left], [, right]) => right - left)[0][0];
+    while (reduceGame(stream).match!.turnMode === 'battle') {
+      const state = reduceGame(stream);
+      append(currentPlayerUid(state)!, 'battle/passed', {});
+    }
+    const resolved = reduceGame(stream);
+    expect(resolved.diagnostics).toEqual([]);
+    expect(resolved.match!.round).toBe(2);
+    expect(resolved.match!.battleHistory).toHaveLength(1);
+    expect(resolved.match!.battleHistory[0].winnerUid).toBe(expectedWinner);
+    expect(resolved.match!.players[expectedWinner].wonBattleIds).toEqual(['crossing-isen']);
+    expect(Object.values(resolved.match!.battleCompanies)).toEqual([0, 0, 0]);
+    expect(resolved.match!.players[expectedWinner].resources.gold).toBeGreaterThanOrEqual(3);
   });
 });

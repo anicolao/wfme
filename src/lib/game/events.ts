@@ -12,7 +12,8 @@ export type GameEventType =
   | 'turn/revealed'
   | 'card/acquired'
   | 'reveal/finished'
-  | 'scout/placed';
+  | 'scout/placed'
+  | 'battle/passed';
 
 export type GameEvent = {
   id: string;

@@ -221,6 +221,16 @@
     }
   }
 
+  async function passBattle() {
+    busy = true;
+    try {
+      await append('battle/passed', {});
+      message = 'Battle decision committed to the shared Chronicle.';
+    } finally {
+      busy = false;
+    }
+  }
+
   onMount(() => {
     roomCodeInput = normalizeRoomCode(new URLSearchParams(location.search).get('room') ?? '');
     void initializeFirebase()
@@ -269,6 +279,7 @@
       onAcquire={acquireCard}
       onFinishReveal={finishReveal}
       onPlaceScout={placeScout}
+      onPassBattle={passBattle}
     />
   {:else}
     <section class="lobby" aria-labelledby="lobby-title">

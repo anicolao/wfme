@@ -2,6 +2,7 @@ import type { GameEvent } from './events';
 import { REDUCER_VERSION, SCHEMA_VERSION } from './events';
 import {
   AGENT_CARD_DEFINITIONS,
+  BATTLE_CARD_DEFINITIONS,
   BOARD_SPACE_DEFINITIONS,
   COMMANDERS,
   MUSTER_CARD_DEFINITIONS,
@@ -47,6 +48,8 @@ export type MatchPlayer = {
   resources: { gold: number; mithril: number; provisions: number };
   standing: { shadow: number; dwarven: number; elven: number; wild: number };
   companies: { supply: number; garrison: number };
+  recruitedThisRound: number;
+  wonBattleIds: string[];
   scouts: { supply: number };
   fateHand: FateInstance[];
   councilSeat: boolean;
@@ -63,13 +66,27 @@ export type MatchState = {
   playerOrder: string[];
   currentPlayerIndex: number;
   firstPlayerIndex: number;
-  turnMode: 'agent' | 'reveal';
+  turnMode: 'agent' | 'reveal' | 'battle';
   players: Record<string, MatchPlayer>;
   boardAgents: Record<string, AgentOccupation[]>;
   boardScouts: Record<string, string>;
   fateDeck: FateInstance[];
   fateDiscard: FateInstance[];
+  activeBattleId: string | null;
+  battleDeck: string[];
+  battleDiscard: string[];
+  battleCompanies: Record<string, number>;
+  battleBonusStrength: Record<string, number>;
+  consecutiveBattlePasses: number;
+  battleHistory: Array<{ battleId: string; winnerUid: string | null; strengths: Record<string, number> }>;
+  queuedBattleDeployment: { actorUid: string; spaceId: string } | null;
   pendingChoice: null | {
+    kind: 'battle-deployment';
+    actorUid: string;
+    spaceId: string;
+    maximum: number;
+    options: readonly string[];
+  } | {
     kind: 'ranger-mustering-trash';
     actorUid: string;
     cardInstanceIds: readonly string[];
@@ -185,6 +202,8 @@ function createMatch(state: GameState, seed: string): MatchState {
           resources: { gold: 0, mithril: 0, provisions: 1 },
           standing: { shadow: 0, dwarven: 0, elven: 0, wild: 0 },
           companies: { supply: 9, garrison: 3 },
+          recruitedThisRound: 0,
+          wonBattleIds: [],
           scouts: { supply: 3 },
           fateHand: [],
           councilSeat: false
@@ -204,10 +223,21 @@ function createMatch(state: GameState, seed: string): MatchState {
     boardScouts: {},
     fateDeck: shuffled(Array.from({ length: 30 }, (_, index) => ({ id: `fate:${index + 1}` })), `${seed}:fate-deck`),
     fateDiscard: [],
+    activeBattleId: BATTLE_CARD_DEFINITIONS[0]?.id ?? null,
+    battleDeck: BATTLE_CARD_DEFINITIONS.slice(1).map((battle) => battle.id),
+    battleDiscard: [],
+    battleCompanies: {},
+    battleBonusStrength: {},
+    consecutiveBattlePasses: 0,
+    battleHistory: [],
+    queuedBattleDeployment: null,
     pendingChoice: null,
     reserveSupply: { 'muster-host': 8 },
     alliances: { shadow: null, dwarven: null, elven: null, wild: null },
-    activity: [`The seeded match begins. ${state.players.find((player) => player.uid === playerOrder[0])?.displayName ?? 'Seat 1'} acts first.`]
+    activity: [
+      `The seeded match begins. ${state.players.find((player) => player.uid === playerOrder[0])?.displayName ?? 'Seat 1'} acts first.`,
+      BATTLE_CARD_DEFINITIONS[0] ? `${BATTLE_CARD_DEFINITIONS[0].name} is the active Battle.` : 'No reviewed Battle remains.'
+    ]
   };
 }
 
@@ -322,10 +352,12 @@ function recallAndBeginNextRound(match: MatchState): void {
     player.revealedThisRound = false;
     player.revealInfluence = 0;
     player.revealedSwords = 0;
+    player.recruitedThisRound = 0;
     drawToFive(match, uid);
   }
   match.firstPlayerIndex = (match.firstPlayerIndex + 1) % match.playerOrder.length;
   match.currentPlayerIndex = match.firstPlayerIndex;
+  match.activeBattleId = match.battleDeck.shift() ?? null;
   match.activity.push(`Recall completes. Round ${match.round} begins.`);
 }
 
@@ -333,7 +365,122 @@ function recruitCompanies(player: MatchPlayer, amount: number): number {
   const recruited = Math.min(amount, player.companies.supply);
   player.companies.supply -= recruited;
   player.companies.garrison += recruited;
+  player.recruitedThisRound += recruited;
   return recruited;
+}
+
+function isBattleSpace(space: (typeof BOARD_SPACE_DEFINITIONS)[number]): boolean {
+  return 'battleSpace' in space.effect && space.effect.battleSpace === true;
+}
+
+function openBattleDeployment(match: MatchState, actorUid: string, spaceId: string): boolean {
+  if (!match.activeBattleId) return false;
+  const player = match.players[actorUid];
+  const fresh = Math.min(player.recruitedThisRound, player.companies.garrison);
+  const existing = player.companies.garrison - fresh;
+  const maximum = fresh + Math.min(2, existing);
+  match.pendingChoice = {
+    kind: 'battle-deployment', actorUid, spaceId, maximum,
+    options: Array.from({ length: maximum + 1 }, (_, amount) => `deploy:${amount}`)
+  };
+  return true;
+}
+
+function finishAgentAction(match: MatchState, actorUid: string): void {
+  const queued = match.queuedBattleDeployment;
+  if (queued?.actorUid === actorUid) {
+    match.queuedBattleDeployment = null;
+    openBattleDeployment(match, actorUid, queued.spaceId);
+  }
+  if (!match.pendingChoice) advanceToNextAgentPlayer(match);
+}
+
+export function battleStrength(match: MatchState, uid: string): number {
+  const companies = match.battleCompanies[uid] ?? 0;
+  if (companies < 1) return 0;
+  return companies * 2 + match.players[uid].revealedSwords + (match.battleBonusStrength[uid] ?? 0);
+}
+
+function clockwiseParticipants(match: MatchState): string[] {
+  return Array.from({ length: match.playerOrder.length }, (_, offset) =>
+    match.playerOrder[(match.firstPlayerIndex + offset) % match.playerOrder.length]
+  ).filter((uid) => (match.battleCompanies[uid] ?? 0) > 0);
+}
+
+function applyBattleReward(match: MatchState, uid: string, rank: 0 | 1 | 2): void {
+  const definition = BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === match.activeBattleId);
+  if (!definition) return;
+  const reward = definition.rewards[rank];
+  const player = match.players[uid];
+  if (reward.gold) player.resources.gold += reward.gold;
+  if (reward.recruitCompanies) recruitCompanies(player, reward.recruitCompanies);
+}
+
+function resolveBattle(match: MatchState): void {
+  const battleId = match.activeBattleId;
+  const definition = BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === battleId);
+  if (!battleId || !definition) {
+    recallAndBeginNextRound(match);
+    return;
+  }
+  const participants = clockwiseParticipants(match);
+  const strengths = Object.fromEntries(participants.map((uid) => [uid, battleStrength(match, uid)]));
+  const positive = participants.filter((uid) => strengths[uid] > 0);
+  const groups = [...new Set(positive.map((uid) => strengths[uid]))]
+    .sort((a, b) => b - a)
+    .map((strength) => positive.filter((uid) => strengths[uid] === strength));
+  let winnerUid: string | null = null;
+  const first = groups[0] ?? [];
+  if (first.length === 1) {
+    winnerUid = first[0];
+    applyBattleReward(match, winnerUid, 0);
+    const second = groups[1] ?? [];
+    if (second.length === 1) {
+      applyBattleReward(match, second[0], 1);
+      const third = groups[2] ?? [];
+      if (match.playerOrder.length === 4 && third.length === 1) applyBattleReward(match, third[0], 2);
+    } else if (second.length > 1) {
+      for (const uid of second) applyBattleReward(match, uid, 2);
+    }
+  } else if (first.length > 1) {
+    for (const uid of first) applyBattleReward(match, uid, 1);
+    if (match.playerOrder.length === 4 && first.length === 2) {
+      const third = groups[1] ?? [];
+      if (third.length === 1) applyBattleReward(match, third[0], 2);
+    }
+  }
+  if (winnerUid) {
+    match.players[winnerUid].wonBattleIds.push(battleId);
+    match.activity.push(`${definition.name} is won at ${strengths[winnerUid]} Strength.`);
+  } else {
+    match.battleDiscard.push(battleId);
+    match.activity.push(`${definition.name} has no sole winner.`);
+  }
+  match.battleHistory.push({ battleId, winnerUid, strengths });
+  for (const uid of match.playerOrder) {
+    match.players[uid].companies.supply += match.battleCompanies[uid] ?? 0;
+    match.battleCompanies[uid] = 0;
+    match.battleBonusStrength[uid] = 0;
+  }
+  match.activeBattleId = null;
+  recallAndBeginNextRound(match);
+}
+
+function beginBattleOrRecall(match: MatchState): void {
+  const participants = clockwiseParticipants(match);
+  if (!match.activeBattleId || participants.length === 0) {
+    if (match.activeBattleId) {
+      match.battleDiscard.push(match.activeBattleId);
+      match.activity.push('The active Battle passes without participating forces.');
+      match.activeBattleId = null;
+    }
+    recallAndBeginNextRound(match);
+    return;
+  }
+  match.turnMode = 'battle';
+  match.consecutiveBattlePasses = 0;
+  match.currentPlayerIndex = match.playerOrder.indexOf(participants[0]);
+  match.activity.push('The Combat Fate window opens with every participant at their revealed Strength.');
 }
 
 function gainStanding(
@@ -496,6 +643,10 @@ function resolveAgentEffects(
     const fate = match.fateDeck.shift();
     if (fate) player.fateHand.push(fate);
     resolution = `drawing ${fate ? '1 Fate' : 'no Fate'} and gaining 1 Influence during this round's Reveal while the Agent remains`;
+  } else if (space.effect.kind === 'minas-tirith') {
+    const recruited = recruitCompanies(player, space.effect.recruitCompanies);
+    const drawn = drawOneCard(match, player.uid, 'Minas Tirith');
+    resolution = `recruiting ${recruited} Company, drawing ${drawn ? '1 card' : 'no card'}, and preparing forces for Battle`;
   } else if (!player.councilSeat) {
     player.councilSeat = true;
     resolution = 'taking a Council seat and gaining 2 Influence on every future Reveal';
@@ -521,6 +672,10 @@ function resolveAgentEffects(
       followupSeekAlliesCardId: null,
       options: []
     };
+  }
+  if (isBattleSpace(space) && match.activeBattleId) {
+    if (match.pendingChoice) match.queuedBattleDeployment = { actorUid, spaceId: space.id };
+    else openBattleDeployment(match, actorUid, space.id);
   }
   match.activity.push(`${actorName} sends an Agent to ${space.name}, ${resolution}.`);
 }
@@ -682,7 +837,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       return null;
     }
     resolveAgentEffects(state, actor.displayName, event.actorUid, card, space);
-    if (!state.match.pendingChoice) advanceToNextAgentPlayer(state.match);
+    if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
     return null;
   }
 
@@ -719,7 +874,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         };
       } else {
         state.match.pendingChoice = null;
-        advanceToNextAgentPlayer(state.match);
+        finishAgentAction(state.match, event.actorUid);
       }
       return null;
     }
@@ -751,7 +906,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       const spaceName = BOARD_SPACE_DEFINITIONS.find((space) => space.id === spaceId)?.name ?? spaceId;
       state.match.activity.push(`${actor.displayName} recalls their Agent from ${spaceName} and draws ${drawn ? '1 card' : 'no card'}.`);
       state.match.pendingChoice = null;
-      advanceToNextAgentPlayer(state.match);
+      finishAgentAction(state.match, event.actorUid);
       return null;
     }
     if (pending.kind === 'gather-intelligence') {
@@ -774,7 +929,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       if (!card || !space) return 'illegal choice resolution';
       state.match.pendingChoice = null;
       resolveAgentEffects(state, actor.displayName, event.actorUid, card, space);
-      if (!state.match.pendingChoice) advanceToNextAgentPlayer(state.match);
+      if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
       return null;
     }
     if (pending.kind === 'elven-favor') {
@@ -800,7 +955,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         };
       } else {
         state.match.pendingChoice = null;
-        advanceToNextAgentPlayer(state.match);
+        finishAgentAction(state.match, event.actorUid);
       }
       return null;
     }
@@ -823,11 +978,20 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       } else {
         state.match.activity.push(`${actor.displayName} keeps Seek Allies in their Journey.`);
       }
+    } else if (pending.kind === 'battle-deployment') {
+      const amount = Number(choice.slice('deploy:'.length));
+      if (!Number.isInteger(amount) || amount < 0 || amount > pending.maximum || amount > player.companies.garrison) {
+        return 'illegal choice resolution';
+      }
+      player.companies.garrison -= amount;
+      player.recruitedThisRound = Math.max(0, player.recruitedThisRound - Math.min(amount, player.recruitedThisRound));
+      state.match.battleCompanies[event.actorUid] = (state.match.battleCompanies[event.actorUid] ?? 0) + amount;
+      state.match.activity.push(`${actor.displayName} deploys ${amount} ${amount === 1 ? 'Company' : 'Companies'} to ${BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === state.match!.activeBattleId)?.name ?? 'the Battle'}.`);
     } else {
       return 'illegal choice resolution';
     }
     state.match.pendingChoice = null;
-    advanceToNextAgentPlayer(state.match);
+    finishAgentAction(state.match, event.actorUid);
     return null;
   }
 
@@ -866,7 +1030,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       };
     } else {
       state.match.pendingChoice = null;
-      advanceToNextAgentPlayer(state.match);
+      finishAgentAction(state.match, event.actorUid);
     }
     return null;
   }
@@ -927,14 +1091,34 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     const player = state.match.players[event.actorUid];
     player.discardPile.push(...player.journey.splice(0), ...player.muster.splice(0));
     player.revealInfluence = 0;
-    player.revealedSwords = 0;
     player.revealedThisRound = true;
     state.match.turnMode = 'agent';
     state.match.activity.push(`${actor.displayName} finishes their Reveal turn.`);
     if (state.match.playerOrder.every((uid) => state.match!.players[uid].revealedThisRound)) {
-      recallAndBeginNextRound(state.match);
+      beginBattleOrRecall(state.match);
     } else {
       advanceToNextAgentPlayer(state.match);
+    }
+    return null;
+  }
+
+  if (event.type === 'battle/passed') {
+    if (
+      state.phase !== 'playing' ||
+      !state.match ||
+      state.match.turnMode !== 'battle' ||
+      currentPlayerUid(state) !== event.actorUid ||
+      (state.match.battleCompanies[event.actorUid] ?? 0) < 1
+    ) return 'illegal Battle pass';
+    const participants = clockwiseParticipants(state.match);
+    state.match.consecutiveBattlePasses += 1;
+    state.match.activity.push(`${actor.displayName} passes in the Combat Fate window at ${battleStrength(state.match, event.actorUid)} Strength.`);
+    if (state.match.consecutiveBattlePasses >= participants.length) {
+      resolveBattle(state.match);
+    } else {
+      const currentIndex = participants.indexOf(event.actorUid);
+      const nextUid = participants[(currentIndex + 1) % participants.length];
+      state.match.currentPlayerIndex = state.match.playerOrder.indexOf(nextUid);
     }
     return null;
   }

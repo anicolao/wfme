@@ -138,6 +138,38 @@ export const RESERVE_CARD_DEFINITIONS: readonly ReserveCardDefinition[] = [
   }
 ];
 
+export type BattleReward = {
+  gold?: number;
+  recruitCompanies?: number;
+};
+
+export type BattleCardDefinition = {
+  id: string;
+  name: string;
+  age: 1 | 2 | 3;
+  standard: 'White Tree' | 'Horse' | 'Star';
+  contestedLocationId: 'minas-tirith' | 'osgiliath' | 'edoras' | null;
+  rewards: readonly [BattleReward, BattleReward, BattleReward];
+  reviewedCapabilities: readonly ['battle-resolution'];
+};
+
+/** The first executable Battle batch. Later batches extend this real deck. */
+export const BATTLE_CARD_DEFINITIONS: readonly BattleCardDefinition[] = [
+  {
+    id: 'crossing-isen',
+    name: 'Crossing of the Isen',
+    age: 1,
+    standard: 'Star',
+    contestedLocationId: null,
+    rewards: [
+      { gold: 3, recruitCompanies: 1 },
+      { gold: 2 },
+      { gold: 1 }
+    ],
+    reviewedCapabilities: ['battle-resolution']
+  }
+];
+
 export type BoardRegion = 'Shadow Hosts' | 'Dwarven Holds' | 'Elven Realms' | 'Wild Kindreds' | 'White Council' | 'Strongholds' | 'Roads';
 
 export type BoardSpaceIdentity = {
@@ -187,6 +219,7 @@ export type BoardSpaceDefinition = BoardSpaceIdentity & {
     | { kind: 'take-war-effort'; drawCards: 1; gainGoldWithoutModule: 2 }
     | { kind: 'muster-free-peoples'; recruitCompanies: 2; optionalGoldCost: 2; optionalGainProvisions: 1 }
     | { kind: 'hall-of-fire'; drawFate: 1; revealInfluence: 1 }
+    | { kind: 'minas-tirith'; recruitCompanies: 1; drawCards: 1; controllerBonusGold: 1; battleSpace: true }
     | { kind: 'white-council-seat'; costGold: 5; repeatGainMithril: 2; repeatDrawFate: 1; repeatRecruitCompanies: 3; revealInfluence: 2 };
   reviewedCapabilities: readonly ['agent-placement'];
 };
@@ -294,6 +327,14 @@ export const BOARD_SPACE_DEFINITIONS: readonly BoardSpaceDefinition[] = [
     region: 'White Council',
     placementIcons: ['Council'],
     effect: { kind: 'muster-free-peoples', recruitCompanies: 2, optionalGoldCost: 2, optionalGainProvisions: 1 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'minas-tirith',
+    name: 'Minas Tirith',
+    region: 'Strongholds',
+    placementIcons: ['Stronghold'],
+    effect: { kind: 'minas-tirith', recruitCompanies: 1, drawCards: 1, controllerBonusGold: 1, battleSpace: true },
     reviewedCapabilities: ['agent-placement']
   },
   {

@@ -2,6 +2,7 @@
   import { assets } from '$app/paths';
   import {
     AGENT_CARD_DEFINITIONS,
+    BATTLE_CARD_DEFINITIONS,
     BOARD_LAYOUT,
     BOARD_SPACE_DEFINITIONS,
     COMMANDERS,
@@ -11,7 +12,7 @@
     cardName,
     type BoardRegion
   } from '$lib/game/manifest';
-  import { currentPlayerUid, legalAgentSpaces, type GameState } from '$lib/game/reducer';
+  import { battleStrength, currentPlayerUid, legalAgentSpaces, type GameState } from '$lib/game/reducer';
 
   export let game: GameState;
   export let localUid: string;
@@ -23,6 +24,7 @@
   export let onAcquire: (definitionId: string) => void;
   export let onFinishReveal: () => void;
   export let onPlaceScout: (postId: string, recallPostId?: string) => void;
+  export let onPassBattle: () => void;
   let selectedScoutRecall = '';
   let selectedInfiltrationSpace = '';
 
@@ -48,7 +50,7 @@
 <section class="table" aria-labelledby="table-title">
   <header class="table-header">
     <div>
-      <p class="eyebrow">Round {game.match?.round ?? 1} · {game.match?.turnMode === 'reveal' ? 'Reveal turn' : 'Agent turns'}</p>
+      <p class="eyebrow">Round {game.match?.round ?? 1} · {game.match?.turnMode === 'reveal' ? 'Reveal turn' : game.match?.turnMode === 'battle' ? 'Combat Fate' : 'Agent turns'}</p>
       <h1 id="table-title">The living board</h1>
       <p>
         {game.players.find((player) => player.uid === currentUid)?.displayName ?? 'A player'}
@@ -56,7 +58,7 @@
       </p>
     </div>
     <dl class="ledger" aria-label="Construction capability ledger">
-      <div><dt>Playable spaces</dt><dd>14 / 22</dd></div>
+      <div><dt>Playable spaces</dt><dd>15 / 22</dd></div>
       <div><dt>Agent-ready cards</dt><dd>5 / 7</dd></div>
       <div><dt>Commander powers</dt><dd>0 / 16</dd></div>
     </dl>
@@ -68,6 +70,29 @@
     <div data-testid="alliance-elven"><dt>Elven Alliance</dt><dd>{game.players.find((player) => player.uid === game.match?.alliances.elven)?.displayName ?? 'Unclaimed'}</dd></div>
     <div data-testid="fate-discard"><dt>Fate discard</dt><dd>{game.match?.fateDiscard.length ?? 0} cards</dd></div>
   </dl>
+
+  {#if game.match?.activeBattleId}
+    {@const activeBattle = BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === game.match?.activeBattleId)!}
+    <section class="battle-area" data-testid="active-battle" aria-labelledby="battle-title">
+      <div>
+        <p class="eyebrow">Active Battle · Age {activeBattle.age} · {activeBattle.standard} Standard</p>
+        <h2 id="battle-title">{activeBattle.name}</h2>
+        <p>First: 3 Gold + recruit 1 · Second: 2 Gold · Third: 1 Gold</p>
+      </div>
+      <div class="battle-forces">
+        {#each game.players as player}
+          <article data-testid={`battle-force-${player.uid}`}>
+            <strong>{player.displayName}</strong>
+            <span>{game.match.battleCompanies[player.uid] ?? 0} Companies · {game.match.players[player.uid].revealedSwords} swords</span>
+            <b>{battleStrength(game.match, player.uid)} Strength</b>
+          </article>
+        {/each}
+      </div>
+      {#if game.match.turnMode === 'battle'}
+        <button type="button" data-testid="pass-battle" disabled={currentUid !== localUid} onclick={onPassBattle}>Pass Combat Fate</button>
+      {/if}
+    </section>
+  {/if}
 
   <div class="game-grid">
     <aside class="players" aria-label="Players">
@@ -157,7 +182,9 @@
                               ? 'Recruit 2 · optionally pay 2 Gold for 1 Provision'
                               : definition?.effect.kind === 'hall-of-fire'
                                 ? 'Draw 1 Fate · +1 Reveal Influence this round while your Agent remains'
-                                : 'Pay 5 Gold · gain a permanent +2 Reveal Influence; repeat for 2 Mithril, 1 Fate, recruit 3'}
+                                : definition?.effect.kind === 'minas-tirith'
+                                  ? 'Battle · recruit 1 · draw 1 card · controller gains 1 Gold'
+                                  : 'Pay 5 Gold · gain a permanent +2 Reveal Influence; repeat for 2 Mithril, 1 Fate, recruit 3'}
                     </span>
                   {:else}
                     <span>Later tracer</span>
@@ -228,12 +255,17 @@
   {#if game.match?.pendingChoice && game.match.pendingChoice.kind !== 'place-scout'}
     <section class="pending-choice" data-testid="pending-choice" aria-labelledby="choice-title">
       <div>
-        <p class="eyebrow">Ordered {game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Council' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'Ranger' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Scout' : game.match.pendingChoice.kind === 'elven-favor' ? 'Elven favor' : game.match.pendingChoice.kind.startsWith('secret-bargain') ? 'Secret Bargain' : 'Journey'} choice</p>
-        <h2 id="choice-title">{game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Pay 2 Gold to gain 1 Provision?' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'Trash a card from hand or discard?' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Recall a Scout to gather intelligence?' : game.match.pendingChoice.kind === 'elven-favor' ? 'Keep one of the two Fate cards?' : game.match.pendingChoice.kind === 'secret-bargain-fate' ? 'Cycle one Fate card?' : game.match.pendingChoice.kind === 'secret-bargain-recall' ? 'Recall another Agent?' : 'Trash Seek Allies?'}</h2>
-        <p>{game.match.pendingChoice.kind === 'muster-free-peoples' ? 'The Companies have already been recruited.' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'The Provision, standing, and Company have already resolved; only you can see the eligible card names.' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'The Agent is placed, but neither the board nor Journey effect has resolved yet.' : game.match.pendingChoice.kind === 'elven-favor' ? 'The two private cards are identified only to you; the unchosen card enters the public Fate discard.' : game.match.pendingChoice.kind === 'secret-bargain-fate' ? 'The cycled identity remains private; its old instance enters the public discard before a replacement is drawn.' : game.match.pendingChoice.kind === 'secret-bargain-recall' ? 'Choose one of your other occupied spaces. The recalled Agent becomes available again before the private draw.' : 'The board space has resolved.'} Resolve this choice before the turn advances.</p>
+        <p class="eyebrow">Ordered {game.match.pendingChoice.kind === 'battle-deployment' ? 'Battle' : game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Council' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'Ranger' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Scout' : game.match.pendingChoice.kind === 'elven-favor' ? 'Elven favor' : game.match.pendingChoice.kind.startsWith('secret-bargain') ? 'Secret Bargain' : 'Journey'} choice</p>
+        <h2 id="choice-title">{game.match.pendingChoice.kind === 'battle-deployment' ? 'Deploy Companies to the active Battle?' : game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Pay 2 Gold to gain 1 Provision?' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'Trash a card from hand or discard?' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Recall a Scout to gather intelligence?' : game.match.pendingChoice.kind === 'elven-favor' ? 'Keep one of the two Fate cards?' : game.match.pendingChoice.kind === 'secret-bargain-fate' ? 'Cycle one Fate card?' : game.match.pendingChoice.kind === 'secret-bargain-recall' ? 'Recall another Agent?' : 'Trash Seek Allies?'}</h2>
+        <p>{game.match.pendingChoice.kind === 'battle-deployment' ? `Deploy any Companies recruited this round plus up to two existing garrison Companies; ${game.match.pendingChoice.maximum} are currently eligible.` : game.match.pendingChoice.kind === 'muster-free-peoples' ? 'The Companies have already been recruited.' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'The Provision, standing, and Company have already resolved; only you can see the eligible card names.' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'The Agent is placed, but neither the board nor Journey effect has resolved yet.' : game.match.pendingChoice.kind === 'elven-favor' ? 'The two private cards are identified only to you; the unchosen card enters the public Fate discard.' : game.match.pendingChoice.kind === 'secret-bargain-fate' ? 'The cycled identity remains private; its old instance enters the public discard before a replacement is drawn.' : game.match.pendingChoice.kind === 'secret-bargain-recall' ? 'Choose one of your other occupied spaces. The recalled Agent becomes available again before the private draw.' : 'The board space has resolved.'} Resolve this choice before the turn advances.</p>
       </div>
       <div class="choice-actions">
-        {#if game.match.pendingChoice.kind === 'muster-free-peoples'}
+        {#if game.match.pendingChoice.kind === 'battle-deployment'}
+          {#each game.match.pendingChoice.options as option}
+            {@const amount = option.slice('deploy:'.length)}
+            <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice(option)}>Deploy {amount}</button>
+          {/each}
+        {:else if game.match.pendingChoice.kind === 'muster-free-peoples'}
           <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('pay-2-gold')}>Pay 2 Gold</button>
           <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('decline')}>Keep the Gold</button>
         {:else if game.match.pendingChoice.kind === 'ranger-mustering-trash'}
@@ -300,7 +332,7 @@
     <div>
       <p class="eyebrow">Your hand</p>
       <h2 id="decision-title">
-        {#if game.match?.turnMode === 'reveal'}Resolve Muster and acquisitions above.{:else if currentUid === localUid}Choose a card, then a legal space.{:else}Waiting for the active player.{/if}
+        {#if game.match?.turnMode === 'reveal'}Resolve Muster and acquisitions above.{:else if game.match?.turnMode === 'battle'}Resolve Combat Fate in the Battle area.{:else if currentUid === localUid}Choose a card, then a legal space.{:else}Waiting for the active player.{/if}
       </h2>
       {#if selectedCardId && !selectedIsImplemented}
         <p role="status">{selectedName} is part of the final deck, but its Agent feature is not active in this tracer.</p>
@@ -318,7 +350,7 @@
         <button
           type="button"
           class:selected={card.id === selectedCardId}
-          disabled={currentUid !== localUid || Boolean(game.match?.pendingChoice)}
+          disabled={currentUid !== localUid || game.match?.turnMode !== 'agent' || Boolean(game.match?.pendingChoice)}
           aria-pressed={card.id === selectedCardId}
           onclick={() => onSelectCard(card.id)}
         >
@@ -374,7 +406,12 @@
   .spaces button:disabled { opacity: .63; cursor: not-allowed; }
   .spaces strong, .spaces span { display: block; }
   .spaces span { margin-top: .15rem; font-size: .74rem; }
-  .decision, .history { margin-top: 1rem; padding: 1rem; color: #28291f; background: #f3e8ce; border-radius: .7rem; }
+  .decision, .history, .battle-area { margin-top: 1rem; padding: 1rem; color: #28291f; background: #f3e8ce; border-radius: .7rem; }
+  .battle-area { display: grid; grid-template-columns: minmax(14rem, 1fr) 2fr auto; gap: 1rem; align-items: center; border: 3px solid #a84d38; background: #f0d3ad; }
+  .battle-area h2, .battle-area p { margin: .2rem 0; }
+  .battle-forces { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem; }
+  .battle-forces article { display: grid; padding: .55rem; background: #f8e7ca; border-radius: .35rem; }
+  .battle-forces span { font-size: .78rem; }
   .pending-choice { position: fixed; z-index: 10; left: 50%; bottom: 1rem; display: flex; width: min(calc(100% - 2rem), 60rem); justify-content: space-between; gap: 1rem; align-items: center; margin-top: 1rem; padding: 1rem; color: #28291f; background: #f2d9a6; border: 3px solid #c98a45; border-radius: .7rem; box-shadow: 0 1rem 3rem rgb(0 0 0 / 55%); transform: translateX(-50%); }
   .pending-choice h2, .pending-choice p { margin: .2rem 0; }
   .choice-actions { display: flex; gap: .5rem; }
@@ -414,6 +451,7 @@
     .game-grid { grid-template-columns: 1fr; }
     .players { grid-template-columns: repeat(3, minmax(9rem, 1fr)); overflow-x: auto; }
     .board { grid-template-columns: 1fr 1fr; }
+    .battle-area { grid-template-columns: 1fr; }
   }
   @media (max-width: 520px) {
     .board { grid-template-columns: 1fr; max-height: 34rem; overflow-y: auto; }

@@ -49,7 +49,7 @@ describe('integrated game event security rules', () => {
         id: 'player-a-000002', type: 'choice/resolved', payload: { choice: 'pay-2-gold' }, clientSeq: 2
       })
     ));
-    for (const [index, type] of ['turn/revealed', 'card/acquired', 'reveal/finished', 'scout/placed'].entries()) {
+    for (const [index, type] of ['turn/revealed', 'card/acquired', 'reveal/finished', 'scout/placed', 'battle/passed'].entries()) {
       const sequence = index + 3;
       await assertSucceeds(setDoc(
         doc(db, `games/RIVEN/events/player-a-${String(sequence).padStart(6, '0')}`),

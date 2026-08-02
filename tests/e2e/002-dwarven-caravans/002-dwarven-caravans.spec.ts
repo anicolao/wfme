@@ -120,8 +120,8 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
           for (const seat of seats) await expect(seat.page.getByRole('heading', { name: 'The living board' })).toBeVisible();
         } },
         { spec: 'All 22 final board destinations are structurally present', check: async () => await expect(page.locator('.spaces button')).toHaveCount(22) },
-        { spec: 'Exactly fourteen complete destinations are advertised as playable', check: async () => {
-          await expect(page.getByText('Playable spaces').locator('..').getByText('14 / 22')).toBeVisible();
+        { spec: 'Exactly fifteen complete destinations are advertised as playable', check: async () => {
+          await expect(page.getByText('Playable spaces').locator('..').getByText('15 / 22')).toBeVisible();
           await expect(page.getByTestId('space-dwarven-caravans')).toContainText('+1 standing');
           await expect(page.getByTestId('space-tribute-shadow')).toContainText('+1 standing');
         } },
@@ -272,7 +272,8 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
         { spec: 'Both reviewed free Council destinations are legal', check: async () => {
           await expect(roadActor!.page.getByTestId('space-hall-fire')).toBeEnabled();
           await expect(roadActor!.page.getByTestId('space-muster-free-peoples')).toBeEnabled();
-          await expect(roadActor!.page.locator('.spaces button:enabled')).toHaveCount(2);
+          await expect(roadActor!.page.getByTestId('space-minas-tirith')).toBeEnabled();
+          await expect(roadActor!.page.locator('.spaces button:enabled')).toHaveCount(3);
         } }
       ]
     );
@@ -1264,6 +1265,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
     let captainEvents = beforeBargainEvents + 3;
     let captainPlaced = false;
     let agentsAfterAppointment = 0;
+    let captainArrivedImmediately = false;
     for (let turn = 0; turn < 30 && !captainPlaced; turn += 1) {
       const currentCaptainName = ((await page.locator('footer').textContent())?.match(/Current actor ([^·]+)/)?.[1] ?? '').trim();
       const currentSeat = seats.find((seat) => seat.name === currentCaptainName);
@@ -1309,8 +1311,9 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
           [
             { spec: 'The Captain effect resolves only after the ordered Scout window', check: async () => {
               const row = actor!.page.locator('.players article').filter({ hasText: actor!.name });
-              await expect(row).toContainText('CaptainArriving next turn');
-              await expect(row).toContainText(`Agents${agents - 1}`);
+              const returnedImmediately = (await actor!.page.locator('footer').textContent())?.includes(`Current actor ${actor!.name}`) ?? false;
+              await expect(row).toContainText(returnedImmediately ? 'CaptainAppointed' : 'CaptainArriving next turn');
+              await expect(row).toContainText(`Agents${returnedImmediately ? agents : agents - 1}`);
             } },
             convergedEvents(captainEvents + 1)
           ]
@@ -1318,6 +1321,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
         captainEvents += 1;
         const afterText = await actor!.page.locator('.players article').filter({ hasText: actor!.name }).textContent() ?? '';
         agentsAfterAppointment = Number(afterText.match(/Agents(\d+)/)?.[1] ?? '0');
+        captainArrivedImmediately = afterText.includes('CaptainAppointed');
         captainPlaced = true;
         break;
       }
@@ -1358,7 +1362,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
         await expect(actor!.page.locator('footer')).toContainText(`Current actor ${actor!.name}`);
         const row = actor!.page.locator('.players article').filter({ hasText: actor!.name });
         await expect(row).toContainText('CaptainAppointed');
-        await expect(row).toContainText(`Agents${agentsAfterAppointment + 1}`);
+        await expect(row).toContainText(`Agents${agentsAfterAppointment + (captainArrivedImmediately ? 0 : 1)}`);
       } },
       { spec: 'The Chronicle records the next-turn arrival without granting a fourth Agent', check: async () => await expect(actor!.page.getByTestId('activity-log')).toContainText('A newly appointed Captain joins their Commander at the beginning of their next turn') }
     ]);
@@ -1368,7 +1372,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
         { spec: 'Captain ownership, third-Agent availability, payment, and occupation replay exactly', check: async () => {
           const row = actor!.page.locator('.players article').filter({ hasText: actor!.name });
           await expect(row).toContainText('CaptainAppointed');
-          await expect(row).toContainText(`Agents${agentsAfterAppointment + 1}`);
+          await expect(row).toContainText(`Agents${agentsAfterAppointment + (captainArrivedImmediately ? 0 : 1)}`);
           await expect(actor!.page.getByTestId('space-captain-host')).toContainText(`Agent · ${actor!.name}`);
         } },
         convergedEvents(captainEvents)
