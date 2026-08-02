@@ -293,12 +293,13 @@ export const BATTLE_CARD_DEFINITIONS: readonly BattleCardDefinition[] = [
 ];
 
 export type FateCardDefinition = {
-  id: 'secret-ways' | 'sudden-charge' | 'hold-line' | 'hidden-archers' | 'reinforcements' | 'desperate-valor';
+  id: 'secret-ways' | 'chance-meeting' | 'sudden-charge' | 'hold-line' | 'hidden-archers' | 'reinforcements' | 'desperate-valor';
   name: string;
   copies: 2;
   timing: 'Plot' | 'Combat';
   effect:
     | { kind: 'place-scout'; amount: 1 }
+    | { kind: 'draw-discard'; draw: 1; discard: 1 }
     | { kind: 'gain-battle-strength'; amount: 3 }
     | { kind: 'hold-line'; amount: 2; controlledLocationBonus: 2 }
     | { kind: 'hidden-archers'; maximum: 3 }
@@ -314,6 +315,14 @@ export const FATE_CARD_DEFINITIONS: readonly FateCardDefinition[] = [
     copies: 2,
     timing: 'Plot',
     effect: { kind: 'place-scout', amount: 1 },
+    reviewedCapabilities: ['plot-fate']
+  },
+  {
+    id: 'chance-meeting',
+    name: 'A Chance Meeting',
+    copies: 2,
+    timing: 'Plot',
+    effect: { kind: 'draw-discard', draw: 1, discard: 1 },
     reviewedCapabilities: ['plot-fate']
   },
   {

@@ -167,6 +167,12 @@ export type MatchState = {
     resumeTurn?: 'agent' | 'reveal';
     options: readonly [];
   } | {
+    kind: 'plot-discard';
+    actorUid: string;
+    cardInstanceIds: readonly string[];
+    resumeTurn: 'agent' | 'reveal';
+    options: readonly string[];
+  } | {
     kind: 'gather-intelligence';
     actorUid: string;
     cardInstanceId: string;
@@ -273,6 +279,8 @@ function createMatch(state: GameState, seed: string): MatchState {
         ? 'sudden-charge'
         : index === 2 || index === 3
           ? 'secret-ways'
+        : index === 5 || index === 6
+          ? 'chance-meeting'
         : index === 9 || index === 29
           ? 'hold-line'
           : index === 13 || index === 14
@@ -1085,6 +1093,17 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       state.match.pendingChoice = null;
       return null;
     }
+    if (pending.kind === 'plot-discard') {
+      const cardId = choice.slice('discard:'.length);
+      if (!pending.cardInstanceIds.includes(cardId)) return 'illegal choice resolution';
+      const cardIndex = player.hand.findIndex((card) => card.id === cardId);
+      if (cardIndex < 0) return 'illegal choice resolution';
+      const [discarded] = player.hand.splice(cardIndex, 1);
+      player.discardPile.push(discarded);
+      state.match.pendingChoice = null;
+      state.match.activity.push(`${actor.displayName} discards one private card to complete A Chance Meeting and resumes their ${pending.resumeTurn === 'agent' ? 'Agent' : 'Reveal'} turn.`);
+      return null;
+    }
     if (pending.kind === 'fangorn-moot') {
       if (choice === 'take-ent-draught') {
         if (player.entDraught) return 'illegal choice resolution';
@@ -1509,10 +1528,25 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
           options: []
         };
         state.match.activity.push(`${actor.displayName} plays ${definition.name} during their ${state.match.turnMode === 'agent' ? 'Agent' : 'Reveal'} turn and must place 1 Scout.`);
+      } else if (definition.effect.kind === 'draw-discard') {
+        const resumeTurn = state.match.turnMode;
+        const drawn = drawOneCard(state.match, event.actorUid, definition.name);
+        const cardInstanceIds = player.hand.map((candidate) => candidate.id);
+        if (cardInstanceIds.length > 0) {
+          state.match.pendingChoice = {
+            kind: 'plot-discard',
+            actorUid: event.actorUid,
+            cardInstanceIds,
+            resumeTurn,
+            options: cardInstanceIds.map((id) => `discard:${id}`)
+          };
+        }
+        state.match.activity.push(`${actor.displayName} plays ${definition.name} during their ${resumeTurn === 'agent' ? 'Agent' : 'Reveal'} turn, draws ${drawn ? '1 card' : 'no card'}, and must discard 1 card.`);
       }
       return null;
     }
     if (state.match.turnMode !== 'battle' || !state.match.battleParticipantUids.includes(event.actorUid)) return 'illegal Fate play';
+    if (definition.effect.kind === 'place-scout' || definition.effect.kind === 'draw-discard') return 'illegal Fate play';
     if (definition.effect.kind === 'desperate-valor' && (state.match.battleCompanies[event.actorUid] ?? 0) < definition.effect.returnCompanies) {
       return 'illegal Fate play';
     }
