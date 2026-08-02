@@ -175,7 +175,11 @@ export type BoardSpaceDefinition = BoardSpaceIdentity & {
   placementIcons: readonly PlacementIcon[];
   effect:
     | { kind: 'dwarven-caravans'; gainStanding: 'dwarven'; gainProvisions: 1 }
+    | { kind: 'deep-roads'; costMithril: 5; gainStanding: 'dwarven'; recruitCompanies: 5; battleSpace: true }
     | { kind: 'tribute-shadow'; gainStanding: 'shadow'; gainGold: 2 }
+    | { kind: 'pits-isengard'; costMithril: 4; gainStanding: 'shadow'; drawFate: 1; recruitCompanies: 4 }
+    | { kind: 'hidden-paths'; gainStanding: 'wild'; drawCards: 1; battleSpace: true }
+    | { kind: 'ranger-mustering'; costProvisions: 1; gainStanding: 'wild'; recruitCompanies: 1; optionalTrashFromHandOrDiscard: 1; battleSpace: true }
     | { kind: 'hidden-counsel'; gainStanding: 'elven'; drawFate: 1; stealFromOpponentsAtFateCount: 4 }
     | { kind: 'mirror-galadriel'; costMithril: 1; gainStanding: 'elven'; drawCards: 1; placeScouts: 1 }
     | { kind: 'secret-bargain'; requiredShadowStanding: 2; costGold: 3; optionalCycleFate: 1; recallOtherAgents: 1; drawCards: 1 }
@@ -197,6 +201,14 @@ export const BOARD_SPACE_DEFINITIONS: readonly BoardSpaceDefinition[] = [
     reviewedCapabilities: ['agent-placement']
   },
   {
+    id: 'deep-roads',
+    name: 'Deep Roads',
+    region: 'Dwarven Holds',
+    placementIcons: ['Dwarven'],
+    effect: { kind: 'deep-roads', costMithril: 5, gainStanding: 'dwarven', recruitCompanies: 5, battleSpace: true },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
     id: 'tribute-shadow',
     name: 'Tribute to the Shadow',
     region: 'Shadow Hosts',
@@ -205,11 +217,35 @@ export const BOARD_SPACE_DEFINITIONS: readonly BoardSpaceDefinition[] = [
     reviewedCapabilities: ['agent-placement']
   },
   {
+    id: 'pits-isengard',
+    name: 'Pits of Isengard',
+    region: 'Shadow Hosts',
+    placementIcons: ['Shadow'],
+    effect: { kind: 'pits-isengard', costMithril: 4, gainStanding: 'shadow', drawFate: 1, recruitCompanies: 4 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
     id: 'hidden-counsel',
     name: 'Hidden Counsel',
     region: 'Elven Realms',
     placementIcons: ['Elven'],
     effect: { kind: 'hidden-counsel', gainStanding: 'elven', drawFate: 1, stealFromOpponentsAtFateCount: 4 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'hidden-paths',
+    name: 'Hidden Paths',
+    region: 'Wild Kindreds',
+    placementIcons: ['Wild'],
+    effect: { kind: 'hidden-paths', gainStanding: 'wild', drawCards: 1, battleSpace: true },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'ranger-mustering',
+    name: 'Ranger Mustering',
+    region: 'Wild Kindreds',
+    placementIcons: ['Wild'],
+    effect: { kind: 'ranger-mustering', costProvisions: 1, gainStanding: 'wild', recruitCompanies: 1, optionalTrashFromHandOrDiscard: 1, battleSpace: true },
     reviewedCapabilities: ['agent-placement']
   },
   {

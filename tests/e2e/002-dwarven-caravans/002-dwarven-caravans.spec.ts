@@ -120,8 +120,8 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
           for (const seat of seats) await expect(seat.page.getByRole('heading', { name: 'The living board' })).toBeVisible();
         } },
         { spec: 'All 22 final board destinations are structurally present', check: async () => await expect(page.locator('.spaces button')).toHaveCount(22) },
-        { spec: 'Exactly ten complete destinations are advertised as playable', check: async () => {
-          await expect(page.getByText('Playable spaces').locator('..').getByText('10 / 22')).toBeVisible();
+        { spec: 'Exactly fourteen complete destinations are advertised as playable', check: async () => {
+          await expect(page.getByText('Playable spaces').locator('..').getByText('14 / 22')).toBeVisible();
           await expect(page.getByTestId('space-dwarven-caravans')).toContainText('+1 standing');
           await expect(page.getByTestId('space-tribute-shadow')).toContainText('+1 standing');
         } },
@@ -170,11 +170,13 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       () => actor!.page.getByTestId('private-hand').getByRole('button', { name: /^Diplomatic Mission/ }).click(),
       [
         { spec: 'Diplomatic Mission is visibly selected', check: async () => await expect(actor!.page.getByRole('button', { name: /^Diplomatic Mission/ })).toHaveAttribute('aria-pressed', 'true') },
-        { spec: 'All three matching, unoccupied reviewed faction destinations become legal', check: async () => {
+        { spec: 'All five affordable, unoccupied reviewed faction destinations become legal', check: async () => {
           await expect(actor!.page.getByTestId('space-dwarven-caravans')).toBeEnabled();
           await expect(actor!.page.getByTestId('space-tribute-shadow')).toBeEnabled();
           await expect(actor!.page.getByTestId('space-hidden-counsel')).toBeEnabled();
-          await expect(actor!.page.locator('.spaces button:enabled')).toHaveCount(3);
+          await expect(actor!.page.getByTestId('space-hidden-paths')).toBeEnabled();
+          await expect(actor!.page.getByTestId('space-ranger-mustering')).toBeEnabled();
+          await expect(actor!.page.locator('.spaces button:enabled')).toHaveCount(5);
         } }
       ]
     );
@@ -222,11 +224,13 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       () => shadowActor!.page.getByTestId('private-hand').getByRole('button', { name: /^Diplomatic Mission/ }).click(),
       [
         { spec: 'Diplomatic Mission is selected through the private hand', check: async () => await expect(shadowActor!.page.getByRole('button', { name: /^Diplomatic Mission/ })).toHaveAttribute('aria-pressed', 'true') },
-        { spec: 'The occupied Dwarven space is unavailable while Shadow and Elven destinations remain legal', check: async () => {
+        { spec: 'The occupied Dwarven space is unavailable while four affordable faction destinations remain legal', check: async () => {
           await expect(shadowActor!.page.getByTestId('space-dwarven-caravans')).toBeDisabled();
           await expect(shadowActor!.page.getByTestId('space-tribute-shadow')).toBeEnabled();
           await expect(shadowActor!.page.getByTestId('space-hidden-counsel')).toBeEnabled();
-          await expect(shadowActor!.page.locator('.spaces button:enabled')).toHaveCount(2);
+          await expect(shadowActor!.page.getByTestId('space-hidden-paths')).toBeEnabled();
+          await expect(shadowActor!.page.getByTestId('space-ranger-mustering')).toBeEnabled();
+          await expect(shadowActor!.page.locator('.spaces button:enabled')).toHaveCount(4);
         } }
       ]
     );
@@ -1371,9 +1375,256 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
 
+    let factionEvents = captainEvents;
+    const publicStats = async () => {
+      const text = await actor!.page.locator('.players article').filter({ hasText: actor!.name }).textContent() ?? '';
+      const amount = (name: string) => Number(text.match(new RegExp(`${name}(\\d+)`))?.[1] ?? '0');
+      return {
+        agents: amount('Agents'), gold: amount('Gold'), mithril: amount('Mithril'), provisions: amount('Provision'),
+        shadow: amount('Shadow'), dwarven: amount('Dwarven'), wild: amount('Wild'), garrison: amount('Garrison'),
+        supply: amount('Supply'), fate: amount('Fate'), trash: amount('Trash'), hand: amount('Hand')
+      };
+    };
+    const visitPaidFactionSpace = async (
+      destinationId: 'pits-isengard' | 'deep-roads',
+      mithrilCost: number,
+      description: string
+    ) => {
+      for (let turn = 0; turn < 45; turn += 1) {
+        const currentName = ((await page.locator('footer').textContent())?.match(/Current actor ([^·]+)/)?.[1] ?? '').trim();
+        const currentSeat = seats.find((seat) => seat.name === currentName)!;
+        if (currentSeat !== actor) {
+          await revealAndFinish(currentSeat, `${destinationId}-funding-${turn}-${currentSeat.name.toLowerCase()}`, factionEvents + 1, factionEvents + 2);
+          factionEvents += 2;
+          continue;
+        }
+        const stats = await publicStats();
+        const factionCard = actor!.page.getByTestId('private-hand').getByRole('button', { name: /^(Diplomatic Mission|Seek Allies)/ }).first();
+        if (stats.mithril >= mithrilCost && stats.agents > 0 && await factionCard.count()) {
+          await steps.gesture(actor!.page, `choose-${destinationId}-mission`, `${actor!.name} chooses a faction mission for ${description}`,
+            () => factionCard.click(),
+            [
+              { spec: `${description} is enabled only after its real Mithril funding is complete`, check: async () => await expect(actor!.page.getByTestId(`space-${destinationId}`)).toBeEnabled() },
+              { spec: 'The exact payment and rewards remain visible before commitment', check: async () => await expect(actor!.page.getByTestId(`space-${destinationId}`)).toContainText(destinationId === 'pits-isengard' ? 'Pay 4 Mithril · Shadow +1 · draw 1 Fate · recruit 4' : 'Battle · pay 5 Mithril · Dwarven +1 · recruit 5') }
+            ]
+          );
+          await steps.gesture(actor!.page, `visit-${destinationId}`, `${actor!.name} enters ${description}`,
+            () => actor!.page.getByTestId(`space-${destinationId}`).click(),
+            [
+              { spec: `Every client sees the Agent and exact ${mithrilCost}-Mithril payment`, check: async () => {
+                for (const seat of seats) {
+                  await expect(seat.page.getByTestId(`space-${destinationId}`)).toContainText(`Agent · ${actor!.name}`);
+                  await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText(`Mithril${stats.mithril - mithrilCost}`);
+                }
+              } },
+              convergedEvents(factionEvents + 1)
+            ]
+          );
+          factionEvents += 1;
+          if (await actor!.page.getByRole('button', { name: 'Leave Scouts in place' }).isVisible()) {
+            await steps.gesture(actor!.page, `${destinationId}-decline-intelligence`, `${actor!.name} leaves the connected Scout before ${description} resolves`,
+              () => actor!.page.getByRole('button', { name: 'Leave Scouts in place' }).click(),
+              [
+                { spec: 'The board effect resolves only after the ordered Scout window', check: async () => await expect(actor!.page.getByRole('button', { name: 'Leave Scouts in place' })).toHaveCount(0) },
+                convergedEvents(factionEvents + 1)
+              ]
+            );
+            factionEvents += 1;
+          }
+          return stats;
+        }
+
+        const armed = actor!.page.getByTestId('private-hand').getByRole('button', { name: /^Armed Escort/ }).first();
+        const councilOccupied = (await actor!.page.getByTestId('space-white-council-seat').getAttribute('class'))?.includes('occupied') ?? false;
+        if (stats.gold >= 5 && stats.agents > 0 && !councilOccupied && await armed.count()) {
+          await steps.gesture(actor!.page, `${destinationId}-choose-council-funding-${turn}`, `${actor!.name} chooses Armed Escort for Mithril funding`,
+            () => armed.click(),
+            [{ spec: 'The established Council seat is legal with five Gold', check: async () => await expect(actor!.page.getByTestId('space-white-council-seat')).toBeEnabled() }]
+          );
+          await steps.gesture(actor!.page, `${destinationId}-repeat-council-${turn}`, `${actor!.name} pays for another Council audience`,
+            () => actor!.page.getByTestId('space-white-council-seat').click(),
+            [
+              { spec: 'The five-Gold payment precedes the connected Scout window', check: async () => {
+                await expect(actor!.page.locator('.players article').filter({ hasText: actor!.name })).toContainText(`Gold${stats.gold - 5}`);
+                await expect(actor!.page.getByRole('button', { name: 'Leave Scouts in place' })).toBeEnabled();
+              } },
+              convergedEvents(factionEvents + 1)
+            ]
+          );
+          factionEvents += 1;
+          await steps.gesture(actor!.page, `${destinationId}-decline-council-intelligence-${turn}`, `${actor!.name} leaves the Council Scout to receive Mithril`,
+            () => actor!.page.getByRole('button', { name: 'Leave Scouts in place' }).click(),
+            [
+              { spec: 'The repeat Council reward adds exactly two Mithril after the ordered Scout window', check: async () => await expect(actor!.page.locator('.players article').filter({ hasText: actor!.name })).toContainText(`Mithril${stats.mithril + 2}`) },
+              convergedEvents(factionEvents + 1)
+            ]
+          );
+          factionEvents += 1;
+          continue;
+        }
+
+        const roadOccupied = (await actor!.page.getByTestId('space-take-war-effort').getAttribute('class'))?.includes('occupied') ?? false;
+        const roadCard = actor!.page.getByTestId('private-hand').getByRole('button', { name: /^(The Open Road|Muster the Host)/ }).first();
+        if (stats.agents > 0 && !roadOccupied && await roadCard.count()) {
+          await steps.gesture(actor!.page, `${destinationId}-choose-road-funding-${turn}`, `${actor!.name} chooses a Roads card for Council funding`,
+            () => roadCard.click(),
+            [{ spec: 'Take Up a War Effort is enabled by the selected real card', check: async () => await expect(actor!.page.getByTestId('space-take-war-effort')).toBeEnabled() }]
+          );
+          await steps.gesture(actor!.page, `${destinationId}-earn-road-gold-${turn}`, `${actor!.name} earns two Gold for the next Council audience`,
+            () => actor!.page.getByTestId('space-take-war-effort').click(),
+            [{ spec: 'The treasury rises by exactly two Gold', check: async () => await expect(actor!.page.locator('.players article').filter({ hasText: actor!.name })).toContainText(`Gold${stats.gold + 2}`) }, convergedEvents(factionEvents + 1)]
+          );
+          factionEvents += 1;
+        } else {
+          await revealAndFinish(actor!, `${destinationId}-funding-${turn}-${actor!.name.toLowerCase()}`, factionEvents + 1, factionEvents + 2);
+          factionEvents += 2;
+        }
+      }
+      throw new Error(`${description} was not reached through real player gestures`);
+    };
+
+    const beforePits = await visitPaidFactionSpace('pits-isengard', 4, 'Pits of Isengard');
+    await steps.observe(actor!.page, 'pits-isengard-resolved', 'Pits of Isengard resolves its complete reward', [
+      { spec: 'Shadow standing and private Fate each rise by one', check: async () => {
+        const stats = await publicStats();
+        expect(stats.shadow).toBe(Math.min(6, beforePits.shadow + 1));
+        expect(stats.fate).toBe(beforePits.fate + 1);
+      } },
+      { spec: 'Recruitment obeys the finite Company supply', check: async () => {
+        const stats = await publicStats();
+        const recruited = Math.min(4, beforePits.supply);
+        expect(stats.garrison).toBe(beforePits.garrison + recruited);
+        expect(stats.supply).toBe(beforePits.supply - recruited);
+      } }
+    ]);
+    if (await actor!.page.getByRole('button', { name: 'Keep Seek Allies' }).isVisible()) {
+      await steps.gesture(actor!.page, 'keep-pits-seek-allies', `${actor!.name} keeps Seek Allies after the Pits`,
+        () => actor!.page.getByRole('button', { name: 'Keep Seek Allies' }).click(),
+        [{ spec: 'The Journey choice completes after every Pits reward', check: async () => await expect(actor!.page.getByTestId('pending-choice')).toHaveCount(0) }, convergedEvents(factionEvents + 1)]
+      );
+      factionEvents += 1;
+    }
+
+    const beforeDeepRoads = await visitPaidFactionSpace('deep-roads', 5, 'the Deep Roads');
+    await steps.observe(actor!.page, 'deep-roads-resolved', 'The Deep Roads resolves its complete Battle reward', [
+      { spec: 'Dwarven standing rises by one after the exact payment', check: async () => expect((await publicStats()).dwarven).toBe(Math.min(6, beforeDeepRoads.dwarven + 1)) },
+      { spec: 'Up to five Companies move from finite supply to garrison', check: async () => {
+        const stats = await publicStats();
+        const recruited = Math.min(5, beforeDeepRoads.supply);
+        expect(stats.garrison).toBe(beforeDeepRoads.garrison + recruited);
+        expect(stats.supply).toBe(beforeDeepRoads.supply - recruited);
+      } }
+    ]);
+    if (await actor!.page.getByRole('button', { name: 'Keep Seek Allies' }).isVisible()) {
+      await steps.gesture(actor!.page, 'keep-deep-roads-seek-allies', `${actor!.name} keeps Seek Allies after the Deep Roads`,
+        () => actor!.page.getByRole('button', { name: 'Keep Seek Allies' }).click(),
+        [{ spec: 'The Journey choice resolves after the complete board reward', check: async () => await expect(actor!.page.getByTestId('pending-choice')).toHaveCount(0) }, convergedEvents(factionEvents + 1)]
+      );
+      factionEvents += 1;
+    }
+
+    const visitWildSpace = async (destinationId: 'hidden-paths' | 'ranger-mustering', description: string) => {
+      for (let turn = 0; turn < 20; turn += 1) {
+        const currentName = ((await page.locator('footer').textContent())?.match(/Current actor ([^·]+)/)?.[1] ?? '').trim();
+        const currentSeat = seats.find((seat) => seat.name === currentName)!;
+        if (currentSeat !== actor) {
+          await revealAndFinish(currentSeat, `${destinationId}-approach-${turn}-${currentSeat.name.toLowerCase()}`, factionEvents + 1, factionEvents + 2);
+          factionEvents += 2;
+          continue;
+        }
+        const stats = await publicStats();
+        const card = actor!.page.getByTestId('private-hand').getByRole('button', { name: /^(Diplomatic Mission|Seek Allies)/ }).first();
+        if (stats.agents > 0 && await card.count()) {
+          await steps.gesture(actor!.page, `choose-${destinationId}-mission`, `${actor!.name} chooses a Wild-access mission for ${description}`,
+            () => card.click(),
+            [{ spec: `${description} is enabled by the selected real faction card`, check: async () => await expect(actor!.page.getByTestId(`space-${destinationId}`)).toBeEnabled() }]
+          );
+          await steps.gesture(actor!.page, `visit-${destinationId}`, `${actor!.name} enters ${description}`,
+            () => actor!.page.getByTestId(`space-${destinationId}`).click(),
+            [{ spec: 'Every client sees the synchronized Agent occupation', check: async () => {
+              for (const seat of seats) await expect(seat.page.getByTestId(`space-${destinationId}`)).toContainText(`Agent · ${actor!.name}`);
+            } }, convergedEvents(factionEvents + 1)]
+          );
+          factionEvents += 1;
+          if (await actor!.page.getByRole('button', { name: 'Leave Scouts in place' }).isVisible()) {
+            await steps.gesture(actor!.page, `${destinationId}-decline-intelligence`, `${actor!.name} leaves the connected Scout before ${description} resolves`,
+              () => actor!.page.getByRole('button', { name: 'Leave Scouts in place' }).click(),
+              [
+                { spec: 'The board effect resolves only after the ordered Scout window', check: async () => await expect(actor!.page.getByRole('button', { name: 'Leave Scouts in place' })).toHaveCount(0) },
+                convergedEvents(factionEvents + 1)
+              ]
+            );
+            factionEvents += 1;
+          }
+          return stats;
+        }
+        await revealAndFinish(actor!, `${destinationId}-approach-${turn}-${actor!.name.toLowerCase()}`, factionEvents + 1, factionEvents + 2);
+        factionEvents += 2;
+      }
+      throw new Error(`${description} was not reached through real player gestures`);
+    };
+
+    const beforeHiddenPaths = await visitWildSpace('hidden-paths', 'Hidden Paths');
+    await steps.observe(actor!.page, 'hidden-paths-resolved', 'Hidden Paths resolves its complete Battle reward', [
+      { spec: 'Wild standing rises by one and the private draw replaces the Journey card', check: async () => {
+        const stats = await publicStats();
+        expect(stats.wild).toBe(beforeHiddenPaths.wild + 1);
+        expect(stats.hand).toBe(beforeHiddenPaths.hand);
+      } }
+    ]);
+    if (await actor!.page.getByRole('button', { name: 'Keep Seek Allies' }).isVisible()) {
+      await steps.gesture(actor!.page, 'keep-hidden-paths-seek-allies', `${actor!.name} keeps Seek Allies after Hidden Paths`,
+        () => actor!.page.getByRole('button', { name: 'Keep Seek Allies' }).click(),
+        [{ spec: 'The Journey choice follows the Wild standing and draw', check: async () => await expect(actor!.page.getByTestId('pending-choice')).toHaveCount(0) }, convergedEvents(factionEvents + 1)]
+      );
+      factionEvents += 1;
+    }
+
+    const beforeRangers = await visitWildSpace('ranger-mustering', 'Ranger Mustering');
+    await steps.observe(actor!.page, 'ranger-mustering-choice', 'Ranger Mustering opens its private trash choice', [
+      { spec: 'One Provision is paid, Wild standing rises, and finite recruitment resolves before the choice', check: async () => {
+        const stats = await publicStats();
+        expect(stats.provisions).toBe(beforeRangers.provisions - 1);
+        expect(stats.wild).toBe(beforeRangers.wild + 1);
+        expect(stats.garrison).toBe(beforeRangers.garrison + Math.min(1, beforeRangers.supply));
+      } },
+      { spec: 'Only the actor sees named eligible cards and can trash one', check: async () => {
+        await expect(actor!.page.getByRole('button', { name: /^Trash / }).first()).toBeEnabled();
+        for (const observer of seats.filter((seat) => seat !== actor)) await expect(observer.page.getByRole('button', { name: /^Trash private card/ }).first()).toBeDisabled();
+      } }
+    ]);
+    await steps.gesture(actor!.page, 'trash-at-ranger-mustering', `${actor!.name} trashes a real card at Ranger Mustering`,
+      () => actor!.page.getByRole('button', { name: /^Trash / }).first().click(),
+      [
+        { spec: 'The permanent Trash zone grows by exactly one card', check: async () => await expect(actor!.page.locator('.players article').filter({ hasText: actor!.name })).toContainText(`Trash${beforeRangers.trash + 1}`) },
+        convergedEvents(factionEvents + 1)
+      ]
+    );
+    factionEvents += 1;
+    if (await actor!.page.getByRole('button', { name: 'Keep Seek Allies' }).isVisible()) {
+      await steps.gesture(actor!.page, 'keep-ranger-seek-allies', `${actor!.name} keeps Seek Allies after the Ranger trash`,
+        () => actor!.page.getByRole('button', { name: 'Keep Seek Allies' }).click(),
+        [{ spec: 'Seek Allies resolves only after the Ranger trash decision', check: async () => await expect(actor!.page.getByTestId('pending-choice')).toHaveCount(0) }, convergedEvents(factionEvents + 1)]
+      );
+      factionEvents += 1;
+    }
+    await steps.gesture(actor!.page, 'reload-faction-destinations', `${actor!.name} reloads all four completed faction destinations`,
+      async () => { await actor!.page.reload(); },
+      [
+        { spec: 'Paid resources, faction standing, draws, recruitment, trash, and occupations replay exactly', check: async () => {
+          await expect(actor!.page.getByTestId('space-pits-isengard')).toBeVisible();
+          await expect(actor!.page.getByTestId('space-deep-roads')).toBeVisible();
+          await expect(actor!.page.getByTestId('space-hidden-paths')).toBeVisible();
+          await expect(actor!.page.getByTestId('space-ranger-mustering')).toContainText(`Agent · ${actor!.name}`);
+          await expect(actor!.page.locator('.players article').filter({ hasText: actor!.name })).toContainText(`Trash${beforeRangers.trash + 1}`);
+        } },
+        convergedEvents(factionEvents)
+      ]
+    );
+
     steps.generateDocs(
       'Three-player Agent, deck-building, and Scout tracer',
-      'Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross faction thresholds, trash a card, use both Scout timings, publicly claim a faction Alliance, earn Mithril, complete the paid Mirror action, execute a fully ordered Secret Bargain, and fund the first delayed third-Agent Captain.'
+      'Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross faction thresholds, trash cards, use both Scout timings, publicly claim a faction Alliance, earn Mithril, complete the paid Mirror action, execute a fully ordered Secret Bargain, fund the first delayed third-Agent Captain, and complete all eight faction destinations.'
     );
   } finally {
     await guestAContext.close();

@@ -8,6 +8,7 @@ import {
   OBSERVATION_POSTS,
   RESERVE_CARD_DEFINITIONS,
   STARTING_CARD_IDENTITIES,
+  cardName,
   type CommanderId,
   type ReserveCardId
 } from './manifest';
@@ -69,6 +70,12 @@ export type MatchState = {
   fateDeck: FateInstance[];
   fateDiscard: FateInstance[];
   pendingChoice: null | {
+    kind: 'ranger-mustering-trash';
+    actorUid: string;
+    cardInstanceIds: readonly string[];
+    followupSeekAlliesCardId: string | null;
+    options: readonly string[];
+  } | {
     kind: 'secret-bargain-fate';
     actorUid: string;
     options: readonly ['cycle-fate', 'keep-fate'];
@@ -225,6 +232,9 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
   return BOARD_SPACE_DEFINITIONS.filter((space) => {
     if (space.effect.kind === 'white-council-seat' && player.resources.gold < space.effect.costGold) return false;
     if (space.effect.kind === 'mirror-galadriel' && player.resources.mithril < space.effect.costMithril) return false;
+    if (space.effect.kind === 'pits-isengard' && player.resources.mithril < space.effect.costMithril) return false;
+    if (space.effect.kind === 'deep-roads' && player.resources.mithril < space.effect.costMithril) return false;
+    if (space.effect.kind === 'ranger-mustering' && player.resources.provisions < space.effect.costProvisions) return false;
     if (space.effect.kind === 'secret-bargain') {
       const hasOtherAgent = Object.entries(match.boardAgents).some(([, occupations]) =>
         occupations.some((occupation) => occupation.uid === actorUid)
@@ -400,10 +410,36 @@ function resolveAgentEffects(
     player.resources.provisions += space.effect.gainProvisions;
     gainStanding(match, player, 'dwarven');
     resolution = 'gaining 1 Dwarven standing and 1 Provision';
+  } else if (space.effect.kind === 'deep-roads') {
+    gainStanding(match, player, 'dwarven', seekAlliesCardId);
+    const recruited = recruitCompanies(player, space.effect.recruitCompanies);
+    resolution = `gaining 1 Dwarven standing and recruiting ${recruited} Companies for Battle`;
   } else if (space.effect.kind === 'tribute-shadow') {
     player.resources.gold += space.effect.gainGold;
     gainStanding(match, player, 'shadow');
     resolution = 'gaining 1 Shadow standing and 2 Gold';
+  } else if (space.effect.kind === 'pits-isengard') {
+    gainStanding(match, player, 'shadow', seekAlliesCardId);
+    const fate = match.fateDeck.shift();
+    if (fate) player.fateHand.push(fate);
+    const recruited = recruitCompanies(player, space.effect.recruitCompanies);
+    resolution = `gaining 1 Shadow standing, drawing ${fate ? '1 Fate' : 'no Fate'}, and recruiting ${recruited} Companies`;
+  } else if (space.effect.kind === 'hidden-paths') {
+    gainStanding(match, player, 'wild', seekAlliesCardId);
+    const drawn = drawOneCard(match, player.uid, 'Hidden Paths');
+    resolution = `gaining 1 Wild standing and drawing ${drawn ? '1 card' : 'no card'} for Battle`;
+  } else if (space.effect.kind === 'ranger-mustering') {
+    gainStanding(match, player, 'wild');
+    const recruited = recruitCompanies(player, space.effect.recruitCompanies);
+    const trashable = [...player.hand, ...player.discardPile].map((candidate) => candidate.id);
+    resolution = `gaining 1 Wild standing, recruiting ${recruited} Company for Battle, and preparing an optional trash`;
+    if (trashable.length > 0) {
+      match.pendingChoice = {
+        kind: 'ranger-mustering-trash', actorUid: player.uid, cardInstanceIds: trashable,
+        followupSeekAlliesCardId: seekAlliesCardId,
+        options: [...trashable.map((id) => `trash-card:${id}`), 'decline-trash']
+      };
+    }
   } else if (space.effect.kind === 'hidden-counsel') {
     gainStanding(match, player, 'elven', seekAlliesCardId);
     const drawn = match.fateDeck.shift();
@@ -581,6 +617,18 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       if (player.resources.mithril < space.effect.costMithril) return 'illegal Agent placement';
       player.resources.mithril -= space.effect.costMithril;
     }
+    if (space.effect.kind === 'pits-isengard') {
+      if (player.resources.mithril < space.effect.costMithril) return 'illegal Agent placement';
+      player.resources.mithril -= space.effect.costMithril;
+    }
+    if (space.effect.kind === 'deep-roads') {
+      if (player.resources.mithril < space.effect.costMithril) return 'illegal Agent placement';
+      player.resources.mithril -= space.effect.costMithril;
+    }
+    if (space.effect.kind === 'ranger-mustering') {
+      if (player.resources.provisions < space.effect.costProvisions) return 'illegal Agent placement';
+      player.resources.provisions -= space.effect.costProvisions;
+    }
     if (space.effect.kind === 'secret-bargain') {
       if (
         player.standing.shadow < space.effect.requiredShadowStanding ||
@@ -651,6 +699,30 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       !pending.options.some((option) => option === choice)
     ) return 'illegal choice resolution';
     const player = state.match.players[event.actorUid];
+    if (pending.kind === 'ranger-mustering-trash') {
+      if (choice !== 'decline-trash') {
+        const cardId = choice.slice('trash-card:'.length);
+        if (!pending.cardInstanceIds.includes(cardId)) return 'illegal choice resolution';
+        const handIndex = player.hand.findIndex((card) => card.id === cardId);
+        const discardIndex = player.discardPile.findIndex((card) => card.id === cardId);
+        const source = handIndex >= 0 ? player.hand : player.discardPile;
+        const index = handIndex >= 0 ? handIndex : discardIndex;
+        if (index < 0) return 'illegal choice resolution';
+        const [trashed] = source.splice(index, 1);
+        player.trashPile.push(trashed);
+        state.match.activity.push(`${actor.displayName} trashes ${cardName(trashed.definitionId)} at Ranger Mustering.`);
+      } else state.match.activity.push(`${actor.displayName} declines to trash a card at Ranger Mustering.`);
+      if (pending.followupSeekAlliesCardId) {
+        state.match.pendingChoice = {
+          kind: 'seek-allies', actorUid: player.uid, cardInstanceId: pending.followupSeekAlliesCardId,
+          options: ['trash-self', 'keep-card']
+        };
+      } else {
+        state.match.pendingChoice = null;
+        advanceToNextAgentPlayer(state.match);
+      }
+      return null;
+    }
     if (pending.kind === 'secret-bargain-fate') {
       if (choice === 'cycle-fate') {
         const discarded = player.fateHand.shift();

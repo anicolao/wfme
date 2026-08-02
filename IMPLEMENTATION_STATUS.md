@@ -8,7 +8,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | --- | ---: | --- |
 | Root lobby and live room | 1 / 1 | `002-dwarven-caravans` creates and joins with three isolated Firebase identities |
 | Seeded match and private opening hands | 1 / 1 | Reducer conservation tests and the three-seat browser journey |
-| Board destinations | 10 / 22 | Captain of the Host joins Secret Bargain, both Elven spaces, the two earlier faction spaces, Take Up a War Effort, and the three earlier White Council spaces; the other 12 are disabled |
+| Board destinations | 14 / 22 | All eight faction destinations, five White Council destinations, and Take Up a War Effort are executable; the other eight are disabled |
 | Starting card instances | 10 / 10 | Exact deterministic deck composition and conservation |
 | Starting cards with executable Agent boxes | 5 / 7 definitions | Diplomatic Mission, The Open Road, Armed Escort, Seek Allies, and Reconnaissance |
 | Observation posts | 9 / 9 structure; placement, intelligence, and infiltration live | Exact named connections, finite Scout supply, multi-Agent occupation, both recall timings, authority, and replay |
@@ -35,6 +35,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | Mirror of Galadriel paid Scout action | one-Mithril legality/payment, Elven standing, private deck draw, finite mandatory Scout placement, ordered Seek Allies continuation, and replay | `002-dwarven-caravans` gestures 142–145 earn the cost through real Council play, select Elven access, pay, draw, place the Scout, and reload |
 | Secret Bargain action economy | Shadow-two/other-Agent requirements, three-Gold payment, optional opaque Fate cycle, public Fate discard, specific other-Agent recall, mid-round draw/reshuffle, restored Agent, ordered authority, and replay | `002-dwarven-caravans` gestures 153–170 earn Shadow respect and funding, establish a real recall target, cycle Fate, recall that Agent, draw, and reload across three clients |
 | Captain of the Host | global first-eight/later-six pricing, once-per-player ownership, third-Agent conservation, next-turn arrival, future Recall, legality, and replay | `002-dwarven-caravans` continues from the real Secret Bargain economy, funds the first Captain through repeated Roads visits, validates delayed arrival across three clients, and reloads |
+| Remaining faction destinations | Pits of Isengard and Deep Roads enforce paid Mithril costs, standing, private Fate, finite recruitment, and Battle labeling; Hidden Paths draws privately; Ranger Mustering enforces Provision payment and an actor-only hand/discard trash choice | `002-dwarven-caravans` continues through real Roads/Council funding, visits all four destinations with matching cards, resolves ordered choices, validates all clients, and reloads |
 | Standing 2 respect and persistent Renown | multi-round threshold replay test | gestures 055–057 revisit Dwarven Caravans after Recall |
 | Dwarven standing 4 favor, Alliance claim, strict-lead transfer | claim/tie/transfer and Renown ownership tests | gestures 094–113 reach standing three, conserve the faction card, claim publicly, and reload |
 | Take Up a War Effort draw and disabled-module +2 Gold | card-zone conservation test | gestures 016–017 validate private draw and public reward |
@@ -53,4 +54,4 @@ This is the construction ledger for the one canonical game at the repository roo
 
 ## Next accepted tracer
 
-Tracer 2 continues with Pits of Isengard, adding the first complete Company deployment and Shadow faction favor choice.
+Tracer 2 continues with Minas Tirith, adding the first controllable Stronghold and Battle deployment destination.

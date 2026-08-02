@@ -64,7 +64,9 @@ describe('integrated Agent placement replay', () => {
     const actorUid = before.match!.playerOrder[0];
     const card = before.match!.players[actorUid].hand.find((candidate) => candidate.definitionId === 'diplomatic-mission');
     expect(card, 'the committed tracer seed must put Diplomatic Mission in the first hand').toBeDefined();
-    expect(legalAgentSpaces(before, actorUid, card!.id)).toEqual(['dwarven-caravans', 'tribute-shadow', 'hidden-counsel']);
+    expect(legalAgentSpaces(before, actorUid, card!.id)).toEqual([
+      'dwarven-caravans', 'tribute-shadow', 'hidden-counsel', 'hidden-paths', 'ranger-mustering'
+    ]);
 
     const after = reduceGame([
       ...events,
@@ -105,7 +107,9 @@ describe('integrated Agent placement replay', () => {
     const actor = afterFirst.match!.playerOrder[1];
     const mission = afterFirst.match!.players[actor].hand.find((card) => card.definitionId === 'diplomatic-mission');
     expect(mission, 'the committed seed must put Diplomatic Mission in the next hand').toBeDefined();
-    expect(legalAgentSpaces(afterFirst, actor, mission!.id)).toEqual(['tribute-shadow', 'hidden-counsel']);
+    expect(legalAgentSpaces(afterFirst, actor, mission!.id)).toEqual([
+      'tribute-shadow', 'hidden-counsel', 'hidden-paths', 'ranger-mustering'
+    ]);
 
     const afterTribute = reduceGame([
       ...events,
@@ -851,6 +855,125 @@ describe('integrated Agent placement replay', () => {
     expect(afterSecondCaptain.diagnostics).toEqual([]);
     expect(afterSecondCaptain.match!.players[secondCaptainUid].resources.gold)
       .toBe(beforeSecondCaptain!.match!.players[secondCaptainUid].resources.gold - 6);
+
+    let beforePits: ReturnType<typeof reduceGame> | null = null;
+    for (let step = 0; step < 1200; step += 1) {
+      const state = reduceGame(stream);
+      const current = currentPlayerUid(state)!;
+      const match = state.match!;
+      const player = match.players[current];
+      const pending = match.pendingChoice;
+      if (pending?.kind === 'gather-intelligence') append(state, 'choice/resolved', { choice: 'decline-intelligence' });
+      else if (pending?.kind === 'seek-allies') append(state, 'choice/resolved', { choice: 'keep-card' });
+      else if (pending?.kind === 'muster-free-peoples') append(state, 'choice/resolved', { choice: 'decline' });
+      else if (pending?.kind === 'place-scout') {
+        const emptyPost = OBSERVATION_POSTS.find((post) => !match.boardScouts[post.id]);
+        if (!emptyPost) throw new Error('an empty Scout post is required');
+        append(state, 'scout/placed', { postId: emptyPost.id });
+      } else if (match.turnMode === 'reveal') append(state, 'reveal/finished', {});
+      else if (current !== target) append(state, 'turn/revealed', {});
+      else {
+        const councilCard = player.hand.find((card) => card.definitionId === 'armed-escort');
+        const roadCard = player.hand.find((card) => card.definitionId === 'the-open-road' || card.definitionId === 'muster-host');
+        const factionCard = player.hand.find((card) => card.definitionId === 'diplomatic-mission' || card.definitionId === 'seek-allies');
+        if (factionCard && legalAgentSpaces(state, current, factionCard.id).includes('pits-isengard')) {
+          beforePits = state;
+          append(state, 'agent/placed', { cardInstanceId: factionCard.id, spaceId: 'pits-isengard' });
+          break;
+        }
+        if (councilCard && !match.boardAgents['white-council-seat'] && player.resources.gold >= 5 && player.availableAgents > 0) {
+          append(state, 'agent/placed', { cardInstanceId: councilCard.id, spaceId: 'white-council-seat' });
+        } else if (roadCard && !match.boardAgents['take-war-effort'] && player.availableAgents > 0) {
+          append(state, 'agent/placed', { cardInstanceId: roadCard.id, spaceId: 'take-war-effort' });
+        } else append(state, 'turn/revealed', {});
+      }
+    }
+    expect(beforePits, 'repeat Council visits must fund Pits of Isengard').not.toBeNull();
+    let afterPits = reduceGame(stream);
+    if (afterPits.match!.pendingChoice?.kind === 'gather-intelligence') {
+      append(afterPits, 'choice/resolved', { choice: 'decline-intelligence' });
+      afterPits = reduceGame(stream);
+    }
+    const beforePitsPlayer = beforePits!.match!.players[target];
+    const afterPitsPlayer = afterPits.match!.players[target];
+    const expectedRecruitment = Math.min(4, beforePitsPlayer.companies.supply);
+    expect(afterPits.diagnostics).toEqual([]);
+    expect(afterPitsPlayer.resources.mithril).toBe(beforePitsPlayer.resources.mithril - 4);
+    expect(afterPitsPlayer.standing.shadow).toBe(Math.min(6, beforePitsPlayer.standing.shadow + 1));
+    expect(afterPitsPlayer.fateHand.length).toBe(beforePitsPlayer.fateHand.length + 1);
+    expect(afterPitsPlayer.companies.garrison).toBe(beforePitsPlayer.companies.garrison + expectedRecruitment);
+    expect(afterPits.match!.boardAgents['pits-isengard']?.some((occupation) => occupation.uid === target)).toBe(true);
+
+    const reachFactionSpace = (spaceId: 'deep-roads' | 'hidden-paths' | 'ranger-mustering') => {
+      for (let step = 0; step < 1200; step += 1) {
+        const state = reduceGame(stream);
+        const current = currentPlayerUid(state)!;
+        const match = state.match!;
+        const player = match.players[current];
+        const pending = match.pendingChoice;
+        if (pending?.kind === 'gather-intelligence') append(state, 'choice/resolved', { choice: 'decline-intelligence' });
+        else if (pending?.kind === 'seek-allies') append(state, 'choice/resolved', { choice: 'keep-card' });
+        else if (pending?.kind === 'ranger-mustering-trash') append(state, 'choice/resolved', { choice: 'decline-trash' });
+        else if (pending?.kind === 'muster-free-peoples') append(state, 'choice/resolved', { choice: 'decline' });
+        else if (match.turnMode === 'reveal') append(state, 'reveal/finished', {});
+        else if (current !== target) append(state, 'turn/revealed', {});
+        else {
+          const councilCard = player.hand.find((card) => card.definitionId === 'armed-escort');
+          const roadCard = player.hand.find((card) => card.definitionId === 'the-open-road' || card.definitionId === 'muster-host');
+          const factionCard = player.hand.find((card) => card.definitionId === 'diplomatic-mission' || card.definitionId === 'seek-allies');
+          if (factionCard && legalAgentSpaces(state, current, factionCard.id).includes(spaceId)) {
+            append(state, 'agent/placed', { cardInstanceId: factionCard.id, spaceId });
+            return state;
+          }
+          if (spaceId === 'deep-roads' && councilCard && !match.boardAgents['white-council-seat'] && player.resources.gold >= 5 && player.availableAgents > 0) {
+            append(state, 'agent/placed', { cardInstanceId: councilCard.id, spaceId: 'white-council-seat' });
+          } else if (spaceId === 'deep-roads' && roadCard && !match.boardAgents['take-war-effort'] && player.availableAgents > 0) {
+            append(state, 'agent/placed', { cardInstanceId: roadCard.id, spaceId: 'take-war-effort' });
+          } else append(state, 'turn/revealed', {});
+        }
+      }
+      throw new Error(`${spaceId} was not reached through the real deck and economy`);
+    };
+
+    const beforeDeepRoads = reachFactionSpace('deep-roads');
+    let afterDeepRoads = reduceGame(stream);
+    if (afterDeepRoads.match!.pendingChoice?.kind === 'gather-intelligence') {
+      append(afterDeepRoads, 'choice/resolved', { choice: 'decline-intelligence' });
+      afterDeepRoads = reduceGame(stream);
+    }
+    expect(afterDeepRoads.match!.players[target].resources.mithril)
+      .toBe(beforeDeepRoads.match!.players[target].resources.mithril - 5);
+    expect(afterDeepRoads.match!.players[target].standing.dwarven)
+      .toBe(Math.min(6, beforeDeepRoads.match!.players[target].standing.dwarven + 1));
+    expect(afterDeepRoads.match!.boardAgents['deep-roads']?.some((occupation) => occupation.uid === target)).toBe(true);
+
+    const beforeHiddenPaths = reachFactionSpace('hidden-paths');
+    let afterHiddenPaths = reduceGame(stream);
+    if (afterHiddenPaths.match!.pendingChoice?.kind === 'gather-intelligence') {
+      append(afterHiddenPaths, 'choice/resolved', { choice: 'decline-intelligence' });
+      afterHiddenPaths = reduceGame(stream);
+    }
+    expect(afterHiddenPaths.match!.players[target].standing.wild).toBe(1);
+    expect(afterHiddenPaths.match!.players[target].hand.length).toBe(beforeHiddenPaths.match!.players[target].hand.length);
+
+    const beforeRangers = reachFactionSpace('ranger-mustering');
+    let awaitingRangerTrash = reduceGame(stream);
+    if (awaitingRangerTrash.match!.pendingChoice?.kind === 'gather-intelligence') {
+      append(awaitingRangerTrash, 'choice/resolved', { choice: 'decline-intelligence' });
+      awaitingRangerTrash = reduceGame(stream);
+    }
+    expect(awaitingRangerTrash.match!.players[target].resources.provisions)
+      .toBe(beforeRangers.match!.players[target].resources.provisions - 1);
+    expect(awaitingRangerTrash.match!.players[target].standing.wild).toBe(2);
+    expect(awaitingRangerTrash.match!.pendingChoice?.kind).toBe('ranger-mustering-trash');
+    if (awaitingRangerTrash.match!.pendingChoice?.kind !== 'ranger-mustering-trash') throw new Error('Ranger trash choice is required');
+    const chosenTrash = awaitingRangerTrash.match!.pendingChoice.options.find((option) => option.startsWith('trash-card:'))!;
+    const trashBefore = awaitingRangerTrash.match!.players[target].trashPile.length;
+    append(awaitingRangerTrash, 'choice/resolved', { choice: chosenTrash });
+    const afterRangers = reduceGame(stream);
+    expect(afterRangers.diagnostics).toEqual([]);
+    expect(afterRangers.match!.players[target].trashPile).toHaveLength(trashBefore + 1);
+    expect(afterRangers.match!.boardAgents['ranger-mustering']?.some((occupation) => occupation.uid === target)).toBe(true);
   });
 
   it('draws Fate at Hall of Fire and grants Influence only while its Agent remains that round', () => {
