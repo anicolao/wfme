@@ -531,4 +531,77 @@ describe('integrated Agent placement replay', () => {
     expect(transferred.match!.players[claimant].renown).toBe(1);
     expect(transferred.match!.players[challenger].renown).toBe(2);
   });
+
+  it('pays for a Council seat, adds Reveal Influence, and resolves a repeat Fate visit', () => {
+    const stream = readyRoom('council-economy');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const target = reduceGame(stream).match!.playerOrder[0];
+    const append = (state: ReturnType<typeof reduceGame>, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      const current = currentPlayerUid(state)!;
+      sequences[current] += 1;
+      stream.push(createEvent(type, current, sequences[current], payload, timestamp++));
+    };
+    const advance = (repeat: boolean) => {
+      for (let step = 0; step < 800; step += 1) {
+        const state = reduceGame(stream);
+        const targetPlayer = state.match!.players[target];
+        if (targetPlayer.councilSeat && (!repeat || targetPlayer.fateHand.length === 1)) return state;
+        const current = currentPlayerUid(state)!;
+        const match = state.match!;
+        const player = match.players[current];
+        if (match.pendingChoice?.kind === 'seek-allies') {
+          append(state, 'choice/resolved', { choice: 'keep-card' });
+        } else if (match.turnMode === 'reveal') {
+          append(state, 'reveal/finished', {});
+        } else if (current !== target) {
+          append(state, 'turn/revealed', {});
+        } else {
+          const councilCard = player.hand.find((card) => card.definitionId === 'armed-escort');
+          const roadCard = player.hand.find((card) => card.definitionId === 'the-open-road' || card.definitionId === 'muster-host');
+          const factionCard = player.hand.find((card) => card.definitionId === 'diplomatic-mission' || card.definitionId === 'seek-allies');
+          if (councilCard && player.resources.gold >= 5 && !match.boardAgents['white-council-seat'] && player.availableAgents > 0) {
+            append(state, 'agent/placed', { cardInstanceId: councilCard.id, spaceId: 'white-council-seat' });
+          } else if (roadCard && !match.boardAgents['take-war-effort'] && player.availableAgents > 0) {
+            append(state, 'agent/placed', { cardInstanceId: roadCard.id, spaceId: 'take-war-effort' });
+          } else if (factionCard && !match.boardAgents['tribute-shadow'] && player.availableAgents > 0) {
+            append(state, 'agent/placed', { cardInstanceId: factionCard.id, spaceId: 'tribute-shadow' });
+          } else {
+            append(state, 'turn/revealed', {});
+          }
+        }
+      }
+      const failed = reduceGame(stream);
+      throw new Error(`Council visit was not reached: round ${failed.match!.round}, gold ${failed.match!.players[target].resources.gold}, diagnostics ${failed.diagnostics.at(-1) ?? 'none'}`);
+    };
+
+    const seated = advance(false);
+    expect(seated.diagnostics).toEqual([]);
+    expect(seated.match!.players[target].councilSeat).toBe(true);
+    expect(seated.match!.players[target].fateHand).toEqual([]);
+
+    for (let step = 0; step < 30; step += 1) {
+      const state = reduceGame(stream);
+      if (currentPlayerUid(state) === target && state.match!.turnMode === 'agent' && !state.match!.pendingChoice) {
+        const player = state.match!.players[target];
+        const expected = player.hand.reduce((total, card) => total + (
+          // The catalog lookup is intentionally mirrored by the public total assertion below.
+          card.definitionId === 'rallying-words' ? 2 : card.definitionId === 'armed-escort' ? 0 : 1
+        ), 0) + 2;
+        append(state, 'turn/revealed', {});
+        const revealed = reduceGame(stream);
+        expect(revealed.match!.players[target].revealInfluence).toBe(expected);
+        append(revealed, 'reveal/finished', {});
+        break;
+      }
+      if (state.match!.turnMode === 'reveal') append(state, 'reveal/finished', {});
+      else append(state, 'turn/revealed', {});
+    }
+
+    const repeated = advance(true);
+    expect(repeated.diagnostics).toEqual([]);
+    expect(repeated.match!.players[target].resources.mithril).toBe(2);
+    expect(repeated.match!.players[target].fateHand).toHaveLength(1);
+    expect(repeated.match!.fateDeck).toHaveLength(29);
+  });
 });

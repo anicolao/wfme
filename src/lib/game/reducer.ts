@@ -26,6 +26,8 @@ export type CardInstance = {
   definitionId: string;
 };
 
+export type FateInstance = { id: string };
+
 export type MatchPlayer = {
   uid: string;
   hand: CardInstance[];
@@ -43,6 +45,8 @@ export type MatchPlayer = {
   standing: { shadow: number; dwarven: number; elven: number; wild: number };
   companies: { supply: number; garrison: number };
   scouts: { supply: number };
+  fateHand: FateInstance[];
+  councilSeat: boolean;
 };
 
 export type AgentOccupation = {
@@ -60,6 +64,7 @@ export type MatchState = {
   players: Record<string, MatchPlayer>;
   boardAgents: Record<string, AgentOccupation[]>;
   boardScouts: Record<string, string>;
+  fateDeck: FateInstance[];
   pendingChoice: null | {
     kind: 'muster-free-peoples';
     actorUid: string;
@@ -151,7 +156,9 @@ function createMatch(state: GameState, seed: string): MatchState {
           resources: { gold: 0, mithril: 0, provisions: 1 },
           standing: { shadow: 0, dwarven: 0, elven: 0, wild: 0 },
           companies: { supply: 9, garrison: 3 },
-          scouts: { supply: 3 }
+          scouts: { supply: 3 },
+          fateHand: [],
+          councilSeat: false
         }
       ];
     })
@@ -166,6 +173,7 @@ function createMatch(state: GameState, seed: string): MatchState {
     players,
     boardAgents: {},
     boardScouts: {},
+    fateDeck: shuffled(Array.from({ length: 30 }, (_, index) => ({ id: `fate:${index + 1}` })), `${seed}:fate-deck`),
     pendingChoice: null,
     reserveSupply: { 'muster-host': 8 },
     alliances: { shadow: null, dwarven: null, elven: null, wild: null },
@@ -192,6 +200,7 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
   const definition = card && AGENT_CARD_DEFINITIONS.find((candidate) => candidate.id === card.definitionId);
   if (!definition) return [];
   return BOARD_SPACE_DEFINITIONS.filter((space) => {
+    if (space.effect.kind === 'white-council-seat' && player.resources.gold < space.effect.costGold) return false;
     const connectedOwnScout = OBSERVATION_POSTS.some(
       (post) => post.connectedSpaceIds.includes(space.id) && match.boardScouts[post.id] === actorUid
     );
@@ -296,7 +305,7 @@ function resolveAgentEffects(
     if (drawn) player.hand.push(drawn);
     player.resources.gold += space.effect.gainGoldWithoutModule;
     resolution = `drawing ${drawn ? '1 card' : 'no card'} and gaining 2 Gold because War Efforts are disabled`;
-  } else {
+  } else if (space.effect.kind === 'muster-free-peoples') {
     const recruited = recruitCompanies(player, space.effect.recruitCompanies);
     resolution = `recruiting ${recruited} Companies`;
     if (player.resources.gold >= space.effect.optionalGoldCost) {
@@ -306,6 +315,15 @@ function resolveAgentEffects(
         options: ['pay-2-gold', 'decline']
       };
     }
+  } else if (!player.councilSeat) {
+    player.councilSeat = true;
+    resolution = 'taking a Council seat and gaining 2 Influence on every future Reveal';
+  } else {
+    player.resources.mithril += space.effect.repeatGainMithril;
+    const fate = match.fateDeck.shift();
+    if (fate) player.fateHand.push(fate);
+    const recruited = recruitCompanies(player, space.effect.repeatRecruitCompanies);
+    resolution = `gaining 2 Mithril, drawing ${fate ? '1 Fate' : 'no Fate'}, and recruiting ${recruited} Companies`;
   }
   if (cardDefinition.journeyEffect?.kind === 'optional-trash-self') {
     match.pendingChoice = {
@@ -409,6 +427,10 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     ) return 'illegal Agent placement';
     const player = state.match.players[event.actorUid];
     const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === spaceId)!;
+    if (space.effect.kind === 'white-council-seat') {
+      if (player.resources.gold < space.effect.costGold) return 'illegal Agent placement';
+      player.resources.gold -= space.effect.costGold;
+    }
     const occupants = state.match.boardAgents[spaceId] ?? [];
     if (occupants.length > 0) {
       const post = typeof infiltrationPostId === 'string'
@@ -560,6 +582,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     player.muster.push(...player.hand.splice(0));
     player.revealInfluence = player.muster.reduce((total, card) =>
       total + (MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === card.definitionId)?.muster.influence ?? 0), 0);
+    if (player.councilSeat) player.revealInfluence += 2;
     player.revealedSwords = player.muster.reduce((total, card) =>
       total + (MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === card.definitionId)?.muster.swords ?? 0), 0);
     state.match.turnMode = 'reveal';

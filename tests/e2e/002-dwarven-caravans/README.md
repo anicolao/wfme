@@ -212,7 +212,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] All three browsers transition to the production board
 - [x] All 22 final board destinations are structurally present
-- [x] Exactly four complete destinations are advertised as playable
+- [x] Exactly five complete destinations are advertised as playable
 - [x] Each seat exposes exactly its own five-card hand
 - [x] Every connected replay has accepted exactly 10 events with no diagnostics
 
@@ -1522,5 +1522,283 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] Standing, favor, Alliance owner, Renown, and Agent replay exactly
 - [x] Every connected replay has accepted exactly 78 events with no diagnostics
+
+---
+
+## Pip chooses Armed Escort for the White Council
+
+![Phone: Pip chooses Armed Escort for the White Council](./screenshots/114-choose-council-escort-phone.png)
+
+![Desktop: Pip chooses Armed Escort for the White Council](./screenshots/114-choose-council-escort-desktop.png)
+
+**Verifications:**
+
+- [x] A genuine Council-icon card is selected
+- [x] Eight Gold makes the five-Gold Council seat affordable
+
+---
+
+## Pip takes a seat on the White Council
+
+![Phone: Pip takes a seat on the White Council](./screenshots/115-take-council-seat-phone.png)
+
+![Desktop: Pip takes a seat on the White Council](./screenshots/115-take-council-seat-desktop.png)
+
+**Verifications:**
+
+- [x] Every client sees the Agent and permanent Council ownership
+- [x] The mandatory five Gold is paid before the seat effect
+- [x] Armed Escort recruits one Company and a first visit draws no Fate
+- [x] Every connected replay has accepted exactly 79 events with no diagnostics
+
+---
+
+## Pip Reveals with Council support
+
+![Phone: Pip Reveals with Council support](./screenshots/116-reveal-with-council-seat-phone.png)
+
+![Desktop: Pip Reveals with Council support](./screenshots/116-reveal-with-council-seat-desktop.png)
+
+**Verifications:**
+
+- [x] The public Influence total includes exactly the permanent +2 Council bonus
+- [x] Every connected replay has accepted exactly 80 events with no diagnostics
+
+---
+
+## Pip finishes the Council-backed Reveal
+
+![Phone: Pip finishes the Council-backed Reveal](./screenshots/117-finish-council-reveal-phone.png)
+
+![Desktop: Pip finishes the Council-backed Reveal](./screenshots/117-finish-council-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Recall opens round 10 and the Council seat persists
+- [x] Every connected replay has accepted exactly 81 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/118-round-10-seat-1-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/118-round-10-seat-1-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 82 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/119-round-10-seat-1-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/119-round-10-seat-1-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 83 events with no diagnostics
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/120-round-10-seat-2-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/120-round-10-seat-2-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 84 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/121-round-10-seat-2-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/121-round-10-seat-2-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 85 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/122-round-10-seat-3-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/122-round-10-seat-3-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 86 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/123-round-10-seat-3-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/123-round-10-seat-3-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 87 events with no diagnostics
+
+---
+
+## Pip chooses a Roads card after reshuffling to fund another Council visit
+
+![Phone: Pip chooses a Roads card after reshuffling to fund another Council visit](./screenshots/124-choose-council-funding-road-phone.png)
+
+![Desktop: Pip chooses a Roads card after reshuffling to fund another Council visit](./screenshots/124-choose-council-funding-road-desktop.png)
+
+**Verifications:**
+
+- [x] The real round-11 hand supplies a Roads icon
+
+---
+
+## Pip raises the remaining Council Gold
+
+![Phone: Pip raises the remaining Council Gold](./screenshots/125-fund-repeat-council-visit-phone.png)
+
+![Desktop: Pip raises the remaining Council Gold](./screenshots/125-fund-repeat-council-visit-desktop.png)
+
+**Verifications:**
+
+- [x] The Roads reward raises Gold from three to five
+- [x] Every connected replay has accepted exactly 88 events with no diagnostics
+
+---
+
+## Pip completes Reconnaissance at the Council Antechamber
+
+![Phone: Pip completes Reconnaissance at the Council Antechamber](./screenshots/126-place-council-antechamber-scout-phone.png)
+
+![Desktop: Pip completes Reconnaissance at the Council Antechamber](./screenshots/126-place-council-antechamber-scout-desktop.png)
+
+**Verifications:**
+
+- [x] Every client sees the named Scout beside the Council spaces
+- [x] The mandatory Scout choice closes and the next human receives the turn
+- [x] Every connected replay has accepted exactly 89 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/127-round-11-seat-3-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/127-round-11-seat-3-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 90 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/128-round-11-seat-3-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/128-round-11-seat-3-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 91 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/129-round-11-seat-1-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/129-round-11-seat-1-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 92 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/130-round-11-seat-1-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/130-round-11-seat-1-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 93 events with no diagnostics
+
+---
+
+## Pip chooses Armed Escort for a repeat Council visit
+
+![Phone: Pip chooses Armed Escort for a repeat Council visit](./screenshots/131-choose-repeat-council-escort-phone.png)
+
+![Desktop: Pip chooses Armed Escort for a repeat Council visit](./screenshots/131-choose-repeat-council-escort-desktop.png)
+
+**Verifications:**
+
+- [x] The second Agent has both a Council icon and the exact five Gold
+
+---
+
+## Pip returns to the White Council
+
+![Phone: Pip returns to the White Council](./screenshots/132-repeat-council-visit-phone.png)
+
+![Desktop: Pip returns to the White Council](./screenshots/132-repeat-council-visit-desktop.png)
+
+**Verifications:**
+
+- [x] The repeat visit pays all five Gold before connected Scout intelligence resolves
+- [x] The Agent is placed while Council and Journey rewards remain paused
+- [x] Every connected replay has accepted exactly 94 events with no diagnostics
+
+---
+
+## Pip leaves the Council Scout in place and resolves the visit
+
+![Phone: Pip leaves the Council Scout in place and resolves the visit](./screenshots/133-decline-council-intelligence-phone.png)
+
+![Desktop: Pip leaves the Council Scout in place and resolves the visit](./screenshots/133-decline-council-intelligence-desktop.png)
+
+**Verifications:**
+
+- [x] Declining intelligence resolves the repeat visit for two Mithril
+- [x] One opaque Fate instance leaves the shared deck for the private hand
+- [x] Armed Escort plus the repeat space recruit four Companies
+- [x] The Chronicle describes the complete repeat effect without revealing Fate identity
+- [x] Every connected replay has accepted exactly 95 events with no diagnostics
+
+---
+
+## Pip reloads the repeat Council visit
+
+![Phone: Pip reloads the repeat Council visit](./screenshots/134-reload-repeat-council-phone.png)
+
+![Desktop: Pip reloads the repeat Council visit](./screenshots/134-reload-repeat-council-desktop.png)
+
+**Verifications:**
+
+- [x] Council ownership, Fate count, resources, recruitment, and occupation replay exactly
+- [x] Every connected replay has accepted exactly 95 events with no diagnostics
 
 ---

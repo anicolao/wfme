@@ -177,7 +177,8 @@ export type BoardSpaceDefinition = BoardSpaceIdentity & {
     | { kind: 'dwarven-caravans'; gainStanding: 'dwarven'; gainProvisions: 1 }
     | { kind: 'tribute-shadow'; gainStanding: 'shadow'; gainGold: 2 }
     | { kind: 'take-war-effort'; drawCards: 1; gainGoldWithoutModule: 2 }
-    | { kind: 'muster-free-peoples'; recruitCompanies: 2; optionalGoldCost: 2; optionalGainProvisions: 1 };
+    | { kind: 'muster-free-peoples'; recruitCompanies: 2; optionalGoldCost: 2; optionalGainProvisions: 1 }
+    | { kind: 'white-council-seat'; costGold: 5; repeatGainMithril: 2; repeatDrawFate: 1; repeatRecruitCompanies: 3; revealInfluence: 2 };
   reviewedCapabilities: readonly ['agent-placement'];
 };
 
@@ -212,6 +213,14 @@ export const BOARD_SPACE_DEFINITIONS: readonly BoardSpaceDefinition[] = [
     region: 'White Council',
     placementIcons: ['Council'],
     effect: { kind: 'muster-free-peoples', recruitCompanies: 2, optionalGoldCost: 2, optionalGainProvisions: 1 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'white-council-seat',
+    name: 'Seat on the White Council',
+    region: 'White Council',
+    placementIcons: ['Council'],
+    effect: { kind: 'white-council-seat', costGold: 5, repeatGainMithril: 2, repeatDrawFate: 1, repeatRecruitCompanies: 3, revealInfluence: 2 },
     reviewedCapabilities: ['agent-placement']
   }
 ];

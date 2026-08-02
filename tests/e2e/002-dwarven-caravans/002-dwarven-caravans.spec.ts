@@ -120,8 +120,8 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
           for (const seat of seats) await expect(seat.page.getByRole('heading', { name: 'The living board' })).toBeVisible();
         } },
         { spec: 'All 22 final board destinations are structurally present', check: async () => await expect(page.locator('.spaces button')).toHaveCount(22) },
-        { spec: 'Exactly four complete destinations are advertised as playable', check: async () => {
-          await expect(page.getByText('Playable spaces').locator('..').getByText('4 / 22')).toBeVisible();
+        { spec: 'Exactly five complete destinations are advertised as playable', check: async () => {
+          await expect(page.getByText('Playable spaces').locator('..').getByText('5 / 22')).toBeVisible();
           await expect(page.getByTestId('space-dwarven-caravans')).toContainText('+1 standing');
           await expect(page.getByTestId('space-tribute-shadow')).toContainText('+1 standing');
         } },
@@ -846,6 +846,159 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
           await expect(player).toContainText('Renown2');
         } },
         convergedEvents(78)
+      ]
+    );
+
+    await steps.gesture(actor!.page, 'choose-council-escort', `${actor!.name} chooses Armed Escort for the White Council`,
+      () => actor!.page.getByTestId('private-hand').getByRole('button', { name: /^Armed Escort/ }).first().click(),
+      [
+        { spec: 'A genuine Council-icon card is selected', check: async () => await expect(actor!.page.getByRole('button', { name: /^Armed Escort/ }).first()).toHaveAttribute('aria-pressed', 'true') },
+        { spec: 'Eight Gold makes the five-Gold Council seat affordable', check: async () => await expect(actor!.page.getByTestId('space-white-council-seat')).toBeEnabled() }
+      ]
+    );
+    await steps.gesture(actor!.page, 'take-council-seat', `${actor!.name} takes a seat on the White Council`,
+      () => actor!.page.getByTestId('space-white-council-seat').click(),
+      [
+        { spec: 'Every client sees the Agent and permanent Council ownership', check: async () => {
+          for (const seat of seats) {
+            await expect(seat.page.getByTestId('space-white-council-seat')).toContainText(`Agent · ${actor!.name}`);
+            await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('CouncilSeated');
+          }
+        } },
+        { spec: 'The mandatory five Gold is paid before the seat effect', check: async () => {
+          for (const seat of seats) await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Gold3');
+        } },
+        { spec: 'Armed Escort recruits one Company and a first visit draws no Fate', check: async () => {
+          const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
+          await expect(player).toContainText('Garrison5');
+          await expect(player).toContainText('Fate0');
+        } },
+        convergedEvents(79)
+      ]
+    );
+    const remainingMusterNames = await actor!.page.getByTestId('private-hand').locator('strong').allTextContents();
+    const musterInfluence: Record<string, number> = {
+      'Rallying Words': 2,
+      'Armed Escort': 0,
+      'The Open Road': 1,
+      'Diplomatic Mission': 1,
+      Reconnaissance: 1,
+      'Seek Allies': 1,
+      'Token of Command': 1,
+      'Muster the Host': 1
+    };
+    const expectedCouncilInfluence = remainingMusterNames.reduce((total, name) => total + (musterInfluence[name] ?? 0), 0) + 2;
+    await steps.gesture(actor!.page, 'reveal-with-council-seat', `${actor!.name} Reveals with Council support`,
+      () => actor!.page.getByRole('button', { name: 'Reveal remaining hand' }).click(),
+      [
+        { spec: 'The public Influence total includes exactly the permanent +2 Council bonus', check: async () => {
+          for (const seat of seats) await expect(seat.page.getByTestId('reveal-panel')).toContainText(`${expectedCouncilInfluence} Influence`);
+        } },
+        convergedEvents(80)
+      ]
+    );
+    await steps.gesture(actor!.page, 'finish-council-reveal', `${actor!.name} finishes the Council-backed Reveal`,
+      () => actor!.page.getByRole('button', { name: 'Finish Reveal' }).click(),
+      [
+        { spec: 'Recall opens round 10 and the Council seat persists', check: async () => {
+          for (const seat of seats) {
+            await expect(seat.page.getByText('Round 10 · Agent turns')).toBeVisible();
+            await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('CouncilSeated');
+          }
+        } },
+        convergedEvents(81)
+      ]
+    );
+    await revealAndFinish(roadActor!, 'round-10-seat-1', 82, 83);
+    await revealAndFinish(actor!, 'round-10-seat-2', 84, 85);
+    await revealAndFinish(shadowActor!, 'round-10-seat-3', 86, 87);
+    await steps.gesture(actor!.page, 'choose-council-funding-road', `${actor!.name} chooses a Roads card after reshuffling to fund another Council visit`,
+      () => actor!.page.getByTestId('private-hand').getByRole('button', { name: /^(The Open Road|Muster the Host|Reconnaissance)/ }).first().click(),
+      [{ spec: 'The real round-11 hand supplies a Roads icon', check: async () => await expect(actor!.page.getByTestId('space-take-war-effort')).toBeEnabled() }]
+    );
+    await steps.gesture(actor!.page, 'fund-repeat-council-visit', `${actor!.name} raises the remaining Council Gold`,
+      () => actor!.page.getByTestId('space-take-war-effort').click(),
+      [
+        { spec: 'The Roads reward raises Gold from three to five', check: async () => {
+          for (const seat of seats) await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Gold5');
+        } },
+        convergedEvents(88)
+      ]
+    );
+    await steps.gesture(actor!.page, 'place-council-antechamber-scout', `${actor!.name} completes Reconnaissance at the Council Antechamber`,
+      () => actor!.page.getByTestId('post-council-antechamber').click(),
+      [
+        { spec: 'Every client sees the named Scout beside the Council spaces', check: async () => {
+          for (const seat of seats) await expect(seat.page.getByTestId('post-council-antechamber')).toContainText(`Scout · ${actor!.name}`);
+        } },
+        { spec: 'The mandatory Scout choice closes and the next human receives the turn', check: async () => {
+          for (const seat of seats) {
+            await expect(seat.page.getByTestId('scout-network')).toContainText('Scouts watch the roads.');
+            await expect(seat.page.locator('footer')).toContainText(`Current actor ${shadowActor!.name}`);
+          }
+        } },
+        convergedEvents(89)
+      ]
+    );
+    await revealAndFinish(shadowActor!, 'round-11-seat-3', 90, 91);
+    await revealAndFinish(roadActor!, 'round-11-seat-1', 92, 93);
+    await steps.gesture(actor!.page, 'choose-repeat-council-escort', `${actor!.name} chooses Armed Escort for a repeat Council visit`,
+      () => actor!.page.getByTestId('private-hand').getByRole('button', { name: /^Armed Escort/ }).first().click(),
+      [{ spec: 'The second Agent has both a Council icon and the exact five Gold', check: async () => await expect(actor!.page.getByTestId('space-white-council-seat')).toBeEnabled() }]
+    );
+    await steps.gesture(actor!.page, 'repeat-council-visit', `${actor!.name} returns to the White Council`,
+      () => actor!.page.getByTestId('space-white-council-seat').click(),
+      [
+        { spec: 'The repeat visit pays all five Gold before connected Scout intelligence resolves', check: async () => {
+          for (const seat of seats) {
+            const player = seat.page.locator('.players article').filter({ hasText: actor!.name });
+            await expect(player).toContainText('Gold0');
+            await expect(player).toContainText('Mithril0');
+          }
+        } },
+        { spec: 'The Agent is placed while Council and Journey rewards remain paused', check: async () => {
+          for (const seat of seats) {
+            await expect(seat.page.getByTestId('space-white-council-seat')).toContainText(`Agent · ${actor!.name}`);
+            await expect(seat.page.getByTestId('pending-choice')).toContainText('Recall a Scout to gather intelligence?');
+            const player = seat.page.locator('.players article').filter({ hasText: actor!.name });
+            await expect(player).toContainText('Fate0');
+            await expect(player).toContainText('Garrison5');
+          }
+        } },
+        convergedEvents(94)
+      ]
+    );
+    await steps.gesture(actor!.page, 'decline-council-intelligence', `${actor!.name} leaves the Council Scout in place and resolves the visit`,
+      () => actor!.page.getByRole('button', { name: 'Leave Scouts in place' }).click(),
+      [
+        { spec: 'Declining intelligence resolves the repeat visit for two Mithril', check: async () => {
+          for (const seat of seats) await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Mithril2');
+        } },
+        { spec: 'One opaque Fate instance leaves the shared deck for the private hand', check: async () => {
+          for (const seat of seats) await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Fate1');
+        } },
+        { spec: 'Armed Escort plus the repeat space recruit four Companies', check: async () => {
+          for (const seat of seats) await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Garrison9');
+        } },
+        { spec: 'The Chronicle describes the complete repeat effect without revealing Fate identity', check: async () => {
+          for (const seat of seats) await expect(seat.page.getByTestId('activity-log')).toContainText('gaining 2 Mithril, drawing 1 Fate, and recruiting 3 Companies');
+        } },
+        convergedEvents(95)
+      ]
+    );
+    await steps.gesture(actor!.page, 'reload-repeat-council', `${actor!.name} reloads the repeat Council visit`,
+      async () => { await actor!.page.reload(); },
+      [
+        { spec: 'Council ownership, Fate count, resources, recruitment, and occupation replay exactly', check: async () => {
+          const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
+          await expect(player).toContainText('CouncilSeated');
+          await expect(player).toContainText('Fate1');
+          await expect(player).toContainText('Gold0');
+          await expect(player).toContainText('Mithril2');
+          await expect(player).toContainText('Garrison9');
+          await expect(actor!.page.getByTestId('space-white-council-seat')).toContainText(`Agent · ${actor!.name}`);
+        } },
+        convergedEvents(95)
       ]
     );
 

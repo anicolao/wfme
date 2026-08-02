@@ -56,7 +56,7 @@
       </p>
     </div>
     <dl class="ledger" aria-label="Construction capability ledger">
-      <div><dt>Playable spaces</dt><dd>4 / 22</dd></div>
+      <div><dt>Playable spaces</dt><dd>5 / 22</dd></div>
       <div><dt>Agent-ready cards</dt><dd>5 / 7</dd></div>
       <div><dt>Commander powers</dt><dd>0 / 16</dd></div>
     </dl>
@@ -80,6 +80,7 @@
             <div><dt>Provision</dt><dd>{matchPlayer?.resources.provisions ?? 0}</dd></div>
             <div><dt>Dwarven</dt><dd>{matchPlayer?.standing.dwarven ?? 0}</dd></div>
             <div><dt>Gold</dt><dd>{matchPlayer?.resources.gold ?? 0}</dd></div>
+            <div><dt>Mithril</dt><dd>{matchPlayer?.resources.mithril ?? 0}</dd></div>
             <div><dt>Shadow</dt><dd>{matchPlayer?.standing.shadow ?? 0}</dd></div>
             <div><dt>Garrison</dt><dd>{matchPlayer?.companies.garrison ?? 0}</dd></div>
             <div><dt>Supply</dt><dd>{matchPlayer?.companies.supply ?? 0}</dd></div>
@@ -87,6 +88,8 @@
             <div><dt>Discard</dt><dd>{matchPlayer?.discardPile.length ?? 0}</dd></div>
             <div><dt>Trash</dt><dd>{matchPlayer?.trashPile.length ?? 0}</dd></div>
             <div><dt>Scouts</dt><dd>{matchPlayer?.scouts.supply ?? 0} supply</dd></div>
+            <div><dt>Fate</dt><dd>{matchPlayer?.fateHand.length ?? 0}</dd></div>
+            <div><dt>Council</dt><dd>{matchPlayer?.councilSeat ? 'Seated' : '—'}</dd></div>
           </dl>
           {#if player.uid === localUid}<small>Your seat · private hand below</small>{/if}
           {#if matchPlayer?.revealedThisRound}<small>Reveal complete · waiting for Recall</small>{/if}
@@ -128,8 +131,10 @@
                         : definition?.effect.kind === 'tribute-shadow'
                           ? 'Shadow · +1 standing · +2 Gold'
                           : definition?.effect.kind === 'take-war-effort'
-                            ? 'Draw 1 card · +2 Gold'
-                            : 'Recruit 2 · optionally pay 2 Gold for 1 Provision'}
+                          ? 'Draw 1 card · +2 Gold'
+                            : definition?.effect.kind === 'muster-free-peoples'
+                              ? 'Recruit 2 · optionally pay 2 Gold for 1 Provision'
+                              : 'Pay 5 Gold · gain a permanent +2 Reveal Influence; repeat for 2 Mithril, 1 Fate, recruit 3'}
                     </span>
                   {:else}
                     <span>Later tracer</span>

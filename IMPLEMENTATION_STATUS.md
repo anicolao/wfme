@@ -8,7 +8,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | --- | ---: | --- |
 | Root lobby and live room | 1 / 1 | `002-dwarven-caravans` creates and joins with three isolated Firebase identities |
 | Seeded match and private opening hands | 1 / 1 | Reducer conservation tests and the three-seat browser journey |
-| Board destinations | 4 / 22 | Two faction spaces, Take Up a War Effort, and Muster the Free Peoples; the other 18 are disabled |
+| Board destinations | 5 / 22 | Two faction spaces, Take Up a War Effort, Muster the Free Peoples, and Seat on the White Council; the other 17 are disabled |
 | Starting card instances | 10 / 10 | Exact deterministic deck composition and conservation |
 | Starting cards with executable Agent boxes | 5 / 7 definitions | Diplomatic Mission, The Open Road, Armed Escort, Seek Allies, and Reconnaissance |
 | Observation posts | 9 / 9 structure; placement, intelligence, and infiltration live | Exact named connections, finite Scout supply, multi-Agent occupation, both recall timings, authority, and replay |
@@ -16,7 +16,8 @@ This is the construction ledger for the one canonical game at the repository roo
 | Reserve cards | 1 / 2 definitions | Muster the Host cost, finite supply, discard destination, reshuffle, and later Agent use are executable |
 | Commander identities | 8 / 8 | Unique lobby identities, explicitly power-free |
 | Commander powers | 0 / 16 | No power text is presented as active |
-| Chronicle, Fate, Battle, War Effort, and Rival content | 0 | Introduced only with the tracer that makes each item executable |
+| Fate physical instances | 30 / 30 | Deterministically shuffled shared deck, private draw, conservation, and replay; individual Fate effects remain 0 / 30 |
+| Chronicle, Battle, War Effort, and Rival content | 0 | Introduced only with the tracer that makes each item executable |
 | Round phases | Agent, Reveal, Recall | Battle and Riches arrive with their own complete subsystems |
 | Complete matches | 0 | Endgame and rematch are not yet available |
 
@@ -38,6 +39,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | Reconnaissance and persistent Scout placement | post legality, finite supply, authorization, and replay tests | gestures 079–082 validate the genuine draw, all nine connections, ordered placement, convergence, and reload |
 | Scout Gather Intelligence timing | recall/decline branches, pre-effect ordering, draw, conservation, and replay tests | gestures 088–091 validate persistence, actor-only choice, two ordered draws, convergence, and reload |
 | Scout infiltration into an occupied space | matching-icon legality, required connected recall, multi-Agent conservation, and illegal-intent tests | `003-scout-infiltration` gestures 024–027 validate the blocker, explicit recall, shared occupation, observer convergence, and reload |
+| White Council first seat and repeat visit | affordability, mandatory five-Gold payment, permanent ownership, +2 Reveal Influence, repeat Mithril/Fate/recruitment, ordered Scout interruption, private Fate conservation, and replay tests | gestures 114–134 validate first seating, Council-backed Reveal, another Recall/reshuffle, real Roads funding, mandatory Scout placement, declined intelligence, repeat rewards, and reload across all clients |
 | Public Reveal, exact Influence/swords, and turn skipping | Reveal legality and zone-conservation tests | gestures 028–034 show all three clients through the first Reveal sequence |
 | Reserve acquisition and finite supply | affordability, supply, and illegal-acquisition tests | gesture 029 validates shared supply and private discard |
 | Recall, first-player rotation, redraw, and deterministic reshuffle | two-round reducer replay and 11-instance conservation | gestures 035–049 reach round 3 and use the acquired card |
@@ -46,4 +48,4 @@ This is the construction ledger for the one canonical game at the repository roo
 
 ## Next accepted tracer
 
-Tracer 2 continues with the remaining ordinary Agent-space families. Reveal and Recall provide the genuine multi-round path needed to exercise costs, standing thresholds, Scouts, and later-acquired cards without manufactured state.
+Tracer 2 continues with the remaining ordinary Agent-space families, beginning with Hall of Fire. Reveal and Recall provide the genuine multi-round path needed to exercise costs, standing thresholds, Scouts, and later-acquired cards without manufactured state.
