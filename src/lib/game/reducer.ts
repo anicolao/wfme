@@ -5,6 +5,7 @@ import {
   BOARD_SPACE_DEFINITIONS,
   COMMANDERS,
   MUSTER_CARD_DEFINITIONS,
+  OBSERVATION_POSTS,
   RESERVE_CARD_DEFINITIONS,
   STARTING_CARD_IDENTITIES,
   type CommanderId,
@@ -41,6 +42,7 @@ export type MatchPlayer = {
   resources: { gold: number; mithril: number; provisions: number };
   standing: { shadow: number; dwarven: number; elven: number; wild: number };
   companies: { supply: number; garrison: number };
+  scouts: { supply: number };
 };
 
 export type AgentOccupation = {
@@ -57,6 +59,7 @@ export type MatchState = {
   turnMode: 'agent' | 'reveal';
   players: Record<string, MatchPlayer>;
   boardAgents: Record<string, AgentOccupation>;
+  boardScouts: Record<string, string>;
   pendingChoice: null | {
     kind: 'muster-free-peoples';
     actorUid: string;
@@ -66,6 +69,10 @@ export type MatchState = {
     actorUid: string;
     cardInstanceId: string;
     options: readonly ['trash-self', 'keep-card'];
+  } | {
+    kind: 'place-scout';
+    actorUid: string;
+    options: readonly [];
   };
   reserveSupply: Record<ReserveCardId, number>;
   alliances: Record<'shadow' | 'dwarven' | 'elven' | 'wild', string | null>;
@@ -136,7 +143,8 @@ function createMatch(state: GameState, seed: string): MatchState {
           availableAgents: 2,
           resources: { gold: 0, mithril: 0, provisions: 1 },
           standing: { shadow: 0, dwarven: 0, elven: 0, wild: 0 },
-          companies: { supply: 9, garrison: 3 }
+          companies: { supply: 9, garrison: 3 },
+          scouts: { supply: 3 }
         }
       ];
     })
@@ -150,6 +158,7 @@ function createMatch(state: GameState, seed: string): MatchState {
     turnMode: 'agent',
     players,
     boardAgents: {},
+    boardScouts: {},
     pendingChoice: null,
     reserveSupply: { 'muster-host': 8 },
     alliances: { shadow: null, dwarven: null, elven: null, wild: null },
@@ -374,6 +383,13 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         options: ['trash-self', 'keep-card']
       };
     }
+    if (cardDefinition.journeyEffect?.kind === 'place-scout') {
+      state.match.pendingChoice = {
+        kind: 'place-scout',
+        actorUid: event.actorUid,
+        options: []
+      };
+    }
     state.match.activity.push(`${actor.displayName} sends an Agent to ${space.name}, ${resolution}.`);
     if (!state.match.pendingChoice) advanceToNextAgentPlayer(state.match);
     return null;
@@ -401,7 +417,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       } else {
         state.match.activity.push(`${actor.displayName} keeps their Gold.`);
       }
-    } else {
+    } else if (pending.kind === 'seek-allies') {
       if (choice === 'trash-self') {
         const cardIndex = player.journey.findIndex((card) => card.id === pending.cardInstanceId);
         if (cardIndex < 0) return 'illegal choice resolution';
@@ -411,8 +427,43 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       } else {
         state.match.activity.push(`${actor.displayName} keeps Seek Allies in their Journey.`);
       }
+    } else {
+      return 'illegal choice resolution';
     }
     state.match.pendingChoice = null;
+    advanceToNextAgentPlayer(state.match);
+    return null;
+  }
+
+  if (event.type === 'scout/placed') {
+    const postId = event.payload.postId;
+    const recallPostId = event.payload.recallPostId;
+    const pending = state.match?.pendingChoice;
+    if (
+      state.phase !== 'playing' ||
+      !state.match ||
+      !pending ||
+      pending.kind !== 'place-scout' ||
+      pending.actorUid !== event.actorUid ||
+      currentPlayerUid(state) !== event.actorUid ||
+      typeof postId !== 'string' ||
+      !OBSERVATION_POSTS.some((post) => post.id === postId)
+    ) return 'illegal Scout placement';
+    const player = state.match.players[event.actorUid];
+    if (player.scouts.supply < 1) {
+      if (typeof recallPostId !== 'string' || state.match.boardScouts[recallPostId] !== event.actorUid) {
+        return 'illegal Scout placement';
+      }
+      delete state.match.boardScouts[recallPostId];
+      player.scouts.supply += 1;
+    } else if (recallPostId !== undefined) {
+      return 'illegal Scout placement';
+    }
+    if (state.match.boardScouts[postId]) return 'illegal Scout placement';
+    player.scouts.supply -= 1;
+    state.match.boardScouts[postId] = event.actorUid;
+    state.match.pendingChoice = null;
+    state.match.activity.push(`${actor.displayName} places a Scout at ${OBSERVATION_POSTS.find((post) => post.id === postId)!.name}.`);
     advanceToNextAgentPlayer(state.match);
     return null;
   }

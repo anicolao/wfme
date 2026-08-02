@@ -6,6 +6,7 @@
     BOARD_SPACE_DEFINITIONS,
     COMMANDERS,
     MUSTER_CARD_DEFINITIONS,
+    OBSERVATION_POSTS,
     RESERVE_CARD_DEFINITIONS,
     cardName,
     type BoardRegion
@@ -21,6 +22,8 @@
   export let onReveal: () => void;
   export let onAcquire: (definitionId: string) => void;
   export let onFinishReveal: () => void;
+  export let onPlaceScout: (postId: string, recallPostId?: string) => void;
+  let selectedScoutRecall = '';
 
   const regions: BoardRegion[] = [
     'Shadow Hosts',
@@ -53,7 +56,7 @@
     </div>
     <dl class="ledger" aria-label="Construction capability ledger">
       <div><dt>Playable spaces</dt><dd>4 / 22</dd></div>
-      <div><dt>Agent-ready cards</dt><dd>4 / 7</dd></div>
+      <div><dt>Agent-ready cards</dt><dd>5 / 7</dd></div>
       <div><dt>Commander powers</dt><dd>0 / 16</dd></div>
     </dl>
   </header>
@@ -77,6 +80,7 @@
             <div><dt>Renown</dt><dd>{matchPlayer?.renown ?? 0}</dd></div>
             <div><dt>Discard</dt><dd>{matchPlayer?.discardPile.length ?? 0}</dd></div>
             <div><dt>Trash</dt><dd>{matchPlayer?.trashPile.length ?? 0}</dd></div>
+            <div><dt>Scouts</dt><dd>{matchPlayer?.scouts.supply ?? 0} supply</dd></div>
           </dl>
           {#if player.uid === localUid}<small>Your seat · private hand below</small>{/if}
           {#if matchPlayer?.revealedThisRound}<small>Reveal complete · waiting for Recall</small>{/if}
@@ -130,7 +134,41 @@
     </div>
   </div>
 
-  {#if game.match?.pendingChoice}
+  <section class="scout-network" data-testid="scout-network" aria-labelledby="scout-title">
+    <div>
+      <p class="eyebrow">Observation network · 9 posts</p>
+      <h2 id="scout-title">{game.match?.pendingChoice?.kind === 'place-scout' ? (selectedScoutRecall ? 'Choose the Scout’s new post.' : 'Choose an empty post for the Scout.') : 'Scouts watch the roads.'}</h2>
+    </div>
+    <div class="posts">
+      {#each OBSERVATION_POSTS as post}
+        {@const scoutUid = game.match?.boardScouts[post.id]}
+        {@const scoutName = game.players.find((player) => player.uid === scoutUid)?.displayName}
+        {@const placing = game.match?.pendingChoice?.kind === 'place-scout' && game.match.pendingChoice.actorUid === localUid}
+        {@const mustRecall = (localMatch?.scouts.supply ?? 0) < 1}
+        {@const choosingRecall = placing && mustRecall && !selectedScoutRecall}
+        <button
+          type="button"
+          class:scouted={Boolean(scoutUid)}
+          class:recalling={selectedScoutRecall === post.id}
+          disabled={!placing || (choosingRecall ? scoutUid !== localUid : Boolean(scoutUid) && post.id !== selectedScoutRecall)}
+          aria-pressed={selectedScoutRecall === post.id}
+          data-testid={`post-${post.id}`}
+          onclick={() => {
+            if (choosingRecall) selectedScoutRecall = post.id;
+            else {
+              onPlaceScout(post.id, selectedScoutRecall || undefined);
+              selectedScoutRecall = '';
+            }
+          }}
+        >
+          <strong>{post.name}</strong>
+          <span>{scoutName ? `Scout · ${scoutName}` : post.connectedSpaceIds.map((id) => BOARD_LAYOUT.find((space) => space.id === id)?.name).join(' · ')}</span>
+        </button>
+      {/each}
+    </div>
+  </section>
+
+  {#if game.match?.pendingChoice && game.match.pendingChoice.kind !== 'place-scout'}
     <section class="pending-choice" data-testid="pending-choice" aria-labelledby="choice-title">
       <div>
         <p class="eyebrow">Ordered {game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Council' : 'Journey'} choice</p>
@@ -257,6 +295,15 @@
   .pending-choice { position: fixed; z-index: 10; left: 50%; bottom: 1rem; display: flex; width: min(calc(100% - 2rem), 60rem); justify-content: space-between; gap: 1rem; align-items: center; margin-top: 1rem; padding: 1rem; color: #28291f; background: #f2d9a6; border: 3px solid #c98a45; border-radius: .7rem; box-shadow: 0 1rem 3rem rgb(0 0 0 / 55%); transform: translateX(-50%); }
   .pending-choice h2, .pending-choice p { margin: .2rem 0; }
   .choice-actions { display: flex; gap: .5rem; }
+  .scout-network { margin-top: 1rem; padding: 1rem; color: #28291f; background: #d8dfc7; border-radius: .7rem; }
+  .scout-network h2 { margin: .1rem 0 .6rem; font: 700 1.8rem 'Cormorant Garamond', serif; }
+  .posts { display: grid; grid-template-columns: repeat(3, 1fr); gap: .4rem; }
+  .posts button { min-height: 4.2rem; padding: .55rem; color: #29291f; background: #eef0db; border: 2px solid #73806b; border-radius: .4rem; text-align: left; }
+  .posts button:disabled { opacity: .65; }
+  .posts button.scouted { color: #fff; background: #49624d; }
+  .posts button.recalling { outline: 4px solid #c98a45; }
+  .posts strong, .posts span { display: block; }
+  .posts span { margin-top: .25rem; font-size: .72rem; }
   .reveal-panel { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-top: 1rem; padding: 1rem; color: #28291f; background: #efe3c4; border: 3px solid #6d8265; border-radius: .7rem; }
   .reveal-panel h2, .reveal-panel p { margin: .2rem 0 .6rem; }
   .muster-row { display: flex; gap: .45rem; overflow-x: auto; }
@@ -289,6 +336,7 @@
     .board { grid-template-columns: 1fr; max-height: 34rem; overflow-y: auto; }
     .hand { grid-template-columns: repeat(5, 9rem); }
     .reveal-panel { grid-template-columns: 1fr; }
+    .posts { grid-template-columns: 1fr; max-height: 19rem; overflow-y: auto; }
     .pending-choice { align-items: stretch; flex-direction: column; }
     .choice-actions { display: grid; grid-template-columns: 1fr 1fr; }
   }

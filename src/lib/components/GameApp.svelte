@@ -211,6 +211,16 @@
     }
   }
 
+  async function placeScout(postId: string, recallPostId?: string) {
+    busy = true;
+    try {
+      await append('scout/placed', { postId, ...(recallPostId ? { recallPostId } : {}) });
+      message = 'Scout placement committed to the observation network.';
+    } finally {
+      busy = false;
+    }
+  }
+
   onMount(() => {
     roomCodeInput = normalizeRoomCode(new URLSearchParams(location.search).get('room') ?? '');
     void initializeFirebase()
@@ -258,6 +268,7 @@
       onReveal={revealTurn}
       onAcquire={acquireCard}
       onFinishReveal={finishReveal}
+      onPlaceScout={placeScout}
     />
   {:else}
     <section class="lobby" aria-labelledby="lobby-title">

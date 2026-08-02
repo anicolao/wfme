@@ -4,7 +4,7 @@ import { TestStepHelper, type Verification } from '../helpers/test-step-helper';
 type Seat = { name: string; page: Page; context?: BrowserContext };
 
 test('three humans create a room and complete Dwarven Caravans', async ({ browser, page }, testInfo) => {
-  test.setTimeout(180_000);
+  test.setTimeout(210_000);
   const steps = new TestStepHelper(testInfo);
   const viewport = page.viewportSize() ?? { width: 1280, height: 960 };
   const guestAContext = await browser.newContext({
@@ -564,9 +564,111 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
 
+    await revealAndFinish(actor!, 'round-4-seat-2', 43, 44);
+    await steps.observe(actor!.page, 'round-5-observation-network', 'Recall opens round 5 with the observation network ready', [
+      { spec: 'The first-player marker rotates to the next actor', check: async () => {
+        for (const seat of seats) {
+          await expect(seat.page.getByText('Round 5 · Agent turns')).toBeVisible();
+          await expect(seat.page.locator('footer')).toContainText(`Current actor ${actor!.name}`);
+        }
+      } },
+      { spec: 'All nine named observation posts and their board connections are present', check: async () => {
+        await expect(actor!.page.getByTestId('scout-network').locator('.posts button')).toHaveCount(9);
+        await expect(actor!.page.getByTestId('post-old-south-road')).toContainText('Take Up a War Effort');
+        await expect(actor!.page.getByTestId('post-seeing-stone-road')).toContainText('Minas Tirith');
+      } }
+    ]);
+    await revealAndFinish(actor!, 'round-5-seat-2', 45, 46);
+    await revealAndFinish(shadowActor!, 'round-5-seat-3', 47, 48);
+    await revealAndFinish(roadActor!, 'round-5-seat-1', 49, 50);
+    await steps.observe(shadowActor!.page, 'round-6-second-deck-half', 'Recall opens round 6 from the second half of each deck', [
+      { spec: 'Round 6 begins with five real cards for every human', check: async () => {
+        for (const seat of seats) {
+          await expect(seat.page.getByText('Round 6 · Agent turns')).toBeVisible();
+          await expect(seat.page.locator('.players article').filter({ hasText: seat.name })).toContainText('Hand5');
+        }
+      } }
+    ]);
+    await revealAndFinish(shadowActor!, 'round-6-seat-3', 51, 52);
+    await revealAndFinish(roadActor!, 'round-6-seat-1', 53, 54);
+    await steps.observe(actor!.page, 'round-6-scout-hand', 'The Scout actor receives the turn with Reconnaissance', [
+      { spec: 'Reconnaissance was genuinely drawn from the deterministic deck', check: async () => {
+        await expect(actor!.page.getByTestId('private-hand').getByRole('button', { name: /^Reconnaissance/ })).toBeVisible();
+      } },
+      { spec: 'The acting human has the Agent-or-Reveal decision', check: async () => {
+        for (const seat of seats) await expect(seat.page.locator('footer')).toContainText(`Current actor ${actor!.name}`);
+      } }
+    ]);
+    await steps.gesture(actor!.page, 'play-reconnaissance', `${actor!.name} chooses Reconnaissance`,
+      () => actor!.page.getByTestId('private-hand').getByRole('button', { name: /^Reconnaissance/ }).click(),
+      [
+        { spec: 'Reconnaissance is visibly selected from the genuine round-6 hand', check: async () => await expect(actor!.page.getByRole('button', { name: /^Reconnaissance/ })).toHaveAttribute('aria-pressed', 'true') },
+        { spec: 'Its Stronghold and Roads icons make the available Roads destination legal', check: async () => await expect(actor!.page.getByTestId('space-take-war-effort')).toBeEnabled() }
+      ]
+    );
+    await steps.gesture(actor!.page, 'reconnoitre-war-effort', `${actor!.name} reconnoitres the War Effort road`,
+      () => actor!.page.getByTestId('space-take-war-effort').click(),
+      [
+        { spec: 'The board reward resolves before Scout placement', check: async () => {
+          const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
+          await expect(player).toContainText('Gold6');
+          await expect(actor!.page.getByTestId('space-take-war-effort')).toContainText(`Agent · ${actor!.name}`);
+        } },
+        { spec: 'Every client sees the blocking nine-post Scout choice', check: async () => {
+          for (const seat of seats) {
+            await expect(seat.page.getByTestId('scout-network')).toContainText('Choose an empty post for the Scout.');
+            await expect(seat.page.getByTestId('scout-network').locator('.posts button')).toHaveCount(9);
+          }
+        } },
+        { spec: 'Only the acting human can choose a post', check: async () => {
+          await expect(actor!.page.getByTestId('post-old-south-road')).toBeEnabled();
+          for (const observer of seats.filter((seat) => seat !== actor)) await expect(observer.page.getByTestId('post-old-south-road')).toBeDisabled();
+        } },
+        { spec: 'The turn cannot advance until the Scout is placed', check: async () => {
+          for (const seat of seats) await expect(seat.page.locator('footer')).toContainText(`Current actor ${actor!.name}`);
+        } },
+        convergedEvents(55)
+      ]
+    );
+    await steps.gesture(actor!.page, 'place-old-south-road-scout', `${actor!.name} places a Scout on the Old South Road`,
+      () => actor!.page.getByTestId('post-old-south-road').click(),
+      [
+        { spec: 'Every client sees the named Scout on the selected observation post', check: async () => {
+          for (const seat of seats) await expect(seat.page.getByTestId('post-old-south-road')).toContainText(`Scout · ${actor!.name}`);
+        } },
+        { spec: 'Exactly one Scout leaves the actor supply', check: async () => {
+          for (const seat of seats) await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Scouts2 supply');
+        } },
+        { spec: 'The Scout choice closes and returns the only unrevealed human to their normal decision', check: async () => {
+          for (const seat of seats) {
+            await expect(seat.page.getByTestId('scout-network')).toContainText('Scouts watch the roads.');
+            await expect(seat.page.locator('footer')).toContainText(`Current actor ${actor!.name}`);
+          }
+          await expect(actor!.page.getByRole('button', { name: 'Reveal remaining hand' })).toBeEnabled();
+        } },
+        { spec: 'The Chronicle names the persistent Scout post', check: async () => {
+          for (const seat of seats) await expect(seat.page.getByTestId('activity-log')).toContainText(`${actor!.name} places a Scout at Old South Road`);
+        } },
+        convergedEvents(56)
+      ]
+    );
+    await steps.gesture(actor!.page, 'reload-scout-post', `${actor!.name} reloads the observation network`,
+      async () => { await actor!.page.reload(); },
+      [
+        { spec: 'Scout, Agent, and board reward replay identically', check: async () => {
+          await expect(actor!.page.getByTestId('post-old-south-road')).toContainText(`Scout · ${actor!.name}`);
+          await expect(actor!.page.getByTestId('space-take-war-effort')).toContainText(`Agent · ${actor!.name}`);
+          const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
+          await expect(player).toContainText('Scouts2 supply');
+          await expect(player).toContainText('Gold6');
+        } },
+        convergedEvents(56)
+      ]
+    );
+
     steps.generateDocs(
-      'Three-player ordinary Agent destinations tracer',
-      'Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use the acquired card, cross a faction threshold, and make an optional self-trash choice with convergence and replay.'
+      'Three-player Agent, deck-building, and Scout tracer',
+      'Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross a faction threshold, trash a card, and place a persistent Scout with convergence and replay.'
     );
   } finally {
     await guestAContext.close();

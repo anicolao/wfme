@@ -28,7 +28,7 @@ service cloud.firestore {
         && request.resource.data.type in [
           'game/created', 'player/joined', 'player/commander-selected',
           'player/ready', 'match/started', 'agent/placed', 'choice/resolved',
-          'turn/revealed', 'card/acquired', 'reveal/finished'
+          'turn/revealed', 'card/acquired', 'reveal/finished', 'scout/placed'
         ];
     }
 

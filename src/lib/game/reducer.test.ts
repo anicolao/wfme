@@ -324,4 +324,36 @@ describe('integrated Agent placement replay', () => {
     expect(kept.match!.players[actor].journey).toEqual([seek]);
     expect(kept.match!.players[actor].trashPile).toEqual([]);
   });
+
+  it('places a Reconnaissance Scout on one reviewed empty observation post', () => {
+    let events = readyRoom('scout-0');
+    let before = reduceGame(events);
+    for (let index = 1; index < 100; index += 1) {
+      const actor = before.match!.playerOrder[0];
+      if (before.match!.players[actor].hand.some((card) => card.definitionId === 'reconnaissance')) break;
+      events = readyRoom(`scout-${index}`);
+      before = reduceGame(events);
+    }
+    const actor = before.match!.playerOrder[0];
+    const reconnaissance = before.match!.players[actor].hand.find((card) => card.definitionId === 'reconnaissance')!;
+    expect(reconnaissance).toBeDefined();
+    const placement = createEvent('agent/placed', actor, 5, {
+      cardInstanceId: reconnaissance.id, spaceId: 'take-war-effort'
+    }, 11);
+    const pending = reduceGame([...events, placement]);
+    expect(pending.match!.pendingChoice).toEqual({ kind: 'place-scout', actorUid: actor, options: [] });
+    expect(pending.match!.players[actor].scouts.supply).toBe(3);
+    expect(currentPlayerUid(pending)).toBe(actor);
+
+    const illegal = reduceGame([...events, placement, createEvent('scout/placed', actor, 6, { postId: 'not-a-post' }, 12)]);
+    expect(illegal.diagnostics.at(-1)).toContain('illegal Scout placement');
+    expect(illegal.match!.boardScouts).toEqual({});
+
+    const placed = reduceGame([...events, placement, createEvent('scout/placed', actor, 6, { postId: 'old-south-road' }, 12)]);
+    expect(placed.diagnostics).toEqual([]);
+    expect(placed.match!.boardScouts).toEqual({ 'old-south-road': actor });
+    expect(placed.match!.players[actor].scouts.supply).toBe(2);
+    expect(placed.match!.pendingChoice).toBeNull();
+    expect(currentPlayerUid(placed)).not.toBe(actor);
+  });
 });

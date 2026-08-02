@@ -40,7 +40,7 @@ The generated images are mood and composition targets, not print-ready productio
 
 ## Play the construction build
 
-The root URL is now the actual game lobby. The construction build supports a real 3–4 player Firebase room, unique power-free Commander identities, deterministic setup, and private starting hands on the production board. Four board destinations and four starting-card Agent boxes are live, including ordered optional payment and self-trash choices. Players can also Reveal, acquire the first Reserve card, discard, Recall, rotate first player, reshuffle, and later draw and use the acquired card. Unimplemented content remains visibly unavailable.
+The root URL is now the actual game lobby. The construction build supports a real 3–4 player Firebase room, unique power-free Commander identities, deterministic setup, and private starting hands on the production board. Four board destinations and five starting-card Agent boxes are live, including ordered optional payment, self-trash, and persistent Scout-placement choices across all nine observation posts. Players can also Reveal, acquire the first Reserve card, discard, Recall, rotate first player, reshuffle, and later draw and use the acquired card. Unimplemented content remains visibly unavailable.
 
 This is a construction build, not yet a playable alpha or complete match. The exact boundary is recorded in [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).
 

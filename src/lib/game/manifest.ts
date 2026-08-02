@@ -33,7 +33,8 @@ export type AgentCardDefinition = StartingCardIdentity & {
   placementIcons: readonly PlacementIcon[];
   journeyEffect?:
     | { kind: 'recruit-companies'; amount: 1 }
-    | { kind: 'optional-trash-self' };
+    | { kind: 'optional-trash-self' }
+    | { kind: 'place-scout'; amount: 1 };
   reviewedCapabilities: readonly ['agent-placement'];
 };
 
@@ -75,7 +76,33 @@ export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
     placementIcons: ['Shadow', 'Dwarven', 'Elven', 'Wild'],
     journeyEffect: { kind: 'optional-trash-self' },
     reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'reconnaissance',
+    name: 'Reconnaissance',
+    copies: 1,
+    placementIcons: ['Stronghold', 'Roads'],
+    journeyEffect: { kind: 'place-scout', amount: 1 },
+    reviewedCapabilities: ['agent-placement']
   }
+];
+
+export type ObservationPostDefinition = {
+  id: string;
+  name: string;
+  connectedSpaceIds: readonly string[];
+};
+
+export const OBSERVATION_POSTS: readonly ObservationPostDefinition[] = [
+  { id: 'orthanc-eye', name: "Orthanc's Eye", connectedSpaceIds: ['tribute-shadow', 'pits-isengard', 'secret-bargain'] },
+  { id: 'redhorn-pass', name: 'Redhorn Pass', connectedSpaceIds: ['dwarven-caravans', 'deep-roads', 'great-forge'] },
+  { id: 'last-homely-house', name: 'The Last Homely House', connectedSpaceIds: ['hidden-counsel', 'mirror-galadriel', 'archives-rivendell'] },
+  { id: 'northern-eaves', name: 'Northern Eaves', connectedSpaceIds: ['hidden-paths', 'ranger-mustering', 'deep-fangorn'] },
+  { id: 'council-antechamber', name: 'Council Antechamber', connectedSpaceIds: ['hall-fire', 'white-council-seat', 'captain-host'] },
+  { id: 'muster-field', name: 'Muster Field', connectedSpaceIds: ['muster-free-peoples', 'minas-tirith', 'osgiliath'] },
+  { id: 'old-south-road', name: 'Old South Road', connectedSpaceIds: ['take-war-effort', 'osgiliath', 'edoras'] },
+  { id: 'banks-entwash', name: 'Banks of Entwash', connectedSpaceIds: ['fangorn-moot', 'entwash', 'deep-fangorn'] },
+  { id: 'seeing-stone-road', name: 'Seeing-stone Road', connectedSpaceIds: ['mirror-galadriel', 'secret-bargain', 'minas-tirith'] }
 ];
 
 export type MusterCardDefinition = {

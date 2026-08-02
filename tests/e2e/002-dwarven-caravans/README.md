@@ -1,6 +1,6 @@
-# Test: Three-player ordinary Agent destinations tracer
+# Test: Three-player Agent, deck-building, and Scout tracer
 
-Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use the acquired card, cross a faction threshold, and make an optional self-trash choice with convergence and replay.
+Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross a faction threshold, trash a card, and place a persistent Scout with convergence and replay.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -860,5 +860,257 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] Trash, Shadow reward, and occupation replay exactly
 - [x] Every connected replay has accepted exactly 42 events with no diagnostics
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/064-round-4-seat-2-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/064-round-4-seat-2-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 43 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/065-round-4-seat-2-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/065-round-4-seat-2-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 44 events with no diagnostics
+
+---
+
+## Recall opens round 5 with the observation network ready
+
+![Phone: Recall opens round 5 with the observation network ready](./screenshots/066-round-5-observation-network-phone.png)
+
+![Desktop: Recall opens round 5 with the observation network ready](./screenshots/066-round-5-observation-network-desktop.png)
+
+**Verifications:**
+
+- [x] The first-player marker rotates to the next actor
+- [x] All nine named observation posts and their board connections are present
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/067-round-5-seat-2-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/067-round-5-seat-2-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 45 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/068-round-5-seat-2-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/068-round-5-seat-2-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 46 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/069-round-5-seat-3-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/069-round-5-seat-3-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 47 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/070-round-5-seat-3-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/070-round-5-seat-3-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 48 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/071-round-5-seat-1-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/071-round-5-seat-1-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 49 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/072-round-5-seat-1-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/072-round-5-seat-1-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 50 events with no diagnostics
+
+---
+
+## Recall opens round 6 from the second half of each deck
+
+![Phone: Recall opens round 6 from the second half of each deck](./screenshots/073-round-6-second-deck-half-phone.png)
+
+![Desktop: Recall opens round 6 from the second half of each deck](./screenshots/073-round-6-second-deck-half-desktop.png)
+
+**Verifications:**
+
+- [x] Round 6 begins with five real cards for every human
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/074-round-6-seat-3-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/074-round-6-seat-3-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 51 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/075-round-6-seat-3-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/075-round-6-seat-3-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 52 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/076-round-6-seat-1-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/076-round-6-seat-1-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 53 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/077-round-6-seat-1-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/077-round-6-seat-1-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 54 events with no diagnostics
+
+---
+
+## The Scout actor receives the turn with Reconnaissance
+
+![Phone: The Scout actor receives the turn with Reconnaissance](./screenshots/078-round-6-scout-hand-phone.png)
+
+![Desktop: The Scout actor receives the turn with Reconnaissance](./screenshots/078-round-6-scout-hand-desktop.png)
+
+**Verifications:**
+
+- [x] Reconnaissance was genuinely drawn from the deterministic deck
+- [x] The acting human has the Agent-or-Reveal decision
+
+---
+
+## Pip chooses Reconnaissance
+
+![Phone: Pip chooses Reconnaissance](./screenshots/079-play-reconnaissance-phone.png)
+
+![Desktop: Pip chooses Reconnaissance](./screenshots/079-play-reconnaissance-desktop.png)
+
+**Verifications:**
+
+- [x] Reconnaissance is visibly selected from the genuine round-6 hand
+- [x] Its Stronghold and Roads icons make the available Roads destination legal
+
+---
+
+## Pip reconnoitres the War Effort road
+
+![Phone: Pip reconnoitres the War Effort road](./screenshots/080-reconnoitre-war-effort-phone.png)
+
+![Desktop: Pip reconnoitres the War Effort road](./screenshots/080-reconnoitre-war-effort-desktop.png)
+
+**Verifications:**
+
+- [x] The board reward resolves before Scout placement
+- [x] Every client sees the blocking nine-post Scout choice
+- [x] Only the acting human can choose a post
+- [x] The turn cannot advance until the Scout is placed
+- [x] Every connected replay has accepted exactly 55 events with no diagnostics
+
+---
+
+## Pip places a Scout on the Old South Road
+
+![Phone: Pip places a Scout on the Old South Road](./screenshots/081-place-old-south-road-scout-phone.png)
+
+![Desktop: Pip places a Scout on the Old South Road](./screenshots/081-place-old-south-road-scout-desktop.png)
+
+**Verifications:**
+
+- [x] Every client sees the named Scout on the selected observation post
+- [x] Exactly one Scout leaves the actor supply
+- [x] The Scout choice closes and returns the only unrevealed human to their normal decision
+- [x] The Chronicle names the persistent Scout post
+- [x] Every connected replay has accepted exactly 56 events with no diagnostics
+
+---
+
+## Pip reloads the observation network
+
+![Phone: Pip reloads the observation network](./screenshots/082-reload-scout-post-phone.png)
+
+![Desktop: Pip reloads the observation network](./screenshots/082-reload-scout-post-desktop.png)
+
+**Verifications:**
+
+- [x] Scout, Agent, and board reward replay identically
+- [x] Every connected replay has accepted exactly 56 events with no diagnostics
 
 ---
