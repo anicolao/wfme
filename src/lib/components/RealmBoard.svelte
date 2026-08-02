@@ -47,6 +47,16 @@
   $: selectedIsImplemented = AGENT_CARD_DEFINITIONS.some((card) => card.id === selectedDefinitionId);
   $: selectedName = selectedDefinitionId ? cardName(selectedDefinitionId) : '';
 
+  function battleRewardText(reward: (typeof BATTLE_CARD_DEFINITIONS)[number]['rewards'][number]): string {
+    return [
+      reward.controlLocationId ? `control ${BOARD_LAYOUT.find((space) => space.id === reward.controlLocationId)?.name}` : '',
+      reward.renown ? `${reward.renown} Renown` : '',
+      reward.gold ? `${reward.gold} Gold` : '',
+      reward.recruitCompanies ? `recruit ${reward.recruitCompanies}` : '',
+      reward.drawFate ? `draw ${reward.drawFate} Fate` : ''
+    ].filter(Boolean).join(' + ');
+  }
+
 </script>
 
 <section class="table" aria-labelledby="table-title">
@@ -79,7 +89,8 @@
       <div>
         <p class="eyebrow">Active Battle · Age {activeBattle.age} · {activeBattle.standard} Standard</p>
         <h2 id="battle-title">{activeBattle.name}</h2>
-        <p>First: 3 Gold + recruit 1 · Second: 2 Gold · Third: 1 Gold</p>
+        <p>First: {battleRewardText(activeBattle.rewards[0])} · Second: {battleRewardText(activeBattle.rewards[1])} · Third: {battleRewardText(activeBattle.rewards[2])}</p>
+        {#if activeBattle.contestedLocationId}<p><strong>Contested:</strong> {BOARD_LAYOUT.find((space) => space.id === activeBattle.contestedLocationId)?.name}</p>{/if}
       </div>
       <div class="battle-forces">
         {#each game.players as player}
@@ -104,6 +115,17 @@
         </div>
       {/if}
     </section>
+  {/if}
+
+  {#if (game.match?.turnMode === 'battle' && BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === game.match?.activeBattleId)?.contestedLocationId) || Object.values(game.match?.criticalControl ?? {}).some(Boolean)}
+    <dl class="critical-control" aria-label="Critical location control">
+      {#each ['minas-tirith', 'osgiliath', 'edoras'] as locationId}
+        <div data-testid={`control-${locationId}`}>
+          <dt>{BOARD_LAYOUT.find((space) => space.id === locationId)?.name}</dt>
+          <dd>{game.players.find((player) => player.uid === game.match?.criticalControl[locationId as keyof typeof game.match.criticalControl])?.displayName ?? 'Uncontrolled'}</dd>
+        </div>
+      {/each}
+    </dl>
   {/if}
 
   <div class="game-grid">
@@ -425,6 +447,10 @@
   .battle-forces article { display: grid; padding: .55rem; background: #f8e7ca; border-radius: .35rem; }
   .battle-forces span { font-size: .78rem; }
   .battle-actions { display: grid; gap: .4rem; }
+  .critical-control { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin: .7rem 0 0; }
+  .critical-control div { padding: .55rem .7rem; color: #29291f; background: #e2d6ba; border-radius: .4rem; }
+  .critical-control dt { font-size: .76rem; }
+  .critical-control dd { margin: .1rem 0 0; font-weight: 700; }
   .pending-choice { position: fixed; z-index: 10; left: 50%; bottom: 1rem; display: flex; width: min(calc(100% - 2rem), 60rem); justify-content: space-between; gap: 1rem; align-items: center; margin-top: 1rem; padding: 1rem; color: #28291f; background: #f2d9a6; border: 3px solid #c98a45; border-radius: .7rem; box-shadow: 0 1rem 3rem rgb(0 0 0 / 55%); transform: translateX(-50%); }
   .pending-choice h2, .pending-choice p { margin: .2rem 0; }
   .choice-actions { display: flex; gap: .5rem; }
@@ -465,6 +491,7 @@
     .players { grid-template-columns: repeat(3, minmax(9rem, 1fr)); overflow-x: auto; }
     .board { grid-template-columns: 1fr 1fr; }
     .battle-area { grid-template-columns: 1fr; }
+    .critical-control { grid-template-columns: 1fr; }
   }
   @media (max-width: 520px) {
     .board { grid-template-columns: 1fr; max-height: 34rem; overflow-y: auto; }

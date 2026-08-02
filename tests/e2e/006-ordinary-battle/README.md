@@ -1,6 +1,6 @@
 # Test: Three-player ordinary Battle
 
-Three isolated humans start in the real lobby, enter three final board spaces, deploy legal forces, Reveal swords, reload inside the Combat Fate window, pass in order, and observe ranked rewards and cleanup.
+Three isolated humans start in the real lobby, resolve an ordinary Battle with Combat Fate, then contest the Siege of Minas Tirith and establish synchronized critical-location control.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -525,5 +525,262 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] The third consecutive pass resolves rewards, cleanup, and Recall
 - [x] Every connected browser replays 29 accepted events with no diagnostics
+
+---
+
+## Rin chooses a Siege card
+
+![Phone: Rin chooses a Siege card](./screenshots/041-siege-card-1-phone.png)
+
+![Desktop: Rin chooses a Siege card](./screenshots/041-siege-card-1-desktop.png)
+
+**Verifications:**
+
+- [x] hidden-paths is enabled by the selected real card
+
+---
+
+## Rin enters hidden-paths for the Siege
+
+![Phone: Rin enters hidden-paths for the Siege](./screenshots/042-siege-space-1-phone.png)
+
+![Desktop: Rin enters hidden-paths for the Siege](./screenshots/042-siege-space-1-desktop.png)
+
+**Verifications:**
+
+- [x] All clients see the Siege occupation
+- [x] Every connected browser replays 30 accepted events with no diagnostics
+
+---
+
+## Rin keeps Seek Allies
+
+![Phone: Rin keeps Seek Allies](./screenshots/043-siege-seek-1-phone.png)
+
+![Desktop: Rin keeps Seek Allies](./screenshots/043-siege-seek-1-desktop.png)
+
+**Verifications:**
+
+- [x] Deployment follows the Journey choice
+- [x] Every connected browser replays 31 accepted events with no diagnostics
+
+---
+
+## Rin deploys to the Siege
+
+![Phone: Rin deploys to the Siege](./screenshots/044-siege-deploy-1-phone.png)
+
+![Desktop: Rin deploys to the Siege](./screenshots/044-siege-deploy-1-desktop.png)
+
+**Verifications:**
+
+- [x] The public Siege force is nonzero
+- [x] Every connected browser replays 32 accepted events with no diagnostics
+
+---
+
+## Pip chooses a Siege card
+
+![Phone: Pip chooses a Siege card](./screenshots/045-siege-card-2-phone.png)
+
+![Desktop: Pip chooses a Siege card](./screenshots/045-siege-card-2-desktop.png)
+
+**Verifications:**
+
+- [x] minas-tirith is enabled by the selected real card
+
+---
+
+## Pip enters minas-tirith for the Siege
+
+![Phone: Pip enters minas-tirith for the Siege](./screenshots/046-siege-space-2-phone.png)
+
+![Desktop: Pip enters minas-tirith for the Siege](./screenshots/046-siege-space-2-desktop.png)
+
+**Verifications:**
+
+- [x] All clients see the Siege occupation
+- [x] Every connected browser replays 33 accepted events with no diagnostics
+
+---
+
+## Pip deploys to the Siege
+
+![Phone: Pip deploys to the Siege](./screenshots/047-siege-deploy-2-phone.png)
+
+![Desktop: Pip deploys to the Siege](./screenshots/047-siege-deploy-2-desktop.png)
+
+**Verifications:**
+
+- [x] The public Siege force is nonzero
+- [x] Every connected browser replays 34 accepted events with no diagnostics
+
+---
+
+## Mara chooses a Siege card
+
+![Phone: Mara chooses a Siege card](./screenshots/048-siege-card-3-phone.png)
+
+![Desktop: Mara chooses a Siege card](./screenshots/048-siege-card-3-desktop.png)
+
+**Verifications:**
+
+- [x] ranger-mustering is enabled by the selected real card
+
+---
+
+## Mara enters ranger-mustering for the Siege
+
+![Phone: Mara enters ranger-mustering for the Siege](./screenshots/049-siege-space-3-phone.png)
+
+![Desktop: Mara enters ranger-mustering for the Siege](./screenshots/049-siege-space-3-desktop.png)
+
+**Verifications:**
+
+- [x] All clients see the Siege occupation
+- [x] Every connected browser replays 35 accepted events with no diagnostics
+
+---
+
+## Mara keeps the Ranger cards
+
+![Phone: Mara keeps the Ranger cards](./screenshots/050-siege-ranger-3-phone.png)
+
+![Desktop: Mara keeps the Ranger cards](./screenshots/050-siege-ranger-3-desktop.png)
+
+**Verifications:**
+
+- [x] Deployment follows the ordered Ranger choice
+- [x] Every connected browser replays 36 accepted events with no diagnostics
+
+---
+
+## Mara deploys to the Siege
+
+![Phone: Mara deploys to the Siege](./screenshots/051-siege-deploy-3-phone.png)
+
+![Desktop: Mara deploys to the Siege](./screenshots/051-siege-deploy-3-desktop.png)
+
+**Verifications:**
+
+- [x] The public Siege force is nonzero
+- [x] Every connected browser replays 37 accepted events with no diagnostics
+
+---
+
+## Rin Reveals for the Siege
+
+![Phone: Rin Reveals for the Siege](./screenshots/052-siege-reveal-1-phone.png)
+
+![Desktop: Rin Reveals for the Siege](./screenshots/052-siege-reveal-1-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row is visible
+- [x] Every connected browser replays 38 accepted events with no diagnostics
+
+---
+
+## Rin finishes the Siege Reveal
+
+![Phone: Rin finishes the Siege Reveal](./screenshots/053-siege-finish-1-phone.png)
+
+![Desktop: Rin finishes the Siege Reveal](./screenshots/053-siege-finish-1-desktop.png)
+
+**Verifications:**
+
+- [x] Turn authority advances
+- [x] Every connected browser replays 39 accepted events with no diagnostics
+
+---
+
+## Pip Reveals for the Siege
+
+![Phone: Pip Reveals for the Siege](./screenshots/054-siege-reveal-2-phone.png)
+
+![Desktop: Pip Reveals for the Siege](./screenshots/054-siege-reveal-2-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row is visible
+- [x] Every connected browser replays 40 accepted events with no diagnostics
+
+---
+
+## Pip finishes the Siege Reveal
+
+![Phone: Pip finishes the Siege Reveal](./screenshots/055-siege-finish-2-phone.png)
+
+![Desktop: Pip finishes the Siege Reveal](./screenshots/055-siege-finish-2-desktop.png)
+
+**Verifications:**
+
+- [x] Turn authority advances
+- [x] Every connected browser replays 41 accepted events with no diagnostics
+
+---
+
+## Mara Reveals for the Siege
+
+![Phone: Mara Reveals for the Siege](./screenshots/056-siege-reveal-3-phone.png)
+
+![Desktop: Mara Reveals for the Siege](./screenshots/056-siege-reveal-3-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row is visible
+- [x] Every connected browser replays 42 accepted events with no diagnostics
+
+---
+
+## Mara finishes the Siege Reveal
+
+![Phone: Mara finishes the Siege Reveal](./screenshots/057-siege-finish-3-phone.png)
+
+![Desktop: Mara finishes the Siege Reveal](./screenshots/057-siege-finish-3-desktop.png)
+
+**Verifications:**
+
+- [x] The Siege Combat window opens
+- [x] Every connected browser replays 43 accepted events with no diagnostics
+
+---
+
+## Rin passes in the Siege
+
+![Phone: Rin passes in the Siege](./screenshots/058-siege-pass-1-phone.png)
+
+![Desktop: Rin passes in the Siege](./screenshots/058-siege-pass-1-desktop.png)
+
+**Verifications:**
+
+- [x] Pass authority advances among Siege participants
+- [x] Every connected browser replays 44 accepted events with no diagnostics
+
+---
+
+## Pip passes in the Siege
+
+![Phone: Pip passes in the Siege](./screenshots/059-siege-pass-2-phone.png)
+
+![Desktop: Pip passes in the Siege](./screenshots/059-siege-pass-2-desktop.png)
+
+**Verifications:**
+
+- [x] Pass authority advances among Siege participants
+- [x] Every connected browser replays 45 accepted events with no diagnostics
+
+---
+
+## Mara passes in the Siege
+
+![Phone: Mara passes in the Siege](./screenshots/060-siege-pass-3-phone.png)
+
+![Desktop: Mara passes in the Siege](./screenshots/060-siege-pass-3-desktop.png)
+
+**Verifications:**
+
+- [x] The sole winner controls Minas Tirith
+- [x] Every connected browser replays 46 accepted events with no diagnostics
 
 ---

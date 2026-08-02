@@ -17,7 +17,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | Commander identities | 8 / 8 | Unique lobby identities, explicitly power-free |
 | Commander powers | 0 / 16 | No power text is presented as active |
 | Fate physical instances | 30 / 30; effects 2 / 30 | Deterministically shuffled deck, private hands, public discard, keep-one choice, deterministic transfer and cycle, conservation, and replay; both Sudden Charge copies are fully playable during Combat |
-| Battle cards | 1 / 16 | Crossing of the Isen has final setup, Standard, all three ranked rewards, ownership/discard, and cleanup |
+| Battle cards | 2 / 16 | Crossing of the Isen and Siege of Minas Tirith have final setup, Standards, all ranked rewards, ownership/discard, and cleanup |
 | Chronicle, War Effort, and Rival content | 0 | Introduced only with the tracer that makes each item executable |
 | Round phases | Agent, Reveal, ordinary Battle, Recall | Combat passing and ranked resolution are live; Combat Fate effects, critical control, and Riches arrive in subsequent vertical slices |
 | Complete matches | 0 | Endgame and rematch are not yet available |
@@ -39,6 +39,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | Remaining faction destinations | Pits of Isengard and Deep Roads enforce paid Mithril costs, standing, private Fate, finite recruitment, and Battle labeling; Hidden Paths draws privately; Ranger Mustering enforces Provision payment and an actor-only hand/discard trash choice | `002-dwarven-caravans` continues through real Roads/Council funding, visits all four destinations with matching cards, resolves ordered choices, validates all clients, and reloads |
 | Minas Tirith and ordinary Battle | final Stronghold recruit/draw ordering; deployment of all current-round recruits plus at most two existing garrison Companies; unit-gated swords; first-player Combat pass order; three/four-player ranking and tie rules; finite rewards; winner ownership; no-winner discard; cleanup to supply; deterministic replay | `006-ordinary-battle` uses three isolated humans at three Battle destinations, resolves each ordered deployment, Reveals swords, reloads during Combat Fate, passes clockwise, validates ranked rewards and cleanup, and captures 37 phone/desktop frames |
 | Sudden Charge Combat Fate | private two-copy identity, Combat-only authority, +3 temporary Strength, public discard, continued same-player action, pass-streak reset, replay, and hidden observer UI | `006-ordinary-battle` earns the card through Hall of Fire, reloads before play, validates the exact Strength delta on three clients, and then completes the same Battle through visible passes |
+| Siege and Minas Tirith control | contested-location display, sole-winner control, printed Renown, runner-up Fate/Gold, persistent controller identity, controller visit income, and deterministic replay | `006-ordinary-battle` continues into round two, deploys three humans through real spaces, resolves the Siege, and validates the same Minas Tirith controller on every client; reducer replay proves the controller's later +1 Gold visit trigger |
 | Standing 2 respect and persistent Renown | multi-round threshold replay test | gestures 055–057 revisit Dwarven Caravans after Recall |
 | Dwarven standing 4 favor, Alliance claim, strict-lead transfer | claim/tie/transfer and Renown ownership tests | gestures 094–113 reach standing three, conserve the faction card, claim publicly, and reload |
 | Take Up a War Effort draw and disabled-module +2 Gold | card-zone conservation test | gestures 016–017 validate private draw and public reward |
@@ -57,4 +58,4 @@ This is the construction ledger for the one canonical game at the repository roo
 
 ## Next accepted tracer
 
-Tracer 5 continues with critical-location control and Standards as separate Battle tracers, followed by the remaining Combat Fate effects.
+Tracer 5 continues with Standard pairing, next-round defender deployment, and the remaining Combat Fate effects.

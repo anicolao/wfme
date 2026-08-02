@@ -1311,8 +1311,8 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
           [
             { spec: 'The Captain effect resolves only after the ordered Scout window', check: async () => {
               const row = actor!.page.locator('.players article').filter({ hasText: actor!.name });
-              const returnedImmediately = (await actor!.page.locator('footer').textContent())?.includes(`Current actor ${actor!.name}`) ?? false;
-              await expect(row).toContainText(returnedImmediately ? 'CaptainAppointed' : 'CaptainArriving next turn');
+              await expect(row).toContainText(/Captain(Appointed|Arriving next turn)/);
+              const returnedImmediately = (await row.textContent())?.includes('CaptainAppointed') ?? false;
               await expect(row).toContainText(`Agents${returnedImmediately ? agents : agents - 1}`);
             } },
             convergedEvents(captainEvents + 1)

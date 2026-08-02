@@ -1098,5 +1098,57 @@ describe('integrated Agent placement replay', () => {
     expect(resolved.match!.players[expectedWinner].wonBattleIds).toEqual(['crossing-isen']);
     expect(Object.values(resolved.match!.battleCompanies)).toEqual([0, 0, 0]);
     expect(resolved.match!.players[expectedWinner].resources.gold).toBeGreaterThanOrEqual(3);
+
+    used.clear();
+    for (let guard = 0; guard < 80; guard += 1) {
+      const state = reduceGame(stream);
+      const match = state.match!;
+      if (match.turnMode === 'battle') break;
+      const current = currentPlayerUid(state)!;
+      const pending = match.pendingChoice;
+      if (pending?.kind === 'battle-deployment') append(current, 'choice/resolved', { choice: `deploy:${pending.maximum}` });
+      else if (pending?.kind === 'ranger-mustering-trash') append(current, 'choice/resolved', { choice: 'decline-trash' });
+      else if (pending?.kind === 'seek-allies') append(current, 'choice/resolved', { choice: 'keep-card' });
+      else if (pending?.kind === 'place-scout') {
+        const emptyPost = OBSERVATION_POSTS.find((post) => !match.boardScouts[post.id])!;
+        append(current, 'scout/placed', { postId: emptyPost.id });
+      } else if (match.turnMode === 'reveal') append(current, 'reveal/finished', {});
+      else if ((match.battleCompanies[current] ?? 0) > 0) append(current, 'turn/revealed', {});
+      else {
+        const placement = match.players[current].hand.flatMap((card) => legalAgentSpaces(state, current, card.id)
+          .filter((spaceId) => battleSpaces.includes(spaceId) && !used.has(spaceId))
+          .map((spaceId) => ({ card, spaceId })))[0];
+        expect(placement, `${current} must reach round two's contested Battle`).toBeDefined();
+        used.add(placement!.spaceId);
+        append(current, 'agent/placed', { cardInstanceId: placement!.card.id, spaceId: placement!.spaceId });
+      }
+    }
+    expect(reduceGame(stream).match!.activeBattleId).toBe('siege-minas-tirith');
+    while (reduceGame(stream).match!.turnMode === 'battle') {
+      const state = reduceGame(stream);
+      append(currentPlayerUid(state)!, 'battle/passed', {});
+    }
+    const afterSiege = reduceGame(stream);
+    const controller = afterSiege.match!.criticalControl['minas-tirith'];
+    expect(controller).not.toBeNull();
+    expect(afterSiege.match!.players[controller!].renown).toBeGreaterThanOrEqual(1);
+    expect(afterSiege.match!.players[controller!].wonBattleIds).toContain('siege-minas-tirith');
+
+    const controllerGold = afterSiege.match!.players[controller!].resources.gold;
+    for (let guard = 0; guard < 12; guard += 1) {
+      const state = reduceGame(stream);
+      if (state.match!.boardAgents['minas-tirith']) break;
+      const current = currentPlayerUid(state)!;
+      if (state.match!.turnMode === 'reveal') append(current, 'reveal/finished', {});
+      else {
+        const player = state.match!.players[current];
+        const strongholdCard = player.hand.find((card) => legalAgentSpaces(state, current, card.id).includes('minas-tirith'));
+        if (strongholdCard) append(current, 'agent/placed', { cardInstanceId: strongholdCard.id, spaceId: 'minas-tirith' });
+        else append(current, 'turn/revealed', {});
+      }
+    }
+    const afterVisit = reduceGame(stream);
+    expect(afterVisit.match!.boardAgents['minas-tirith']).toBeDefined();
+    expect(afterVisit.match!.players[controller!].resources.gold).toBe(controllerGold + 1);
   });
 });

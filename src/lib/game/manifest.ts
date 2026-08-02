@@ -141,6 +141,9 @@ export const RESERVE_CARD_DEFINITIONS: readonly ReserveCardDefinition[] = [
 export type BattleReward = {
   gold?: number;
   recruitCompanies?: number;
+  renown?: number;
+  drawFate?: number;
+  controlLocationId?: 'minas-tirith' | 'osgiliath' | 'edoras';
 };
 
 export type BattleCardDefinition = {
@@ -165,6 +168,19 @@ export const BATTLE_CARD_DEFINITIONS: readonly BattleCardDefinition[] = [
       { gold: 3, recruitCompanies: 1 },
       { gold: 2 },
       { gold: 1 }
+    ],
+    reviewedCapabilities: ['battle-resolution']
+  },
+  {
+    id: 'siege-minas-tirith',
+    name: 'Siege of Minas Tirith',
+    age: 2,
+    standard: 'White Tree',
+    contestedLocationId: 'minas-tirith',
+    rewards: [
+      { controlLocationId: 'minas-tirith', renown: 1 },
+      { gold: 3, drawFate: 1 },
+      { gold: 2 }
     ],
     reviewedCapabilities: ['battle-resolution']
   }

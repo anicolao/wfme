@@ -80,6 +80,7 @@ export type MatchState = {
   battleBonusStrength: Record<string, number>;
   consecutiveBattlePasses: number;
   battleHistory: Array<{ battleId: string; winnerUid: string | null; strengths: Record<string, number> }>;
+  criticalControl: Record<'minas-tirith' | 'osgiliath' | 'edoras', string | null>;
   queuedBattleDeployment: { actorUid: string; spaceId: string } | null;
   pendingChoice: null | {
     kind: 'battle-deployment';
@@ -234,6 +235,7 @@ function createMatch(state: GameState, seed: string): MatchState {
     battleBonusStrength: {},
     consecutiveBattlePasses: 0,
     battleHistory: [],
+    criticalControl: { 'minas-tirith': null, osgiliath: null, edoras: null },
     queuedBattleDeployment: null,
     pendingChoice: null,
     reserveSupply: { 'muster-host': 8 },
@@ -362,6 +364,13 @@ function recallAndBeginNextRound(match: MatchState): void {
   match.firstPlayerIndex = (match.firstPlayerIndex + 1) % match.playerOrder.length;
   match.currentPlayerIndex = match.firstPlayerIndex;
   match.activeBattleId = match.battleDeck.shift() ?? null;
+  const nextBattle = BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === match.activeBattleId);
+  const defender = nextBattle?.contestedLocationId ? match.criticalControl[nextBattle.contestedLocationId] : null;
+  if (defender && match.players[defender].companies.supply > 0) {
+    match.players[defender].companies.supply -= 1;
+    match.battleCompanies[defender] = (match.battleCompanies[defender] ?? 0) + 1;
+    match.activity.push(`The controller of ${BOARD_SPACE_DEFINITIONS.find((space) => space.id === nextBattle?.contestedLocationId)?.name} deploys 1 defending Company from supply.`);
+  }
   match.activity.push(`Recall completes. Round ${match.round} begins.`);
 }
 
@@ -418,6 +427,12 @@ function applyBattleReward(match: MatchState, uid: string, rank: 0 | 1 | 2): voi
   const player = match.players[uid];
   if (reward.gold) player.resources.gold += reward.gold;
   if (reward.recruitCompanies) recruitCompanies(player, reward.recruitCompanies);
+  if (reward.renown) player.renown += reward.renown;
+  if (reward.drawFate) {
+    const drawn = match.fateDeck.splice(0, reward.drawFate);
+    player.fateHand.push(...drawn);
+  }
+  if (reward.controlLocationId) match.criticalControl[reward.controlLocationId] = uid;
 }
 
 function resolveBattle(match: MatchState): void {
@@ -801,6 +816,13 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         : space.effect.firstCostGold;
       if (player.captainUnlocked || player.captainAgentPending || player.resources.gold < cost) return 'illegal Agent placement';
       player.resources.gold -= cost;
+    }
+    if (space.id === 'minas-tirith') {
+      const controllerUid = state.match.criticalControl['minas-tirith'];
+      if (controllerUid) {
+        state.match.players[controllerUid].resources.gold += 1;
+        state.match.activity.push(`${state.players.find((candidate) => candidate.uid === controllerUid)?.displayName ?? 'The controller'} gains 1 Gold from Minas Tirith.`);
+      }
     }
     const occupants = state.match.boardAgents[spaceId] ?? [];
     if (occupants.length > 0) {

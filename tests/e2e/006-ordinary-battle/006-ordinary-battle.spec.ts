@@ -198,14 +198,88 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
         else for (const observer of seats) {
           await expect(observer.page.getByText('Round 2 · Agent turns')).toBeVisible();
           await expect(observer.page.getByTestId('activity-log')).toContainText('Crossing of the Isen is won');
-          await expect(observer.page.getByTestId('active-battle')).toHaveCount(0);
+          await expect(observer.page.getByTestId('active-battle')).toContainText('Siege of Minas Tirith');
+          await expect(observer.page.getByTestId('active-battle')).toContainText('Contested: Minas Tirith');
+        }
+      } }, converged(accepted + 1)]);
+    }
+
+    usedSpaces.clear();
+    for (let deployment = 0; deployment < 3; deployment += 1) {
+      const actor = await currentSeat();
+      let chosenSpace = '';
+      for (const cardName of ['Armed Escort', 'Diplomatic Mission', 'Seek Allies', 'Reconnaissance', 'Muster the Host']) {
+        const candidate = actor.page.getByTestId('private-hand').getByRole('button', { name: new RegExp(`^${cardName}`) }).first();
+        if (!await candidate.isVisible().catch(() => false)) continue;
+        await candidate.click();
+        for (const spaceId of ['minas-tirith', 'hidden-paths', 'ranger-mustering']) {
+          if (!usedSpaces.has(spaceId) && await actor.page.getByTestId(`space-${spaceId}`).isEnabled()) { chosenSpace = spaceId; break; }
+        }
+        if (chosenSpace) break;
+      }
+      if (!chosenSpace) throw new Error(`${actor.name} has no round-two Battle destination`);
+      usedSpaces.add(chosenSpace);
+      await steps.observe(actor.page, `siege-card-${deployment + 1}`, `${actor.name} chooses a Siege card`, [
+        { spec: `${chosenSpace} is enabled by the selected real card`, check: async () => await expect(actor.page.getByTestId(`space-${chosenSpace}`)).toBeEnabled() }
+      ]);
+      await steps.gesture(actor.page, `siege-space-${deployment + 1}`, `${actor.name} enters ${chosenSpace} for the Siege`, async () => {
+        await actor.page.getByTestId(`space-${chosenSpace}`).click(); accepted += 1;
+      }, [{ spec: 'All clients see the Siege occupation', check: async () => {
+        for (const observer of seats) await expect(observer.page.getByTestId(`space-${chosenSpace}`)).toContainText(actor.name);
+      } }, converged(accepted + 1)]);
+      if (await actor.page.getByRole('heading', { name: 'Trash a card from hand or discard?' }).isVisible().catch(() => false)) {
+        await steps.gesture(actor.page, `siege-ranger-${deployment + 1}`, `${actor.name} keeps the Ranger cards`, async () => {
+          await actor.page.getByRole('button', { name: 'Keep all cards' }).click(); accepted += 1;
+        }, [{ spec: 'Deployment follows the ordered Ranger choice', check: async () => await expect(actor.page.getByRole('heading', { name: 'Deploy Companies to the active Battle?' })).toBeVisible() }, converged(accepted + 1)]);
+      }
+      if (await actor.page.getByTestId('scout-network').getByText('Choose an empty post for the Scout.').isVisible().catch(() => false)) {
+        const post = actor.page.locator('[data-testid^="post-"]:enabled').first();
+        await steps.gesture(actor.page, `siege-scout-${deployment + 1}`, `${actor.name} places the ordered Scout`, async () => {
+          await post.click(); accepted += 1;
+        }, [{ spec: 'Deployment follows the Scout placement', check: async () => await expect(actor.page.getByRole('heading', { name: 'Deploy Companies to the active Battle?' })).toBeVisible() }, converged(accepted + 1)]);
+      }
+      if (await actor.page.getByRole('heading', { name: 'Trash Seek Allies?' }).isVisible().catch(() => false)) {
+        await steps.gesture(actor.page, `siege-seek-${deployment + 1}`, `${actor.name} keeps Seek Allies`, async () => {
+          await actor.page.getByRole('button', { name: 'Keep Seek Allies' }).click(); accepted += 1;
+        }, [{ spec: 'Deployment follows the Journey choice', check: async () => await expect(actor.page.getByRole('heading', { name: 'Deploy Companies to the active Battle?' })).toBeVisible() }, converged(accepted + 1)]);
+      }
+      const deployButtons = actor.page.getByRole('button', { name: /^Deploy \d+$/ });
+      const deployButton = deployButtons.last();
+      await steps.gesture(actor.page, `siege-deploy-${deployment + 1}`, `${actor.name} deploys to the Siege`, async () => {
+        await deployButton.click(); accepted += 1;
+      }, [{ spec: 'The public Siege force is nonzero', check: async () => {
+        for (const observer of seats) await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: actor.name })).not.toContainText('0 Companies');
+      } }, converged(accepted + 1)]);
+    }
+
+    for (let reveal = 0; reveal < 3; reveal += 1) {
+      const actor = await currentSeat();
+      await steps.gesture(actor.page, `siege-reveal-${reveal + 1}`, `${actor.name} Reveals for the Siege`, async () => {
+        await actor.page.getByRole('button', { name: 'Reveal remaining hand' }).click(); accepted += 1;
+      }, [{ spec: 'The public Muster row is visible', check: async () => {
+        for (const observer of seats) await expect(observer.page.getByTestId('reveal-panel')).toContainText(`${actor.name} Reveals`);
+      } }, converged(accepted + 1)]);
+      await steps.gesture(actor.page, `siege-finish-${reveal + 1}`, `${actor.name} finishes the Siege Reveal`, async () => {
+        await actor.page.getByRole('button', { name: 'Finish Reveal' }).click(); accepted += 1;
+      }, [{ spec: reveal < 2 ? 'Turn authority advances' : 'The Siege Combat window opens', check: async () => {
+        if (reveal === 2) for (const observer of seats) await expect(observer.page.getByText(/Round 2 · Combat Fate/)).toBeVisible();
+      } }, converged(accepted + 1)]);
+    }
+    for (let pass = 0; pass < 3; pass += 1) {
+      const actor = await currentSeat();
+      await steps.gesture(actor.page, `siege-pass-${pass + 1}`, `${actor.name} passes in the Siege`, async () => {
+        await actor.page.getByTestId('pass-battle').click(); accepted += 1;
+      }, [{ spec: pass < 2 ? 'Pass authority advances among Siege participants' : 'The sole winner controls Minas Tirith', check: async () => {
+        if (pass === 2) for (const observer of seats) {
+          await expect(observer.page.getByTestId('control-minas-tirith')).not.toContainText('Uncontrolled');
+          await expect(observer.page.getByTestId('activity-log')).toContainText('Siege of Minas Tirith is won');
         }
       } }, converged(accepted + 1)]);
     }
 
     steps.generateDocs(
       'Three-player ordinary Battle',
-      'Three isolated humans start in the real lobby, enter three final board spaces, deploy legal forces, Reveal swords, reload inside the Combat Fate window, pass in order, and observe ranked rewards and cleanup.'
+      'Three isolated humans start in the real lobby, resolve an ordinary Battle with Combat Fate, then contest the Siege of Minas Tirith and establish synchronized critical-location control.'
     );
   } finally {
     await guestAContext.close();
