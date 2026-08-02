@@ -177,6 +177,7 @@ export type BoardSpaceDefinition = BoardSpaceIdentity & {
     | { kind: 'dwarven-caravans'; gainStanding: 'dwarven'; gainProvisions: 1 }
     | { kind: 'tribute-shadow'; gainStanding: 'shadow'; gainGold: 2 }
     | { kind: 'hidden-counsel'; gainStanding: 'elven'; drawFate: 1; stealFromOpponentsAtFateCount: 4 }
+    | { kind: 'mirror-galadriel'; costMithril: 1; gainStanding: 'elven'; drawCards: 1; placeScouts: 1 }
     | { kind: 'take-war-effort'; drawCards: 1; gainGoldWithoutModule: 2 }
     | { kind: 'muster-free-peoples'; recruitCompanies: 2; optionalGoldCost: 2; optionalGainProvisions: 1 }
     | { kind: 'hall-of-fire'; drawFate: 1; revealInfluence: 1 }
@@ -207,6 +208,14 @@ export const BOARD_SPACE_DEFINITIONS: readonly BoardSpaceDefinition[] = [
     region: 'Elven Realms',
     placementIcons: ['Elven'],
     effect: { kind: 'hidden-counsel', gainStanding: 'elven', drawFate: 1, stealFromOpponentsAtFateCount: 4 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'mirror-galadriel',
+    name: 'Mirror of Galadriel',
+    region: 'Elven Realms',
+    placementIcons: ['Elven'],
+    effect: { kind: 'mirror-galadriel', costMithril: 1, gainStanding: 'elven', drawCards: 1, placeScouts: 1 },
     reviewedCapabilities: ['agent-placement']
   },
   {

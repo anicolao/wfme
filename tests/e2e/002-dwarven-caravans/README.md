@@ -1,6 +1,6 @@
 # Test: Three-player Agent, deck-building, and Scout tracer
 
-Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross faction thresholds, trash a card, use both Scout timings, and publicly claim a faction Alliance.
+Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross faction thresholds, trash a card, use both Scout timings, publicly claim a faction Alliance, earn Mithril, and complete the paid Mirror of Galadriel action.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -212,7 +212,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] All three browsers transition to the production board
 - [x] All 22 final board destinations are structurally present
-- [x] Exactly seven complete destinations are advertised as playable
+- [x] Exactly eight complete destinations are advertised as playable
 - [x] Each seat exposes exactly its own five-card hand
 - [x] Every connected replay has accepted exactly 10 events with no diagnostics
 
@@ -1800,5 +1800,150 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] Council ownership, Fate count, resources, recruitment, and occupation replay exactly
 - [x] Every connected replay has accepted exactly 95 events with no diagnostics
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/135-round-11-seat-2-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/135-round-11-seat-2-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 96 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/136-round-11-seat-2-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/136-round-11-seat-2-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 97 events with no diagnostics
+
+---
+
+## Recall opens round 12 with earned Mithril
+
+![Phone: Recall opens round 12 with earned Mithril](./screenshots/137-round-12-mirror-opportunity-phone.png)
+
+![Desktop: Recall opens round 12 with earned Mithril](./screenshots/137-round-12-mirror-opportunity-desktop.png)
+
+**Verifications:**
+
+- [x] The Council reward persists into a fresh round with every Agent recalled
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/138-round-12-seat-3-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/138-round-12-seat-3-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 98 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/139-round-12-seat-3-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/139-round-12-seat-3-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 99 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/140-round-12-seat-1-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/140-round-12-seat-1-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 100 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/141-round-12-seat-1-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/141-round-12-seat-1-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 101 events with no diagnostics
+
+---
+
+## Pip chooses a real Elven-access card
+
+![Phone: Pip chooses a real Elven-access card](./screenshots/142-choose-mirror-faction-card-phone.png)
+
+![Desktop: Pip chooses a real Elven-access card](./screenshots/142-choose-mirror-faction-card-desktop.png)
+
+**Verifications:**
+
+- [x] Mirror of Galadriel is enabled only after the player earned Mithril
+- [x] The board advertises the exact payment and ordered rewards
+
+---
+
+## Pip visits the Mirror of Galadriel
+
+![Phone: Pip visits the Mirror of Galadriel](./screenshots/143-visit-mirror-galadriel-phone.png)
+
+![Desktop: Pip visits the Mirror of Galadriel](./screenshots/143-visit-mirror-galadriel-desktop.png)
+
+**Verifications:**
+
+- [x] Every client sees the Elven Agent and paid Mithril
+- [x] The private deck draw replaces the Journey card for five cards in hand
+- [x] The mandatory Scout placement blocks turn advance for every client
+- [x] Every connected replay has accepted exactly 102 events with no diagnostics
+
+---
+
+## Pip sends the Mirror Scout to the Last Homely House
+
+![Phone: Pip sends the Mirror Scout to the Last Homely House](./screenshots/144-place-mirror-scout-phone.png)
+
+![Desktop: Pip sends the Mirror Scout to the Last Homely House](./screenshots/144-place-mirror-scout-desktop.png)
+
+**Verifications:**
+
+- [x] All humans see the finite Scout at the chosen empty post
+- [x] The Chronicle orders the board visit before the required Scout placement
+- [x] Every connected replay has accepted exactly 103 events with no diagnostics
+
+---
+
+## Pip reloads the completed Mirror visit
+
+![Phone: Pip reloads the completed Mirror visit](./screenshots/145-reload-mirror-galadriel-phone.png)
+
+![Desktop: Pip reloads the completed Mirror visit](./screenshots/145-reload-mirror-galadriel-desktop.png)
+
+**Verifications:**
+
+- [x] Payment, Elven standing, draw count, Agent, and Scout replay exactly
+- [x] Every connected replay has accepted exactly 103 events with no diagnostics
 
 ---

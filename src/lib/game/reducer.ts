@@ -75,6 +75,7 @@ export type MatchState = {
     actorUid: string;
     drawnFateIds: readonly string[];
     followupSeekAlliesCardId: string | null;
+    followupPlaceScout: boolean;
     options: readonly string[];
   } | {
     kind: 'seek-allies';
@@ -84,6 +85,7 @@ export type MatchState = {
   } | {
     kind: 'place-scout';
     actorUid: string;
+    followupSeekAlliesCardId: string | null;
     options: readonly [];
   } | {
     kind: 'gather-intelligence';
@@ -209,6 +211,7 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
   if (!definition) return [];
   return BOARD_SPACE_DEFINITIONS.filter((space) => {
     if (space.effect.kind === 'white-council-seat' && player.resources.gold < space.effect.costGold) return false;
+    if (space.effect.kind === 'mirror-galadriel' && player.resources.mithril < space.effect.costMithril) return false;
     const connectedOwnScout = OBSERVATION_POSTS.some(
       (post) => post.connectedSpaceIds.includes(space.id) && match.boardScouts[post.id] === actorUid
     );
@@ -273,7 +276,8 @@ function gainStanding(
   match: MatchState,
   player: MatchPlayer,
   faction: 'shadow' | 'dwarven' | 'elven' | 'wild',
-  followupSeekAlliesCardId: string | null = null
+  followupSeekAlliesCardId: string | null = null,
+  followupPlaceScout = false
 ): void {
   const before = player.standing[faction];
   player.standing[faction] = Math.min(6, before + 1);
@@ -291,6 +295,7 @@ function gainStanding(
           actorUid: player.uid,
           drawnFateIds: drawn.map((fate) => fate.id),
           followupSeekAlliesCardId,
+          followupPlaceScout,
           options: drawn.map((fate) => `keep:${fate.id}`)
         };
       }
@@ -348,6 +353,16 @@ function resolveAgentEffects(
       transfers += 1;
     }
     resolution = `gaining 1 Elven standing, drawing ${drawn ? '1 Fate' : 'no Fate'}, and receiving ${transfers} Fate from opponents holding four or more`;
+  } else if (space.effect.kind === 'mirror-galadriel') {
+    gainStanding(match, player, 'elven', seekAlliesCardId, true);
+    const drawn = player.drawPile.shift();
+    if (drawn) player.hand.push(drawn);
+    resolution = `gaining 1 Elven standing, drawing ${drawn ? '1 card' : 'no card'}, and preparing to place 1 Scout`;
+    if (!match.pendingChoice) {
+      match.pendingChoice = {
+        kind: 'place-scout', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId, options: []
+      };
+    }
   } else if (space.effect.kind === 'take-war-effort') {
     const drawn = player.drawPile.shift();
     if (drawn) player.hand.push(drawn);
@@ -389,6 +404,7 @@ function resolveAgentEffects(
     match.pendingChoice = {
       kind: 'place-scout',
       actorUid: player.uid,
+      followupSeekAlliesCardId: null,
       options: []
     };
   }
@@ -483,6 +499,10 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       if (player.resources.gold < space.effect.costGold) return 'illegal Agent placement';
       player.resources.gold -= space.effect.costGold;
     }
+    if (space.effect.kind === 'mirror-galadriel') {
+      if (player.resources.mithril < space.effect.costMithril) return 'illegal Agent placement';
+      player.resources.mithril -= space.effect.costMithril;
+    }
     const occupants = state.match.boardAgents[spaceId] ?? [];
     if (occupants.length > 0) {
       const post = typeof infiltrationPostId === 'string'
@@ -571,7 +591,12 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       const [discarded] = player.fateHand.splice(discardedIndex, 1);
       state.match.fateDiscard.push(discarded);
       state.match.activity.push(`${actor.displayName} keeps one of the two Fate cards granted by Elven favor and discards the other.`);
-      if (pending.followupSeekAlliesCardId) {
+      if (pending.followupPlaceScout) {
+        state.match.pendingChoice = {
+          kind: 'place-scout', actorUid: player.uid,
+          followupSeekAlliesCardId: pending.followupSeekAlliesCardId, options: []
+        };
+      } else if (pending.followupSeekAlliesCardId) {
         state.match.pendingChoice = {
           kind: 'seek-allies',
           actorUid: player.uid,
@@ -638,9 +663,16 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     if (state.match.boardScouts[postId]) return 'illegal Scout placement';
     player.scouts.supply -= 1;
     state.match.boardScouts[postId] = event.actorUid;
-    state.match.pendingChoice = null;
     state.match.activity.push(`${actor.displayName} places a Scout at ${OBSERVATION_POSTS.find((post) => post.id === postId)!.name}.`);
-    advanceToNextAgentPlayer(state.match);
+    if (pending.followupSeekAlliesCardId) {
+      state.match.pendingChoice = {
+        kind: 'seek-allies', actorUid: player.uid, cardInstanceId: pending.followupSeekAlliesCardId,
+        options: ['trash-self', 'keep-card']
+      };
+    } else {
+      state.match.pendingChoice = null;
+      advanceToNextAgentPlayer(state.match);
+    }
     return null;
   }
 

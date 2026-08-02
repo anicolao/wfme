@@ -409,7 +409,7 @@ describe('integrated Agent placement replay', () => {
       cardInstanceId: reconnaissance.id, spaceId: 'take-war-effort'
     }, 11);
     const pending = reduceGame([...events, placement]);
-    expect(pending.match!.pendingChoice).toEqual({ kind: 'place-scout', actorUid: actor, options: [] });
+    expect(pending.match!.pendingChoice).toEqual({ kind: 'place-scout', actorUid: actor, followupSeekAlliesCardId: null, options: [] });
     expect(pending.match!.players[actor].scouts.supply).toBe(3);
     expect(currentPlayerUid(pending)).toBe(actor);
 
@@ -671,6 +671,52 @@ describe('integrated Agent placement replay', () => {
     expect(repeated.match!.players[target].resources.mithril).toBe(2);
     expect(repeated.match!.players[target].fateHand).toHaveLength(1);
     expect(repeated.match!.fateDeck).toHaveLength(29);
+
+    let beforeMirror: ReturnType<typeof reduceGame> | null = null;
+    let mirrorCardId = '';
+    let expectedDrawId = '';
+    for (let step = 0; step < 100; step += 1) {
+      const state = reduceGame(stream);
+      const current = currentPlayerUid(state)!;
+      const player = state.match!.players[current];
+      if (state.match!.pendingChoice?.kind === 'seek-allies') {
+        append(state, 'choice/resolved', { choice: 'keep-card' });
+      } else if (state.match!.turnMode === 'reveal') {
+        append(state, 'reveal/finished', {});
+      } else if (current === target) {
+        const factionCard = player.hand.find((card) => card.definitionId === 'diplomatic-mission' || card.definitionId === 'seek-allies');
+        if (factionCard && player.availableAgents > 0 && !state.match!.boardAgents['mirror-galadriel']) {
+          beforeMirror = state;
+          mirrorCardId = factionCard.id;
+          expectedDrawId = player.drawPile[0]?.id ?? '';
+          append(state, 'agent/placed', { cardInstanceId: factionCard.id, spaceId: 'mirror-galadriel' });
+          break;
+        }
+        append(state, 'turn/revealed', {});
+      } else append(state, 'turn/revealed', {});
+    }
+    expect(beforeMirror, 'the real deck cycle must reach an Elven-access card').not.toBeNull();
+    expect(legalAgentSpaces(beforeMirror!, target, mirrorCardId)).toContain('mirror-galadriel');
+    const awaitingScout = reduceGame(stream);
+    expect(awaitingScout.diagnostics).toEqual([]);
+    expect(awaitingScout.match!.players[target].resources.mithril).toBe(1);
+    expect(awaitingScout.match!.players[target].standing.elven).toBe(1);
+    expect(awaitingScout.match!.players[target].hand.some((card) => card.id === expectedDrawId)).toBe(true);
+    expect(awaitingScout.match!.pendingChoice).toMatchObject({
+      kind: 'place-scout', actorUid: target
+    });
+    expect(currentPlayerUid(awaitingScout)).toBe(target);
+
+    append(awaitingScout, 'scout/placed', { postId: 'last-homely-house' });
+    let completedMirror = reduceGame(stream);
+    if (completedMirror.match!.pendingChoice?.kind === 'seek-allies') {
+      append(completedMirror, 'choice/resolved', { choice: 'keep-card' });
+      completedMirror = reduceGame(stream);
+    }
+    expect(completedMirror.diagnostics).toEqual([]);
+    expect(completedMirror.match!.boardScouts['last-homely-house']).toBe(target);
+    expect(completedMirror.match!.players[target].scouts.supply).toBe(2);
+    expect(completedMirror.match!.pendingChoice).toBeNull();
   });
 
   it('draws Fate at Hall of Fire and grants Influence only while its Agent remains that round', () => {

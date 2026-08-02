@@ -120,8 +120,8 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
           for (const seat of seats) await expect(seat.page.getByRole('heading', { name: 'The living board' })).toBeVisible();
         } },
         { spec: 'All 22 final board destinations are structurally present', check: async () => await expect(page.locator('.spaces button')).toHaveCount(22) },
-        { spec: 'Exactly seven complete destinations are advertised as playable', check: async () => {
-          await expect(page.getByText('Playable spaces').locator('..').getByText('7 / 22')).toBeVisible();
+        { spec: 'Exactly eight complete destinations are advertised as playable', check: async () => {
+          await expect(page.getByText('Playable spaces').locator('..').getByText('8 / 22')).toBeVisible();
           await expect(page.getByTestId('space-dwarven-caravans')).toContainText('+1 standing');
           await expect(page.getByTestId('space-tribute-shadow')).toContainText('+1 standing');
         } },
@@ -1005,9 +1005,97 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
 
+    await revealAndFinish(actor!, 'round-11-seat-2', 96, 97);
+    await steps.observe(shadowActor!.page, 'round-12-mirror-opportunity', 'Recall opens round 12 with earned Mithril', [
+      { spec: 'The Council reward persists into a fresh round with every Agent recalled', check: async () => {
+        for (const seat of seats) {
+          await expect(seat.page.getByText('Round 12 · Agent turns')).toBeVisible();
+          const player = seat.page.locator('.players article').filter({ hasText: actor!.name });
+          await expect(player).toContainText('Mithril2');
+          await expect(player).toContainText('Agents2');
+        }
+      } }
+    ]);
+    await revealAndFinish(shadowActor!, 'round-12-seat-3', 98, 99);
+    await revealAndFinish(roadActor!, 'round-12-seat-1', 100, 101);
+    await steps.gesture(actor!.page, 'choose-mirror-faction-card', `${actor!.name} chooses a real Elven-access card`,
+      () => actor!.page.getByTestId('private-hand').getByRole('button', { name: /^(Diplomatic Mission|Seek Allies)/ }).first().click(),
+      [
+        { spec: 'Mirror of Galadriel is enabled only after the player earned Mithril', check: async () => await expect(actor!.page.getByTestId('space-mirror-galadriel')).toBeEnabled() },
+        { spec: 'The board advertises the exact payment and ordered rewards', check: async () => await expect(actor!.page.getByTestId('space-mirror-galadriel')).toContainText('Pay 1 Mithril · Elven +1 · draw 1 card · place 1 Scout') }
+      ]
+    );
+    await steps.gesture(actor!.page, 'visit-mirror-galadriel', `${actor!.name} visits the Mirror of Galadriel`,
+      () => actor!.page.getByTestId('space-mirror-galadriel').click(),
+      [
+        { spec: 'Every client sees the Elven Agent and paid Mithril', check: async () => {
+          for (const seat of seats) {
+            await expect(seat.page.getByTestId('space-mirror-galadriel')).toContainText(`Agent · ${actor!.name}`);
+            const player = seat.page.locator('.players article').filter({ hasText: actor!.name });
+            await expect(player).toContainText('Mithril1');
+            await expect(player).toContainText('Elven1');
+          }
+        } },
+        { spec: 'The private deck draw replaces the Journey card for five cards in hand', check: async () => await expect(actor!.page.getByTestId('private-hand').getByRole('button')).toHaveCount(5) },
+        { spec: 'The mandatory Scout placement blocks turn advance for every client', check: async () => {
+          for (const seat of seats) {
+            await expect(seat.page.getByTestId('scout-network')).toContainText('Choose an empty post for the Scout.');
+            await expect(seat.page.locator('footer')).toContainText(`Current actor ${actor!.name}`);
+          }
+        } },
+        convergedEvents(102)
+      ]
+    );
+    await steps.gesture(actor!.page, 'place-mirror-scout', `${actor!.name} sends the Mirror Scout to the Last Homely House`,
+      () => actor!.page.getByTestId('post-last-homely-house').click(),
+      [
+        { spec: 'All humans see the finite Scout at the chosen empty post', check: async () => {
+          for (const seat of seats) {
+            await expect(seat.page.getByTestId('post-last-homely-house')).toContainText(`Scout · ${actor!.name}`);
+            await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Scouts1 supply');
+          }
+        } },
+        { spec: 'The Chronicle orders the board visit before the required Scout placement', check: async () => {
+          for (const seat of seats) {
+            const log = seat.page.getByTestId('activity-log');
+            await expect(log).toContainText('preparing to place 1 Scout');
+            await expect(log).toContainText('places a Scout at The Last Homely House');
+          }
+        } },
+        convergedEvents(103)
+      ]
+    );
+    let mirrorEventCount = 103;
+    if (await actor!.page.getByRole('button', { name: 'Keep Seek Allies' }).isVisible()) {
+      await steps.gesture(actor!.page, 'keep-mirror-seek-allies', `${actor!.name} keeps Seek Allies after the mandatory Scout`,
+        () => actor!.page.getByRole('button', { name: 'Keep Seek Allies' }).click(),
+        [
+          { spec: 'The Journey follow-up occurs only after the Mirror Scout is placed', check: async () => {
+            for (const seat of seats) await expect(seat.page.getByTestId('pending-choice')).toHaveCount(0);
+          } },
+          convergedEvents(104)
+        ]
+      );
+      mirrorEventCount = 104;
+    }
+    await steps.gesture(actor!.page, 'reload-mirror-galadriel', `${actor!.name} reloads the completed Mirror visit`,
+      async () => { await actor!.page.reload(); },
+      [
+        { spec: 'Payment, Elven standing, draw count, Agent, and Scout replay exactly', check: async () => {
+          const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
+          await expect(player).toContainText('Mithril1');
+          await expect(player).toContainText('Elven1');
+          await expect(player).toContainText('Scouts1 supply');
+          await expect(actor!.page.getByTestId('space-mirror-galadriel')).toContainText(`Agent · ${actor!.name}`);
+          await expect(actor!.page.getByTestId('post-last-homely-house')).toContainText(`Scout · ${actor!.name}`);
+        } },
+        convergedEvents(mirrorEventCount)
+      ]
+    );
+
     steps.generateDocs(
       'Three-player Agent, deck-building, and Scout tracer',
-      'Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross faction thresholds, trash a card, use both Scout timings, and publicly claim a faction Alliance.'
+      'Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross faction thresholds, trash a card, use both Scout timings, publicly claim a faction Alliance, earn Mithril, and complete the paid Mirror of Galadriel action.'
     );
   } finally {
     await guestAContext.close();

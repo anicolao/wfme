@@ -69,10 +69,10 @@ test('Hidden Counsel draws private Fate on the shared Elven track', async ({ bro
       [{ spec: 'The seed is entered through the real setup control', check: async () => await expect(page.getByLabel('Match seed')).toHaveValue('road-2') }]);
     await steps.gesture(page, 'start-match', 'Mara starts the match',
       () => page.getByRole('button', { name: 'Start seeded match' }).click(),
-      [{ spec: 'Every human sees seven fully playable spaces', check: async () => {
+      [{ spec: 'Every human sees eight fully playable spaces', check: async () => {
         for (const seat of seats) {
           await expect(seat.page.getByRole('heading', { name: 'The living board' })).toBeVisible();
-          await expect(seat.page.getByText('Playable spaces').locator('..').getByText('7 / 22')).toBeVisible();
+          await expect(seat.page.getByText('Playable spaces').locator('..').getByText('8 / 22')).toBeVisible();
         }
       } }, converged(10)]);
 

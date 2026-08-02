@@ -56,7 +56,7 @@
       </p>
     </div>
     <dl class="ledger" aria-label="Construction capability ledger">
-      <div><dt>Playable spaces</dt><dd>7 / 22</dd></div>
+      <div><dt>Playable spaces</dt><dd>8 / 22</dd></div>
       <div><dt>Agent-ready cards</dt><dd>5 / 7</dd></div>
       <div><dt>Commander powers</dt><dd>0 / 16</dd></div>
     </dl>
@@ -134,6 +134,8 @@
                           ? 'Shadow · +1 standing · +2 Gold'
                           : definition?.effect.kind === 'hidden-counsel'
                             ? 'Elven · +1 standing · draw 1 Fate · gather Fate from opponents holding 4+'
+                            : definition?.effect.kind === 'mirror-galadriel'
+                              ? 'Pay 1 Mithril · Elven +1 · draw 1 card · place 1 Scout'
                           : definition?.effect.kind === 'take-war-effort'
                           ? 'Draw 1 card · +2 Gold'
                             : definition?.effect.kind === 'muster-free-peoples'
