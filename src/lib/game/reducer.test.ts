@@ -1354,6 +1354,68 @@ describe('integrated Agent placement replay', () => {
     expect(plainReveal.match!.players[roadActor].fateHand).toHaveLength(1);
   });
 
+  it('plays Secret Ways during Agent or Reveal and resumes the same turn after Scout placement', () => {
+    const buildPlotTurn = () => {
+      const stream = readyRoom('plot-0');
+      const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+      let timestamp = 11;
+      const append = (type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+        const state = reduceGame(stream);
+        const uid = currentPlayerUid(state)!;
+        sequences[uid] += 1;
+        stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+      };
+      const started = reduceGame(stream);
+      const actor = currentPlayerUid(started)!;
+      const escort = started.match!.players[actor].hand.find((card) => card.definitionId === 'armed-escort');
+      expect(escort, 'the published Plot seed gives the first actor a real Council card').toBeDefined();
+      append('agent/placed', { cardInstanceId: escort!.id, spaceId: 'hall-fire' });
+      expect(reduceGame(stream).match!.players[actor].fateHand).toContainEqual(expect.objectContaining({ definitionId: 'secret-ways' }));
+      for (let other = 0; other < 2; other += 1) {
+        append('turn/revealed', {});
+        append('reveal/finished', {});
+      }
+      expect(currentPlayerUid(reduceGame(stream))).toBe(actor);
+      return { stream, sequences, timestamp, actor };
+    };
+
+    const agent = buildPlotTurn();
+    const agentBefore = reduceGame(agent.stream);
+    const agentFate = agentBefore.match!.players[agent.actor].fateHand.find((card) => card.definitionId === 'secret-ways')!;
+    agent.sequences[agent.actor] += 1;
+    agent.stream.push(createEvent('fate/played', agent.actor, agent.sequences[agent.actor], { cardInstanceId: agentFate.id }, agent.timestamp++));
+    const awaitingAgentScout = reduceGame(agent.stream);
+    expect(awaitingAgentScout.match!.pendingChoice).toEqual({
+      kind: 'place-scout', actorUid: agent.actor, followupSeekAlliesCardId: null, resumeTurn: 'agent', options: []
+    });
+    expect(awaitingAgentScout.match!.fateDiscard.at(-1)).toEqual(agentFate);
+    agent.sequences[agent.actor] += 1;
+    agent.stream.push(createEvent('scout/placed', agent.actor, agent.sequences[agent.actor], { postId: 'orthanc-eye' }, agent.timestamp++));
+    const resumedAgent = reduceGame(agent.stream);
+    expect(resumedAgent.diagnostics).toEqual([]);
+    expect(resumedAgent.match!.turnMode).toBe('agent');
+    expect(currentPlayerUid(resumedAgent)).toBe(agent.actor);
+    expect(resumedAgent.match!.players[agent.actor].availableAgents).toBe(1);
+    expect(resumedAgent.match!.boardScouts['orthanc-eye']).toBe(agent.actor);
+
+    const reveal = buildPlotTurn();
+    reveal.sequences[reveal.actor] += 1;
+    reveal.stream.push(createEvent('turn/revealed', reveal.actor, reveal.sequences[reveal.actor], {}, reveal.timestamp++));
+    const revealed = reduceGame(reveal.stream);
+    const revealFate = revealed.match!.players[reveal.actor].fateHand.find((card) => card.definitionId === 'secret-ways')!;
+    reveal.sequences[reveal.actor] += 1;
+    reveal.stream.push(createEvent('fate/played', reveal.actor, reveal.sequences[reveal.actor], { cardInstanceId: revealFate.id }, reveal.timestamp++));
+    expect(reduceGame(reveal.stream).match!.pendingChoice).toMatchObject({ kind: 'place-scout', resumeTurn: 'reveal' });
+    reveal.sequences[reveal.actor] += 1;
+    reveal.stream.push(createEvent('scout/placed', reveal.actor, reveal.sequences[reveal.actor], { postId: 'redhorn-pass' }, reveal.timestamp++));
+    const resumedReveal = reduceGame(reveal.stream);
+    expect(resumedReveal.diagnostics).toEqual([]);
+    expect(resumedReveal.match!.turnMode).toBe('reveal');
+    expect(currentPlayerUid(resumedReveal)).toBe(reveal.actor);
+    expect(resumedReveal.match!.boardScouts['redhorn-pass']).toBe(reveal.actor);
+    expect(resumedReveal.match!.players[reveal.actor].muster).toHaveLength(revealed.match!.players[reveal.actor].muster.length);
+  });
+
   it('runs a three-player Battle from legal deployments through ranked rewards and cleanup', () => {
     const stream = readyRoom('battle-reinforce-4035');
     const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };

@@ -16,7 +16,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | Reserve cards | 1 / 2 definitions | Muster the Host cost, finite supply, discard destination, reshuffle, and later Agent use are executable |
 | Commander identities | 8 / 8 | Unique lobby identities, explicitly power-free |
 | Commander powers | 0 / 16 | No power text is presented as active |
-| Fate physical instances | 30 / 30; effects 10 / 30 | Deterministically shuffled deck, private hands, public discard, keep-one choice, deterministic transfer and cycle, conservation, and replay; both copies of Sudden Charge, Hold the Line, Hidden Archers, Reinforcements, and Desperate Valor are fully playable during Combat |
+| Fate physical instances | 30 / 30; effects 12 / 30 | Deterministically shuffled deck, private hands, public discard, keep-one choice, deterministic transfer and cycle, conservation, and replay; both copies of Secret Ways are playable during Agent/Reveal, and both copies of five Combat definitions are fully playable during Battle |
 | Battle cards | 10 / 16 | The four opening Battles plus Wargs in the Wild, Battle for Osgiliath, Raid on Westfold, Skirmish at Amon Hen, Contest for Aglarond, and Muster at Edoras have final setup, Standards, all ranked rewards, ownership/discard, and cleanup |
 | Chronicle, War Effort, and Rival content | 0 | Introduced only with the tracer that makes each item executable |
 | Round phases | Agent, Reveal, ordinary Battle, Riches, Recall | Combat passing, ranked resolution, all three Riches pools, both Ent summon spaces, doubled rewards, cleanup, redraw, and first-player rotation are live |
@@ -61,6 +61,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | Scout infiltration into an occupied space | matching-icon legality, required connected recall, multi-Agent conservation, and illegal-intent tests | `003-scout-infiltration` gestures 024–027 validate the blocker, explicit recall, shared occupation, observer convergence, and reload |
 | White Council first seat and repeat visit | affordability, mandatory five-Gold payment, permanent ownership, +2 Reveal Influence, repeat Mithril/Fate/recruitment, ordered Scout interruption, private Fate conservation, and replay tests | gestures 114–134 validate first seating, Council-backed Reveal, another Recall/reshuffle, real Roads funding, mandatory Scout placement, declined intelligence, repeat rewards, and reload across all clients |
 | Hall of Fire temporary counsel | Council-icon legality, private Fate draw, conditional +1 Reveal Influence, Armed Escort ordering, Recall expiry, conservation, and replay tests | `004-hall-of-fire` gestures 018–035 validate a real board draw, two intervening humans, Hall placement, private Fate/public count, exact supported Reveal, Recall, exact unsupported Reveal, and reload |
+| Secret Ways Plot Fate | two physical copies, private identity until play, Agent/Reveal timing legality, face-up discard, mandatory finite Scout placement, reloadable pending authority, and same-turn resumption | `009-secret-ways` draws through Hall of Fire, preserves the identity boundary across three clients, plays by click, reloads during the ordered Scout choice, places the Scout, and spends the still-available Agent through another real card and destination |
 | Public Reveal, exact Influence/swords, and turn skipping | Reveal legality and zone-conservation tests | gestures 028–034 show all three clients through the first Reveal sequence |
 | Reserve acquisition and finite supply | affordability, supply, and illegal-acquisition tests | gesture 029 validates shared supply and private discard |
 | Recall, first-player rotation, redraw, and deterministic reshuffle | two-round reducer replay and 11-instance conservation | gestures 035–049 reach round 3 and use the acquired card |
@@ -69,4 +70,4 @@ This is the construction ledger for the one canonical game at the repository roo
 
 ## Next accepted tracer
 
-Tracer 7 continues with the first complete Plot Fate timing; the printed board itself is now complete.
+Tracer 7 continues with the next Plot Fate effect; Secret Ways now establishes the complete shared Plot timing and same-turn continuation path.

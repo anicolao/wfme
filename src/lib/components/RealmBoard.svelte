@@ -60,7 +60,9 @@
   }
 
   function fateEffectText(definition: (typeof FATE_CARD_DEFINITIONS)[number]): string {
-    return definition.effect.kind === 'desperate-valor'
+    return definition.effect.kind === 'place-scout'
+      ? 'Place 1 Scout'
+      : definition.effect.kind === 'desperate-valor'
       ? 'Return 1 Battle Company · +5 Strength · zero Strength if no unit remains'
       : definition.effect.kind === 'reinforcements'
       ? 'Deploy 1 garrison Company · otherwise +2 Strength'
@@ -98,6 +100,22 @@
     <div data-testid="dam-status"><dt>Dam of Isengard</dt><dd>{game.match?.damBreached ? 'Breached' : 'Intact'}</dd></div>
   </dl>
 
+  {#if (game.match?.turnMode === 'agent' || game.match?.turnMode === 'reveal') && currentUid === localUid && !game.match.pendingChoice}
+    {@const plotFate = (localMatch?.fateHand ?? []).flatMap((fate) => {
+      const definition = FATE_CARD_DEFINITIONS.find((candidate) => candidate.id === fate.definitionId);
+      return definition?.timing === 'Plot' ? [{ fate, definition }] : [];
+    })}
+    {#if plotFate.length}
+      <section class="battle-actions" data-testid="plot-fate-actions" aria-label="Plot Fate actions">
+        {#each plotFate as playable}
+          <button type="button" data-testid={`play-fate-${playable.fate.id}`} onclick={() => onPlayFate(playable.fate.id)}>
+            Play {playable.definition.name} · {fateEffectText(playable.definition)}
+          </button>
+        {/each}
+      </section>
+    {/if}
+  {/if}
+
   {#if game.match?.activeBattleId}
     {@const activeBattle = BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === game.match?.activeBattleId)!}
     <section class="battle-area" data-testid="active-battle" aria-labelledby="battle-title">
@@ -120,7 +138,7 @@
         <div class="battle-actions">
           {#each localMatch?.fateHand ?? [] as fate}
             {@const fateDefinition = FATE_CARD_DEFINITIONS.find((definition) => definition.id === fate.definitionId)}
-            {#if fateDefinition}
+            {#if fateDefinition?.timing === 'Combat'}
               <button type="button" data-testid={`play-fate-${fate.id}`} disabled={currentUid !== localUid} onclick={() => onPlayFate(fate.id)}>
                 Play {fateDefinition.name} · {fateEffectText(fateDefinition)}
               </button>

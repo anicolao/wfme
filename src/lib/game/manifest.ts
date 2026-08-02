@@ -293,20 +293,29 @@ export const BATTLE_CARD_DEFINITIONS: readonly BattleCardDefinition[] = [
 ];
 
 export type FateCardDefinition = {
-  id: 'sudden-charge' | 'hold-line' | 'hidden-archers' | 'reinforcements' | 'desperate-valor';
+  id: 'secret-ways' | 'sudden-charge' | 'hold-line' | 'hidden-archers' | 'reinforcements' | 'desperate-valor';
   name: string;
   copies: 2;
-  timing: 'Combat';
+  timing: 'Plot' | 'Combat';
   effect:
+    | { kind: 'place-scout'; amount: 1 }
     | { kind: 'gain-battle-strength'; amount: 3 }
     | { kind: 'hold-line'; amount: 2; controlledLocationBonus: 2 }
     | { kind: 'hidden-archers'; maximum: 3 }
     | { kind: 'reinforcements'; deployCompanies: 1; fallbackStrength: 2 }
     | { kind: 'desperate-valor'; returnCompanies: 1; strength: 5 };
-  reviewedCapabilities: readonly ['combat-fate'];
+  reviewedCapabilities: readonly ['plot-fate' | 'combat-fate'];
 };
 
 export const FATE_CARD_DEFINITIONS: readonly FateCardDefinition[] = [
+  {
+    id: 'secret-ways',
+    name: 'Secret Ways',
+    copies: 2,
+    timing: 'Plot',
+    effect: { kind: 'place-scout', amount: 1 },
+    reviewedCapabilities: ['plot-fate']
+  },
   {
     id: 'sudden-charge',
     name: 'Sudden Charge',

@@ -164,6 +164,7 @@ export type MatchState = {
     kind: 'place-scout';
     actorUid: string;
     followupSeekAlliesCardId: string | null;
+    resumeTurn?: 'agent' | 'reveal';
     options: readonly [];
   } | {
     kind: 'gather-intelligence';
@@ -270,6 +271,8 @@ function createMatch(state: GameState, seed: string): MatchState {
       id: `fate:${index + 1}`,
       definitionId: index < 2
         ? 'sudden-charge'
+        : index === 2 || index === 3
+          ? 'secret-ways'
         : index === 9 || index === 29
           ? 'hold-line'
           : index === 13 || index === 14
@@ -1381,6 +1384,9 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         kind: 'seek-allies', actorUid: player.uid, cardInstanceId: pending.followupSeekAlliesCardId,
         options: ['trash-self', 'keep-card']
       };
+    } else if (pending.resumeTurn) {
+      state.match.pendingChoice = null;
+      state.match.activity.push(`${actor.displayName} resumes their ${pending.resumeTurn === 'agent' ? 'Agent' : 'Reveal'} turn after resolving Secret Ways.`);
     } else {
       state.match.pendingChoice = null;
       finishAgentAction(state.match, event.actorUid);
@@ -1481,16 +1487,32 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     if (
       state.phase !== 'playing' ||
       !state.match ||
-      state.match.turnMode !== 'battle' ||
       currentPlayerUid(state) !== event.actorUid ||
       typeof cardInstanceId !== 'string' ||
-      !state.match.battleParticipantUids.includes(event.actorUid)
+      state.match.pendingChoice
     ) return 'illegal Fate play';
     const player = state.match.players[event.actorUid];
     const cardIndex = player.fateHand.findIndex((card) => card.id === cardInstanceId);
     const card = player.fateHand[cardIndex];
     const definition = card && FATE_CARD_DEFINITIONS.find((candidate) => candidate.id === card.definitionId);
-    if (!card || !definition || definition.timing !== 'Combat') return 'illegal Fate play';
+    if (!card || !definition) return 'illegal Fate play';
+    if (definition.timing === 'Plot') {
+      if (state.match.turnMode !== 'agent' && state.match.turnMode !== 'reveal') return 'illegal Fate play';
+      player.fateHand.splice(cardIndex, 1);
+      state.match.fateDiscard.push(card);
+      if (definition.effect.kind === 'place-scout') {
+        state.match.pendingChoice = {
+          kind: 'place-scout',
+          actorUid: event.actorUid,
+          followupSeekAlliesCardId: null,
+          resumeTurn: state.match.turnMode,
+          options: []
+        };
+        state.match.activity.push(`${actor.displayName} plays ${definition.name} during their ${state.match.turnMode === 'agent' ? 'Agent' : 'Reveal'} turn and must place 1 Scout.`);
+      }
+      return null;
+    }
+    if (state.match.turnMode !== 'battle' || !state.match.battleParticipantUids.includes(event.actorUid)) return 'illegal Fate play';
     if (definition.effect.kind === 'desperate-valor' && (state.match.battleCompanies[event.actorUid] ?? 0) < definition.effect.returnCompanies) {
       return 'illegal Fate play';
     }
