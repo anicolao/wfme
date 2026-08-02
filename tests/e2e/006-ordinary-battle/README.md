@@ -1,6 +1,6 @@
 # Test: Three-player ordinary Battle
 
-Three isolated humans start in the real lobby, resolve an ordinary Battle with Combat Fate, establish Minas Tirith control, then contest and defend Pelennor, play Hold the Line, Hidden Archers, and Reinforcements from private Fate, and pair matching White Tree Standards.
+Three isolated humans start in the real lobby, resolve ordinary Battles with Combat Fate, establish and defend Minas Tirith, contest Helm's Deep, play Hold the Line, Hidden Archers, Reinforcements, and Desperate Valor from private Fate, and preserve participation after a last Company returns to supply.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -1083,5 +1083,213 @@ Every numbered frame is captured only after its listed semantic validations pass
 - [x] Printed Pelennor Renown and separate Standard-pair Renown total four
 - [x] Cleanup opens round four with Minas Tirith still controlled by the winner
 - [x] Every connected browser replays 65 accepted events with no diagnostics
+
+---
+
+## Mara chooses Diplomatic Mission for Helm's Deep
+
+![Phone: Mara chooses Diplomatic Mission for Helm's Deep](./screenshots/084-choose-helms-deep-card-1-phone.png)
+
+![Desktop: Mara chooses Diplomatic Mission for Helm's Deep](./screenshots/084-choose-helms-deep-card-1-desktop.png)
+
+**Verifications:**
+
+- [x] hidden-paths is enabled by the real hand card
+
+---
+
+## Mara enters hidden-paths for Helm's Deep
+
+![Phone: Mara enters hidden-paths for Helm's Deep](./screenshots/085-enter-helms-deep-space-1-phone.png)
+
+![Desktop: Mara enters hidden-paths for Helm's Deep](./screenshots/085-enter-helms-deep-space-1-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees the Helm’s Deep occupation
+- [x] Every connected browser replays 66 accepted events with no diagnostics
+
+---
+
+## Mara deploys one Company to Helm's Deep
+
+![Phone: Mara deploys one Company to Helm's Deep](./screenshots/086-deploy-helms-deep-1-phone.png)
+
+![Desktop: Mara deploys one Company to Helm's Deep](./screenshots/086-deploy-helms-deep-1-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees exactly one Company in the new Battle force
+- [x] Every connected browser replays 67 accepted events with no diagnostics
+
+---
+
+## Rin Reveals for Helm's Deep
+
+![Phone: Rin Reveals for Helm's Deep](./screenshots/087-helms-deep-reveal-1-phone.png)
+
+![Desktop: Rin Reveals for Helm's Deep](./screenshots/087-helms-deep-reveal-1-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees the public Muster row
+- [x] Every connected browser replays 68 accepted events with no diagnostics
+
+---
+
+## Rin finishes the Helm's Deep Reveal
+
+![Phone: Rin finishes the Helm's Deep Reveal](./screenshots/088-helms-deep-finish-1-phone.png)
+
+![Desktop: Rin finishes the Helm's Deep Reveal](./screenshots/088-helms-deep-finish-1-desktop.png)
+
+**Verifications:**
+
+- [x] Turn authority advances toward the remaining Reveal
+- [x] Every connected browser replays 69 accepted events with no diagnostics
+
+---
+
+## Pip chooses Armed Escort for Helm's Deep
+
+![Phone: Pip chooses Armed Escort for Helm's Deep](./screenshots/089-choose-helms-deep-card-2-phone.png)
+
+![Desktop: Pip chooses Armed Escort for Helm's Deep](./screenshots/089-choose-helms-deep-card-2-desktop.png)
+
+**Verifications:**
+
+- [x] minas-tirith is enabled by the real hand card
+
+---
+
+## Pip enters minas-tirith for Helm's Deep
+
+![Phone: Pip enters minas-tirith for Helm's Deep](./screenshots/090-enter-helms-deep-space-2-phone.png)
+
+![Desktop: Pip enters minas-tirith for Helm's Deep](./screenshots/090-enter-helms-deep-space-2-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees the Helm’s Deep occupation
+- [x] Every connected browser replays 70 accepted events with no diagnostics
+
+---
+
+## Pip deploys one Company to Helm's Deep
+
+![Phone: Pip deploys one Company to Helm's Deep](./screenshots/091-deploy-helms-deep-2-phone.png)
+
+![Desktop: Pip deploys one Company to Helm's Deep](./screenshots/091-deploy-helms-deep-2-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees exactly one Company in the new Battle force
+- [x] Every connected browser replays 71 accepted events with no diagnostics
+
+---
+
+## Mara Reveals for Helm's Deep
+
+![Phone: Mara Reveals for Helm's Deep](./screenshots/092-helms-deep-reveal-2-phone.png)
+
+![Desktop: Mara Reveals for Helm's Deep](./screenshots/092-helms-deep-reveal-2-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees the public Muster row
+- [x] Every connected browser replays 72 accepted events with no diagnostics
+
+---
+
+## Mara finishes the Helm's Deep Reveal
+
+![Phone: Mara finishes the Helm's Deep Reveal](./screenshots/093-helms-deep-finish-2-phone.png)
+
+![Desktop: Mara finishes the Helm's Deep Reveal](./screenshots/093-helms-deep-finish-2-desktop.png)
+
+**Verifications:**
+
+- [x] Turn authority advances toward the remaining Reveal
+- [x] Every connected browser replays 73 accepted events with no diagnostics
+
+---
+
+## Pip Reveals for Helm's Deep
+
+![Phone: Pip Reveals for Helm's Deep](./screenshots/094-helms-deep-reveal-3-phone.png)
+
+![Desktop: Pip Reveals for Helm's Deep](./screenshots/094-helms-deep-reveal-3-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees the public Muster row
+- [x] Every connected browser replays 74 accepted events with no diagnostics
+
+---
+
+## Pip finishes the Helm's Deep Reveal
+
+![Phone: Pip finishes the Helm's Deep Reveal](./screenshots/095-helms-deep-finish-3-phone.png)
+
+![Desktop: Pip finishes the Helm's Deep Reveal](./screenshots/095-helms-deep-finish-3-desktop.png)
+
+**Verifications:**
+
+- [x] The fourth Combat Fate window opens
+- [x] Every connected browser replays 75 accepted events with no diagnostics
+
+---
+
+## Mara passes at Helm's Deep
+
+![Phone: Mara passes at Helm's Deep](./screenshots/096-helms-deep-opening-pass-phone.png)
+
+![Desktop: Mara passes at Helm's Deep](./screenshots/096-helms-deep-opening-pass-desktop.png)
+
+**Verifications:**
+
+- [x] Combat authority advances to the Desperate Valor holder
+- [x] Every connected browser replays 76 accepted events with no diagnostics
+
+---
+
+## Pip plays Desperate Valor with one Company
+
+![Phone: Pip plays Desperate Valor with one Company](./screenshots/097-play-desperate-valor-phone.png)
+
+![Desktop: Pip plays Desperate Valor with one Company](./screenshots/097-play-desperate-valor-desktop.png)
+
+**Verifications:**
+
+- [x] The last Company returns to supply and the printed no-unit rule makes Strength zero
+- [x] The original participant retains Combat authority after losing their last unit
+- [x] Every connected browser replays 77 accepted events with no diagnostics
+
+---
+
+## Pip passes at zero Strength
+
+![Phone: Pip passes at zero Strength](./screenshots/098-desperate-valor-pass-phone.png)
+
+![Desktop: Pip passes at zero Strength](./screenshots/098-desperate-valor-pass-desktop.png)
+
+**Verifications:**
+
+- [x] The Valor play reset the pass streak and returns authority to the other participant
+- [x] Every connected browser replays 78 accepted events with no diagnostics
+
+---
+
+## Mara passes and wins Helm's Deep
+
+![Phone: Mara passes and wins Helm's Deep](./screenshots/099-helms-deep-final-pass-phone.png)
+
+![Desktop: Mara passes and wins Helm's Deep](./screenshots/099-helms-deep-final-pass-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees exact Edoras control and printed two Renown reward
+- [x] Cleanup opens round five with no reviewed Battle silently substituted
+- [x] Every connected browser replays 79 accepted events with no diagnostics
 
 ---

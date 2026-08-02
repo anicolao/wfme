@@ -60,6 +60,7 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'hold-line')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'hidden-archers')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'reinforcements')).toHaveLength(2);
+    expect(first.match!.fateDeck.filter((card) => card.definitionId === 'desperate-valor')).toHaveLength(2);
     const rejectedFate = reduceGame([...readyRoom(), createEvent('fate/played', currentPlayerUid(first)!, 5, { cardInstanceId: 'fate:1' }, 11)]);
     expect(rejectedFate.diagnostics.at(-1)).toContain('illegal Fate play');
     expect(rejectedFate.match!.fateDiscard).toEqual([]);
@@ -1223,5 +1224,54 @@ describe('integrated Agent placement replay', () => {
     const afterVisit = reduceGame(stream);
     expect(afterVisit.match!.boardAgents['minas-tirith']).toBeDefined();
     expect(afterVisit.match!.players[controller!].resources.gold).toBe(controllerGold + 1);
+    const helmParticipant = afterVisit.match!.boardAgents['minas-tirith'][0].uid;
+
+    let drewDesperateValor = false;
+    for (let guard = 0; guard < 24; guard += 1) {
+      const state = reduceGame(stream);
+      const match = state.match!;
+      if (match.turnMode === 'battle') break;
+      const current = currentPlayerUid(state)!;
+      const pending = match.pendingChoice;
+      if (pending?.kind === 'battle-deployment') append(current, 'choice/resolved', { choice: `deploy:${pending.maximum}` });
+      else if (pending?.kind === 'gather-intelligence') append(current, 'choice/resolved', { choice: 'decline-intelligence' });
+      else if (pending?.kind === 'place-scout') {
+        const emptyPost = OBSERVATION_POSTS.find((post) => !match.boardScouts[post.id])!;
+        append(current, 'scout/placed', { postId: emptyPost.id });
+      } else if (pending?.kind === 'seek-allies') append(current, 'choice/resolved', { choice: 'keep-card' });
+      else if (match.turnMode === 'reveal') append(current, 'reveal/finished', {});
+      else if (current === helmParticipant && !drewDesperateValor) {
+        const fatePlacement = match.players[current].hand.flatMap((card) =>
+          legalAgentSpaces(state, current, card.id)
+            .filter((spaceId) => spaceId === 'hall-fire' || spaceId === 'hidden-counsel')
+            .map((spaceId) => ({ card, spaceId }))
+        )[0];
+        expect(fatePlacement, 'the Helm’s Deep participant must retain a real Fate-draw placement').toBeDefined();
+        append(current, 'agent/placed', { cardInstanceId: fatePlacement!.card.id, spaceId: fatePlacement!.spaceId });
+        drewDesperateValor = true;
+        expect(reduceGame(stream).match!.players[current].fateHand).toContainEqual(expect.objectContaining({ definitionId: 'desperate-valor' }));
+      } else append(current, 'turn/revealed', {});
+    }
+    const helmsDeepCombat = reduceGame(stream);
+    expect(helmsDeepCombat.match!.activeBattleId).toBe('battle-helms-deep');
+    expect(helmsDeepCombat.match!.turnMode).toBe('battle');
+    expect(helmsDeepCombat.match!.battleParticipantUids).toEqual([helmParticipant]);
+    const companiesBeforeValor = helmsDeepCombat.match!.battleCompanies[helmParticipant];
+    expect(companiesBeforeValor).toBeGreaterThan(0);
+    const valor = helmsDeepCombat.match!.players[helmParticipant].fateHand.find((card) => card.definitionId === 'desperate-valor')!;
+    const supplyBeforeValor = helmsDeepCombat.match!.players[helmParticipant].companies.supply;
+    append(helmParticipant, 'fate/played', { cardInstanceId: valor.id });
+    const afterValor = reduceGame(stream);
+    expect(afterValor.match!.battleCompanies[helmParticipant]).toBe(companiesBeforeValor - 1);
+    expect(afterValor.match!.players[helmParticipant].companies.supply).toBe(supplyBeforeValor + 1);
+    expect(battleStrength(afterValor.match!, helmParticipant)).toBe(companiesBeforeValor === 1
+      ? 0
+      : battleStrength(helmsDeepCombat.match!, helmParticipant) + 3);
+    expect(afterValor.match!.battleParticipantUids).toEqual([helmParticipant]);
+    expect(afterValor.match!.activity).toContain(`${afterValor.players.find((player) => player.uid === helmParticipant)?.displayName} plays Desperate Valor, returns 1 Company to supply, and gains +5 Strength.`);
+    append(helmParticipant, 'battle/passed', {});
+    const afterHelmsDeep = reduceGame(stream);
+    expect(afterHelmsDeep.diagnostics).toEqual([]);
+    expect(afterHelmsDeep.match!.criticalControl.edoras).toBe(companiesBeforeValor === 1 ? null : helmParticipant);
   });
 });

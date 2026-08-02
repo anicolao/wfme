@@ -78,6 +78,7 @@ export type MatchState = {
   battleDeck: string[];
   battleDiscard: string[];
   battleCompanies: Record<string, number>;
+  battleParticipantUids: string[];
   battleBonusStrength: Record<string, number>;
   consecutiveBattlePasses: number;
   battleHistory: Array<{ battleId: string; winnerUid: string | null; strengths: Record<string, number> }>;
@@ -236,17 +237,20 @@ function createMatch(state: GameState, seed: string): MatchState {
         ? 'sudden-charge'
         : index === 9 || index === 29
           ? 'hold-line'
-          : index === 4 || index === 14
+          : index === 13 || index === 14
             ? 'hidden-archers'
             : index === 20 || index === 25
               ? 'reinforcements'
-              : 'sealed-fate'
+              : index === 4 || index === 19
+                ? 'desperate-valor'
+                : 'sealed-fate'
     })), `${seed}:fate-deck`),
     fateDiscard: [],
     activeBattleId: BATTLE_CARD_DEFINITIONS[0]?.id ?? null,
     battleDeck: BATTLE_CARD_DEFINITIONS.slice(1).map((battle) => battle.id),
     battleDiscard: [],
     battleCompanies: {},
+    battleParticipantUids: [],
     battleBonusStrength: {},
     consecutiveBattlePasses: 0,
     battleHistory: [],
@@ -434,6 +438,7 @@ export function battleStrength(match: MatchState, uid: string): number {
 }
 
 function clockwiseParticipants(match: MatchState): string[] {
+  if (match.turnMode === 'battle' && match.battleParticipantUids.length > 0) return match.battleParticipantUids;
   return Array.from({ length: match.playerOrder.length }, (_, offset) =>
     match.playerOrder[(match.firstPlayerIndex + offset) % match.playerOrder.length]
   ).filter((uid) => (match.battleCompanies[uid] ?? 0) > 0);
@@ -511,6 +516,7 @@ function resolveBattle(match: MatchState): void {
     match.battleCompanies[uid] = 0;
     match.battleBonusStrength[uid] = 0;
   }
+  match.battleParticipantUids = [];
   match.activeBattleId = null;
   recallAndBeginNextRound(match);
 }
@@ -527,6 +533,7 @@ function beginBattleOrRecall(match: MatchState): void {
     return;
   }
   match.turnMode = 'battle';
+  match.battleParticipantUids = participants;
   match.consecutiveBattlePasses = 0;
   match.currentPlayerIndex = match.playerOrder.indexOf(participants[0]);
   match.activity.push('The Combat Fate window opens with every participant at their revealed Strength.');
@@ -1176,7 +1183,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       !state.match ||
       state.match.turnMode !== 'battle' ||
       currentPlayerUid(state) !== event.actorUid ||
-      (state.match.battleCompanies[event.actorUid] ?? 0) < 1
+      !state.match.battleParticipantUids.includes(event.actorUid)
     ) return 'illegal Battle pass';
     const participants = clockwiseParticipants(state.match);
     state.match.consecutiveBattlePasses += 1;
@@ -1199,13 +1206,16 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       state.match.turnMode !== 'battle' ||
       currentPlayerUid(state) !== event.actorUid ||
       typeof cardInstanceId !== 'string' ||
-      (state.match.battleCompanies[event.actorUid] ?? 0) < 1
+      !state.match.battleParticipantUids.includes(event.actorUid)
     ) return 'illegal Fate play';
     const player = state.match.players[event.actorUid];
     const cardIndex = player.fateHand.findIndex((card) => card.id === cardInstanceId);
     const card = player.fateHand[cardIndex];
     const definition = card && FATE_CARD_DEFINITIONS.find((candidate) => candidate.id === card.definitionId);
     if (!card || !definition || definition.timing !== 'Combat') return 'illegal Fate play';
+    if (definition.effect.kind === 'desperate-valor' && (state.match.battleCompanies[event.actorUid] ?? 0) < definition.effect.returnCompanies) {
+      return 'illegal Fate play';
+    }
     player.fateHand.splice(cardIndex, 1);
     state.match.fateDiscard.push(card);
     const activeBattle = BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === state.match!.activeBattleId);
@@ -1219,6 +1229,11 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         strengthBonus = definition.effect.fallbackStrength;
         state.match.activity.push(`${actor.displayName} plays ${definition.name} with no Company available and gains +${strengthBonus} Strength.`);
       }
+    } else if (definition.effect.kind === 'desperate-valor') {
+      state.match.battleCompanies[event.actorUid] -= definition.effect.returnCompanies;
+      player.companies.supply += definition.effect.returnCompanies;
+      strengthBonus = definition.effect.strength;
+      state.match.activity.push(`${actor.displayName} plays ${definition.name}, returns 1 Company to supply, and gains +${strengthBonus} Strength.`);
     } else {
       strengthBonus = definition.effect.kind === 'hidden-archers'
         ? Math.min(

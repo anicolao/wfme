@@ -504,14 +504,130 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
         for (const observer of seats) {
           await expect(observer.page.getByText('Round 4 · Agent turns')).toBeVisible();
           await expect(observer.page.getByTestId('control-minas-tirith')).toContainText(controllerSeat.name);
+          await expect(observer.page.getByTestId('active-battle')).toContainText("Battle of Helm's Deep");
+          await expect(observer.page.locator('.players article').filter({ hasText: reinforcementActor.name })).toContainText('Fate1');
         }
+      } },
+      converged(accepted + 1)
+    ]);
+
+    type RoundFourPlan = { cardName: string; spaceId: string };
+    const planOptions = async (seat: Seat): Promise<RoundFourPlan[]> => {
+      const options: RoundFourPlan[] = [];
+      for (const [cardName, spaceIds] of [
+        ['Armed Escort', ['minas-tirith']],
+        ['Diplomatic Mission', ['hidden-paths']],
+        ['Seek Allies', ['hidden-paths']],
+        ['Reconnaissance', ['minas-tirith']],
+        ['Muster the Host', ['minas-tirith']]
+      ] as const) {
+        if (await seat.page.getByTestId('private-hand').getByRole('button', { name: new RegExp(`^${cardName}`) }).first().isVisible().catch(() => false)) {
+          options.push(...spaceIds.map((spaceId) => ({ cardName, spaceId })));
+        }
+      }
+      return options;
+    };
+    const controllerOptions = await planOptions(controllerSeat);
+    const valorOptions = await planOptions(reinforcementActor);
+    let controllerPlan: RoundFourPlan | undefined;
+    let valorPlan: RoundFourPlan | undefined;
+    for (const first of controllerOptions) {
+      const second = valorOptions.find((candidate) => candidate.spaceId !== first.spaceId);
+      if (second) {
+        controllerPlan = first;
+        valorPlan = second;
+        break;
+      }
+    }
+    if (!controllerPlan || !valorPlan) throw new Error('The two round-four participants have no distinct final Battle destinations');
+    const roundFourPlans = new Map<Seat, RoundFourPlan>([[controllerSeat, controllerPlan], [reinforcementActor, valorPlan]]);
+    const roundFourDeployed = new Set<Seat>();
+    let roundFourReveal = 0;
+    for (let guard = 0; guard < 12; guard += 1) {
+      if (await page.getByText(/Round 4 · Combat Fate/).isVisible().catch(() => false)) break;
+      const actor = await currentSeat();
+      const plan = roundFourPlans.get(actor);
+      if (plan && !roundFourDeployed.has(actor)) {
+        await steps.gesture(actor.page, `choose-helms-deep-card-${roundFourDeployed.size + 1}`, `${actor.name} chooses ${plan.cardName} for Helm's Deep`, async () => {
+          await actor.page.getByTestId('private-hand').getByRole('button', { name: new RegExp(`^${plan.cardName}`) }).first().click();
+        }, [{ spec: `${plan.spaceId} is enabled by the real hand card`, check: async () => await expect(actor.page.getByTestId(`space-${plan.spaceId}`)).toBeEnabled() }]);
+        await steps.gesture(actor.page, `enter-helms-deep-space-${roundFourDeployed.size + 1}`, `${actor.name} enters ${plan.spaceId} for Helm's Deep`, async () => {
+          await actor.page.getByTestId(`space-${plan.spaceId}`).click(); accepted += 1;
+        }, [{ spec: 'Every observer sees the Helm’s Deep occupation', check: async () => {
+          for (const observer of seats) await expect(observer.page.getByTestId(`space-${plan.spaceId}`)).toContainText(actor.name);
+        } }, converged(accepted + 1)]);
+        if (await actor.page.getByRole('heading', { name: 'Trash Seek Allies?' }).isVisible().catch(() => false)) {
+          await steps.gesture(actor.page, `keep-helms-deep-seek-${roundFourDeployed.size + 1}`, `${actor.name} keeps Seek Allies`, async () => {
+            await actor.page.getByRole('button', { name: 'Keep Seek Allies' }).click(); accepted += 1;
+          }, [{ spec: 'The Battle deployment follows the Journey choice', check: async () => await expect(actor.page.getByRole('heading', { name: 'Deploy Companies to the active Battle?' })).toBeVisible() }, converged(accepted + 1)]);
+        }
+        if (await actor.page.getByTestId('scout-network').getByText('Choose an empty post for the Scout.').isVisible().catch(() => false)) {
+          await steps.gesture(actor.page, `place-helms-deep-scout-${roundFourDeployed.size + 1}`, `${actor.name} places the ordered Scout`, async () => {
+            await actor.page.locator('[data-testid^="post-"]:enabled').first().click(); accepted += 1;
+          }, [{ spec: 'The Battle deployment follows Scout placement', check: async () => await expect(actor.page.getByRole('heading', { name: 'Deploy Companies to the active Battle?' })).toBeVisible() }, converged(accepted + 1)]);
+        }
+        await steps.gesture(actor.page, `deploy-helms-deep-${roundFourDeployed.size + 1}`, `${actor.name} deploys one Company to Helm's Deep`, async () => {
+          await actor.page.getByRole('button', { name: 'Deploy 1', exact: true }).click(); accepted += 1;
+        }, [{ spec: 'Every observer sees exactly one Company in the new Battle force', check: async () => {
+          for (const observer of seats) await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: actor.name })).toContainText('1 Companies');
+        } }, converged(accepted + 1)]);
+        roundFourDeployed.add(actor);
+      } else {
+        roundFourReveal += 1;
+        await steps.gesture(actor.page, `helms-deep-reveal-${roundFourReveal}`, `${actor.name} Reveals for Helm's Deep`, async () => {
+          await actor.page.getByRole('button', { name: 'Reveal remaining hand' }).click(); accepted += 1;
+        }, [{ spec: 'Every observer sees the public Muster row', check: async () => {
+          for (const observer of seats) await expect(observer.page.getByTestId('reveal-panel')).toContainText(`${actor.name} Reveals`);
+        } }, converged(accepted + 1)]);
+        await steps.gesture(actor.page, `helms-deep-finish-${roundFourReveal}`, `${actor.name} finishes the Helm's Deep Reveal`, async () => {
+          await actor.page.getByRole('button', { name: 'Finish Reveal' }).click(); accepted += 1;
+        }, [{ spec: roundFourReveal < 3 ? 'Turn authority advances toward the remaining Reveal' : 'The fourth Combat Fate window opens', check: async () => {
+          if (roundFourReveal === 3) for (const observer of seats) await expect(observer.page.getByText(/Round 4 · Combat Fate/)).toBeVisible();
+        } }, converged(accepted + 1)]);
+      }
+    }
+
+    const helmFirst = await currentSeat();
+    if (helmFirst !== controllerSeat) throw new Error("Helm's Deep Combat did not begin with the round-four first player");
+    await steps.gesture(helmFirst.page, 'helms-deep-opening-pass', `${helmFirst.name} passes at Helm's Deep`, async () => {
+      await helmFirst.page.getByTestId('pass-battle').click(); accepted += 1;
+    }, [{ spec: 'Combat authority advances to the Desperate Valor holder', check: async () => await expect(reinforcementActor.page.getByTestId('pass-battle')).toBeEnabled() }, converged(accepted + 1)]);
+    const valorSupplyBefore = Number((await reinforcementActor.page.locator('.players article').filter({ hasText: reinforcementActor.name }).getByText('Supply', { exact: true }).locator('..').textContent())?.match(/(\d+)/)?.[1] ?? '-1');
+    await steps.gesture(reinforcementActor.page, 'play-desperate-valor', `${reinforcementActor.name} plays Desperate Valor with one Company`, async () => {
+      await reinforcementActor.page.getByRole('button', { name: /Play Desperate Valor/ }).click(); accepted += 1;
+    }, [
+      { spec: 'The last Company returns to supply and the printed no-unit rule makes Strength zero', check: async () => {
+        for (const observer of seats) {
+          await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: reinforcementActor.name })).toContainText('0 Companies');
+          await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: reinforcementActor.name })).toContainText('0 Strength');
+          await expect(observer.page.locator('.players article').filter({ hasText: reinforcementActor.name }).getByText('Supply', { exact: true }).locator('..')).toContainText(`${valorSupplyBefore + 1}`);
+          await expect(observer.page.getByTestId('fate-discard')).toContainText('5 cards');
+        }
+      } },
+      { spec: 'The original participant retains Combat authority after losing their last unit', check: async () => await expect(reinforcementActor.page.getByTestId('pass-battle')).toBeEnabled() },
+      converged(accepted + 1)
+    ]);
+    await steps.gesture(reinforcementActor.page, 'desperate-valor-pass', `${reinforcementActor.name} passes at zero Strength`, async () => {
+      await reinforcementActor.page.getByTestId('pass-battle').click(); accepted += 1;
+    }, [{ spec: 'The Valor play reset the pass streak and returns authority to the other participant', check: async () => await expect(controllerSeat.page.getByTestId('pass-battle')).toBeEnabled() }, converged(accepted + 1)]);
+    await steps.gesture(controllerSeat.page, 'helms-deep-final-pass', `${controllerSeat.name} passes and wins Helm's Deep`, async () => {
+      await controllerSeat.page.getByTestId('pass-battle').click(); accepted += 1;
+    }, [
+      { spec: 'Every observer sees exact Edoras control and printed two Renown reward', check: async () => {
+        for (const observer of seats) {
+          await expect(observer.page.getByTestId('control-edoras')).toContainText(controllerSeat.name);
+          await expect(observer.page.getByTestId('activity-log')).toContainText("Battle of Helm's Deep is won");
+        }
+      } },
+      { spec: 'Cleanup opens round five with no reviewed Battle silently substituted', check: async () => {
+        for (const observer of seats) await expect(observer.page.getByText('Round 5 · Agent turns')).toBeVisible();
       } },
       converged(accepted + 1)
     ]);
 
     steps.generateDocs(
       'Three-player ordinary Battle',
-      'Three isolated humans start in the real lobby, resolve an ordinary Battle with Combat Fate, establish Minas Tirith control, then contest and defend Pelennor, play Hold the Line, Hidden Archers, and Reinforcements from private Fate, and pair matching White Tree Standards.'
+      "Three isolated humans start in the real lobby, resolve ordinary Battles with Combat Fate, establish and defend Minas Tirith, contest Helm's Deep, play Hold the Line, Hidden Archers, Reinforcements, and Desperate Valor from private Fate, and preserve participation after a last Company returns to supply."
     );
   } finally {
     await guestAContext.close();

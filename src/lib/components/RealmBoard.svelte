@@ -59,7 +59,9 @@
   }
 
   function fateEffectText(definition: (typeof FATE_CARD_DEFINITIONS)[number]): string {
-    return definition.effect.kind === 'reinforcements'
+    return definition.effect.kind === 'desperate-valor'
+      ? 'Return 1 Battle Company · +5 Strength · zero Strength if no unit remains'
+      : definition.effect.kind === 'reinforcements'
       ? 'Deploy 1 garrison Company · otherwise +2 Strength'
       : definition.effect.kind === 'hidden-archers'
       ? 'Gain Strength for Scouts on the board · maximum 3'

@@ -2375,88 +2375,63 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip chooses a real Roads card for Captain funding
-
-![Phone: Pip chooses a real Roads card for Captain funding](./screenshots/179-choose-captain-funding-4-phone.png)
-
-![Desktop: Pip chooses a real Roads card for Captain funding](./screenshots/179-choose-captain-funding-4-desktop.png)
-
-**Verifications:**
-
-- [x] The base-game War Effort remains the legal funding destination
-
----
-
-## Pip earns two Gold toward a Captain
-
-![Phone: Pip earns two Gold toward a Captain](./screenshots/180-earn-captain-gold-4-phone.png)
-
-![Desktop: Pip earns two Gold toward a Captain](./screenshots/180-earn-captain-gold-4-desktop.png)
-
-**Verifications:**
-
-- [x] The public treasury rises by exactly two Gold
-- [x] Every connected replay has accepted exactly 129 events with no diagnostics
-
----
-
 ## Pip Reveals without buying
 
-![Phone: Pip Reveals without buying](./screenshots/181-captain-funding-5-pip-reveal-phone.png)
+![Phone: Pip Reveals without buying](./screenshots/179-captain-funding-4-pip-reveal-phone.png)
 
-![Desktop: Pip Reveals without buying](./screenshots/181-captain-funding-5-pip-reveal-desktop.png)
+![Desktop: Pip Reveals without buying](./screenshots/179-captain-funding-4-pip-reveal-desktop.png)
 
 **Verifications:**
 
 - [x] Pip's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 130 events with no diagnostics
+- [x] Every connected replay has accepted exactly 129 events with no diagnostics
 
 ---
 
 ## Pip finishes Reveal without an acquisition
 
-![Phone: Pip finishes Reveal without an acquisition](./screenshots/182-captain-funding-5-pip-finish-phone.png)
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/180-captain-funding-4-pip-finish-phone.png)
 
-![Desktop: Pip finishes Reveal without an acquisition](./screenshots/182-captain-funding-5-pip-finish-desktop.png)
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/180-captain-funding-4-pip-finish-desktop.png)
 
 **Verifications:**
 
 - [x] Pip's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 131 events with no diagnostics
+- [x] Every connected replay has accepted exactly 130 events with no diagnostics
 
 ---
 
 ## Mara Reveals without buying
 
-![Phone: Mara Reveals without buying](./screenshots/183-captain-funding-6-mara-reveal-phone.png)
+![Phone: Mara Reveals without buying](./screenshots/181-captain-funding-5-mara-reveal-phone.png)
 
-![Desktop: Mara Reveals without buying](./screenshots/183-captain-funding-6-mara-reveal-desktop.png)
+![Desktop: Mara Reveals without buying](./screenshots/181-captain-funding-5-mara-reveal-desktop.png)
 
 **Verifications:**
 
 - [x] Mara's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 132 events with no diagnostics
+- [x] Every connected replay has accepted exactly 131 events with no diagnostics
 
 ---
 
 ## Mara finishes Reveal without an acquisition
 
-![Phone: Mara finishes Reveal without an acquisition](./screenshots/184-captain-funding-6-mara-finish-phone.png)
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/182-captain-funding-5-mara-finish-phone.png)
 
-![Desktop: Mara finishes Reveal without an acquisition](./screenshots/184-captain-funding-6-mara-finish-desktop.png)
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/182-captain-funding-5-mara-finish-desktop.png)
 
 **Verifications:**
 
 - [x] Mara's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 133 events with no diagnostics
+- [x] Every connected replay has accepted exactly 132 events with no diagnostics
 
 ---
 
 ## Pip chooses a real Roads card for Captain funding
 
-![Phone: Pip chooses a real Roads card for Captain funding](./screenshots/185-choose-captain-funding-7-phone.png)
+![Phone: Pip chooses a real Roads card for Captain funding](./screenshots/183-choose-captain-funding-6-phone.png)
 
-![Desktop: Pip chooses a real Roads card for Captain funding](./screenshots/185-choose-captain-funding-7-desktop.png)
+![Desktop: Pip chooses a real Roads card for Captain funding](./screenshots/183-choose-captain-funding-6-desktop.png)
 
 **Verifications:**
 
@@ -2466,74 +2441,151 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Pip earns two Gold toward a Captain
 
-![Phone: Pip earns two Gold toward a Captain](./screenshots/186-earn-captain-gold-7-phone.png)
+![Phone: Pip earns two Gold toward a Captain](./screenshots/184-earn-captain-gold-6-phone.png)
 
-![Desktop: Pip earns two Gold toward a Captain](./screenshots/186-earn-captain-gold-7-desktop.png)
+![Desktop: Pip earns two Gold toward a Captain](./screenshots/184-earn-captain-gold-6-desktop.png)
 
 **Verifications:**
 
 - [x] The public treasury rises by exactly two Gold
-- [x] Every connected replay has accepted exactly 134 events with no diagnostics
+- [x] Every connected replay has accepted exactly 133 events with no diagnostics
 
 ---
 
 ## Rin Reveals without buying
 
-![Phone: Rin Reveals without buying](./screenshots/187-captain-funding-8-rin-reveal-phone.png)
+![Phone: Rin Reveals without buying](./screenshots/185-captain-funding-7-rin-reveal-phone.png)
 
-![Desktop: Rin Reveals without buying](./screenshots/187-captain-funding-8-rin-reveal-desktop.png)
+![Desktop: Rin Reveals without buying](./screenshots/185-captain-funding-7-rin-reveal-desktop.png)
 
 **Verifications:**
 
 - [x] Rin's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 135 events with no diagnostics
+- [x] Every connected replay has accepted exactly 134 events with no diagnostics
 
 ---
 
 ## Rin finishes Reveal without an acquisition
 
-![Phone: Rin finishes Reveal without an acquisition](./screenshots/188-captain-funding-8-rin-finish-phone.png)
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/186-captain-funding-7-rin-finish-phone.png)
 
-![Desktop: Rin finishes Reveal without an acquisition](./screenshots/188-captain-funding-8-rin-finish-desktop.png)
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/186-captain-funding-7-rin-finish-desktop.png)
 
 **Verifications:**
 
 - [x] Rin's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 136 events with no diagnostics
+- [x] Every connected replay has accepted exactly 135 events with no diagnostics
 
 ---
 
 ## Pip Reveals without buying
 
-![Phone: Pip Reveals without buying](./screenshots/189-captain-funding-9-pip-reveal-phone.png)
+![Phone: Pip Reveals without buying](./screenshots/187-captain-funding-8-pip-reveal-phone.png)
 
-![Desktop: Pip Reveals without buying](./screenshots/189-captain-funding-9-pip-reveal-desktop.png)
+![Desktop: Pip Reveals without buying](./screenshots/187-captain-funding-8-pip-reveal-desktop.png)
 
 **Verifications:**
 
 - [x] Pip's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 137 events with no diagnostics
+- [x] Every connected replay has accepted exactly 136 events with no diagnostics
 
 ---
 
 ## Pip finishes Reveal without an acquisition
 
-![Phone: Pip finishes Reveal without an acquisition](./screenshots/190-captain-funding-9-pip-finish-phone.png)
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/188-captain-funding-8-pip-finish-phone.png)
 
-![Desktop: Pip finishes Reveal without an acquisition](./screenshots/190-captain-funding-9-pip-finish-desktop.png)
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/188-captain-funding-8-pip-finish-desktop.png)
 
 **Verifications:**
 
 - [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 137 events with no diagnostics
+
+---
+
+## Pip chooses a real Roads card for Captain funding
+
+![Phone: Pip chooses a real Roads card for Captain funding](./screenshots/189-choose-captain-funding-9-phone.png)
+
+![Desktop: Pip chooses a real Roads card for Captain funding](./screenshots/189-choose-captain-funding-9-desktop.png)
+
+**Verifications:**
+
+- [x] The base-game War Effort remains the legal funding destination
+
+---
+
+## Pip earns two Gold toward a Captain
+
+![Phone: Pip earns two Gold toward a Captain](./screenshots/190-earn-captain-gold-9-phone.png)
+
+![Desktop: Pip earns two Gold toward a Captain](./screenshots/190-earn-captain-gold-9-desktop.png)
+
+**Verifications:**
+
+- [x] The public treasury rises by exactly two Gold
 - [x] Every connected replay has accepted exactly 138 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/191-captain-funding-10-rin-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/191-captain-funding-10-rin-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 139 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/192-captain-funding-10-rin-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/192-captain-funding-10-rin-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 140 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/193-captain-funding-11-mara-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/193-captain-funding-11-mara-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 141 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/194-captain-funding-11-mara-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/194-captain-funding-11-mara-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 142 events with no diagnostics
 
 ---
 
 ## Pip chooses Armed Escort to appoint a Captain
 
-![Phone: Pip chooses Armed Escort to appoint a Captain](./screenshots/191-choose-captain-escort-phone.png)
+![Phone: Pip chooses Armed Escort to appoint a Captain](./screenshots/195-choose-captain-escort-phone.png)
 
-![Desktop: Pip chooses Armed Escort to appoint a Captain](./screenshots/191-choose-captain-escort-desktop.png)
+![Desktop: Pip chooses Armed Escort to appoint a Captain](./screenshots/195-choose-captain-escort-desktop.png)
 
 **Verifications:**
 
@@ -2544,79 +2596,27 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Pip pays the global first-Captain price
 
-![Phone: Pip pays the global first-Captain price](./screenshots/192-appoint-first-captain-phone.png)
+![Phone: Pip pays the global first-Captain price](./screenshots/196-appoint-first-captain-phone.png)
 
-![Desktop: Pip pays the global first-Captain price](./screenshots/192-appoint-first-captain-desktop.png)
+![Desktop: Pip pays the global first-Captain price](./screenshots/196-appoint-first-captain-desktop.png)
 
 **Verifications:**
 
 - [x] Every client sees the Agent and exact eight-Gold payment
 - [x] The connected Scout opens its normal pre-effect intelligence window before appointment
-- [x] Every connected replay has accepted exactly 139 events with no diagnostics
+- [x] Every connected replay has accepted exactly 143 events with no diagnostics
 
 ---
 
 ## Pip leaves the connected Scout before appointing the Captain
 
-![Phone: Pip leaves the connected Scout before appointing the Captain](./screenshots/193-decline-captain-intelligence-phone.png)
+![Phone: Pip leaves the connected Scout before appointing the Captain](./screenshots/197-decline-captain-intelligence-phone.png)
 
-![Desktop: Pip leaves the connected Scout before appointing the Captain](./screenshots/193-decline-captain-intelligence-desktop.png)
+![Desktop: Pip leaves the connected Scout before appointing the Captain](./screenshots/197-decline-captain-intelligence-desktop.png)
 
 **Verifications:**
 
 - [x] The Captain effect resolves only after the ordered Scout window
-- [x] Every connected replay has accepted exactly 140 events with no diagnostics
-
----
-
-## Rin Reveals without buying
-
-![Phone: Rin Reveals without buying](./screenshots/194-captain-arrival-0-rin-reveal-phone.png)
-
-![Desktop: Rin Reveals without buying](./screenshots/194-captain-arrival-0-rin-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Rin's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 141 events with no diagnostics
-
----
-
-## Rin finishes Reveal without an acquisition
-
-![Phone: Rin finishes Reveal without an acquisition](./screenshots/195-captain-arrival-0-rin-finish-phone.png)
-
-![Desktop: Rin finishes Reveal without an acquisition](./screenshots/195-captain-arrival-0-rin-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Rin's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 142 events with no diagnostics
-
----
-
-## Mara Reveals without buying
-
-![Phone: Mara Reveals without buying](./screenshots/196-captain-arrival-1-mara-reveal-phone.png)
-
-![Desktop: Mara Reveals without buying](./screenshots/196-captain-arrival-1-mara-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 143 events with no diagnostics
-
----
-
-## Mara finishes Reveal without an acquisition
-
-![Phone: Mara finishes Reveal without an acquisition](./screenshots/197-captain-arrival-1-mara-finish-phone.png)
-
-![Desktop: Mara finishes Reveal without an acquisition](./screenshots/197-captain-arrival-1-mara-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's cards leave Muster and remain conserved
 - [x] Every connected replay has accepted exactly 144 events with no diagnostics
 
 ---
@@ -2802,28 +2802,29 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip chooses a Roads card for Council funding
+## Pip Reveals without buying
 
-![Phone: Pip chooses a Roads card for Council funding](./screenshots/212-pits-isengard-choose-road-funding-6-phone.png)
+![Phone: Pip Reveals without buying](./screenshots/212-pits-isengard-funding-6-pip-reveal-phone.png)
 
-![Desktop: Pip chooses a Roads card for Council funding](./screenshots/212-pits-isengard-choose-road-funding-6-desktop.png)
+![Desktop: Pip Reveals without buying](./screenshots/212-pits-isengard-funding-6-pip-reveal-desktop.png)
 
 **Verifications:**
 
-- [x] Take Up a War Effort is enabled by the selected real card
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 156 events with no diagnostics
 
 ---
 
-## Pip earns two Gold for the next Council audience
+## Pip finishes Reveal without an acquisition
 
-![Phone: Pip earns two Gold for the next Council audience](./screenshots/213-pits-isengard-earn-road-gold-6-phone.png)
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/213-pits-isengard-funding-6-pip-finish-phone.png)
 
-![Desktop: Pip earns two Gold for the next Council audience](./screenshots/213-pits-isengard-earn-road-gold-6-desktop.png)
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/213-pits-isengard-funding-6-pip-finish-desktop.png)
 
 **Verifications:**
 
-- [x] The treasury rises by exactly two Gold
-- [x] Every connected replay has accepted exactly 156 events with no diagnostics
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 157 events with no diagnostics
 
 ---
 
@@ -2836,7 +2837,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] Rin's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 157 events with no diagnostics
+- [x] Every connected replay has accepted exactly 158 events with no diagnostics
 
 ---
 
@@ -2849,362 +2850,92 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] Rin's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 158 events with no diagnostics
-
----
-
-## Pip chooses Armed Escort for Mithril funding
-
-![Phone: Pip chooses Armed Escort for Mithril funding](./screenshots/216-pits-isengard-choose-council-funding-8-phone.png)
-
-![Desktop: Pip chooses Armed Escort for Mithril funding](./screenshots/216-pits-isengard-choose-council-funding-8-desktop.png)
-
-**Verifications:**
-
-- [x] The established Council seat is legal with five Gold
-
----
-
-## Pip pays for another Council audience
-
-![Phone: Pip pays for another Council audience](./screenshots/217-pits-isengard-repeat-council-8-phone.png)
-
-![Desktop: Pip pays for another Council audience](./screenshots/217-pits-isengard-repeat-council-8-desktop.png)
-
-**Verifications:**
-
-- [x] The five-Gold payment precedes the connected Scout window
 - [x] Every connected replay has accepted exactly 159 events with no diagnostics
 
 ---
 
-## Pip leaves the Council Scout to receive Mithril
+## Pip chooses a Roads card for Council funding
 
-![Phone: Pip leaves the Council Scout to receive Mithril](./screenshots/218-pits-isengard-decline-council-intelligence-8-phone.png)
+![Phone: Pip chooses a Roads card for Council funding](./screenshots/216-pits-isengard-choose-road-funding-8-phone.png)
 
-![Desktop: Pip leaves the Council Scout to receive Mithril](./screenshots/218-pits-isengard-decline-council-intelligence-8-desktop.png)
+![Desktop: Pip chooses a Roads card for Council funding](./screenshots/216-pits-isengard-choose-road-funding-8-desktop.png)
 
 **Verifications:**
 
-- [x] The repeat Council reward adds exactly two Mithril after the ordered Scout window
+- [x] Take Up a War Effort is enabled by the selected real card
+
+---
+
+## Pip earns two Gold for the next Council audience
+
+![Phone: Pip earns two Gold for the next Council audience](./screenshots/217-pits-isengard-earn-road-gold-8-phone.png)
+
+![Desktop: Pip earns two Gold for the next Council audience](./screenshots/217-pits-isengard-earn-road-gold-8-desktop.png)
+
+**Verifications:**
+
+- [x] The treasury rises by exactly two Gold
 - [x] Every connected replay has accepted exactly 160 events with no diagnostics
 
 ---
 
-## Pip Reveals without buying
+## Rin Reveals without buying
 
-![Phone: Pip Reveals without buying](./screenshots/219-pits-isengard-funding-9-pip-reveal-phone.png)
+![Phone: Rin Reveals without buying](./screenshots/218-pits-isengard-funding-9-rin-reveal-phone.png)
 
-![Desktop: Pip Reveals without buying](./screenshots/219-pits-isengard-funding-9-pip-reveal-desktop.png)
+![Desktop: Rin Reveals without buying](./screenshots/218-pits-isengard-funding-9-rin-reveal-desktop.png)
 
 **Verifications:**
 
-- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Rin's real remaining hand becomes the public Muster row
 - [x] Every connected replay has accepted exactly 161 events with no diagnostics
 
 ---
 
-## Pip finishes Reveal without an acquisition
+## Rin finishes Reveal without an acquisition
 
-![Phone: Pip finishes Reveal without an acquisition](./screenshots/220-pits-isengard-funding-9-pip-finish-phone.png)
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/219-pits-isengard-funding-9-rin-finish-phone.png)
 
-![Desktop: Pip finishes Reveal without an acquisition](./screenshots/220-pits-isengard-funding-9-pip-finish-desktop.png)
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/219-pits-isengard-funding-9-rin-finish-desktop.png)
 
 **Verifications:**
 
-- [x] Pip's cards leave Muster and remain conserved
+- [x] Rin's cards leave Muster and remain conserved
 - [x] Every connected replay has accepted exactly 162 events with no diagnostics
 
 ---
 
-## Pip chooses a Roads card for Council funding
+## Mara Reveals without buying
 
-![Phone: Pip chooses a Roads card for Council funding](./screenshots/221-pits-isengard-choose-road-funding-10-phone.png)
+![Phone: Mara Reveals without buying](./screenshots/220-pits-isengard-funding-10-mara-reveal-phone.png)
 
-![Desktop: Pip chooses a Roads card for Council funding](./screenshots/221-pits-isengard-choose-road-funding-10-desktop.png)
-
-**Verifications:**
-
-- [x] Take Up a War Effort is enabled by the selected real card
-
----
-
-## Pip earns two Gold for the next Council audience
-
-![Phone: Pip earns two Gold for the next Council audience](./screenshots/222-pits-isengard-earn-road-gold-10-phone.png)
-
-![Desktop: Pip earns two Gold for the next Council audience](./screenshots/222-pits-isengard-earn-road-gold-10-desktop.png)
+![Desktop: Mara Reveals without buying](./screenshots/220-pits-isengard-funding-10-mara-reveal-desktop.png)
 
 **Verifications:**
 
-- [x] The treasury rises by exactly two Gold
+- [x] Mara's real remaining hand becomes the public Muster row
 - [x] Every connected replay has accepted exactly 163 events with no diagnostics
 
 ---
 
-## Rin Reveals without buying
+## Mara finishes Reveal without an acquisition
 
-![Phone: Rin Reveals without buying](./screenshots/223-pits-isengard-funding-11-rin-reveal-phone.png)
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/221-pits-isengard-funding-10-mara-finish-phone.png)
 
-![Desktop: Rin Reveals without buying](./screenshots/223-pits-isengard-funding-11-rin-reveal-desktop.png)
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/221-pits-isengard-funding-10-mara-finish-desktop.png)
 
 **Verifications:**
 
-- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Mara's cards leave Muster and remain conserved
 - [x] Every connected replay has accepted exactly 164 events with no diagnostics
-
----
-
-## Rin finishes Reveal without an acquisition
-
-![Phone: Rin finishes Reveal without an acquisition](./screenshots/224-pits-isengard-funding-11-rin-finish-phone.png)
-
-![Desktop: Rin finishes Reveal without an acquisition](./screenshots/224-pits-isengard-funding-11-rin-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Rin's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 165 events with no diagnostics
-
----
-
-## Mara Reveals without buying
-
-![Phone: Mara Reveals without buying](./screenshots/225-pits-isengard-funding-12-mara-reveal-phone.png)
-
-![Desktop: Mara Reveals without buying](./screenshots/225-pits-isengard-funding-12-mara-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 166 events with no diagnostics
-
----
-
-## Mara finishes Reveal without an acquisition
-
-![Phone: Mara finishes Reveal without an acquisition](./screenshots/226-pits-isengard-funding-12-mara-finish-phone.png)
-
-![Desktop: Mara finishes Reveal without an acquisition](./screenshots/226-pits-isengard-funding-12-mara-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 167 events with no diagnostics
-
----
-
-## Pip Reveals without buying
-
-![Phone: Pip Reveals without buying](./screenshots/227-pits-isengard-funding-13-pip-reveal-phone.png)
-
-![Desktop: Pip Reveals without buying](./screenshots/227-pits-isengard-funding-13-pip-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Pip's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 168 events with no diagnostics
-
----
-
-## Pip finishes Reveal without an acquisition
-
-![Phone: Pip finishes Reveal without an acquisition](./screenshots/228-pits-isengard-funding-13-pip-finish-phone.png)
-
-![Desktop: Pip finishes Reveal without an acquisition](./screenshots/228-pits-isengard-funding-13-pip-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Pip's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 169 events with no diagnostics
-
----
-
-## Rin Reveals without buying
-
-![Phone: Rin Reveals without buying](./screenshots/229-pits-isengard-funding-14-rin-reveal-phone.png)
-
-![Desktop: Rin Reveals without buying](./screenshots/229-pits-isengard-funding-14-rin-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Rin's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 170 events with no diagnostics
-
----
-
-## Rin finishes Reveal without an acquisition
-
-![Phone: Rin finishes Reveal without an acquisition](./screenshots/230-pits-isengard-funding-14-rin-finish-phone.png)
-
-![Desktop: Rin finishes Reveal without an acquisition](./screenshots/230-pits-isengard-funding-14-rin-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Rin's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 171 events with no diagnostics
-
----
-
-## Mara Reveals without buying
-
-![Phone: Mara Reveals without buying](./screenshots/231-pits-isengard-funding-15-mara-reveal-phone.png)
-
-![Desktop: Mara Reveals without buying](./screenshots/231-pits-isengard-funding-15-mara-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 172 events with no diagnostics
-
----
-
-## Mara finishes Reveal without an acquisition
-
-![Phone: Mara finishes Reveal without an acquisition](./screenshots/232-pits-isengard-funding-15-mara-finish-phone.png)
-
-![Desktop: Mara finishes Reveal without an acquisition](./screenshots/232-pits-isengard-funding-15-mara-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 173 events with no diagnostics
-
----
-
-## Pip chooses a Roads card for Council funding
-
-![Phone: Pip chooses a Roads card for Council funding](./screenshots/233-pits-isengard-choose-road-funding-16-phone.png)
-
-![Desktop: Pip chooses a Roads card for Council funding](./screenshots/233-pits-isengard-choose-road-funding-16-desktop.png)
-
-**Verifications:**
-
-- [x] Take Up a War Effort is enabled by the selected real card
-
----
-
-## Pip earns two Gold for the next Council audience
-
-![Phone: Pip earns two Gold for the next Council audience](./screenshots/234-pits-isengard-earn-road-gold-16-phone.png)
-
-![Desktop: Pip earns two Gold for the next Council audience](./screenshots/234-pits-isengard-earn-road-gold-16-desktop.png)
-
-**Verifications:**
-
-- [x] The treasury rises by exactly two Gold
-- [x] Every connected replay has accepted exactly 174 events with no diagnostics
-
----
-
-## Pip Reveals without buying
-
-![Phone: Pip Reveals without buying](./screenshots/235-pits-isengard-funding-17-pip-reveal-phone.png)
-
-![Desktop: Pip Reveals without buying](./screenshots/235-pits-isengard-funding-17-pip-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Pip's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 175 events with no diagnostics
-
----
-
-## Pip finishes Reveal without an acquisition
-
-![Phone: Pip finishes Reveal without an acquisition](./screenshots/236-pits-isengard-funding-17-pip-finish-phone.png)
-
-![Desktop: Pip finishes Reveal without an acquisition](./screenshots/236-pits-isengard-funding-17-pip-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Pip's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 176 events with no diagnostics
-
----
-
-## Mara Reveals without buying
-
-![Phone: Mara Reveals without buying](./screenshots/237-pits-isengard-funding-18-mara-reveal-phone.png)
-
-![Desktop: Mara Reveals without buying](./screenshots/237-pits-isengard-funding-18-mara-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 177 events with no diagnostics
-
----
-
-## Mara finishes Reveal without an acquisition
-
-![Phone: Mara finishes Reveal without an acquisition](./screenshots/238-pits-isengard-funding-18-mara-finish-phone.png)
-
-![Desktop: Mara finishes Reveal without an acquisition](./screenshots/238-pits-isengard-funding-18-mara-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 178 events with no diagnostics
-
----
-
-## Pip chooses a Roads card for Council funding
-
-![Phone: Pip chooses a Roads card for Council funding](./screenshots/239-pits-isengard-choose-road-funding-19-phone.png)
-
-![Desktop: Pip chooses a Roads card for Council funding](./screenshots/239-pits-isengard-choose-road-funding-19-desktop.png)
-
-**Verifications:**
-
-- [x] Take Up a War Effort is enabled by the selected real card
-
----
-
-## Pip earns two Gold for the next Council audience
-
-![Phone: Pip earns two Gold for the next Council audience](./screenshots/240-pits-isengard-earn-road-gold-19-phone.png)
-
-![Desktop: Pip earns two Gold for the next Council audience](./screenshots/240-pits-isengard-earn-road-gold-19-desktop.png)
-
-**Verifications:**
-
-- [x] The treasury rises by exactly two Gold
-- [x] Every connected replay has accepted exactly 179 events with no diagnostics
-
----
-
-## Rin Reveals without buying
-
-![Phone: Rin Reveals without buying](./screenshots/241-pits-isengard-funding-20-rin-reveal-phone.png)
-
-![Desktop: Rin Reveals without buying](./screenshots/241-pits-isengard-funding-20-rin-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Rin's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 180 events with no diagnostics
-
----
-
-## Rin finishes Reveal without an acquisition
-
-![Phone: Rin finishes Reveal without an acquisition](./screenshots/242-pits-isengard-funding-20-rin-finish-phone.png)
-
-![Desktop: Rin finishes Reveal without an acquisition](./screenshots/242-pits-isengard-funding-20-rin-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Rin's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 181 events with no diagnostics
 
 ---
 
 ## Pip chooses Armed Escort for Mithril funding
 
-![Phone: Pip chooses Armed Escort for Mithril funding](./screenshots/243-pits-isengard-choose-council-funding-21-phone.png)
+![Phone: Pip chooses Armed Escort for Mithril funding](./screenshots/222-pits-isengard-choose-council-funding-11-phone.png)
 
-![Desktop: Pip chooses Armed Escort for Mithril funding](./screenshots/243-pits-isengard-choose-council-funding-21-desktop.png)
+![Desktop: Pip chooses Armed Escort for Mithril funding](./screenshots/222-pits-isengard-choose-council-funding-11-desktop.png)
 
 **Verifications:**
 
@@ -3214,35 +2945,460 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Pip pays for another Council audience
 
-![Phone: Pip pays for another Council audience](./screenshots/244-pits-isengard-repeat-council-21-phone.png)
+![Phone: Pip pays for another Council audience](./screenshots/223-pits-isengard-repeat-council-11-phone.png)
 
-![Desktop: Pip pays for another Council audience](./screenshots/244-pits-isengard-repeat-council-21-desktop.png)
+![Desktop: Pip pays for another Council audience](./screenshots/223-pits-isengard-repeat-council-11-desktop.png)
 
 **Verifications:**
 
 - [x] The five-Gold payment precedes the connected Scout window
-- [x] Every connected replay has accepted exactly 182 events with no diagnostics
+- [x] Every connected replay has accepted exactly 165 events with no diagnostics
 
 ---
 
 ## Pip leaves the Council Scout to receive Mithril
 
-![Phone: Pip leaves the Council Scout to receive Mithril](./screenshots/245-pits-isengard-decline-council-intelligence-21-phone.png)
+![Phone: Pip leaves the Council Scout to receive Mithril](./screenshots/224-pits-isengard-decline-council-intelligence-11-phone.png)
 
-![Desktop: Pip leaves the Council Scout to receive Mithril](./screenshots/245-pits-isengard-decline-council-intelligence-21-desktop.png)
+![Desktop: Pip leaves the Council Scout to receive Mithril](./screenshots/224-pits-isengard-decline-council-intelligence-11-desktop.png)
 
 **Verifications:**
 
 - [x] The repeat Council reward adds exactly two Mithril after the ordered Scout window
+- [x] Every connected replay has accepted exactly 166 events with no diagnostics
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/225-pits-isengard-funding-12-pip-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/225-pits-isengard-funding-12-pip-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 167 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/226-pits-isengard-funding-12-pip-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/226-pits-isengard-funding-12-pip-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 168 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/227-pits-isengard-funding-13-rin-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/227-pits-isengard-funding-13-rin-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 169 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/228-pits-isengard-funding-13-rin-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/228-pits-isengard-funding-13-rin-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 170 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/229-pits-isengard-funding-14-mara-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/229-pits-isengard-funding-14-mara-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 171 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/230-pits-isengard-funding-14-mara-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/230-pits-isengard-funding-14-mara-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 172 events with no diagnostics
+
+---
+
+## Pip chooses a Roads card for Council funding
+
+![Phone: Pip chooses a Roads card for Council funding](./screenshots/231-pits-isengard-choose-road-funding-15-phone.png)
+
+![Desktop: Pip chooses a Roads card for Council funding](./screenshots/231-pits-isengard-choose-road-funding-15-desktop.png)
+
+**Verifications:**
+
+- [x] Take Up a War Effort is enabled by the selected real card
+
+---
+
+## Pip earns two Gold for the next Council audience
+
+![Phone: Pip earns two Gold for the next Council audience](./screenshots/232-pits-isengard-earn-road-gold-15-phone.png)
+
+![Desktop: Pip earns two Gold for the next Council audience](./screenshots/232-pits-isengard-earn-road-gold-15-desktop.png)
+
+**Verifications:**
+
+- [x] The treasury rises by exactly two Gold
+- [x] Every connected replay has accepted exactly 173 events with no diagnostics
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/233-pits-isengard-funding-16-pip-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/233-pits-isengard-funding-16-pip-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 174 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/234-pits-isengard-funding-16-pip-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/234-pits-isengard-funding-16-pip-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 175 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/235-pits-isengard-funding-17-mara-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/235-pits-isengard-funding-17-mara-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 176 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/236-pits-isengard-funding-17-mara-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/236-pits-isengard-funding-17-mara-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 177 events with no diagnostics
+
+---
+
+## Pip chooses a Roads card for Council funding
+
+![Phone: Pip chooses a Roads card for Council funding](./screenshots/237-pits-isengard-choose-road-funding-18-phone.png)
+
+![Desktop: Pip chooses a Roads card for Council funding](./screenshots/237-pits-isengard-choose-road-funding-18-desktop.png)
+
+**Verifications:**
+
+- [x] Take Up a War Effort is enabled by the selected real card
+
+---
+
+## Pip earns two Gold for the next Council audience
+
+![Phone: Pip earns two Gold for the next Council audience](./screenshots/238-pits-isengard-earn-road-gold-18-phone.png)
+
+![Desktop: Pip earns two Gold for the next Council audience](./screenshots/238-pits-isengard-earn-road-gold-18-desktop.png)
+
+**Verifications:**
+
+- [x] The treasury rises by exactly two Gold
+- [x] Every connected replay has accepted exactly 178 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/239-pits-isengard-funding-19-rin-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/239-pits-isengard-funding-19-rin-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 179 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/240-pits-isengard-funding-19-rin-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/240-pits-isengard-funding-19-rin-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 180 events with no diagnostics
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/241-pits-isengard-funding-20-pip-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/241-pits-isengard-funding-20-pip-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 181 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/242-pits-isengard-funding-20-pip-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/242-pits-isengard-funding-20-pip-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 182 events with no diagnostics
+
+---
+
+## Pip chooses a Roads card for Council funding
+
+![Phone: Pip chooses a Roads card for Council funding](./screenshots/243-pits-isengard-choose-road-funding-21-phone.png)
+
+![Desktop: Pip chooses a Roads card for Council funding](./screenshots/243-pits-isengard-choose-road-funding-21-desktop.png)
+
+**Verifications:**
+
+- [x] Take Up a War Effort is enabled by the selected real card
+
+---
+
+## Pip earns two Gold for the next Council audience
+
+![Phone: Pip earns two Gold for the next Council audience](./screenshots/244-pits-isengard-earn-road-gold-21-phone.png)
+
+![Desktop: Pip earns two Gold for the next Council audience](./screenshots/244-pits-isengard-earn-road-gold-21-desktop.png)
+
+**Verifications:**
+
+- [x] The treasury rises by exactly two Gold
 - [x] Every connected replay has accepted exactly 183 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/245-pits-isengard-funding-22-rin-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/245-pits-isengard-funding-22-rin-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 184 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/246-pits-isengard-funding-22-rin-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/246-pits-isengard-funding-22-rin-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 185 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/247-pits-isengard-funding-23-mara-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/247-pits-isengard-funding-23-mara-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 186 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/248-pits-isengard-funding-23-mara-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/248-pits-isengard-funding-23-mara-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 187 events with no diagnostics
+
+---
+
+## Pip chooses Armed Escort for Mithril funding
+
+![Phone: Pip chooses Armed Escort for Mithril funding](./screenshots/249-pits-isengard-choose-council-funding-24-phone.png)
+
+![Desktop: Pip chooses Armed Escort for Mithril funding](./screenshots/249-pits-isengard-choose-council-funding-24-desktop.png)
+
+**Verifications:**
+
+- [x] The established Council seat is legal with five Gold
+
+---
+
+## Pip pays for another Council audience
+
+![Phone: Pip pays for another Council audience](./screenshots/250-pits-isengard-repeat-council-24-phone.png)
+
+![Desktop: Pip pays for another Council audience](./screenshots/250-pits-isengard-repeat-council-24-desktop.png)
+
+**Verifications:**
+
+- [x] The five-Gold payment precedes the connected Scout window
+- [x] Every connected replay has accepted exactly 188 events with no diagnostics
+
+---
+
+## Pip leaves the Council Scout to receive Mithril
+
+![Phone: Pip leaves the Council Scout to receive Mithril](./screenshots/251-pits-isengard-decline-council-intelligence-24-phone.png)
+
+![Desktop: Pip leaves the Council Scout to receive Mithril](./screenshots/251-pits-isengard-decline-council-intelligence-24-desktop.png)
+
+**Verifications:**
+
+- [x] The repeat Council reward adds exactly two Mithril after the ordered Scout window
+- [x] Every connected replay has accepted exactly 189 events with no diagnostics
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/252-pits-isengard-funding-25-pip-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/252-pits-isengard-funding-25-pip-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 190 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/253-pits-isengard-funding-25-pip-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/253-pits-isengard-funding-25-pip-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 191 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/254-pits-isengard-funding-26-rin-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/254-pits-isengard-funding-26-rin-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 192 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/255-pits-isengard-funding-26-rin-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/255-pits-isengard-funding-26-rin-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 193 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/256-pits-isengard-funding-27-mara-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/256-pits-isengard-funding-27-mara-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 194 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/257-pits-isengard-funding-27-mara-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/257-pits-isengard-funding-27-mara-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 195 events with no diagnostics
 
 ---
 
 ## Pip chooses a faction mission for Pits of Isengard
 
-![Phone: Pip chooses a faction mission for Pits of Isengard](./screenshots/246-choose-pits-isengard-mission-phone.png)
+![Phone: Pip chooses a faction mission for Pits of Isengard](./screenshots/258-choose-pits-isengard-mission-phone.png)
 
-![Desktop: Pip chooses a faction mission for Pits of Isengard](./screenshots/246-choose-pits-isengard-mission-desktop.png)
+![Desktop: Pip chooses a faction mission for Pits of Isengard](./screenshots/258-choose-pits-isengard-mission-desktop.png)
 
 **Verifications:**
 
@@ -3253,22 +3409,22 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Pip enters Pits of Isengard
 
-![Phone: Pip enters Pits of Isengard](./screenshots/247-visit-pits-isengard-phone.png)
+![Phone: Pip enters Pits of Isengard](./screenshots/259-visit-pits-isengard-phone.png)
 
-![Desktop: Pip enters Pits of Isengard](./screenshots/247-visit-pits-isengard-desktop.png)
+![Desktop: Pip enters Pits of Isengard](./screenshots/259-visit-pits-isengard-desktop.png)
 
 **Verifications:**
 
 - [x] Every client sees the Agent and exact 4-Mithril payment
-- [x] Every connected replay has accepted exactly 184 events with no diagnostics
+- [x] Every connected replay has accepted exactly 196 events with no diagnostics
 
 ---
 
 ## Pits of Isengard resolves its complete reward
 
-![Phone: Pits of Isengard resolves its complete reward](./screenshots/248-pits-isengard-resolved-phone.png)
+![Phone: Pits of Isengard resolves its complete reward](./screenshots/260-pits-isengard-resolved-phone.png)
 
-![Desktop: Pits of Isengard resolves its complete reward](./screenshots/248-pits-isengard-resolved-desktop.png)
+![Desktop: Pits of Isengard resolves its complete reward](./screenshots/260-pits-isengard-resolved-desktop.png)
 
 **Verifications:**
 
@@ -3277,37 +3433,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals without buying
-
-![Phone: Pip Reveals without buying](./screenshots/249-deep-roads-funding-0-pip-reveal-phone.png)
-
-![Desktop: Pip Reveals without buying](./screenshots/249-deep-roads-funding-0-pip-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Pip's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 185 events with no diagnostics
-
----
-
-## Pip finishes Reveal without an acquisition
-
-![Phone: Pip finishes Reveal without an acquisition](./screenshots/250-deep-roads-funding-0-pip-finish-phone.png)
-
-![Desktop: Pip finishes Reveal without an acquisition](./screenshots/250-deep-roads-funding-0-pip-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Pip's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 186 events with no diagnostics
-
----
-
 ## Pip chooses a Roads card for Council funding
 
-![Phone: Pip chooses a Roads card for Council funding](./screenshots/251-deep-roads-choose-road-funding-1-phone.png)
+![Phone: Pip chooses a Roads card for Council funding](./screenshots/261-deep-roads-choose-road-funding-0-phone.png)
 
-![Desktop: Pip chooses a Roads card for Council funding](./screenshots/251-deep-roads-choose-road-funding-1-desktop.png)
+![Desktop: Pip chooses a Roads card for Council funding](./screenshots/261-deep-roads-choose-road-funding-0-desktop.png)
 
 **Verifications:**
 
@@ -3317,524 +3447,125 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Pip earns two Gold for the next Council audience
 
-![Phone: Pip earns two Gold for the next Council audience](./screenshots/252-deep-roads-earn-road-gold-1-phone.png)
+![Phone: Pip earns two Gold for the next Council audience](./screenshots/262-deep-roads-earn-road-gold-0-phone.png)
 
-![Desktop: Pip earns two Gold for the next Council audience](./screenshots/252-deep-roads-earn-road-gold-1-desktop.png)
+![Desktop: Pip earns two Gold for the next Council audience](./screenshots/262-deep-roads-earn-road-gold-0-desktop.png)
 
 **Verifications:**
 
 - [x] The treasury rises by exactly two Gold
-- [x] Every connected replay has accepted exactly 187 events with no diagnostics
-
----
-
-## Rin Reveals without buying
-
-![Phone: Rin Reveals without buying](./screenshots/253-deep-roads-funding-2-rin-reveal-phone.png)
-
-![Desktop: Rin Reveals without buying](./screenshots/253-deep-roads-funding-2-rin-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Rin's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 188 events with no diagnostics
-
----
-
-## Rin finishes Reveal without an acquisition
-
-![Phone: Rin finishes Reveal without an acquisition](./screenshots/254-deep-roads-funding-2-rin-finish-phone.png)
-
-![Desktop: Rin finishes Reveal without an acquisition](./screenshots/254-deep-roads-funding-2-rin-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Rin's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 189 events with no diagnostics
-
----
-
-## Mara Reveals without buying
-
-![Phone: Mara Reveals without buying](./screenshots/255-deep-roads-funding-3-mara-reveal-phone.png)
-
-![Desktop: Mara Reveals without buying](./screenshots/255-deep-roads-funding-3-mara-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 190 events with no diagnostics
-
----
-
-## Mara finishes Reveal without an acquisition
-
-![Phone: Mara finishes Reveal without an acquisition](./screenshots/256-deep-roads-funding-3-mara-finish-phone.png)
-
-![Desktop: Mara finishes Reveal without an acquisition](./screenshots/256-deep-roads-funding-3-mara-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 191 events with no diagnostics
-
----
-
-## Pip Reveals without buying
-
-![Phone: Pip Reveals without buying](./screenshots/257-deep-roads-funding-4-pip-reveal-phone.png)
-
-![Desktop: Pip Reveals without buying](./screenshots/257-deep-roads-funding-4-pip-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Pip's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 192 events with no diagnostics
-
----
-
-## Pip finishes Reveal without an acquisition
-
-![Phone: Pip finishes Reveal without an acquisition](./screenshots/258-deep-roads-funding-4-pip-finish-phone.png)
-
-![Desktop: Pip finishes Reveal without an acquisition](./screenshots/258-deep-roads-funding-4-pip-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Pip's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 193 events with no diagnostics
-
----
-
-## Rin Reveals without buying
-
-![Phone: Rin Reveals without buying](./screenshots/259-deep-roads-funding-5-rin-reveal-phone.png)
-
-![Desktop: Rin Reveals without buying](./screenshots/259-deep-roads-funding-5-rin-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Rin's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 194 events with no diagnostics
-
----
-
-## Rin finishes Reveal without an acquisition
-
-![Phone: Rin finishes Reveal without an acquisition](./screenshots/260-deep-roads-funding-5-rin-finish-phone.png)
-
-![Desktop: Rin finishes Reveal without an acquisition](./screenshots/260-deep-roads-funding-5-rin-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Rin's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 195 events with no diagnostics
-
----
-
-## Mara Reveals without buying
-
-![Phone: Mara Reveals without buying](./screenshots/261-deep-roads-funding-6-mara-reveal-phone.png)
-
-![Desktop: Mara Reveals without buying](./screenshots/261-deep-roads-funding-6-mara-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 196 events with no diagnostics
-
----
-
-## Mara finishes Reveal without an acquisition
-
-![Phone: Mara finishes Reveal without an acquisition](./screenshots/262-deep-roads-funding-6-mara-finish-phone.png)
-
-![Desktop: Mara finishes Reveal without an acquisition](./screenshots/262-deep-roads-funding-6-mara-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's cards leave Muster and remain conserved
 - [x] Every connected replay has accepted exactly 197 events with no diagnostics
 
 ---
 
-## Pip chooses a Roads card for Council funding
+## Pip Reveals without buying
 
-![Phone: Pip chooses a Roads card for Council funding](./screenshots/263-deep-roads-choose-road-funding-7-phone.png)
+![Phone: Pip Reveals without buying](./screenshots/263-deep-roads-funding-1-pip-reveal-phone.png)
 
-![Desktop: Pip chooses a Roads card for Council funding](./screenshots/263-deep-roads-choose-road-funding-7-desktop.png)
-
-**Verifications:**
-
-- [x] Take Up a War Effort is enabled by the selected real card
-
----
-
-## Pip earns two Gold for the next Council audience
-
-![Phone: Pip earns two Gold for the next Council audience](./screenshots/264-deep-roads-earn-road-gold-7-phone.png)
-
-![Desktop: Pip earns two Gold for the next Council audience](./screenshots/264-deep-roads-earn-road-gold-7-desktop.png)
+![Desktop: Pip Reveals without buying](./screenshots/263-deep-roads-funding-1-pip-reveal-desktop.png)
 
 **Verifications:**
 
-- [x] The treasury rises by exactly two Gold
+- [x] Pip's real remaining hand becomes the public Muster row
 - [x] Every connected replay has accepted exactly 198 events with no diagnostics
 
 ---
 
-## Pip Reveals without buying
+## Pip finishes Reveal without an acquisition
 
-![Phone: Pip Reveals without buying](./screenshots/265-deep-roads-funding-8-pip-reveal-phone.png)
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/264-deep-roads-funding-1-pip-finish-phone.png)
 
-![Desktop: Pip Reveals without buying](./screenshots/265-deep-roads-funding-8-pip-reveal-desktop.png)
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/264-deep-roads-funding-1-pip-finish-desktop.png)
 
 **Verifications:**
 
-- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Pip's cards leave Muster and remain conserved
 - [x] Every connected replay has accepted exactly 199 events with no diagnostics
 
 ---
 
-## Pip finishes Reveal without an acquisition
+## Mara Reveals without buying
 
-![Phone: Pip finishes Reveal without an acquisition](./screenshots/266-deep-roads-funding-8-pip-finish-phone.png)
+![Phone: Mara Reveals without buying](./screenshots/265-deep-roads-funding-2-mara-reveal-phone.png)
 
-![Desktop: Pip finishes Reveal without an acquisition](./screenshots/266-deep-roads-funding-8-pip-finish-desktop.png)
+![Desktop: Mara Reveals without buying](./screenshots/265-deep-roads-funding-2-mara-reveal-desktop.png)
 
 **Verifications:**
 
-- [x] Pip's cards leave Muster and remain conserved
+- [x] Mara's real remaining hand becomes the public Muster row
 - [x] Every connected replay has accepted exactly 200 events with no diagnostics
 
 ---
 
-## Mara Reveals without buying
+## Mara finishes Reveal without an acquisition
 
-![Phone: Mara Reveals without buying](./screenshots/267-deep-roads-funding-9-mara-reveal-phone.png)
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/266-deep-roads-funding-2-mara-finish-phone.png)
 
-![Desktop: Mara Reveals without buying](./screenshots/267-deep-roads-funding-9-mara-reveal-desktop.png)
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/266-deep-roads-funding-2-mara-finish-desktop.png)
 
 **Verifications:**
 
-- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Mara's cards leave Muster and remain conserved
 - [x] Every connected replay has accepted exactly 201 events with no diagnostics
 
 ---
 
-## Mara finishes Reveal without an acquisition
+## Pip chooses a Roads card for Council funding
 
-![Phone: Mara finishes Reveal without an acquisition](./screenshots/268-deep-roads-funding-9-mara-finish-phone.png)
+![Phone: Pip chooses a Roads card for Council funding](./screenshots/267-deep-roads-choose-road-funding-3-phone.png)
 
-![Desktop: Mara finishes Reveal without an acquisition](./screenshots/268-deep-roads-funding-9-mara-finish-desktop.png)
+![Desktop: Pip chooses a Roads card for Council funding](./screenshots/267-deep-roads-choose-road-funding-3-desktop.png)
 
 **Verifications:**
 
-- [x] Mara's cards leave Muster and remain conserved
+- [x] Take Up a War Effort is enabled by the selected real card
+
+---
+
+## Pip earns two Gold for the next Council audience
+
+![Phone: Pip earns two Gold for the next Council audience](./screenshots/268-deep-roads-earn-road-gold-3-phone.png)
+
+![Desktop: Pip earns two Gold for the next Council audience](./screenshots/268-deep-roads-earn-road-gold-3-desktop.png)
+
+**Verifications:**
+
+- [x] The treasury rises by exactly two Gold
 - [x] Every connected replay has accepted exactly 202 events with no diagnostics
 
 ---
 
-## Pip chooses Armed Escort for Mithril funding
+## Rin Reveals without buying
 
-![Phone: Pip chooses Armed Escort for Mithril funding](./screenshots/269-deep-roads-choose-council-funding-10-phone.png)
+![Phone: Rin Reveals without buying](./screenshots/269-deep-roads-funding-4-rin-reveal-phone.png)
 
-![Desktop: Pip chooses Armed Escort for Mithril funding](./screenshots/269-deep-roads-choose-council-funding-10-desktop.png)
-
-**Verifications:**
-
-- [x] The established Council seat is legal with five Gold
-
----
-
-## Pip pays for another Council audience
-
-![Phone: Pip pays for another Council audience](./screenshots/270-deep-roads-repeat-council-10-phone.png)
-
-![Desktop: Pip pays for another Council audience](./screenshots/270-deep-roads-repeat-council-10-desktop.png)
+![Desktop: Rin Reveals without buying](./screenshots/269-deep-roads-funding-4-rin-reveal-desktop.png)
 
 **Verifications:**
 
-- [x] The five-Gold payment precedes the connected Scout window
+- [x] Rin's real remaining hand becomes the public Muster row
 - [x] Every connected replay has accepted exactly 203 events with no diagnostics
 
 ---
 
-## Pip leaves the Council Scout to receive Mithril
+## Rin finishes Reveal without an acquisition
 
-![Phone: Pip leaves the Council Scout to receive Mithril](./screenshots/271-deep-roads-decline-council-intelligence-10-phone.png)
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/270-deep-roads-funding-4-rin-finish-phone.png)
 
-![Desktop: Pip leaves the Council Scout to receive Mithril](./screenshots/271-deep-roads-decline-council-intelligence-10-desktop.png)
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/270-deep-roads-funding-4-rin-finish-desktop.png)
 
 **Verifications:**
 
-- [x] The repeat Council reward adds exactly two Mithril after the ordered Scout window
+- [x] Rin's cards leave Muster and remain conserved
 - [x] Every connected replay has accepted exactly 204 events with no diagnostics
-
----
-
-## Rin Reveals without buying
-
-![Phone: Rin Reveals without buying](./screenshots/272-deep-roads-funding-11-rin-reveal-phone.png)
-
-![Desktop: Rin Reveals without buying](./screenshots/272-deep-roads-funding-11-rin-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Rin's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 205 events with no diagnostics
-
----
-
-## Rin finishes Reveal without an acquisition
-
-![Phone: Rin finishes Reveal without an acquisition](./screenshots/273-deep-roads-funding-11-rin-finish-phone.png)
-
-![Desktop: Rin finishes Reveal without an acquisition](./screenshots/273-deep-roads-funding-11-rin-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Rin's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 206 events with no diagnostics
-
----
-
-## Pip chooses a Roads card for Council funding
-
-![Phone: Pip chooses a Roads card for Council funding](./screenshots/274-deep-roads-choose-road-funding-12-phone.png)
-
-![Desktop: Pip chooses a Roads card for Council funding](./screenshots/274-deep-roads-choose-road-funding-12-desktop.png)
-
-**Verifications:**
-
-- [x] Take Up a War Effort is enabled by the selected real card
-
----
-
-## Pip earns two Gold for the next Council audience
-
-![Phone: Pip earns two Gold for the next Council audience](./screenshots/275-deep-roads-earn-road-gold-12-phone.png)
-
-![Desktop: Pip earns two Gold for the next Council audience](./screenshots/275-deep-roads-earn-road-gold-12-desktop.png)
-
-**Verifications:**
-
-- [x] The treasury rises by exactly two Gold
-- [x] Every connected replay has accepted exactly 207 events with no diagnostics
-
----
-
-## Pip Reveals without buying
-
-![Phone: Pip Reveals without buying](./screenshots/276-deep-roads-funding-13-pip-reveal-phone.png)
-
-![Desktop: Pip Reveals without buying](./screenshots/276-deep-roads-funding-13-pip-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Pip's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 208 events with no diagnostics
-
----
-
-## Pip finishes Reveal without an acquisition
-
-![Phone: Pip finishes Reveal without an acquisition](./screenshots/277-deep-roads-funding-13-pip-finish-phone.png)
-
-![Desktop: Pip finishes Reveal without an acquisition](./screenshots/277-deep-roads-funding-13-pip-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Pip's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 209 events with no diagnostics
-
----
-
-## Pip chooses a Roads card for Council funding
-
-![Phone: Pip chooses a Roads card for Council funding](./screenshots/278-deep-roads-choose-road-funding-14-phone.png)
-
-![Desktop: Pip chooses a Roads card for Council funding](./screenshots/278-deep-roads-choose-road-funding-14-desktop.png)
-
-**Verifications:**
-
-- [x] Take Up a War Effort is enabled by the selected real card
-
----
-
-## Pip earns two Gold for the next Council audience
-
-![Phone: Pip earns two Gold for the next Council audience](./screenshots/279-deep-roads-earn-road-gold-14-phone.png)
-
-![Desktop: Pip earns two Gold for the next Council audience](./screenshots/279-deep-roads-earn-road-gold-14-desktop.png)
-
-**Verifications:**
-
-- [x] The treasury rises by exactly two Gold
-- [x] Every connected replay has accepted exactly 210 events with no diagnostics
-
----
-
-## Rin Reveals without buying
-
-![Phone: Rin Reveals without buying](./screenshots/280-deep-roads-funding-15-rin-reveal-phone.png)
-
-![Desktop: Rin Reveals without buying](./screenshots/280-deep-roads-funding-15-rin-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Rin's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 211 events with no diagnostics
-
----
-
-## Rin finishes Reveal without an acquisition
-
-![Phone: Rin finishes Reveal without an acquisition](./screenshots/281-deep-roads-funding-15-rin-finish-phone.png)
-
-![Desktop: Rin finishes Reveal without an acquisition](./screenshots/281-deep-roads-funding-15-rin-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Rin's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 212 events with no diagnostics
-
----
-
-## Mara Reveals without buying
-
-![Phone: Mara Reveals without buying](./screenshots/282-deep-roads-funding-16-mara-reveal-phone.png)
-
-![Desktop: Mara Reveals without buying](./screenshots/282-deep-roads-funding-16-mara-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 213 events with no diagnostics
-
----
-
-## Mara finishes Reveal without an acquisition
-
-![Phone: Mara finishes Reveal without an acquisition](./screenshots/283-deep-roads-funding-16-mara-finish-phone.png)
-
-![Desktop: Mara finishes Reveal without an acquisition](./screenshots/283-deep-roads-funding-16-mara-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 214 events with no diagnostics
-
----
-
-## Pip Reveals without buying
-
-![Phone: Pip Reveals without buying](./screenshots/284-deep-roads-funding-17-pip-reveal-phone.png)
-
-![Desktop: Pip Reveals without buying](./screenshots/284-deep-roads-funding-17-pip-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Pip's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 215 events with no diagnostics
-
----
-
-## Pip finishes Reveal without an acquisition
-
-![Phone: Pip finishes Reveal without an acquisition](./screenshots/285-deep-roads-funding-17-pip-finish-phone.png)
-
-![Desktop: Pip finishes Reveal without an acquisition](./screenshots/285-deep-roads-funding-17-pip-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Pip's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 216 events with no diagnostics
-
----
-
-## Rin Reveals without buying
-
-![Phone: Rin Reveals without buying](./screenshots/286-deep-roads-funding-18-rin-reveal-phone.png)
-
-![Desktop: Rin Reveals without buying](./screenshots/286-deep-roads-funding-18-rin-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Rin's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 217 events with no diagnostics
-
----
-
-## Rin finishes Reveal without an acquisition
-
-![Phone: Rin finishes Reveal without an acquisition](./screenshots/287-deep-roads-funding-18-rin-finish-phone.png)
-
-![Desktop: Rin finishes Reveal without an acquisition](./screenshots/287-deep-roads-funding-18-rin-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Rin's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 218 events with no diagnostics
-
----
-
-## Mara Reveals without buying
-
-![Phone: Mara Reveals without buying](./screenshots/288-deep-roads-funding-19-mara-reveal-phone.png)
-
-![Desktop: Mara Reveals without buying](./screenshots/288-deep-roads-funding-19-mara-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 219 events with no diagnostics
-
----
-
-## Mara finishes Reveal without an acquisition
-
-![Phone: Mara finishes Reveal without an acquisition](./screenshots/289-deep-roads-funding-19-mara-finish-phone.png)
-
-![Desktop: Mara finishes Reveal without an acquisition](./screenshots/289-deep-roads-funding-19-mara-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 220 events with no diagnostics
-
----
-
-## Pip chooses a Roads card for Council funding
-
-![Phone: Pip chooses a Roads card for Council funding](./screenshots/290-deep-roads-choose-road-funding-20-phone.png)
-
-![Desktop: Pip chooses a Roads card for Council funding](./screenshots/290-deep-roads-choose-road-funding-20-desktop.png)
-
-**Verifications:**
-
-- [x] Take Up a War Effort is enabled by the selected real card
-
----
-
-## Pip earns two Gold for the next Council audience
-
-![Phone: Pip earns two Gold for the next Council audience](./screenshots/291-deep-roads-earn-road-gold-20-phone.png)
-
-![Desktop: Pip earns two Gold for the next Council audience](./screenshots/291-deep-roads-earn-road-gold-20-desktop.png)
-
-**Verifications:**
-
-- [x] The treasury rises by exactly two Gold
-- [x] Every connected replay has accepted exactly 221 events with no diagnostics
 
 ---
 
 ## Pip chooses Armed Escort for Mithril funding
 
-![Phone: Pip chooses Armed Escort for Mithril funding](./screenshots/292-deep-roads-choose-council-funding-21-phone.png)
+![Phone: Pip chooses Armed Escort for Mithril funding](./screenshots/271-deep-roads-choose-council-funding-5-phone.png)
 
-![Desktop: Pip chooses Armed Escort for Mithril funding](./screenshots/292-deep-roads-choose-council-funding-21-desktop.png)
+![Desktop: Pip chooses Armed Escort for Mithril funding](./screenshots/271-deep-roads-choose-council-funding-5-desktop.png)
 
 **Verifications:**
 
@@ -3844,35 +3575,382 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Pip pays for another Council audience
 
-![Phone: Pip pays for another Council audience](./screenshots/293-deep-roads-repeat-council-21-phone.png)
+![Phone: Pip pays for another Council audience](./screenshots/272-deep-roads-repeat-council-5-phone.png)
 
-![Desktop: Pip pays for another Council audience](./screenshots/293-deep-roads-repeat-council-21-desktop.png)
+![Desktop: Pip pays for another Council audience](./screenshots/272-deep-roads-repeat-council-5-desktop.png)
 
 **Verifications:**
 
 - [x] The five-Gold payment precedes the connected Scout window
-- [x] Every connected replay has accepted exactly 222 events with no diagnostics
+- [x] Every connected replay has accepted exactly 205 events with no diagnostics
 
 ---
 
 ## Pip leaves the Council Scout to receive Mithril
 
-![Phone: Pip leaves the Council Scout to receive Mithril](./screenshots/294-deep-roads-decline-council-intelligence-21-phone.png)
+![Phone: Pip leaves the Council Scout to receive Mithril](./screenshots/273-deep-roads-decline-council-intelligence-5-phone.png)
 
-![Desktop: Pip leaves the Council Scout to receive Mithril](./screenshots/294-deep-roads-decline-council-intelligence-21-desktop.png)
+![Desktop: Pip leaves the Council Scout to receive Mithril](./screenshots/273-deep-roads-decline-council-intelligence-5-desktop.png)
 
 **Verifications:**
 
 - [x] The repeat Council reward adds exactly two Mithril after the ordered Scout window
+- [x] Every connected replay has accepted exactly 206 events with no diagnostics
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/274-deep-roads-funding-6-pip-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/274-deep-roads-funding-6-pip-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 207 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/275-deep-roads-funding-6-pip-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/275-deep-roads-funding-6-pip-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 208 events with no diagnostics
+
+---
+
+## Pip chooses a Roads card for Council funding
+
+![Phone: Pip chooses a Roads card for Council funding](./screenshots/276-deep-roads-choose-road-funding-7-phone.png)
+
+![Desktop: Pip chooses a Roads card for Council funding](./screenshots/276-deep-roads-choose-road-funding-7-desktop.png)
+
+**Verifications:**
+
+- [x] Take Up a War Effort is enabled by the selected real card
+
+---
+
+## Pip earns two Gold for the next Council audience
+
+![Phone: Pip earns two Gold for the next Council audience](./screenshots/277-deep-roads-earn-road-gold-7-phone.png)
+
+![Desktop: Pip earns two Gold for the next Council audience](./screenshots/277-deep-roads-earn-road-gold-7-desktop.png)
+
+**Verifications:**
+
+- [x] The treasury rises by exactly two Gold
+- [x] Every connected replay has accepted exactly 209 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/278-deep-roads-funding-8-rin-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/278-deep-roads-funding-8-rin-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 210 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/279-deep-roads-funding-8-rin-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/279-deep-roads-funding-8-rin-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 211 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/280-deep-roads-funding-9-mara-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/280-deep-roads-funding-9-mara-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 212 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/281-deep-roads-funding-9-mara-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/281-deep-roads-funding-9-mara-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 213 events with no diagnostics
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/282-deep-roads-funding-10-pip-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/282-deep-roads-funding-10-pip-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 214 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/283-deep-roads-funding-10-pip-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/283-deep-roads-funding-10-pip-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 215 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/284-deep-roads-funding-11-rin-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/284-deep-roads-funding-11-rin-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 216 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/285-deep-roads-funding-11-rin-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/285-deep-roads-funding-11-rin-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 217 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/286-deep-roads-funding-12-mara-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/286-deep-roads-funding-12-mara-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 218 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/287-deep-roads-funding-12-mara-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/287-deep-roads-funding-12-mara-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 219 events with no diagnostics
+
+---
+
+## Pip chooses a Roads card for Council funding
+
+![Phone: Pip chooses a Roads card for Council funding](./screenshots/288-deep-roads-choose-road-funding-13-phone.png)
+
+![Desktop: Pip chooses a Roads card for Council funding](./screenshots/288-deep-roads-choose-road-funding-13-desktop.png)
+
+**Verifications:**
+
+- [x] Take Up a War Effort is enabled by the selected real card
+
+---
+
+## Pip earns two Gold for the next Council audience
+
+![Phone: Pip earns two Gold for the next Council audience](./screenshots/289-deep-roads-earn-road-gold-13-phone.png)
+
+![Desktop: Pip earns two Gold for the next Council audience](./screenshots/289-deep-roads-earn-road-gold-13-desktop.png)
+
+**Verifications:**
+
+- [x] The treasury rises by exactly two Gold
+- [x] Every connected replay has accepted exactly 220 events with no diagnostics
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/290-deep-roads-funding-14-pip-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/290-deep-roads-funding-14-pip-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 221 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/291-deep-roads-funding-14-pip-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/291-deep-roads-funding-14-pip-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 222 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/292-deep-roads-funding-15-mara-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/292-deep-roads-funding-15-mara-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
 - [x] Every connected replay has accepted exactly 223 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/293-deep-roads-funding-15-mara-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/293-deep-roads-funding-15-mara-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 224 events with no diagnostics
+
+---
+
+## Pip chooses a Roads card for Council funding
+
+![Phone: Pip chooses a Roads card for Council funding](./screenshots/294-deep-roads-choose-road-funding-16-phone.png)
+
+![Desktop: Pip chooses a Roads card for Council funding](./screenshots/294-deep-roads-choose-road-funding-16-desktop.png)
+
+**Verifications:**
+
+- [x] Take Up a War Effort is enabled by the selected real card
+
+---
+
+## Pip earns two Gold for the next Council audience
+
+![Phone: Pip earns two Gold for the next Council audience](./screenshots/295-deep-roads-earn-road-gold-16-phone.png)
+
+![Desktop: Pip earns two Gold for the next Council audience](./screenshots/295-deep-roads-earn-road-gold-16-desktop.png)
+
+**Verifications:**
+
+- [x] The treasury rises by exactly two Gold
+- [x] Every connected replay has accepted exactly 225 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/296-deep-roads-funding-17-rin-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/296-deep-roads-funding-17-rin-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 226 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/297-deep-roads-funding-17-rin-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/297-deep-roads-funding-17-rin-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 227 events with no diagnostics
+
+---
+
+## Pip chooses Armed Escort for Mithril funding
+
+![Phone: Pip chooses Armed Escort for Mithril funding](./screenshots/298-deep-roads-choose-council-funding-18-phone.png)
+
+![Desktop: Pip chooses Armed Escort for Mithril funding](./screenshots/298-deep-roads-choose-council-funding-18-desktop.png)
+
+**Verifications:**
+
+- [x] The established Council seat is legal with five Gold
+
+---
+
+## Pip pays for another Council audience
+
+![Phone: Pip pays for another Council audience](./screenshots/299-deep-roads-repeat-council-18-phone.png)
+
+![Desktop: Pip pays for another Council audience](./screenshots/299-deep-roads-repeat-council-18-desktop.png)
+
+**Verifications:**
+
+- [x] The five-Gold payment precedes the connected Scout window
+- [x] Every connected replay has accepted exactly 228 events with no diagnostics
+
+---
+
+## Pip leaves the Council Scout to receive Mithril
+
+![Phone: Pip leaves the Council Scout to receive Mithril](./screenshots/300-deep-roads-decline-council-intelligence-18-phone.png)
+
+![Desktop: Pip leaves the Council Scout to receive Mithril](./screenshots/300-deep-roads-decline-council-intelligence-18-desktop.png)
+
+**Verifications:**
+
+- [x] The repeat Council reward adds exactly two Mithril after the ordered Scout window
+- [x] Every connected replay has accepted exactly 229 events with no diagnostics
 
 ---
 
 ## Pip chooses a faction mission for the Deep Roads
 
-![Phone: Pip chooses a faction mission for the Deep Roads](./screenshots/295-choose-deep-roads-mission-phone.png)
+![Phone: Pip chooses a faction mission for the Deep Roads](./screenshots/301-choose-deep-roads-mission-phone.png)
 
-![Desktop: Pip chooses a faction mission for the Deep Roads](./screenshots/295-choose-deep-roads-mission-desktop.png)
+![Desktop: Pip chooses a faction mission for the Deep Roads](./screenshots/301-choose-deep-roads-mission-desktop.png)
 
 **Verifications:**
 
@@ -3883,22 +3961,22 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Pip enters the Deep Roads
 
-![Phone: Pip enters the Deep Roads](./screenshots/296-visit-deep-roads-phone.png)
+![Phone: Pip enters the Deep Roads](./screenshots/302-visit-deep-roads-phone.png)
 
-![Desktop: Pip enters the Deep Roads](./screenshots/296-visit-deep-roads-desktop.png)
+![Desktop: Pip enters the Deep Roads](./screenshots/302-visit-deep-roads-desktop.png)
 
 **Verifications:**
 
 - [x] Every client sees the Agent and exact 5-Mithril payment
-- [x] Every connected replay has accepted exactly 224 events with no diagnostics
+- [x] Every connected replay has accepted exactly 230 events with no diagnostics
 
 ---
 
 ## The Deep Roads resolves its complete Battle reward
 
-![Phone: The Deep Roads resolves its complete Battle reward](./screenshots/297-deep-roads-resolved-phone.png)
+![Phone: The Deep Roads resolves its complete Battle reward](./screenshots/303-deep-roads-resolved-phone.png)
 
-![Desktop: The Deep Roads resolves its complete Battle reward](./screenshots/297-deep-roads-resolved-desktop.png)
+![Desktop: The Deep Roads resolves its complete Battle reward](./screenshots/303-deep-roads-resolved-desktop.png)
 
 **Verifications:**
 
@@ -3909,113 +3987,165 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Pip Reveals without buying
 
-![Phone: Pip Reveals without buying](./screenshots/298-hidden-paths-approach-0-pip-reveal-phone.png)
+![Phone: Pip Reveals without buying](./screenshots/304-hidden-paths-approach-0-pip-reveal-phone.png)
 
-![Desktop: Pip Reveals without buying](./screenshots/298-hidden-paths-approach-0-pip-reveal-desktop.png)
+![Desktop: Pip Reveals without buying](./screenshots/304-hidden-paths-approach-0-pip-reveal-desktop.png)
 
 **Verifications:**
 
 - [x] Pip's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 225 events with no diagnostics
+- [x] Every connected replay has accepted exactly 231 events with no diagnostics
 
 ---
 
 ## Pip finishes Reveal without an acquisition
 
-![Phone: Pip finishes Reveal without an acquisition](./screenshots/299-hidden-paths-approach-0-pip-finish-phone.png)
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/305-hidden-paths-approach-0-pip-finish-phone.png)
 
-![Desktop: Pip finishes Reveal without an acquisition](./screenshots/299-hidden-paths-approach-0-pip-finish-desktop.png)
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/305-hidden-paths-approach-0-pip-finish-desktop.png)
 
 **Verifications:**
 
 - [x] Pip's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 226 events with no diagnostics
-
----
-
-## Mara Reveals without buying
-
-![Phone: Mara Reveals without buying](./screenshots/300-hidden-paths-approach-1-mara-reveal-phone.png)
-
-![Desktop: Mara Reveals without buying](./screenshots/300-hidden-paths-approach-1-mara-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 227 events with no diagnostics
-
----
-
-## Mara finishes Reveal without an acquisition
-
-![Phone: Mara finishes Reveal without an acquisition](./screenshots/301-hidden-paths-approach-1-mara-finish-phone.png)
-
-![Desktop: Mara finishes Reveal without an acquisition](./screenshots/301-hidden-paths-approach-1-mara-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 228 events with no diagnostics
+- [x] Every connected replay has accepted exactly 232 events with no diagnostics
 
 ---
 
 ## Pip Reveals without buying
 
-![Phone: Pip Reveals without buying](./screenshots/302-hidden-paths-approach-2-pip-reveal-phone.png)
+![Phone: Pip Reveals without buying](./screenshots/306-hidden-paths-approach-1-pip-reveal-phone.png)
 
-![Desktop: Pip Reveals without buying](./screenshots/302-hidden-paths-approach-2-pip-reveal-desktop.png)
+![Desktop: Pip Reveals without buying](./screenshots/306-hidden-paths-approach-1-pip-reveal-desktop.png)
 
 **Verifications:**
 
 - [x] Pip's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 229 events with no diagnostics
+- [x] Every connected replay has accepted exactly 233 events with no diagnostics
 
 ---
 
 ## Pip finishes Reveal without an acquisition
 
-![Phone: Pip finishes Reveal without an acquisition](./screenshots/303-hidden-paths-approach-2-pip-finish-phone.png)
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/307-hidden-paths-approach-1-pip-finish-phone.png)
 
-![Desktop: Pip finishes Reveal without an acquisition](./screenshots/303-hidden-paths-approach-2-pip-finish-desktop.png)
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/307-hidden-paths-approach-1-pip-finish-desktop.png)
 
 **Verifications:**
 
 - [x] Pip's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 230 events with no diagnostics
+- [x] Every connected replay has accepted exactly 234 events with no diagnostics
 
 ---
 
 ## Rin Reveals without buying
 
-![Phone: Rin Reveals without buying](./screenshots/304-hidden-paths-approach-3-rin-reveal-phone.png)
+![Phone: Rin Reveals without buying](./screenshots/308-hidden-paths-approach-2-rin-reveal-phone.png)
 
-![Desktop: Rin Reveals without buying](./screenshots/304-hidden-paths-approach-3-rin-reveal-desktop.png)
+![Desktop: Rin Reveals without buying](./screenshots/308-hidden-paths-approach-2-rin-reveal-desktop.png)
 
 **Verifications:**
 
 - [x] Rin's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 231 events with no diagnostics
+- [x] Every connected replay has accepted exactly 235 events with no diagnostics
 
 ---
 
 ## Rin finishes Reveal without an acquisition
 
-![Phone: Rin finishes Reveal without an acquisition](./screenshots/305-hidden-paths-approach-3-rin-finish-phone.png)
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/309-hidden-paths-approach-2-rin-finish-phone.png)
 
-![Desktop: Rin finishes Reveal without an acquisition](./screenshots/305-hidden-paths-approach-3-rin-finish-desktop.png)
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/309-hidden-paths-approach-2-rin-finish-desktop.png)
 
 **Verifications:**
 
 - [x] Rin's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 232 events with no diagnostics
+- [x] Every connected replay has accepted exactly 236 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/310-hidden-paths-approach-3-mara-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/310-hidden-paths-approach-3-mara-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 237 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/311-hidden-paths-approach-3-mara-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/311-hidden-paths-approach-3-mara-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 238 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/312-hidden-paths-approach-4-rin-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/312-hidden-paths-approach-4-rin-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 239 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/313-hidden-paths-approach-4-rin-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/313-hidden-paths-approach-4-rin-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 240 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/314-hidden-paths-approach-5-mara-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/314-hidden-paths-approach-5-mara-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 241 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/315-hidden-paths-approach-5-mara-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/315-hidden-paths-approach-5-mara-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 242 events with no diagnostics
 
 ---
 
 ## Pip chooses a Wild-access mission for Hidden Paths
 
-![Phone: Pip chooses a Wild-access mission for Hidden Paths](./screenshots/306-choose-hidden-paths-mission-phone.png)
+![Phone: Pip chooses a Wild-access mission for Hidden Paths](./screenshots/316-choose-hidden-paths-mission-phone.png)
 
-![Desktop: Pip chooses a Wild-access mission for Hidden Paths](./screenshots/306-choose-hidden-paths-mission-desktop.png)
+![Desktop: Pip chooses a Wild-access mission for Hidden Paths](./screenshots/316-choose-hidden-paths-mission-desktop.png)
 
 **Verifications:**
 
@@ -4025,22 +4155,22 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Pip enters Hidden Paths
 
-![Phone: Pip enters Hidden Paths](./screenshots/307-visit-hidden-paths-phone.png)
+![Phone: Pip enters Hidden Paths](./screenshots/317-visit-hidden-paths-phone.png)
 
-![Desktop: Pip enters Hidden Paths](./screenshots/307-visit-hidden-paths-desktop.png)
+![Desktop: Pip enters Hidden Paths](./screenshots/317-visit-hidden-paths-desktop.png)
 
 **Verifications:**
 
 - [x] Every client sees the synchronized Agent occupation
-- [x] Every connected replay has accepted exactly 233 events with no diagnostics
+- [x] Every connected replay has accepted exactly 243 events with no diagnostics
 
 ---
 
 ## Hidden Paths resolves its complete Battle reward
 
-![Phone: Hidden Paths resolves its complete Battle reward](./screenshots/308-hidden-paths-resolved-phone.png)
+![Phone: Hidden Paths resolves its complete Battle reward](./screenshots/318-hidden-paths-resolved-phone.png)
 
-![Desktop: Hidden Paths resolves its complete Battle reward](./screenshots/308-hidden-paths-resolved-desktop.png)
+![Desktop: Hidden Paths resolves its complete Battle reward](./screenshots/318-hidden-paths-resolved-desktop.png)
 
 **Verifications:**
 
@@ -4048,141 +4178,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals without buying
-
-![Phone: Rin Reveals without buying](./screenshots/309-ranger-mustering-approach-0-rin-reveal-phone.png)
-
-![Desktop: Rin Reveals without buying](./screenshots/309-ranger-mustering-approach-0-rin-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Rin's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 234 events with no diagnostics
-
----
-
-## Rin finishes Reveal without an acquisition
-
-![Phone: Rin finishes Reveal without an acquisition](./screenshots/310-ranger-mustering-approach-0-rin-finish-phone.png)
-
-![Desktop: Rin finishes Reveal without an acquisition](./screenshots/310-ranger-mustering-approach-0-rin-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Rin's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 235 events with no diagnostics
-
----
-
-## Mara Reveals without buying
-
-![Phone: Mara Reveals without buying](./screenshots/311-ranger-mustering-approach-1-mara-reveal-phone.png)
-
-![Desktop: Mara Reveals without buying](./screenshots/311-ranger-mustering-approach-1-mara-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 236 events with no diagnostics
-
----
-
-## Mara finishes Reveal without an acquisition
-
-![Phone: Mara finishes Reveal without an acquisition](./screenshots/312-ranger-mustering-approach-1-mara-finish-phone.png)
-
-![Desktop: Mara finishes Reveal without an acquisition](./screenshots/312-ranger-mustering-approach-1-mara-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 237 events with no diagnostics
-
----
-
 ## Pip Reveals without buying
 
-![Phone: Pip Reveals without buying](./screenshots/313-ranger-mustering-approach-2-pip-reveal-phone.png)
+![Phone: Pip Reveals without buying](./screenshots/319-ranger-mustering-approach-0-pip-reveal-phone.png)
 
-![Desktop: Pip Reveals without buying](./screenshots/313-ranger-mustering-approach-2-pip-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Pip's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 238 events with no diagnostics
-
----
-
-## Pip finishes Reveal without an acquisition
-
-![Phone: Pip finishes Reveal without an acquisition](./screenshots/314-ranger-mustering-approach-2-pip-finish-phone.png)
-
-![Desktop: Pip finishes Reveal without an acquisition](./screenshots/314-ranger-mustering-approach-2-pip-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Pip's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 239 events with no diagnostics
-
----
-
-## Rin Reveals without buying
-
-![Phone: Rin Reveals without buying](./screenshots/315-ranger-mustering-approach-3-rin-reveal-phone.png)
-
-![Desktop: Rin Reveals without buying](./screenshots/315-ranger-mustering-approach-3-rin-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Rin's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 240 events with no diagnostics
-
----
-
-## Rin finishes Reveal without an acquisition
-
-![Phone: Rin finishes Reveal without an acquisition](./screenshots/316-ranger-mustering-approach-3-rin-finish-phone.png)
-
-![Desktop: Rin finishes Reveal without an acquisition](./screenshots/316-ranger-mustering-approach-3-rin-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Rin's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 241 events with no diagnostics
-
----
-
-## Mara Reveals without buying
-
-![Phone: Mara Reveals without buying](./screenshots/317-ranger-mustering-approach-4-mara-reveal-phone.png)
-
-![Desktop: Mara Reveals without buying](./screenshots/317-ranger-mustering-approach-4-mara-reveal-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's real remaining hand becomes the public Muster row
-- [x] Every connected replay has accepted exactly 242 events with no diagnostics
-
----
-
-## Mara finishes Reveal without an acquisition
-
-![Phone: Mara finishes Reveal without an acquisition](./screenshots/318-ranger-mustering-approach-4-mara-finish-phone.png)
-
-![Desktop: Mara finishes Reveal without an acquisition](./screenshots/318-ranger-mustering-approach-4-mara-finish-desktop.png)
-
-**Verifications:**
-
-- [x] Mara's cards leave Muster and remain conserved
-- [x] Every connected replay has accepted exactly 243 events with no diagnostics
-
----
-
-## Pip Reveals without buying
-
-![Phone: Pip Reveals without buying](./screenshots/319-ranger-mustering-approach-5-pip-reveal-phone.png)
-
-![Desktop: Pip Reveals without buying](./screenshots/319-ranger-mustering-approach-5-pip-reveal-desktop.png)
+![Desktop: Pip Reveals without buying](./screenshots/319-ranger-mustering-approach-0-pip-reveal-desktop.png)
 
 **Verifications:**
 
@@ -4193,9 +4193,9 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Pip finishes Reveal without an acquisition
 
-![Phone: Pip finishes Reveal without an acquisition](./screenshots/320-ranger-mustering-approach-5-pip-finish-phone.png)
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/320-ranger-mustering-approach-0-pip-finish-phone.png)
 
-![Desktop: Pip finishes Reveal without an acquisition](./screenshots/320-ranger-mustering-approach-5-pip-finish-desktop.png)
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/320-ranger-mustering-approach-0-pip-finish-desktop.png)
 
 **Verifications:**
 
@@ -4206,9 +4206,9 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Mara Reveals without buying
 
-![Phone: Mara Reveals without buying](./screenshots/321-ranger-mustering-approach-6-mara-reveal-phone.png)
+![Phone: Mara Reveals without buying](./screenshots/321-ranger-mustering-approach-1-mara-reveal-phone.png)
 
-![Desktop: Mara Reveals without buying](./screenshots/321-ranger-mustering-approach-6-mara-reveal-desktop.png)
+![Desktop: Mara Reveals without buying](./screenshots/321-ranger-mustering-approach-1-mara-reveal-desktop.png)
 
 **Verifications:**
 
@@ -4219,9 +4219,9 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Mara finishes Reveal without an acquisition
 
-![Phone: Mara finishes Reveal without an acquisition](./screenshots/322-ranger-mustering-approach-6-mara-finish-phone.png)
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/322-ranger-mustering-approach-1-mara-finish-phone.png)
 
-![Desktop: Mara finishes Reveal without an acquisition](./screenshots/322-ranger-mustering-approach-6-mara-finish-desktop.png)
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/322-ranger-mustering-approach-1-mara-finish-desktop.png)
 
 **Verifications:**
 
@@ -4230,11 +4230,63 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/323-ranger-mustering-approach-2-pip-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/323-ranger-mustering-approach-2-pip-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 248 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/324-ranger-mustering-approach-2-pip-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/324-ranger-mustering-approach-2-pip-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 249 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/325-ranger-mustering-approach-3-rin-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/325-ranger-mustering-approach-3-rin-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 250 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/326-ranger-mustering-approach-3-rin-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/326-ranger-mustering-approach-3-rin-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 251 events with no diagnostics
+
+---
+
 ## Pip chooses a Wild-access mission for Ranger Mustering
 
-![Phone: Pip chooses a Wild-access mission for Ranger Mustering](./screenshots/323-choose-ranger-mustering-mission-phone.png)
+![Phone: Pip chooses a Wild-access mission for Ranger Mustering](./screenshots/327-choose-ranger-mustering-mission-phone.png)
 
-![Desktop: Pip chooses a Wild-access mission for Ranger Mustering](./screenshots/323-choose-ranger-mustering-mission-desktop.png)
+![Desktop: Pip chooses a Wild-access mission for Ranger Mustering](./screenshots/327-choose-ranger-mustering-mission-desktop.png)
 
 **Verifications:**
 
@@ -4244,22 +4296,22 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Pip enters Ranger Mustering
 
-![Phone: Pip enters Ranger Mustering](./screenshots/324-visit-ranger-mustering-phone.png)
+![Phone: Pip enters Ranger Mustering](./screenshots/328-visit-ranger-mustering-phone.png)
 
-![Desktop: Pip enters Ranger Mustering](./screenshots/324-visit-ranger-mustering-desktop.png)
+![Desktop: Pip enters Ranger Mustering](./screenshots/328-visit-ranger-mustering-desktop.png)
 
 **Verifications:**
 
 - [x] Every client sees the synchronized Agent occupation
-- [x] Every connected replay has accepted exactly 248 events with no diagnostics
+- [x] Every connected replay has accepted exactly 252 events with no diagnostics
 
 ---
 
 ## Ranger Mustering opens its private trash choice
 
-![Phone: Ranger Mustering opens its private trash choice](./screenshots/325-ranger-mustering-choice-phone.png)
+![Phone: Ranger Mustering opens its private trash choice](./screenshots/329-ranger-mustering-choice-phone.png)
 
-![Desktop: Ranger Mustering opens its private trash choice](./screenshots/325-ranger-mustering-choice-desktop.png)
+![Desktop: Ranger Mustering opens its private trash choice](./screenshots/329-ranger-mustering-choice-desktop.png)
 
 **Verifications:**
 
@@ -4270,26 +4322,26 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Pip trashes a real card at Ranger Mustering
 
-![Phone: Pip trashes a real card at Ranger Mustering](./screenshots/326-trash-at-ranger-mustering-phone.png)
+![Phone: Pip trashes a real card at Ranger Mustering](./screenshots/330-trash-at-ranger-mustering-phone.png)
 
-![Desktop: Pip trashes a real card at Ranger Mustering](./screenshots/326-trash-at-ranger-mustering-desktop.png)
+![Desktop: Pip trashes a real card at Ranger Mustering](./screenshots/330-trash-at-ranger-mustering-desktop.png)
 
 **Verifications:**
 
 - [x] The permanent Trash zone grows by exactly one card
-- [x] Every connected replay has accepted exactly 249 events with no diagnostics
+- [x] Every connected replay has accepted exactly 253 events with no diagnostics
 
 ---
 
 ## Pip reloads all four completed faction destinations
 
-![Phone: Pip reloads all four completed faction destinations](./screenshots/327-reload-faction-destinations-phone.png)
+![Phone: Pip reloads all four completed faction destinations](./screenshots/331-reload-faction-destinations-phone.png)
 
-![Desktop: Pip reloads all four completed faction destinations](./screenshots/327-reload-faction-destinations-desktop.png)
+![Desktop: Pip reloads all four completed faction destinations](./screenshots/331-reload-faction-destinations-desktop.png)
 
 **Verifications:**
 
 - [x] Paid resources, faction standing, draws, recruitment, trash, and occupations replay exactly
-- [x] Every connected replay has accepted exactly 249 events with no diagnostics
+- [x] Every connected replay has accepted exactly 253 events with no diagnostics
 
 ---
