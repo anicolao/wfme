@@ -59,7 +59,9 @@
   }
 
   function fateEffectText(definition: (typeof FATE_CARD_DEFINITIONS)[number]): string {
-    return definition.effect.kind === 'hidden-archers'
+    return definition.effect.kind === 'reinforcements'
+      ? 'Deploy 1 garrison Company · otherwise +2 Strength'
+      : definition.effect.kind === 'hidden-archers'
       ? 'Gain Strength for Scouts on the board · maximum 3'
       : definition.effect.kind === 'hold-line'
       ? '+2 Strength · +2 more while controlling the contested location'

@@ -234,11 +234,13 @@ function createMatch(state: GameState, seed: string): MatchState {
       id: `fate:${index + 1}`,
       definitionId: index < 2
         ? 'sudden-charge'
-        : index === 20 || index === 29
+        : index === 9 || index === 29
           ? 'hold-line'
-          : index === 9 || index === 14
+          : index === 4 || index === 14
             ? 'hidden-archers'
-            : 'sealed-fate'
+            : index === 20 || index === 25
+              ? 'reinforcements'
+              : 'sealed-fate'
     })), `${seed}:fate-deck`),
     fateDiscard: [],
     activeBattleId: BATTLE_CARD_DEFINITIONS[0]?.id ?? null,
@@ -1207,20 +1209,32 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     player.fateHand.splice(cardIndex, 1);
     state.match.fateDiscard.push(card);
     const activeBattle = BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === state.match!.activeBattleId);
-    const strengthBonus = definition.effect.kind === 'hidden-archers'
-      ? Math.min(
-          definition.effect.maximum,
-          Object.values(state.match.boardScouts).filter((uid) => uid === event.actorUid).length
-        )
-      : definition.effect.amount + (
-          definition.effect.kind === 'hold-line' && activeBattle?.contestedLocationId &&
-          state.match.criticalControl[activeBattle.contestedLocationId] === event.actorUid
-            ? definition.effect.controlledLocationBonus
-            : 0
-        );
+    let strengthBonus = 0;
+    if (definition.effect.kind === 'reinforcements') {
+      if (player.companies.garrison >= definition.effect.deployCompanies) {
+        player.companies.garrison -= definition.effect.deployCompanies;
+        state.match.battleCompanies[event.actorUid] = (state.match.battleCompanies[event.actorUid] ?? 0) + definition.effect.deployCompanies;
+        state.match.activity.push(`${actor.displayName} plays ${definition.name} and deploys 1 Company from garrison.`);
+      } else {
+        strengthBonus = definition.effect.fallbackStrength;
+        state.match.activity.push(`${actor.displayName} plays ${definition.name} with no Company available and gains +${strengthBonus} Strength.`);
+      }
+    } else {
+      strengthBonus = definition.effect.kind === 'hidden-archers'
+        ? Math.min(
+            definition.effect.maximum,
+            Object.values(state.match.boardScouts).filter((uid) => uid === event.actorUid).length
+          )
+        : definition.effect.amount + (
+            definition.effect.kind === 'hold-line' && activeBattle?.contestedLocationId &&
+            state.match.criticalControl[activeBattle.contestedLocationId] === event.actorUid
+              ? definition.effect.controlledLocationBonus
+              : 0
+          );
+      state.match.activity.push(`${actor.displayName} plays ${definition.name} for +${strengthBonus} Strength.`);
+    }
     state.match.battleBonusStrength[event.actorUid] = (state.match.battleBonusStrength[event.actorUid] ?? 0) + strengthBonus;
     state.match.consecutiveBattlePasses = 0;
-    state.match.activity.push(`${actor.displayName} plays ${definition.name} for +${strengthBonus} Strength.`);
     return null;
   }
 

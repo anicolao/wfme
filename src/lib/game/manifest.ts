@@ -201,14 +201,15 @@ export const BATTLE_CARD_DEFINITIONS: readonly BattleCardDefinition[] = [
 ];
 
 export type FateCardDefinition = {
-  id: 'sudden-charge' | 'hold-line' | 'hidden-archers';
+  id: 'sudden-charge' | 'hold-line' | 'hidden-archers' | 'reinforcements';
   name: string;
   copies: 2;
   timing: 'Combat';
   effect:
     | { kind: 'gain-battle-strength'; amount: 3 }
     | { kind: 'hold-line'; amount: 2; controlledLocationBonus: 2 }
-    | { kind: 'hidden-archers'; maximum: 3 };
+    | { kind: 'hidden-archers'; maximum: 3 }
+    | { kind: 'reinforcements'; deployCompanies: 1; fallbackStrength: 2 };
   reviewedCapabilities: readonly ['combat-fate'];
 };
 
@@ -235,6 +236,14 @@ export const FATE_CARD_DEFINITIONS: readonly FateCardDefinition[] = [
     copies: 2,
     timing: 'Combat',
     effect: { kind: 'hidden-archers', maximum: 3 },
+    reviewedCapabilities: ['combat-fate']
+  },
+  {
+    id: 'reinforcements',
+    name: 'Reinforcements',
+    copies: 2,
+    timing: 'Combat',
+    effect: { kind: 'reinforcements', deployCompanies: 1, fallbackStrength: 2 },
     reviewedCapabilities: ['combat-fate']
   }
 ];

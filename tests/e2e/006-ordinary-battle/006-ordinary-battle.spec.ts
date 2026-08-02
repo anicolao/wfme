@@ -323,6 +323,12 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
     const controllerName = (await page.getByTestId('control-minas-tirith').locator('dd').textContent())?.trim();
     const controllerSeat = seats.find((seat) => seat.name === controllerName);
     if (!controllerSeat) throw new Error('The synchronized Minas Tirith controller has no browser seat');
+    let reinforcementHolder: Seat | undefined;
+    for (const seat of seats) {
+      const playerText = await page.locator('.players article').filter({ hasText: seat.name }).textContent();
+      if (/Fate\s*1/.test(playerText ?? '')) reinforcementHolder = seat;
+    }
+    if (!reinforcementHolder || reinforcementHolder === controllerSeat) throw new Error('The Siege runner-up did not retain the private Reinforcements reward');
     await steps.gesture(controllerSeat.page, 'reload-pelennor-decision', `${controllerSeat.name} reloads before the Pelennor defense choice`, async () => {
       await controllerSeat.page.reload();
     }, [
@@ -349,9 +355,55 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
     ]);
 
     let drewHoldLine = false;
+    let reinforcementHolderDeployed = false;
     for (let reveal = 0; reveal < 3;) {
       const actor = await currentSeat();
-      if (actor === controllerSeat && !drewHoldLine) {
+      if (actor === reinforcementHolder && !reinforcementHolderDeployed) {
+        let chosenSpace = '';
+        let chosenCardName = '';
+        let chosenCard: ReturnType<Page['getByRole']> | null = null;
+        for (const cardName of ['Armed Escort', 'Diplomatic Mission', 'Seek Allies', 'Reconnaissance', 'Muster the Host']) {
+          const candidate = actor.page.getByTestId('private-hand').getByRole('button', { name: new RegExp(`^${cardName}`) }).first();
+          if (!await candidate.isVisible().catch(() => false)) continue;
+          chosenCard = candidate;
+          chosenCardName = cardName;
+          chosenSpace = ['Diplomatic Mission', 'Seek Allies'].includes(cardName) ? 'hidden-paths' : 'minas-tirith';
+          break;
+        }
+        if (!chosenCard || !chosenSpace) throw new Error(`${actor.name} cannot enter Pelennor through a real Battle destination`);
+        await steps.gesture(actor.page, 'choose-reinforcement-battle-card', `${actor.name} chooses ${chosenCardName} for Pelennor`, async () => {
+          await chosenCard!.click();
+        }, [
+          { spec: `${chosenSpace} is enabled by the selected real card`, check: async () => await expect(actor.page.getByTestId(`space-${chosenSpace}`)).toBeEnabled() }
+        ]);
+        await steps.gesture(actor.page, 'enter-reinforcement-battle-space', `${actor.name} enters ${chosenSpace} for Pelennor`, async () => {
+          await actor.page.getByTestId(`space-${chosenSpace}`).click(); accepted += 1;
+        }, [{ spec: 'Every observer sees the second Pelennor participant on the board', check: async () => {
+          for (const observer of seats) await expect(observer.page.getByTestId(`space-${chosenSpace}`)).toContainText(actor.name);
+        } }, converged(accepted + 1)]);
+        if (await actor.page.getByRole('heading', { name: 'Trash a card from hand or discard?' }).isVisible().catch(() => false)) {
+          await steps.gesture(actor.page, 'keep-reinforcement-ranger-cards', `${actor.name} keeps the Ranger cards`, async () => {
+            await actor.page.getByRole('button', { name: 'Keep all cards' }).click(); accepted += 1;
+          }, [{ spec: 'The ordered deployment choice follows', check: async () => await expect(actor.page.getByRole('heading', { name: 'Deploy Companies to the active Battle?' })).toBeVisible() }, converged(accepted + 1)]);
+        }
+        if (await actor.page.getByTestId('scout-network').getByText('Choose an empty post for the Scout.').isVisible().catch(() => false)) {
+          await steps.gesture(actor.page, 'place-reinforcement-scout', `${actor.name} places the ordered Scout`, async () => {
+            await actor.page.locator('[data-testid^="post-"]:enabled').first().click(); accepted += 1;
+          }, [{ spec: 'The ordered deployment choice follows Scout placement', check: async () => await expect(actor.page.getByRole('heading', { name: 'Deploy Companies to the active Battle?' })).toBeVisible() }, converged(accepted + 1)]);
+        }
+        if (await actor.page.getByRole('heading', { name: 'Trash Seek Allies?' }).isVisible().catch(() => false)) {
+          await steps.gesture(actor.page, 'keep-reinforcement-seek-allies', `${actor.name} keeps Seek Allies`, async () => {
+            await actor.page.getByRole('button', { name: 'Keep Seek Allies' }).click(); accepted += 1;
+          }, [{ spec: 'The ordered deployment choice follows the Journey choice', check: async () => await expect(actor.page.getByRole('heading', { name: 'Deploy Companies to the active Battle?' })).toBeVisible() }, converged(accepted + 1)]);
+        }
+        await steps.gesture(actor.page, 'deploy-reinforcement-force', `${actor.name} deploys one Company to Pelennor`, async () => {
+          await actor.page.getByRole('button', { name: 'Deploy 1', exact: true }).click(); accepted += 1;
+        }, [{ spec: 'Every observer sees exactly one Company before Combat Reinforcements', check: async () => {
+          for (const observer of seats) await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: actor.name })).toContainText('1 Companies');
+        } }, converged(accepted + 1)]);
+        reinforcementHolderDeployed = true;
+        continue;
+      } else if (actor === controllerSeat && !drewHoldLine) {
         await steps.gesture(actor.page, 'choose-hold-hall-card', `${actor.name} chooses Armed Escort for Hall of Fire`, async () => {
           await actor.page.getByTestId('private-hand').getByRole('button', { name: /^Armed Escort/ }).first().click();
         }, [{ spec: 'The real Council icon enables Hall of Fire during the contested round', check: async () => {
@@ -379,16 +431,41 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
       }, [{ spec: reveal < 2 ? 'Turn authority advances to the next human' : 'Only the deployed defender enters Combat', check: async () => {
         if (reveal === 2) for (const observer of seats) {
           await expect(observer.page.getByText(/Round 3 · Combat Fate/)).toBeVisible();
-          for (const nonController of seats.filter((seat) => seat !== controllerSeat)) {
-            await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: nonController.name })).toContainText('0 Companies');
+          await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: reinforcementHolder.name })).toContainText('1 Companies');
+          for (const nonParticipant of seats.filter((seat) => seat !== controllerSeat && seat !== reinforcementHolder)) {
+            await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: nonParticipant.name })).toContainText('0 Companies');
           }
         }
       } }, converged(accepted + 1)]);
       reveal += 1;
     }
 
+    const reinforcementActor = await currentSeat();
+    if (reinforcementActor !== reinforcementHolder) throw new Error('Combat authority did not begin with the first-player Pelennor participant');
+    const reinforcementArea = reinforcementActor.page.locator('.players article').filter({ hasText: reinforcementActor.name });
+    const garrisonBefore = Number((await reinforcementArea.getByText('Garrison').locator('..').textContent())?.match(/(\d+)/)?.[1] ?? '-1');
+    const companiesBeforeReinforcement = Number((await reinforcementActor.page.getByTestId('active-battle').locator('article').filter({ hasText: reinforcementActor.name }).textContent())?.match(/(\d+) Companies/)?.[1] ?? '0');
+    const strengthBeforeReinforcement = Number((await reinforcementActor.page.getByTestId('active-battle').locator('article').filter({ hasText: reinforcementActor.name }).getByText(/Strength/).textContent())?.match(/(\d+)/)?.[1] ?? '0');
+    await steps.gesture(reinforcementActor.page, 'play-reinforcements', `${reinforcementActor.name} plays Reinforcements from the Siege reward`, async () => {
+      await reinforcementActor.page.getByRole('button', { name: /Play Reinforcements/ }).click(); accepted += 1;
+    }, [
+      { spec: 'One Company moves from garrison into Pelennor for exactly two additional Strength', check: async () => {
+        for (const observer of seats) {
+          await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: reinforcementActor.name })).toContainText(`${companiesBeforeReinforcement + 1} Companies`);
+          await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: reinforcementActor.name })).toContainText(`${strengthBeforeReinforcement + 2} Strength`);
+          await expect(observer.page.locator('.players article').filter({ hasText: reinforcementActor.name }).getByText('Garrison').locator('..')).toContainText(`${garrisonBefore - 1}`);
+          await expect(observer.page.getByTestId('fate-discard')).toContainText('3 cards');
+        }
+      } },
+      { spec: 'The same participant retains Combat authority after the deployment', check: async () => await expect(reinforcementActor.page.getByTestId('pass-battle')).toBeEnabled() },
+      converged(accepted + 1)
+    ]);
+    await steps.gesture(reinforcementActor.page, 'pelennor-reinforcement-pass', `${reinforcementActor.name} passes after Reinforcements`, async () => {
+      await reinforcementActor.page.getByTestId('pass-battle').click(); accepted += 1;
+    }, [{ spec: 'Combat authority advances to the Minas Tirith defender', check: async () => await expect(controllerSeat.page.getByTestId('pass-battle')).toBeEnabled() }, converged(accepted + 1)]);
+
     const defender = await currentSeat();
-    if (defender !== controllerSeat) throw new Error('Combat authority did not begin with the sole Pelennor defender');
+    if (defender !== controllerSeat) throw new Error('Combat authority did not advance to the Pelennor defender');
     const strengthBeforeHold = Number((await defender.page.getByTestId('active-battle').locator('article').filter({ hasText: defender.name }).getByText(/Strength/).textContent())?.match(/(\d+)/)?.[1] ?? '0');
     await steps.gesture(defender.page, 'play-hold-line', `${defender.name} plays Hold the Line while controlling Minas Tirith`, async () => {
       await defender.page.getByRole('button', { name: /Play Hold the Line/ }).click(); accepted += 1;
@@ -396,7 +473,7 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
       { spec: 'Control of the contested location raises the printed two Strength bonus to four', check: async () => {
         for (const observer of seats) {
           await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: defender.name })).toContainText(`${strengthBeforeHold + 4} Strength`);
-          await expect(observer.page.getByTestId('fate-discard')).toContainText('3 cards');
+          await expect(observer.page.getByTestId('fate-discard')).toContainText('4 cards');
         }
       } },
       { spec: 'The same defender retains Combat authority after playing the Fate card', check: async () => {
@@ -404,8 +481,11 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
       } },
       converged(accepted + 1)
     ]);
-    await steps.gesture(defender.page, 'pelennor-pass', `${defender.name} passes and wins Pelennor`, async () => {
+    await steps.gesture(defender.page, 'pelennor-defender-pass', `${defender.name} passes after Hold the Line`, async () => {
       await defender.page.getByTestId('pass-battle').click(); accepted += 1;
+    }, [{ spec: 'Playing Hold the Line reset the pass streak, so authority returns to the other participant', check: async () => await expect(reinforcementActor.page.getByTestId('pass-battle')).toBeEnabled() }, converged(accepted + 1)]);
+    await steps.gesture(reinforcementActor.page, 'pelennor-final-pass', `${reinforcementActor.name} passes and the defender wins Pelennor`, async () => {
+      await reinforcementActor.page.getByTestId('pass-battle').click(); accepted += 1;
     }, [
       { spec: 'The two White Tree Battle cards turn face down as one paired Standard', check: async () => {
         for (const observer of seats) {
@@ -431,7 +511,7 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
 
     steps.generateDocs(
       'Three-player ordinary Battle',
-      'Three isolated humans start in the real lobby, resolve an ordinary Battle with Combat Fate, establish Minas Tirith control, then defend it at Pelennor, play Hold the Line and Hidden Archers from private Fate, and pair matching White Tree Standards.'
+      'Three isolated humans start in the real lobby, resolve an ordinary Battle with Combat Fate, establish Minas Tirith control, then contest and defend Pelennor, play Hold the Line, Hidden Archers, and Reinforcements from private Fate, and pair matching White Tree Standards.'
     );
   } finally {
     await guestAContext.close();

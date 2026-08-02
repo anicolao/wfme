@@ -59,6 +59,7 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'sudden-charge')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'hold-line')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'hidden-archers')).toHaveLength(2);
+    expect(first.match!.fateDeck.filter((card) => card.definitionId === 'reinforcements')).toHaveLength(2);
     const rejectedFate = reduceGame([...readyRoom(), createEvent('fate/played', currentPlayerUid(first)!, 5, { cardInstanceId: 'fate:1' }, 11)]);
     expect(rejectedFate.diagnostics.at(-1)).toContain('illegal Fate play');
     expect(rejectedFate.match!.fateDiscard).toEqual([]);
@@ -1040,7 +1041,7 @@ describe('integrated Agent placement replay', () => {
   });
 
   it('runs a three-player Battle from legal deployments through ranked rewards and cleanup', () => {
-    const stream = readyRoom('battle-three');
+    const stream = readyRoom('battle-reinforce-4035');
     const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
     let timestamp = 11;
     const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
@@ -1147,46 +1148,51 @@ describe('integrated Agent placement replay', () => {
     expect(afterDefense.match!.activity).toContain(`${afterDefense.players.find((player) => player.uid === controller)?.displayName} deploys 1 defending Company from supply at Minas Tirith.`);
 
     const renownBeforePelennor = afterDefense.match!.players[controller!].renown;
-    let controllerDrewHold = false;
-    let controllerDrewArchers = false;
+    let controllerDrewFirstReinforcements = false;
+    let controllerDrewSecondReinforcements = false;
     for (let guard = 0; guard < 12; guard += 1) {
       const state = reduceGame(stream);
       if (state.match!.turnMode === 'battle') break;
       const current = currentPlayerUid(state)!;
       if (state.match!.turnMode === 'reveal') append(current, 'reveal/finished', {});
-      else if (current === controller && !controllerDrewHold) {
+      else if (current === controller && !controllerDrewFirstReinforcements) {
         const hallCard = state.match!.players[current].hand.find((card) => legalAgentSpaces(state, current, card.id).includes('hall-fire'));
         expect(hallCard, 'the controller must have a real Council card for Hall of Fire').toBeDefined();
         append(current, 'agent/placed', { cardInstanceId: hallCard!.id, spaceId: 'hall-fire' });
-        controllerDrewHold = true;
-        expect(reduceGame(stream).match!.players[current].fateHand).toContainEqual(expect.objectContaining({ definitionId: 'hold-line' }));
-      } else if (current === controller && !controllerDrewArchers) {
+        controllerDrewFirstReinforcements = true;
+        expect(reduceGame(stream).match!.players[current].fateHand).toContainEqual(expect.objectContaining({ definitionId: 'reinforcements' }));
+      } else if (current === controller && !controllerDrewSecondReinforcements) {
         const counselCard = state.match!.players[current].hand.find((card) => legalAgentSpaces(state, current, card.id).includes('hidden-counsel'));
         expect(counselCard, 'the controller must have a real faction card for Hidden Counsel').toBeDefined();
         append(current, 'agent/placed', { cardInstanceId: counselCard!.id, spaceId: 'hidden-counsel' });
         const pending = reduceGame(stream).match!.pendingChoice;
         if (pending?.kind === 'seek-allies') append(current, 'choice/resolved', { choice: 'keep-card' });
-        controllerDrewArchers = true;
-        expect(reduceGame(stream).match!.players[current].fateHand).toContainEqual(expect.objectContaining({ definitionId: 'hidden-archers' }));
+        controllerDrewSecondReinforcements = true;
+        expect(reduceGame(stream).match!.players[current].fateHand.filter((card) => card.definitionId === 'reinforcements')).toHaveLength(2);
       } else append(current, 'turn/revealed', {});
     }
     const pelennorCombat = reduceGame(stream);
     expect(pelennorCombat.match!.turnMode).toBe('battle');
     expect(Object.entries(pelennorCombat.match!.battleCompanies).filter(([, amount]) => amount > 0)).toEqual([[controller, 1]]);
-    const holdLine = pelennorCombat.match!.players[controller!].fateHand.find((card) => card.definitionId === 'hold-line')!;
-    const strengthBeforeHold = battleStrength(pelennorCombat.match!, controller!);
-    append(controller!, 'fate/played', { cardInstanceId: holdLine.id });
-    const afterHold = reduceGame(stream);
-    expect(battleStrength(afterHold.match!, controller!)).toBe(strengthBeforeHold + 4);
-    expect(afterHold.match!.fateDiscard.at(-1)?.definitionId).toBe('hold-line');
-    expect(afterHold.match!.activity).toContain(`${afterHold.players.find((player) => player.uid === controller)?.displayName} plays Hold the Line for +4 Strength.`);
-    const hiddenArchers = afterHold.match!.players[controller!].fateHand.find((card) => card.definitionId === 'hidden-archers')!;
-    const scoutsOnBoard = Object.values(afterHold.match!.boardScouts).filter((uid) => uid === controller).length;
-    const strengthBeforeArchers = battleStrength(afterHold.match!, controller!);
-    append(controller!, 'fate/played', { cardInstanceId: hiddenArchers.id });
-    const afterArchers = reduceGame(stream);
-    expect(battleStrength(afterArchers.match!, controller!)).toBe(strengthBeforeArchers + Math.min(3, scoutsOnBoard));
-    expect(afterArchers.match!.fateDiscard.at(-1)?.definitionId).toBe('hidden-archers');
+    expect(pelennorCombat.match!.players[controller!].companies.garrison).toBe(1);
+    const reinforcements = pelennorCombat.match!.players[controller!].fateHand.filter((card) => card.definitionId === 'reinforcements');
+    expect(reinforcements).toHaveLength(2);
+    const strengthBeforeReinforcements = battleStrength(pelennorCombat.match!, controller!);
+    append(controller!, 'fate/played', { cardInstanceId: reinforcements[0].id });
+    const afterReinforcements = reduceGame(stream);
+    expect(afterReinforcements.match!.battleCompanies[controller!]).toBe(2);
+    expect(afterReinforcements.match!.players[controller!].companies.garrison).toBe(0);
+    expect(battleStrength(afterReinforcements.match!, controller!)).toBe(strengthBeforeReinforcements + 2);
+    expect(afterReinforcements.match!.fateDiscard.at(-1)?.definitionId).toBe('reinforcements');
+    expect(afterReinforcements.match!.activity).toContain(`${afterReinforcements.players.find((player) => player.uid === controller)?.displayName} plays Reinforcements and deploys 1 Company from garrison.`);
+    const strengthBeforeFallback = battleStrength(afterReinforcements.match!, controller!);
+    append(controller!, 'fate/played', { cardInstanceId: reinforcements[1].id });
+    const afterFallback = reduceGame(stream);
+    expect(afterFallback.match!.battleCompanies[controller!]).toBe(2);
+    expect(afterFallback.match!.players[controller!].companies.garrison).toBe(0);
+    expect(battleStrength(afterFallback.match!, controller!)).toBe(strengthBeforeFallback + 2);
+    expect(afterFallback.match!.fateDiscard.at(-1)?.definitionId).toBe('reinforcements');
+    expect(afterFallback.match!.activity).toContain(`${afterFallback.players.find((player) => player.uid === controller)?.displayName} plays Reinforcements with no Company available and gains +2 Strength.`);
     append(controller!, 'battle/passed', {});
     const afterPelennor = reduceGame(stream);
     expect(afterPelennor.diagnostics).toEqual([]);
