@@ -193,7 +193,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] All three browsers open the same production board and first Battle
-- [x] Deep Fangorn and Entwash complete nineteen destinations
+- [x] The complete printed board exposes twenty-two executable destinations
 - [x] Every connected browser replays 10 accepted events with no diagnostics
 
 ---

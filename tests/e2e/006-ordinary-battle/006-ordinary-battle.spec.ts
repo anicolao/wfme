@@ -77,7 +77,7 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
       { spec: 'Every human sees Crossing of the Isen as the active Battle', check: async () => {
         for (const seat of seats) await expect(seat.page.getByTestId('active-battle')).toContainText('Crossing of the Isen');
       } },
-      { spec: 'The production board reports all nineteen executable destinations', check: async () => await expect(page.getByText('19 / 22')).toBeVisible() },
+      { spec: 'The production board reports all twenty-two executable destinations', check: async () => await expect(page.getByText('22 / 22')).toBeVisible() },
       converged(accepted + 1)
     ]);
 

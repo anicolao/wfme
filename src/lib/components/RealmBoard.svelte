@@ -84,7 +84,7 @@
       </p>
     </div>
     <dl class="ledger" aria-label="Construction capability ledger">
-      <div><dt>Playable spaces</dt><dd>19 / 22</dd></div>
+      <div><dt>Playable spaces</dt><dd>22 / 22</dd></div>
       <div><dt>Agent-ready cards</dt><dd>5 / 7</dd></div>
       <div><dt>Commander powers</dt><dd>0 / 16</dd></div>
     </dl>
@@ -240,6 +240,12 @@
                                 ? 'Draw 1 Fate · +1 Reveal Influence this round while your Agent remains'
                                 : definition?.effect.kind === 'minas-tirith'
                                   ? 'Battle · recruit 1 · draw 1 card · controller gains 1 Gold'
+                                  : definition?.effect.kind === 'archives-rivendell'
+                                    ? 'Battle · pay 2 Provisions · recruit 2 · draw 2 cards'
+                                  : definition?.effect.kind === 'osgiliath'
+                                    ? 'Battle · pay 0/1 Mithril · gain 2/4 Gold · controller gains 1 Gold'
+                                  : definition?.effect.kind === 'great-forge'
+                                    ? 'Need Dwarven 2 · pay 3 Mithril · gain 5 Gold · +1 any faction'
                                   : definition?.effect.kind === 'fangorn-moot'
                                     ? `Battle · need Wild 2 · take Ent-draught or gain 1 Provision and ${game.match?.damBreached ? 'leave the Dam breached' : 'breach the Dam'}`
                                   : definition?.effect.kind === 'deep-fangorn'
@@ -319,8 +325,8 @@
   {#if game.match?.pendingChoice && game.match.pendingChoice.kind !== 'place-scout'}
     <section class="pending-choice" data-testid="pending-choice" aria-labelledby="choice-title">
       <div>
-        <p class="eyebrow">Ordered {game.match.pendingChoice.kind === 'critical-defense' || game.match.pendingChoice.kind === 'battle-deployment' ? 'Battle' : game.match.pendingChoice.kind === 'fangorn-moot' ? 'Fangorn Moot' : game.match.pendingChoice.kind === 'deep-fangorn' ? 'Deep Fangorn' : game.match.pendingChoice.kind === 'entwash' ? 'Entwash' : game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Council' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'Ranger' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Scout' : game.match.pendingChoice.kind === 'elven-favor' ? 'Elven favor' : game.match.pendingChoice.kind.startsWith('secret-bargain') ? 'Secret Bargain' : 'Journey'} choice</p>
-        <h2 id="choice-title">{game.match.pendingChoice.kind === 'critical-defense' ? 'Defend the contested location?' : game.match.pendingChoice.kind === 'battle-deployment' ? 'Deploy Companies to the active Battle?' : game.match.pendingChoice.kind === 'fangorn-moot' ? 'What does the Moot decide?' : game.match.pendingChoice.kind === 'deep-fangorn' ? 'Call the Ents or take Mithril?' : game.match.pendingChoice.kind === 'entwash' ? 'Call one Ent or take Mithril?' : game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Pay 2 Gold to gain 1 Provision?' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'Trash a card from hand or discard?' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Recall a Scout to gather intelligence?' : game.match.pendingChoice.kind === 'elven-favor' ? 'Keep one of the two Fate cards?' : game.match.pendingChoice.kind === 'secret-bargain-fate' ? 'Cycle one Fate card?' : game.match.pendingChoice.kind === 'secret-bargain-recall' ? 'Recall another Agent?' : 'Trash Seek Allies?'}</h2>
+        <p class="eyebrow">Ordered {game.match.pendingChoice.kind === 'critical-defense' || game.match.pendingChoice.kind === 'battle-deployment' ? 'Battle' : game.match.pendingChoice.kind === 'fangorn-moot' ? 'Fangorn Moot' : game.match.pendingChoice.kind === 'deep-fangorn' ? 'Deep Fangorn' : game.match.pendingChoice.kind === 'entwash' ? 'Entwash' : game.match.pendingChoice.kind === 'osgiliath' ? 'Osgiliath' : game.match.pendingChoice.kind === 'great-forge' ? 'Great Forge' : game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Council' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'Ranger' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Scout' : game.match.pendingChoice.kind === 'elven-favor' ? 'Elven favor' : game.match.pendingChoice.kind.startsWith('secret-bargain') ? 'Secret Bargain' : 'Journey'} choice</p>
+        <h2 id="choice-title">{game.match.pendingChoice.kind === 'critical-defense' ? 'Defend the contested location?' : game.match.pendingChoice.kind === 'battle-deployment' ? 'Deploy Companies to the active Battle?' : game.match.pendingChoice.kind === 'fangorn-moot' ? 'What does the Moot decide?' : game.match.pendingChoice.kind === 'deep-fangorn' ? 'Call the Ents or take Mithril?' : game.match.pendingChoice.kind === 'entwash' ? 'Call one Ent or take Mithril?' : game.match.pendingChoice.kind === 'osgiliath' ? 'How much Mithril will cross the river?' : game.match.pendingChoice.kind === 'great-forge' ? 'Which alliance receives the forged gifts?' : game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Pay 2 Gold to gain 1 Provision?' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'Trash a card from hand or discard?' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Recall a Scout to gather intelligence?' : game.match.pendingChoice.kind === 'elven-favor' ? 'Keep one of the two Fate cards?' : game.match.pendingChoice.kind === 'secret-bargain-fate' ? 'Cycle one Fate card?' : game.match.pendingChoice.kind === 'secret-bargain-recall' ? 'Recall another Agent?' : 'Trash Seek Allies?'}</h2>
         <p>{game.match.pendingChoice.kind === 'critical-defense' ? 'The controller may deploy one Company directly from supply before the first Agent turn.' : game.match.pendingChoice.kind === 'battle-deployment' ? `Deploy any Companies recruited this round plus up to two existing garrison Companies; ${game.match.pendingChoice.maximum} are currently eligible.` : game.match.pendingChoice.kind === 'fangorn-moot' ? 'Take the persistent Ent-draught with one Company and one Provision, or gain one Provision and decide whether to breach the Dam.' : game.match.pendingChoice.kind === 'deep-fangorn' ? 'The three-Provision cost and accumulated Riches have resolved. Ents require Ent-draught, an active Battle, and passage through the Dam when the Battle is protected.' : game.match.pendingChoice.kind === 'entwash' ? 'The one-Provision cost and accumulated Riches have resolved. The same Ent-draught, active-Battle, and protected-location rules apply.' : game.match.pendingChoice.kind === 'muster-free-peoples' ? 'The Companies have already been recruited.' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'The Provision, standing, and Company have already resolved; only you can see the eligible card names.' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'The Agent is placed, but neither the board nor Journey effect has resolved yet.' : game.match.pendingChoice.kind === 'elven-favor' ? 'The two private cards are identified only to you; the unchosen card enters the public Fate discard.' : game.match.pendingChoice.kind === 'secret-bargain-fate' ? 'The cycled identity remains private; its old instance enters the public discard before a replacement is drawn.' : game.match.pendingChoice.kind === 'secret-bargain-recall' ? 'Choose one of your other occupied spaces. The recalled Agent becomes available again before the private draw.' : 'The board space has resolved.'} Resolve this choice before the turn advances.</p>
       </div>
       <div class="choice-actions">
@@ -350,6 +356,15 @@
           {#if game.match.pendingChoice.options.includes('summon-1-ent')}
             <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('summon-1-ent')}>Summon 1 Ent</button>
           {/if}
+        {:else if game.match.pendingChoice.kind === 'osgiliath'}
+          <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('pay-0-mithril')}>Pay no Mithril · gain 2 Gold</button>
+          {#if game.match.pendingChoice.options.includes('pay-1-mithril')}
+            <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('pay-1-mithril')}>Pay 1 Mithril · gain 4 Gold</button>
+          {/if}
+        {:else if game.match.pendingChoice.kind === 'great-forge'}
+          {#each game.match.pendingChoice.options as option}
+            <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice(option)}>Gain {option.slice('standing-'.length)} standing</button>
+          {/each}
         {:else if game.match.pendingChoice.kind === 'muster-free-peoples'}
           <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('pay-2-gold')}>Pay 2 Gold</button>
           <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('decline')}>Keep the Gold</button>

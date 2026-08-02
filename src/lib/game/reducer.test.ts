@@ -436,7 +436,7 @@ describe('integrated Agent placement replay', () => {
     const shadowEvent = createEvent('agent/placed', shadowActor, 5, { cardInstanceId: shadow.id, spaceId: 'tribute-shadow' }, 13);
     const beforeMuster = reduceGame([...events, afterRoadEvent, dwarfEvent, shadowEvent]);
     const escort = beforeMuster.match!.players[roadActor].hand.find((card) => card.definitionId === 'armed-escort')!;
-    expect(legalAgentSpaces(beforeMuster, roadActor, escort.id)).toEqual(['hall-fire', 'muster-free-peoples', 'minas-tirith']);
+    expect(legalAgentSpaces(beforeMuster, roadActor, escort.id)).toEqual(['hall-fire', 'muster-free-peoples', 'minas-tirith', 'osgiliath']);
 
     const musterEvent = createEvent('agent/placed', roadActor, 6, { cardInstanceId: escort.id, spaceId: 'muster-free-peoples' }, 14);
     const pending = reduceGame([...events, afterRoadEvent, dwarfEvent, shadowEvent, musterEvent]);
@@ -1184,6 +1184,117 @@ describe('integrated Agent placement replay', () => {
     expect(afterRangers.diagnostics).toEqual([]);
     expect(afterRangers.match!.players[target].trashPile).toHaveLength(trashBefore + 1);
     expect(afterRangers.match!.boardAgents['ranger-mustering']?.some((occupation) => occupation.uid === target)).toBe(true);
+  });
+
+  it('executes Archives, Osgiliath, and Great Forge through real turns and ordered choices', () => {
+    const stream = readyRoom('complete-board-1');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const append = (state: ReturnType<typeof reduceGame>, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      const uid = currentPlayerUid(state)!;
+      sequences[uid] += 1;
+      stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+    };
+    const started = reduceGame(stream);
+    const [forgeUid, archivesUid, osgiliathUid] = started.match!.playerOrder;
+    let archivesComplete = false;
+    let osgiliathComplete = false;
+    let forgeComplete = false;
+    let archiveDrawProof = false;
+    let osgiliathGoldBefore = 0;
+    let forgeGoldBefore = 0;
+    let forgeMithrilBefore = 0;
+    let forgeWildBefore = 0;
+
+    for (let guard = 0; guard < 1200 && !(archivesComplete && osgiliathComplete && forgeComplete); guard += 1) {
+      const state = reduceGame(stream);
+      expect(state.diagnostics).toEqual([]);
+      const match = state.match!;
+      const uid = currentPlayerUid(state)!;
+      const player = match.players[uid];
+      const pending = match.pendingChoice;
+      if (pending?.kind === 'critical-defense') append(state, 'choice/resolved', { choice: 'decline-defender' });
+      else if (pending?.kind === 'battle-deployment') append(state, 'choice/resolved', { choice: 'deploy:0' });
+      else if (pending?.kind === 'osgiliath') {
+        append(state, 'choice/resolved', { choice: 'pay-0-mithril' });
+        const after = reduceGame(stream);
+        expect(after.match!.players[uid].resources.gold).toBe(osgiliathGoldBefore + 2);
+        osgiliathComplete = true;
+      } else if (pending?.kind === 'great-forge') {
+        append(state, 'choice/resolved', { choice: 'standing-wild' });
+        const after = reduceGame(stream);
+        expect(after.match!.players[uid].resources.gold).toBe(forgeGoldBefore + 5);
+        expect(after.match!.players[uid].resources.mithril).toBe(forgeMithrilBefore - 3);
+        expect(after.match!.players[uid].standing.wild).toBe(forgeWildBefore + 1);
+        forgeComplete = true;
+      } else if (pending?.kind === 'seek-allies') append(state, 'choice/resolved', { choice: 'keep-card' });
+      else if (pending?.kind === 'gather-intelligence') append(state, 'choice/resolved', { choice: 'decline-intelligence' });
+      else if (pending?.kind === 'place-scout') {
+        const emptyPost = OBSERVATION_POSTS.find((post) => !match.boardScouts[post.id]);
+        if (!emptyPost) throw new Error('the complete-board journey requires an empty Scout post');
+        append(state, 'scout/placed', { postId: emptyPost.id });
+      } else if (match.turnMode === 'reveal') append(state, 'reveal/finished', {});
+      else if (uid === osgiliathUid && !osgiliathComplete) {
+        const placement = player.hand.flatMap((card) => legalAgentSpaces(state, uid, card.id)
+          .filter((spaceId) => spaceId === 'osgiliath')
+          .map((spaceId) => ({ card, spaceId })))[0];
+        if (placement) {
+          osgiliathGoldBefore = player.resources.gold;
+          append(state, 'agent/placed', { cardInstanceId: placement.card.id, spaceId: placement.spaceId });
+        } else append(state, 'turn/revealed', {});
+      } else if (uid === archivesUid && !archivesComplete) {
+        const archivePlacement = player.hand.flatMap((card) => legalAgentSpaces(state, uid, card.id)
+          .filter((spaceId) => spaceId === 'archives-rivendell')
+          .map((spaceId) => ({ card, spaceId })))[0];
+        if (archivePlacement && player.resources.provisions >= 2) {
+          const cardsBefore = player.hand.length + player.drawPile.length + player.discardPile.length + player.journey.length + player.muster.length + player.trashPile.length;
+          append(state, 'agent/placed', { cardInstanceId: archivePlacement.card.id, spaceId: archivePlacement.spaceId });
+          const after = reduceGame(stream);
+          const afterPlayer = after.match!.players[uid];
+          const cardsAfter = afterPlayer.hand.length + afterPlayer.drawPile.length + afterPlayer.discardPile.length + afterPlayer.journey.length + afterPlayer.muster.length + afterPlayer.trashPile.length;
+          expect(afterPlayer.resources.provisions).toBe(player.resources.provisions - 2);
+          expect(cardsAfter).toBe(cardsBefore);
+          expect(afterPlayer.hand.length).toBe(player.hand.length + 1);
+          archiveDrawProof = true;
+          archivesComplete = true;
+        } else {
+          const provisionPlacement = player.hand.flatMap((card) => legalAgentSpaces(state, uid, card.id)
+            .filter((spaceId) => spaceId === 'dwarven-caravans')
+            .map((spaceId) => ({ card, spaceId })))[0];
+          if (player.resources.provisions < 2 && provisionPlacement) {
+            append(state, 'agent/placed', { cardInstanceId: provisionPlacement.card.id, spaceId: provisionPlacement.spaceId });
+          } else append(state, 'turn/revealed', {});
+        }
+      } else if (uid === forgeUid && !forgeComplete) {
+        const forgePlacement = player.hand.flatMap((card) => legalAgentSpaces(state, uid, card.id)
+          .filter((spaceId) => spaceId === 'great-forge')
+          .map((spaceId) => ({ card, spaceId })))[0];
+        if (forgePlacement) {
+          forgeGoldBefore = player.resources.gold;
+          forgeMithrilBefore = player.resources.mithril;
+          forgeWildBefore = player.standing.wild;
+          append(state, 'agent/placed', { cardInstanceId: forgePlacement.card.id, spaceId: forgePlacement.spaceId });
+        } else {
+          const desiredSpace = player.standing.dwarven < 2 ? 'dwarven-caravans' : 'edoras';
+          const setupPlacement = player.hand.flatMap((card) => legalAgentSpaces(state, uid, card.id)
+            .filter((spaceId) => spaceId === desiredSpace)
+            .map((spaceId) => ({ card, spaceId })))[0];
+          if (setupPlacement) append(state, 'agent/placed', { cardInstanceId: setupPlacement.card.id, spaceId: setupPlacement.spaceId });
+          else append(state, 'turn/revealed', {});
+        }
+      } else append(state, 'turn/revealed', {});
+    }
+
+    const complete = reduceGame(stream);
+    expect(complete.diagnostics).toEqual([]);
+    expect({ archivesComplete, osgiliathComplete, forgeComplete, archiveDrawProof }).toEqual({
+      archivesComplete: true,
+      osgiliathComplete: true,
+      forgeComplete: true,
+      archiveDrawProof: true
+    });
+    expect(complete.match!.activity.some((entry) => entry.includes('at Osgiliath'))).toBe(true);
+    expect(complete.match!.activity.some((entry) => entry.includes('standing at Great Forge'))).toBe(true);
   });
 
   it('draws Fate at Hall of Fire and grants Influence only while its Agent remains that round', () => {

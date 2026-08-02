@@ -112,6 +112,18 @@ export type MatchState = {
     followupPlaceScout: boolean;
     options: readonly ('gain-2-mithril' | 'summon-1-ent')[];
   } | {
+    kind: 'osgiliath';
+    actorUid: string;
+    followupSeekAlliesCardId: string | null;
+    followupPlaceScout: boolean;
+    options: readonly ('pay-0-mithril' | 'pay-1-mithril')[];
+  } | {
+    kind: 'great-forge';
+    actorUid: string;
+    followupSeekAlliesCardId: string | null;
+    followupPlaceScout: boolean;
+    options: readonly ('standing-shadow' | 'standing-dwarven' | 'standing-elven' | 'standing-wild')[];
+  } | {
     kind: 'battle-deployment';
     actorUid: string;
     spaceId: string;
@@ -318,6 +330,11 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
     if (space.effect.kind === 'ranger-mustering' && player.resources.provisions < space.effect.costProvisions) return false;
     if (space.effect.kind === 'deep-fangorn' && player.resources.provisions < space.effect.costProvisions) return false;
     if (space.effect.kind === 'entwash' && player.resources.provisions < space.effect.costProvisions) return false;
+    if (space.effect.kind === 'archives-rivendell' && player.resources.provisions < space.effect.costProvisions) return false;
+    if (space.effect.kind === 'great-forge' && (
+      player.standing.dwarven < space.effect.requiredDwarvenStanding ||
+      player.resources.mithril < space.effect.costMithril
+    )) return false;
     if (space.effect.kind === 'fangorn-moot' && player.standing.wild < space.effect.requiredWildStanding) return false;
     if (space.effect.kind === 'secret-bargain') {
       const hasOtherAgent = Object.entries(match.boardAgents).some(([, occupations]) =>
@@ -749,6 +766,26 @@ function resolveAgentEffects(
     const recruited = recruitCompanies(player, space.effect.recruitCompanies);
     const drawn = drawOneCard(match, player.uid, 'Minas Tirith');
     resolution = `recruiting ${recruited} Company, drawing ${drawn ? '1 card' : 'no card'}, and preparing forces for Battle`;
+  } else if (space.effect.kind === 'archives-rivendell') {
+    const recruited = recruitCompanies(player, space.effect.recruitCompanies);
+    const drawn = Array.from({ length: space.effect.drawCards }, () => drawOneCard(match, player.uid, 'Archives of Rivendell')).filter(Boolean).length;
+    resolution = `paying 2 Provisions, recruiting ${recruited} Companies, drawing ${drawn} cards, and preparing forces for Battle`;
+  } else if (space.effect.kind === 'osgiliath') {
+    const options: ('pay-0-mithril' | 'pay-1-mithril')[] = ['pay-0-mithril'];
+    if (player.resources.mithril >= space.effect.optionalCostMithril) options.push('pay-1-mithril');
+    match.pendingChoice = {
+      kind: 'osgiliath', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
+      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout', options
+    };
+    resolution = 'choosing whether to pay 1 Mithril for 2 or 4 Gold before deploying to Battle';
+  } else if (space.effect.kind === 'great-forge') {
+    player.resources.gold += space.effect.gainGold;
+    match.pendingChoice = {
+      kind: 'great-forge', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
+      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout',
+      options: ['standing-shadow', 'standing-dwarven', 'standing-elven', 'standing-wild']
+    };
+    resolution = 'paying 3 Mithril, gaining 5 Gold, and choosing one faction standing';
   } else if (space.effect.kind === 'fangorn-moot') {
     const options: ('take-ent-draught' | 'gain-provision-breach-dam' | 'gain-provision-leave-dam')[] = [];
     if (!player.entDraught) options.push('take-ent-draught');
@@ -931,6 +968,17 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       if (player.resources.provisions < space.effect.costProvisions) return 'illegal Agent placement';
       player.resources.provisions -= space.effect.costProvisions;
     }
+    if (space.effect.kind === 'archives-rivendell') {
+      if (player.resources.provisions < space.effect.costProvisions) return 'illegal Agent placement';
+      player.resources.provisions -= space.effect.costProvisions;
+    }
+    if (space.effect.kind === 'great-forge') {
+      if (
+        player.standing.dwarven < space.effect.requiredDwarvenStanding ||
+        player.resources.mithril < space.effect.costMithril
+      ) return 'illegal Agent placement';
+      player.resources.mithril -= space.effect.costMithril;
+    }
     if (space.effect.kind === 'secret-bargain') {
       if (
         player.standing.shadow < space.effect.requiredShadowStanding ||
@@ -950,6 +998,13 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       if (controllerUid) {
         state.match.players[controllerUid].resources.gold += 1;
         state.match.activity.push(`${state.players.find((candidate) => candidate.uid === controllerUid)?.displayName ?? 'The controller'} gains 1 Gold from Minas Tirith.`);
+      }
+    }
+    if (space.id === 'osgiliath') {
+      const controllerUid = state.match.criticalControl.osgiliath;
+      if (controllerUid) {
+        state.match.players[controllerUid].resources.gold += 1;
+        state.match.activity.push(`${state.players.find((candidate) => candidate.uid === controllerUid)?.displayName ?? 'The controller'} gains 1 Gold from Osgiliath.`);
       }
     }
     if (space.id === 'edoras') {
@@ -1101,6 +1156,53 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         };
       } else {
         state.match.pendingChoice = null;
+        finishAgentAction(state.match, event.actorUid);
+      }
+      return null;
+    }
+    if (pending.kind === 'osgiliath') {
+      const paid = choice === 'pay-1-mithril';
+      if (paid) {
+        if (player.resources.mithril < 1) return 'illegal choice resolution';
+        player.resources.mithril -= 1;
+      }
+      player.resources.gold += paid ? 4 : 2;
+      state.match.activity.push(`${actor.displayName} ${paid ? 'pays 1 Mithril and gains 4 Gold' : 'pays no Mithril and gains 2 Gold'} at Osgiliath.`);
+      if (pending.followupSeekAlliesCardId) {
+        state.match.pendingChoice = {
+          kind: 'seek-allies', actorUid: player.uid, cardInstanceId: pending.followupSeekAlliesCardId,
+          options: ['trash-self', 'keep-card']
+        };
+      } else if (pending.followupPlaceScout) {
+        state.match.pendingChoice = {
+          kind: 'place-scout', actorUid: player.uid, followupSeekAlliesCardId: null, options: []
+        };
+      } else {
+        state.match.pendingChoice = null;
+        finishAgentAction(state.match, event.actorUid);
+      }
+      return null;
+    }
+    if (pending.kind === 'great-forge') {
+      const faction = choice.slice('standing-'.length) as 'shadow' | 'dwarven' | 'elven' | 'wild';
+      gainStanding(
+        state.match,
+        player,
+        faction,
+        pending.followupSeekAlliesCardId,
+        pending.followupPlaceScout
+      );
+      state.match.activity.push(`${actor.displayName} gains 1 ${faction[0].toUpperCase()}${faction.slice(1)} standing at Great Forge.`);
+      if (!state.match.pendingChoice && pending.followupSeekAlliesCardId) {
+        state.match.pendingChoice = {
+          kind: 'seek-allies', actorUid: player.uid, cardInstanceId: pending.followupSeekAlliesCardId,
+          options: ['trash-self', 'keep-card']
+        };
+      } else if (!state.match.pendingChoice && pending.followupPlaceScout) {
+        state.match.pendingChoice = {
+          kind: 'place-scout', actorUid: player.uid, followupSeekAlliesCardId: null, options: []
+        };
+      } else if (!state.match.pendingChoice) {
         finishAgentAction(state.match, event.actorUid);
       }
       return null;

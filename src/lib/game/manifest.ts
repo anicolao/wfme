@@ -399,6 +399,9 @@ export type BoardSpaceDefinition = BoardSpaceIdentity & {
     | { kind: 'muster-free-peoples'; recruitCompanies: 2; optionalGoldCost: 2; optionalGainProvisions: 1 }
     | { kind: 'hall-of-fire'; drawFate: 1; revealInfluence: 1 }
     | { kind: 'minas-tirith'; recruitCompanies: 1; drawCards: 1; controllerBonusGold: 1; battleSpace: true }
+    | { kind: 'archives-rivendell'; costProvisions: 2; recruitCompanies: 2; drawCards: 2; battleSpace: true }
+    | { kind: 'osgiliath'; optionalCostMithril: 1; freeGold: 2; paidGold: 4; controllerBonusGold: 1; battleSpace: true }
+    | { kind: 'great-forge'; requiredDwarvenStanding: 2; costMithril: 3; gainGold: 5; gainAnyStanding: 1 }
     | { kind: 'fangorn-moot'; requiredWildStanding: 2; grantEntDraught: true; recruitCompanies: 1; gainProvisions: 1; mayBreachDam: true; battleSpace: true }
     | { kind: 'deep-fangorn'; costProvisions: 3; gainMithril: 4; summonEnts: 2; riches: true; battleSpace: true }
     | { kind: 'entwash'; costProvisions: 1; gainMithril: 2; summonEnts: 1; riches: true; battleSpace: true }
@@ -518,6 +521,30 @@ export const BOARD_SPACE_DEFINITIONS: readonly BoardSpaceDefinition[] = [
     region: 'Strongholds',
     placementIcons: ['Stronghold'],
     effect: { kind: 'minas-tirith', recruitCompanies: 1, drawCards: 1, controllerBonusGold: 1, battleSpace: true },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'archives-rivendell',
+    name: 'Archives of Rivendell',
+    region: 'Strongholds',
+    placementIcons: ['Stronghold'],
+    effect: { kind: 'archives-rivendell', costProvisions: 2, recruitCompanies: 2, drawCards: 2, battleSpace: true },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'osgiliath',
+    name: 'Osgiliath',
+    region: 'Strongholds',
+    placementIcons: ['Stronghold'],
+    effect: { kind: 'osgiliath', optionalCostMithril: 1, freeGold: 2, paidGold: 4, controllerBonusGold: 1, battleSpace: true },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'great-forge',
+    name: 'Great Forge',
+    region: 'Roads',
+    placementIcons: ['Roads'],
+    effect: { kind: 'great-forge', requiredDwarvenStanding: 2, costMithril: 3, gainGold: 5, gainAnyStanding: 1 },
     reviewedCapabilities: ['agent-placement']
   },
   {

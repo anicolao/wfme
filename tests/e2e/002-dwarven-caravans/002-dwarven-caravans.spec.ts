@@ -120,8 +120,8 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
           for (const seat of seats) await expect(seat.page.getByRole('heading', { name: 'The living board' })).toBeVisible();
         } },
         { spec: 'All 22 final board destinations are structurally present', check: async () => await expect(page.locator('.spaces button')).toHaveCount(22) },
-        { spec: 'Exactly nineteen complete destinations are advertised as playable', check: async () => {
-          await expect(page.getByText('Playable spaces').locator('..').getByText('19 / 22')).toBeVisible();
+        { spec: 'All twenty-two complete destinations are advertised as playable', check: async () => {
+          await expect(page.getByText('Playable spaces').locator('..').getByText('22 / 22')).toBeVisible();
           await expect(page.getByTestId('space-dwarven-caravans')).toContainText('+1 standing');
           await expect(page.getByTestId('space-tribute-shadow')).toContainText('+1 standing');
         } },
@@ -275,7 +275,8 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
           await expect(roadActor!.page.getByTestId('space-hall-fire')).toBeEnabled();
           await expect(roadActor!.page.getByTestId('space-muster-free-peoples')).toBeEnabled();
           await expect(roadActor!.page.getByTestId('space-minas-tirith')).toBeEnabled();
-          await expect(roadActor!.page.locator('.spaces button:enabled')).toHaveCount(3);
+          await expect(roadActor!.page.getByTestId('space-osgiliath')).toBeEnabled();
+          await expect(roadActor!.page.locator('.spaces button:enabled')).toHaveCount(4);
         } }
       ]
     );

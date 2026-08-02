@@ -79,7 +79,7 @@ test('Ent-draught breaches the Dam and summons reward-doubling Ents', async ({ b
           await expect(seat.page.getByTestId('active-battle')).toContainText('Crossing of the Isen');
         }
       } },
-      { spec: 'Deep Fangorn and Entwash complete nineteen destinations', check: async () => await expect(page.getByText('19 / 22')).toBeVisible() },
+      { spec: 'The complete printed board exposes twenty-two executable destinations', check: async () => await expect(page.getByText('22 / 22')).toBeVisible() },
       converged(accepted + 1)
     ]);
 
