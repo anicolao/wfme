@@ -1,6 +1,6 @@
 # Test: Three-player ordinary Agent destinations tracer
 
-Three isolated human browser sessions create and join a Firebase room, resolve Roads, faction, and Council actions, then Reveal, acquire, Recall, reshuffle, use the acquired card, and cross a persistent faction threshold with convergence and replay.
+Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use the acquired card, cross a faction threshold, and make an optional self-trash choice with convergence and replay.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -778,5 +778,87 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] Standing, Renown, Provision, and occupation replay exactly
 - [x] Every connected replay has accepted exactly 38 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/058-round-4-seat-3-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/058-round-4-seat-3-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 39 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/059-round-4-seat-3-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/059-round-4-seat-3-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 40 events with no diagnostics
+
+---
+
+## Pip chooses Seek Allies
+
+![Phone: Pip chooses Seek Allies](./screenshots/060-play-seek-allies-phone.png)
+
+![Desktop: Pip chooses Seek Allies](./screenshots/060-play-seek-allies-desktop.png)
+
+**Verifications:**
+
+- [x] Seek Allies is selected from the genuine round-4 hand
+- [x] The remaining Shadow faction destination is legal
+
+---
+
+## Pip seeks allies in the Shadow
+
+![Phone: Pip seeks allies in the Shadow](./screenshots/061-seek-shadow-allies-phone.png)
+
+![Desktop: Pip seeks allies in the Shadow](./screenshots/061-seek-shadow-allies-desktop.png)
+
+**Verifications:**
+
+- [x] The board reward resolves before the Journey choice
+- [x] Every client sees the blocking self-trash choice
+- [x] Only the actor can trash the card
+- [x] Every connected replay has accepted exactly 41 events with no diagnostics
+
+---
+
+## Pip trashes Seek Allies
+
+![Phone: Pip trashes Seek Allies](./screenshots/062-trash-seek-allies-phone.png)
+
+![Desktop: Pip trashes Seek Allies](./screenshots/062-trash-seek-allies-desktop.png)
+
+**Verifications:**
+
+- [x] The pending choice closes everywhere
+- [x] Exactly one card moves permanently to Trash
+- [x] The Chronicle records the irreversible choice
+- [x] Every connected replay has accepted exactly 42 events with no diagnostics
+
+---
+
+## Pip reloads the trashed card
+
+![Phone: Pip reloads the trashed card](./screenshots/063-reload-seek-trash-phone.png)
+
+![Desktop: Pip reloads the trashed card](./screenshots/063-reload-seek-trash-desktop.png)
+
+**Verifications:**
+
+- [x] Trash, Shadow reward, and occupation replay exactly
+- [x] Every connected replay has accepted exactly 42 events with no diagnostics
 
 ---

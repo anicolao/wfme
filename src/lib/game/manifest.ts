@@ -31,7 +31,9 @@ export const STARTING_CARD_IDENTITIES: readonly StartingCardIdentity[] = [
 
 export type AgentCardDefinition = StartingCardIdentity & {
   placementIcons: readonly PlacementIcon[];
-  journeyEffect?: { recruitCompanies: 1 };
+  journeyEffect?:
+    | { kind: 'recruit-companies'; amount: 1 }
+    | { kind: 'optional-trash-self' };
   reviewedCapabilities: readonly ['agent-placement'];
 };
 
@@ -41,7 +43,7 @@ export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
     name: 'Muster the Host',
     copies: 8,
     placementIcons: ['Stronghold', 'Roads'],
-    journeyEffect: { recruitCompanies: 1 },
+    journeyEffect: { kind: 'recruit-companies', amount: 1 },
     reviewedCapabilities: ['agent-placement']
   },
   {
@@ -49,7 +51,7 @@ export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
     name: 'Armed Escort',
     copies: 2,
     placementIcons: ['Council', 'Stronghold'],
-    journeyEffect: { recruitCompanies: 1 },
+    journeyEffect: { kind: 'recruit-companies', amount: 1 },
     reviewedCapabilities: ['agent-placement']
   },
   {
@@ -64,6 +66,14 @@ export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
     name: 'Diplomatic Mission',
     copies: 1,
     placementIcons: ['Shadow', 'Dwarven', 'Elven', 'Wild'],
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'seek-allies',
+    name: 'Seek Allies',
+    copies: 1,
+    placementIcons: ['Shadow', 'Dwarven', 'Elven', 'Wild'],
+    journeyEffect: { kind: 'optional-trash-self' },
     reviewedCapabilities: ['agent-placement']
   }
 ];

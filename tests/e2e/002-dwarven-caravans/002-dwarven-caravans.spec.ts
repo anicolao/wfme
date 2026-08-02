@@ -509,9 +509,64 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
 
+    await revealAndFinish(shadowActor!, 'round-4-seat-3', 39, 40);
+    await steps.gesture(actor!.page, 'play-seek-allies', `${actor!.name} chooses Seek Allies`,
+      () => actor!.page.getByTestId('private-hand').getByRole('button', { name: /^Seek Allies/ }).click(),
+      [
+        { spec: 'Seek Allies is selected from the genuine round-4 hand', check: async () => await expect(actor!.page.getByRole('button', { name: /^Seek Allies/ })).toHaveAttribute('aria-pressed', 'true') },
+        { spec: 'The remaining Shadow faction destination is legal', check: async () => await expect(actor!.page.getByTestId('space-tribute-shadow')).toBeEnabled() }
+      ]
+    );
+    await steps.gesture(actor!.page, 'seek-shadow-allies', `${actor!.name} seeks allies in the Shadow`,
+      () => actor!.page.getByTestId('space-tribute-shadow').click(),
+      [
+        { spec: 'The board reward resolves before the Journey choice', check: async () => {
+          const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
+          await expect(player).toContainText('Shadow1');
+          await expect(player).toContainText('Gold4');
+        } },
+        { spec: 'Every client sees the blocking self-trash choice', check: async () => {
+          for (const seat of seats) await expect(seat.page.getByTestId('pending-choice')).toContainText('Trash Seek Allies?');
+        } },
+        { spec: 'Only the actor can trash the card', check: async () => {
+          await expect(actor!.page.getByRole('button', { name: 'Trash Seek Allies' })).toBeEnabled();
+          for (const observer of seats.filter((seat) => seat !== actor)) await expect(observer.page.getByRole('button', { name: 'Trash Seek Allies' })).toBeDisabled();
+        } },
+        convergedEvents(41)
+      ]
+    );
+    await steps.gesture(actor!.page, 'trash-seek-allies', `${actor!.name} trashes Seek Allies`,
+      () => actor!.page.getByRole('button', { name: 'Trash Seek Allies' }).click(),
+      [
+        { spec: 'The pending choice closes everywhere', check: async () => {
+          for (const seat of seats) await expect(seat.page.getByTestId('pending-choice')).toHaveCount(0);
+        } },
+        { spec: 'Exactly one card moves permanently to Trash', check: async () => {
+          for (const seat of seats) await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Trash1');
+        } },
+        { spec: 'The Chronicle records the irreversible choice', check: async () => {
+          for (const seat of seats) await expect(seat.page.getByTestId('activity-log')).toContainText(`${actor!.name} trashes Seek Allies`);
+        } },
+        convergedEvents(42)
+      ]
+    );
+    await steps.gesture(actor!.page, 'reload-seek-trash', `${actor!.name} reloads the trashed card`,
+      async () => { await actor!.page.reload(); },
+      [
+        { spec: 'Trash, Shadow reward, and occupation replay exactly', check: async () => {
+          const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
+          await expect(player).toContainText('Trash1');
+          await expect(player).toContainText('Shadow1');
+          await expect(player).toContainText('Gold4');
+          await expect(actor!.page.getByTestId('space-tribute-shadow')).toContainText(`Agent · ${actor!.name}`);
+        } },
+        convergedEvents(42)
+      ]
+    );
+
     steps.generateDocs(
       'Three-player ordinary Agent destinations tracer',
-      'Three isolated human browser sessions create and join a Firebase room, resolve Roads, faction, and Council actions, then Reveal, acquire, Recall, reshuffle, use the acquired card, and cross a persistent faction threshold with convergence and replay.'
+      'Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use the acquired card, cross a faction threshold, and make an optional self-trash choice with convergence and replay.'
     );
   } finally {
     await guestAContext.close();

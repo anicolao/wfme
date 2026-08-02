@@ -17,7 +17,7 @@
   export let selectedCardId = '';
   export let onSelectCard: (cardId: string) => void;
   export let onPlaceAgent: (spaceId: string) => void;
-  export let onResolveChoice: (choice: 'pay-2-gold' | 'decline') => void;
+  export let onResolveChoice: (choice: 'pay-2-gold' | 'decline' | 'trash-self' | 'keep-card') => void;
   export let onReveal: () => void;
   export let onAcquire: (definitionId: string) => void;
   export let onFinishReveal: () => void;
@@ -53,7 +53,7 @@
     </div>
     <dl class="ledger" aria-label="Construction capability ledger">
       <div><dt>Playable spaces</dt><dd>4 / 22</dd></div>
-      <div><dt>Agent-ready cards</dt><dd>3 / 7</dd></div>
+      <div><dt>Agent-ready cards</dt><dd>4 / 7</dd></div>
       <div><dt>Commander powers</dt><dd>0 / 16</dd></div>
     </dl>
   </header>
@@ -76,6 +76,7 @@
             <div><dt>Supply</dt><dd>{matchPlayer?.companies.supply ?? 0}</dd></div>
             <div><dt>Renown</dt><dd>{matchPlayer?.renown ?? 0}</dd></div>
             <div><dt>Discard</dt><dd>{matchPlayer?.discardPile.length ?? 0}</dd></div>
+            <div><dt>Trash</dt><dd>{matchPlayer?.trashPile.length ?? 0}</dd></div>
           </dl>
           {#if player.uid === localUid}<small>Your seat · private hand below</small>{/if}
           {#if matchPlayer?.revealedThisRound}<small>Reveal complete · waiting for Recall</small>{/if}
@@ -132,13 +133,18 @@
   {#if game.match?.pendingChoice}
     <section class="pending-choice" data-testid="pending-choice" aria-labelledby="choice-title">
       <div>
-        <p class="eyebrow">Ordered Council choice</p>
-        <h2 id="choice-title">Pay 2 Gold to gain 1 Provision?</h2>
-        <p>The Companies have already been recruited. Resolve this choice before the turn advances.</p>
+        <p class="eyebrow">Ordered {game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Council' : 'Journey'} choice</p>
+        <h2 id="choice-title">{game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Pay 2 Gold to gain 1 Provision?' : 'Trash Seek Allies?'}</h2>
+        <p>{game.match.pendingChoice.kind === 'muster-free-peoples' ? 'The Companies have already been recruited.' : 'The board space has resolved.'} Resolve this choice before the turn advances.</p>
       </div>
       <div class="choice-actions">
-        <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('pay-2-gold')}>Pay 2 Gold</button>
-        <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('decline')}>Keep the Gold</button>
+        {#if game.match.pendingChoice.kind === 'muster-free-peoples'}
+          <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('pay-2-gold')}>Pay 2 Gold</button>
+          <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('decline')}>Keep the Gold</button>
+        {:else}
+          <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('trash-self')}>Trash Seek Allies</button>
+          <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('keep-card')}>Keep Seek Allies</button>
+        {/if}
       </div>
     </section>
   {/if}

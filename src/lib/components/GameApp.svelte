@@ -167,7 +167,7 @@
     }
   }
 
-  async function resolveChoice(choice: 'pay-2-gold' | 'decline') {
+  async function resolveChoice(choice: 'pay-2-gold' | 'decline' | 'trash-self' | 'keep-card') {
     busy = true;
     try {
       await append('choice/resolved', { choice });

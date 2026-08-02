@@ -10,7 +10,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | Seeded match and private opening hands | 1 / 1 | Reducer conservation tests and the three-seat browser journey |
 | Board destinations | 4 / 22 | Two faction spaces, Take Up a War Effort, and Muster the Free Peoples; the other 18 are disabled |
 | Starting card instances | 10 / 10 | Exact deterministic deck composition and conservation |
-| Starting cards with executable Agent boxes | 3 / 7 definitions | Diplomatic Mission, The Open Road, and Armed Escort |
+| Starting cards with executable Agent boxes | 4 / 7 definitions | Diplomatic Mission, The Open Road, Armed Escort, and Seek Allies |
 | Starting cards with executable Muster boxes | 7 / 7 definitions | Public Reveal totals and card-instance conservation |
 | Reserve cards | 1 / 2 definitions | Muster the Host cost, finite supply, discard destination, reshuffle, and later Agent use are executable |
 | Commander identities | 8 / 8 | Unique lobby identities, explicitly power-free |
@@ -32,6 +32,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | Standing 2 respect and persistent Renown | multi-round threshold replay test | gestures 055–057 revisit Dwarven Caravans after Recall |
 | Take Up a War Effort draw and disabled-module +2 Gold | card-zone conservation test | gestures 016–017 validate private draw and public reward |
 | Armed Escort + Muster ordered recruitment and optional payment | pending-choice legality and conservation tests | gestures 024–027 validate actor, observers, and replay |
+| Seek Allies optional self-trash and permanent Trash zone | choice authorization and keep/trash branch tests | gestures 060–063 validate ordering, privacy, convergence, and replay |
 | Public Reveal, exact Influence/swords, and turn skipping | Reveal legality and zone-conservation tests | gestures 028–034 show all three clients through the first Reveal sequence |
 | Reserve acquisition and finite supply | affordability, supply, and illegal-acquisition tests | gesture 029 validates shared supply and private discard |
 | Recall, first-player rotation, redraw, and deterministic reshuffle | two-round reducer replay and 11-instance conservation | gestures 035–049 reach round 3 and use the acquired card |

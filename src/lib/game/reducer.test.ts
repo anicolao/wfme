@@ -288,4 +288,40 @@ describe('integrated Agent placement replay', () => {
     expect(state.match!.reserveSupply['muster-host']).toBe(8);
     expect(state.match!.players[actor].renown).toBe(0);
   });
+
+  it('resolves the Seek Allies self-trash only after its faction space', () => {
+    const events = readyRoom();
+    const before = reduceGame(events);
+    const actor = before.match!.playerOrder[0];
+    const seek = before.match!.players[actor].hand.find((card) => card.definitionId === 'seek-allies')!;
+    const placed = createEvent('agent/placed', actor, 5, { cardInstanceId: seek.id, spaceId: 'tribute-shadow' }, 11);
+    const pending = reduceGame([...events, placed]);
+    expect(pending.match!.players[actor].resources.gold).toBe(2);
+    expect(pending.match!.players[actor].standing.shadow).toBe(1);
+    expect(pending.match!.pendingChoice).toEqual({
+      kind: 'seek-allies', actorUid: actor, cardInstanceId: seek.id, options: ['trash-self', 'keep-card']
+    });
+    expect(currentPlayerUid(pending)).toBe(actor);
+
+    const trashed = reduceGame([...events, placed, createEvent('choice/resolved', actor, 6, { choice: 'trash-self' }, 12)]);
+    expect(trashed.diagnostics).toEqual([]);
+    expect(trashed.match!.players[actor].trashPile).toEqual([seek]);
+    expect(trashed.match!.players[actor].journey).toEqual([]);
+    expect(currentPlayerUid(trashed)).not.toBe(actor);
+  });
+
+  it('can keep Seek Allies in the Journey and rejects an unrelated choice option', () => {
+    const events = readyRoom();
+    const before = reduceGame(events);
+    const actor = before.match!.playerOrder[0];
+    const seek = before.match!.players[actor].hand.find((card) => card.definitionId === 'seek-allies')!;
+    const placed = createEvent('agent/placed', actor, 5, { cardInstanceId: seek.id, spaceId: 'dwarven-caravans' }, 11);
+    const rejected = reduceGame([...events, placed, createEvent('choice/resolved', actor, 6, { choice: 'pay-2-gold' }, 12)]);
+    expect(rejected.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(rejected.match!.pendingChoice?.kind).toBe('seek-allies');
+    const kept = reduceGame([...events, placed, createEvent('choice/resolved', actor, 6, { choice: 'keep-card' }, 12)]);
+    expect(kept.diagnostics).toEqual([]);
+    expect(kept.match!.players[actor].journey).toEqual([seek]);
+    expect(kept.match!.players[actor].trashPile).toEqual([]);
+  });
 });

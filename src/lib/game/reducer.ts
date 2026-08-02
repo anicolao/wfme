@@ -30,6 +30,7 @@ export type MatchPlayer = {
   hand: CardInstance[];
   drawPile: CardInstance[];
   discardPile: CardInstance[];
+  trashPile: CardInstance[];
   journey: CardInstance[];
   muster: CardInstance[];
   revealInfluence: number;
@@ -60,6 +61,11 @@ export type MatchState = {
     kind: 'muster-free-peoples';
     actorUid: string;
     options: readonly ['pay-2-gold', 'decline'];
+  } | {
+    kind: 'seek-allies';
+    actorUid: string;
+    cardInstanceId: string;
+    options: readonly ['trash-self', 'keep-card'];
   };
   reserveSupply: Record<ReserveCardId, number>;
   alliances: Record<'shadow' | 'dwarven' | 'elven' | 'wild', string | null>;
@@ -120,6 +126,7 @@ function createMatch(state: GameState, seed: string): MatchState {
           hand: deck.slice(0, 5),
           drawPile: deck.slice(5),
           discardPile: [],
+          trashPile: [],
           journey: [],
           muster: [],
           revealInfluence: 0,
@@ -332,8 +339,8 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     player.availableAgents -= 1;
     state.match.boardAgents[spaceId] = { uid: event.actorUid, agentNumber };
     let resolution: string;
-    if (cardDefinition.journeyEffect?.recruitCompanies) {
-      recruitCompanies(player, cardDefinition.journeyEffect.recruitCompanies);
+    if (cardDefinition.journeyEffect?.kind === 'recruit-companies') {
+      recruitCompanies(player, cardDefinition.journeyEffect.amount);
     }
     if (space.effect.kind === 'dwarven-caravans') {
       player.resources.provisions += space.effect.gainProvisions;
@@ -359,6 +366,14 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         };
       }
     }
+    if (cardDefinition.journeyEffect?.kind === 'optional-trash-self') {
+      state.match.pendingChoice = {
+        kind: 'seek-allies',
+        actorUid: event.actorUid,
+        cardInstanceId: card.id,
+        options: ['trash-self', 'keep-card']
+      };
+    }
     state.match.activity.push(`${actor.displayName} sends an Agent to ${space.name}, ${resolution}.`);
     if (!state.match.pendingChoice) advanceToNextAgentPlayer(state.match);
     return null;
@@ -373,16 +388,29 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       !pending ||
       pending.actorUid !== event.actorUid ||
       currentPlayerUid(state) !== event.actorUid ||
-      (choice !== 'pay-2-gold' && choice !== 'decline')
+      typeof choice !== 'string' ||
+      !pending.options.some((option) => option === choice)
     ) return 'illegal choice resolution';
     const player = state.match.players[event.actorUid];
-    if (choice === 'pay-2-gold') {
-      if (player.resources.gold < 2) return 'illegal choice resolution';
-      player.resources.gold -= 2;
-      player.resources.provisions += 1;
-      state.match.activity.push(`${actor.displayName} pays 2 Gold for 1 Provision.`);
+    if (pending.kind === 'muster-free-peoples') {
+      if (choice === 'pay-2-gold') {
+        if (player.resources.gold < 2) return 'illegal choice resolution';
+        player.resources.gold -= 2;
+        player.resources.provisions += 1;
+        state.match.activity.push(`${actor.displayName} pays 2 Gold for 1 Provision.`);
+      } else {
+        state.match.activity.push(`${actor.displayName} keeps their Gold.`);
+      }
     } else {
-      state.match.activity.push(`${actor.displayName} keeps their Gold.`);
+      if (choice === 'trash-self') {
+        const cardIndex = player.journey.findIndex((card) => card.id === pending.cardInstanceId);
+        if (cardIndex < 0) return 'illegal choice resolution';
+        const [trashed] = player.journey.splice(cardIndex, 1);
+        player.trashPile.push(trashed);
+        state.match.activity.push(`${actor.displayName} trashes Seek Allies.`);
+      } else {
+        state.match.activity.push(`${actor.displayName} keeps Seek Allies in their Journey.`);
+      }
     }
     state.match.pendingChoice = null;
     advanceToNextAgentPlayer(state.match);
