@@ -56,7 +56,7 @@
       </p>
     </div>
     <dl class="ledger" aria-label="Construction capability ledger">
-      <div><dt>Playable spaces</dt><dd>9 / 22</dd></div>
+      <div><dt>Playable spaces</dt><dd>10 / 22</dd></div>
       <div><dt>Agent-ready cards</dt><dd>5 / 7</dd></div>
       <div><dt>Commander powers</dt><dd>0 / 16</dd></div>
     </dl>
@@ -93,6 +93,7 @@
             <div><dt>Scouts</dt><dd>{matchPlayer?.scouts.supply ?? 0} supply</dd></div>
             <div><dt>Fate</dt><dd>{matchPlayer?.fateHand.length ?? 0}</dd></div>
             <div><dt>Council</dt><dd>{matchPlayer?.councilSeat ? 'Seated' : '—'}</dd></div>
+            <div><dt>Captain</dt><dd>{matchPlayer?.captainUnlocked ? 'Appointed' : matchPlayer?.captainAgentPending ? 'Arriving next turn' : '—'}</dd></div>
           </dl>
           {#if player.uid === localUid}<small>Your seat · private hand below</small>{/if}
           {#if matchPlayer?.revealedThisRound}<small>Reveal complete · waiting for Recall</small>{/if}
@@ -139,6 +140,8 @@
                               ? 'Pay 1 Mithril · Elven +1 · draw 1 card · place 1 Scout'
                               : definition?.effect.kind === 'secret-bargain'
                                 ? 'Need Shadow 2 · pay 3 Gold · cycle Fate · recall another Agent · draw 1 card'
+                              : definition?.effect.kind === 'captain-host'
+                                ? 'Pay 8 Gold for the first Captain, then 6 · third Agent next turn · once per game'
                           : definition?.effect.kind === 'take-war-effort'
                           ? 'Draw 1 card · +2 Gold'
                             : definition?.effect.kind === 'muster-free-peoples'

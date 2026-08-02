@@ -41,6 +41,8 @@ export type MatchPlayer = {
   revealedThisRound: boolean;
   renown: number;
   availableAgents: number;
+  captainUnlocked: boolean;
+  captainAgentPending: boolean;
   resources: { gold: number; mithril: number; provisions: number };
   standing: { shadow: number; dwarven: number; elven: number; wild: number };
   companies: { supply: number; garrison: number };
@@ -171,6 +173,8 @@ function createMatch(state: GameState, seed: string): MatchState {
           revealedThisRound: false,
           renown: 0,
           availableAgents: 2,
+          captainUnlocked: false,
+          captainAgentPending: false,
           resources: { gold: 0, mithril: 0, provisions: 1 },
           standing: { shadow: 0, dwarven: 0, elven: 0, wild: 0 },
           companies: { supply: 9, garrison: 3 },
@@ -231,6 +235,12 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
         !hasOtherAgent
       ) return false;
     }
+    if (space.effect.kind === 'captain-host') {
+      const cost = Object.values(match.players).some((candidate) => candidate.captainUnlocked || candidate.captainAgentPending)
+        ? space.effect.laterCostGold
+        : space.effect.firstCostGold;
+      if (player.captainUnlocked || player.captainAgentPending || player.resources.gold < cost) return false;
+    }
     const connectedOwnScout = OBSERVATION_POSTS.some(
       (post) => post.connectedSpaceIds.includes(space.id) && match.boardScouts[post.id] === actorUid
     );
@@ -247,6 +257,13 @@ function advanceToNextAgentPlayer(match: MatchState): void {
     const index = (match.currentPlayerIndex + offset) % match.playerOrder.length;
     if (!match.players[match.playerOrder[index]].revealedThisRound) {
       match.currentPlayerIndex = index;
+      const nextPlayer = match.players[match.playerOrder[index]];
+      if (nextPlayer.captainAgentPending) {
+        nextPlayer.captainAgentPending = false;
+        nextPlayer.captainUnlocked = true;
+        nextPlayer.availableAgents += 1;
+        match.activity.push('A newly appointed Captain joins their Commander at the beginning of their next turn.');
+      }
       return;
     }
   }
@@ -289,7 +306,9 @@ function recallAndBeginNextRound(match: MatchState): void {
   match.turnMode = 'agent';
   for (const uid of match.playerOrder) {
     const player = match.players[uid];
-    player.availableAgents = 2;
+    player.availableAgents = player.captainUnlocked || player.captainAgentPending ? 3 : 2;
+    player.captainUnlocked ||= player.captainAgentPending;
+    player.captainAgentPending = false;
     player.revealedThisRound = false;
     player.revealInfluence = 0;
     player.revealedSwords = 0;
@@ -419,6 +438,9 @@ function resolveAgentEffects(
         kind: 'secret-bargain-fate', actorUid: player.uid, options: ['cycle-fate', 'keep-fate']
       };
     } else beginSecretBargainRecall(match, player.uid);
+  } else if (space.effect.kind === 'captain-host') {
+    player.captainAgentPending = true;
+    resolution = 'appointing a Captain whose third Agent becomes available at the beginning of their next turn';
   } else if (space.effect.kind === 'take-war-effort') {
     const drawn = player.drawPile.shift();
     if (drawn) player.hand.push(drawn);
@@ -566,6 +588,13 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       ) return 'illegal Agent placement';
       player.resources.gold -= space.effect.costGold;
     }
+    if (space.effect.kind === 'captain-host') {
+      const cost = Object.values(state.match.players).some((candidate) => candidate.captainUnlocked || candidate.captainAgentPending)
+        ? space.effect.laterCostGold
+        : space.effect.firstCostGold;
+      if (player.captainUnlocked || player.captainAgentPending || player.resources.gold < cost) return 'illegal Agent placement';
+      player.resources.gold -= cost;
+    }
     const occupants = state.match.boardAgents[spaceId] ?? [];
     if (occupants.length > 0) {
       const post = typeof infiltrationPostId === 'string'
@@ -586,7 +615,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     const cardIndex = player.hand.findIndex((card) => card.id === cardInstanceId);
     const [card] = player.hand.splice(cardIndex, 1);
     player.journey.push(card);
-    const agentNumber = 3 - player.availableAgents;
+    const agentNumber = 1 + Object.values(state.match.boardAgents).flat().filter((occupation) => occupation.uid === event.actorUid).length;
     player.availableAgents -= 1;
     state.match.boardAgents[spaceId] = [...occupants, { uid: event.actorUid, agentNumber }];
     const gatheringPosts = OBSERVATION_POSTS.filter(

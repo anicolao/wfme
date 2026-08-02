@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createEvent } from './events';
+import { OBSERVATION_POSTS } from './manifest';
 import { currentPlayerUid, legalAgentSpaces, reduceGame } from './reducer';
 
 function readyRoom(seed = 'road-2') {
@@ -772,6 +773,84 @@ describe('integrated Agent placement replay', () => {
     expect(bargained.match!.players[target].availableAgents).toBe(availableBeforeRecall + 1);
     expect(bargained.match!.players[target].hand).toHaveLength(beforeBargainHandSize);
     expect(bargained.match!.pendingChoice).toBeNull();
+
+    let beforeCaptain: ReturnType<typeof reduceGame> | null = null;
+    let captainCardId = '';
+    for (let step = 0; step < 800; step += 1) {
+      const state = reduceGame(stream);
+      const current = currentPlayerUid(state)!;
+      const match = state.match!;
+      const player = match.players[current];
+      if (match.pendingChoice?.kind === 'seek-allies') append(state, 'choice/resolved', { choice: 'keep-card' });
+      else if (match.pendingChoice?.kind === 'place-scout') {
+        const emptyPost = OBSERVATION_POSTS.find((post) => !match.boardScouts[post.id]);
+        if (!emptyPost) throw new Error('an empty Scout post is required');
+        append(state, 'scout/placed', { postId: emptyPost.id });
+      } else if (match.turnMode === 'reveal') append(state, 'reveal/finished', {});
+      else if (current !== target) append(state, 'turn/revealed', {});
+      else {
+        const councilCard = player.hand.find((card) => card.definitionId === 'armed-escort');
+        const roadCard = player.hand.find((card) => card.definitionId === 'the-open-road' || card.definitionId === 'muster-host');
+        if (councilCard && legalAgentSpaces(state, target, councilCard.id).includes('captain-host')) {
+          beforeCaptain = state;
+          captainCardId = councilCard.id;
+          append(state, 'agent/placed', { cardInstanceId: councilCard.id, spaceId: 'captain-host' });
+          break;
+        }
+        if (roadCard && !match.boardAgents['take-war-effort'] && player.availableAgents > 0) {
+          append(state, 'agent/placed', { cardInstanceId: roadCard.id, spaceId: 'take-war-effort' });
+        } else append(state, 'turn/revealed', {});
+      }
+    }
+    expect(beforeCaptain, 'the real road economy must fund Captain of the Host').not.toBeNull();
+    expect(beforeCaptain!.match!.players[target].resources.gold).toBeGreaterThanOrEqual(8);
+    expect(legalAgentSpaces(beforeCaptain!, target, captainCardId)).toContain('captain-host');
+    const afterCaptain = reduceGame(stream);
+    const captainPlayer = afterCaptain.match!.players[target];
+    expect(afterCaptain.diagnostics).toEqual([]);
+    expect(captainPlayer.resources.gold).toBe(beforeCaptain!.match!.players[target].resources.gold - 8);
+    expect(afterCaptain.match!.boardAgents['captain-host']?.some((occupation) => occupation.uid === target)).toBe(true);
+    expect(captainPlayer.captainUnlocked || captainPlayer.captainAgentPending).toBe(true);
+
+    for (let step = 0; step < 20 && !reduceGame(stream).match!.players[target].captainUnlocked; step += 1) {
+      const state = reduceGame(stream);
+      if (state.match!.turnMode === 'reveal') append(state, 'reveal/finished', {});
+      else append(state, 'turn/revealed', {});
+    }
+    const captainArrived = reduceGame(stream);
+    expect(captainArrived.match!.players[target].captainUnlocked).toBe(true);
+    expect(captainArrived.match!.players[target].captainAgentPending).toBe(false);
+    const futureCouncilCard = captainArrived.match!.players[target].hand.find((card) => card.definitionId === 'armed-escort');
+    if (futureCouncilCard) expect(legalAgentSpaces(captainArrived, target, futureCouncilCard.id)).not.toContain('captain-host');
+
+    const secondCaptainUid = captainArrived.match!.playerOrder.find((uid) => uid !== target)!;
+    let beforeSecondCaptain: ReturnType<typeof reduceGame> | null = null;
+    for (let step = 0; step < 800; step += 1) {
+      const state = reduceGame(stream);
+      const current = currentPlayerUid(state)!;
+      const match = state.match!;
+      const player = match.players[current];
+      if (match.pendingChoice?.kind === 'seek-allies') append(state, 'choice/resolved', { choice: 'keep-card' });
+      else if (match.turnMode === 'reveal') append(state, 'reveal/finished', {});
+      else if (current !== secondCaptainUid) append(state, 'turn/revealed', {});
+      else {
+        const councilCard = player.hand.find((card) => card.definitionId === 'armed-escort');
+        const roadCard = player.hand.find((card) => card.definitionId === 'the-open-road' || card.definitionId === 'muster-host');
+        if (councilCard && legalAgentSpaces(state, current, councilCard.id).includes('captain-host')) {
+          beforeSecondCaptain = state;
+          append(state, 'agent/placed', { cardInstanceId: councilCard.id, spaceId: 'captain-host' });
+          break;
+        }
+        if (roadCard && !match.boardAgents['take-war-effort'] && player.availableAgents > 0) {
+          append(state, 'agent/placed', { cardInstanceId: roadCard.id, spaceId: 'take-war-effort' });
+        } else append(state, 'turn/revealed', {});
+      }
+    }
+    expect(beforeSecondCaptain, 'a later player must be able to afford the reduced Captain price').not.toBeNull();
+    const afterSecondCaptain = reduceGame(stream);
+    expect(afterSecondCaptain.diagnostics).toEqual([]);
+    expect(afterSecondCaptain.match!.players[secondCaptainUid].resources.gold)
+      .toBe(beforeSecondCaptain!.match!.players[secondCaptainUid].resources.gold - 6);
   });
 
   it('draws Fate at Hall of Fire and grants Influence only while its Agent remains that round', () => {

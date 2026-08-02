@@ -72,7 +72,7 @@ test('Hidden Counsel draws private Fate on the shared Elven track', async ({ bro
       [{ spec: 'Every human sees nine fully playable spaces', check: async () => {
         for (const seat of seats) {
           await expect(seat.page.getByRole('heading', { name: 'The living board' })).toBeVisible();
-          await expect(seat.page.getByText('Playable spaces').locator('..').getByText('9 / 22')).toBeVisible();
+          await expect(seat.page.getByText('Playable spaces').locator('..').getByText('10 / 22')).toBeVisible();
         }
       } }, converged(10)]);
 

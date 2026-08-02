@@ -120,8 +120,8 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
           for (const seat of seats) await expect(seat.page.getByRole('heading', { name: 'The living board' })).toBeVisible();
         } },
         { spec: 'All 22 final board destinations are structurally present', check: async () => await expect(page.locator('.spaces button')).toHaveCount(22) },
-        { spec: 'Exactly nine complete destinations are advertised as playable', check: async () => {
-          await expect(page.getByText('Playable spaces').locator('..').getByText('9 / 22')).toBeVisible();
+        { spec: 'Exactly ten complete destinations are advertised as playable', check: async () => {
+          await expect(page.getByText('Playable spaces').locator('..').getByText('10 / 22')).toBeVisible();
           await expect(page.getByTestId('space-dwarven-caravans')).toContainText('+1 standing');
           await expect(page.getByTestId('space-tribute-shadow')).toContainText('+1 standing');
         } },
@@ -1257,9 +1257,123 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
 
+    let captainEvents = beforeBargainEvents + 3;
+    let captainPlaced = false;
+    let agentsAfterAppointment = 0;
+    for (let turn = 0; turn < 30 && !captainPlaced; turn += 1) {
+      const currentCaptainName = ((await page.locator('footer').textContent())?.match(/Current actor ([^·]+)/)?.[1] ?? '').trim();
+      const currentSeat = seats.find((seat) => seat.name === currentCaptainName);
+      expect(currentSeat, `Captain funding turn ${turn} must belong to a human`).toBeDefined();
+      if (currentSeat !== actor) {
+        await revealAndFinish(currentSeat!, `captain-funding-${turn}-${currentSeat!.name.toLowerCase()}`, captainEvents + 1, captainEvents + 2);
+        captainEvents += 2;
+        continue;
+      }
+
+      const publicActor = actor!.page.locator('.players article').filter({ hasText: actor!.name });
+      const publicText = await publicActor.textContent() ?? '';
+      const gold = Number(publicText.match(/Gold(\d+)/)?.[1] ?? '0');
+      const agents = Number(publicText.match(/Agents(\d+)/)?.[1] ?? '0');
+      const armed = actor!.page.getByTestId('private-hand').getByRole('button', { name: /^Armed Escort/ }).first();
+      if (gold >= 8 && agents > 0 && await armed.count()) {
+        await steps.gesture(actor!.page, 'choose-captain-escort', `${actor!.name} chooses Armed Escort to appoint a Captain`,
+          () => armed.click(),
+          [
+            { spec: 'Captain of the Host is legal after the real road economy reaches eight Gold', check: async () => await expect(actor!.page.getByTestId('space-captain-host')).toBeEnabled() },
+            { spec: 'Both the first and later global prices and delayed timing are visible', check: async () => await expect(actor!.page.getByTestId('space-captain-host')).toContainText('Pay 8 Gold for the first Captain, then 6 · third Agent next turn · once per game') }
+          ]
+        );
+        await steps.gesture(actor!.page, 'appoint-first-captain', `${actor!.name} pays the global first-Captain price`,
+          () => actor!.page.getByTestId('space-captain-host').click(),
+          [
+            { spec: 'Every client sees the Agent and exact eight-Gold payment', check: async () => {
+              for (const seat of seats) {
+                await expect(seat.page.getByTestId('space-captain-host')).toContainText(`Agent · ${actor!.name}`);
+                await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText(`Gold${gold - 8}`);
+              }
+            } },
+            { spec: 'The connected Scout opens its normal pre-effect intelligence window before appointment', check: async () => {
+              await expect(actor!.page.getByRole('button', { name: 'Leave Scouts in place' })).toBeEnabled();
+              await expect(actor!.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Captain—');
+            } },
+            convergedEvents(captainEvents + 1)
+          ]
+        );
+        captainEvents += 1;
+        await steps.gesture(actor!.page, 'decline-captain-intelligence', `${actor!.name} leaves the connected Scout before appointing the Captain`,
+          () => actor!.page.getByRole('button', { name: 'Leave Scouts in place' }).click(),
+          [
+            { spec: 'The Captain effect resolves only after the ordered Scout window', check: async () => {
+              const row = actor!.page.locator('.players article').filter({ hasText: actor!.name });
+              await expect(row).toContainText('CaptainArriving next turn');
+              await expect(row).toContainText(`Agents${agents - 1}`);
+            } },
+            convergedEvents(captainEvents + 1)
+          ]
+        );
+        captainEvents += 1;
+        const afterText = await actor!.page.locator('.players article').filter({ hasText: actor!.name }).textContent() ?? '';
+        agentsAfterAppointment = Number(afterText.match(/Agents(\d+)/)?.[1] ?? '0');
+        captainPlaced = true;
+        break;
+      }
+
+      const roadSpaceOccupied = await actor!.page.getByTestId('space-take-war-effort').getAttribute('class').then((value) => value?.includes('occupied') ?? false);
+      const roadCard = actor!.page.getByTestId('private-hand').getByRole('button', { name: /^(The Open Road|Muster the Host)/ }).first();
+      if (agents > 0 && !roadSpaceOccupied && await roadCard.count()) {
+        await steps.gesture(actor!.page, `choose-captain-funding-${turn}`, `${actor!.name} chooses a real Roads card for Captain funding`,
+          () => roadCard.click(),
+          [{ spec: 'The base-game War Effort remains the legal funding destination', check: async () => await expect(actor!.page.getByTestId('space-take-war-effort')).toBeEnabled() }]
+        );
+        await steps.gesture(actor!.page, `earn-captain-gold-${turn}`, `${actor!.name} earns two Gold toward a Captain`,
+          () => actor!.page.getByTestId('space-take-war-effort').click(),
+          [
+            { spec: 'The public treasury rises by exactly two Gold', check: async () => {
+              for (const seat of seats) await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText(`Gold${gold + 2}`);
+            } },
+            convergedEvents(captainEvents + 1)
+          ]
+        );
+        captainEvents += 1;
+      } else {
+        await revealAndFinish(actor!, `captain-funding-${turn}-${actor!.name.toLowerCase()}`, captainEvents + 1, captainEvents + 2);
+        captainEvents += 2;
+      }
+    }
+    expect(captainPlaced, 'the complete player-driven economy must appoint a Captain').toBe(true);
+
+    for (let turn = 0; turn < 4; turn += 1) {
+      const currentCaptainName = ((await page.locator('footer').textContent())?.match(/Current actor ([^·]+)/)?.[1] ?? '').trim();
+      if (currentCaptainName === actor!.name) break;
+      const currentSeat = seats.find((seat) => seat.name === currentCaptainName)!;
+      await revealAndFinish(currentSeat, `captain-arrival-${turn}-${currentSeat.name.toLowerCase()}`, captainEvents + 1, captainEvents + 2);
+      captainEvents += 2;
+    }
+    await steps.observe(actor!.page, 'captain-arrives-next-turn', `${actor!.name}'s Captain joins at the next turn`, [
+      { spec: 'The active player now has the delayed third Agent available', check: async () => {
+        await expect(actor!.page.locator('footer')).toContainText(`Current actor ${actor!.name}`);
+        const row = actor!.page.locator('.players article').filter({ hasText: actor!.name });
+        await expect(row).toContainText('CaptainAppointed');
+        await expect(row).toContainText(`Agents${agentsAfterAppointment + 1}`);
+      } },
+      { spec: 'The Chronicle records the next-turn arrival without granting a fourth Agent', check: async () => await expect(actor!.page.getByTestId('activity-log')).toContainText('A newly appointed Captain joins their Commander at the beginning of their next turn') }
+    ]);
+    await steps.gesture(actor!.page, 'reload-appointed-captain', `${actor!.name} reloads the appointed Captain`,
+      async () => { await actor!.page.reload(); },
+      [
+        { spec: 'Captain ownership, third-Agent availability, payment, and occupation replay exactly', check: async () => {
+          const row = actor!.page.locator('.players article').filter({ hasText: actor!.name });
+          await expect(row).toContainText('CaptainAppointed');
+          await expect(row).toContainText(`Agents${agentsAfterAppointment + 1}`);
+          await expect(actor!.page.getByTestId('space-captain-host')).toContainText(`Agent · ${actor!.name}`);
+        } },
+        convergedEvents(captainEvents)
+      ]
+    );
+
     steps.generateDocs(
       'Three-player Agent, deck-building, and Scout tracer',
-      'Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross faction thresholds, trash a card, use both Scout timings, publicly claim a faction Alliance, earn Mithril, complete the paid Mirror action, and execute a fully ordered Secret Bargain.'
+      'Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross faction thresholds, trash a card, use both Scout timings, publicly claim a faction Alliance, earn Mithril, complete the paid Mirror action, execute a fully ordered Secret Bargain, and fund the first delayed third-Agent Captain.'
     );
   } finally {
     await guestAContext.close();

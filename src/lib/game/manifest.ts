@@ -179,6 +179,7 @@ export type BoardSpaceDefinition = BoardSpaceIdentity & {
     | { kind: 'hidden-counsel'; gainStanding: 'elven'; drawFate: 1; stealFromOpponentsAtFateCount: 4 }
     | { kind: 'mirror-galadriel'; costMithril: 1; gainStanding: 'elven'; drawCards: 1; placeScouts: 1 }
     | { kind: 'secret-bargain'; requiredShadowStanding: 2; costGold: 3; optionalCycleFate: 1; recallOtherAgents: 1; drawCards: 1 }
+    | { kind: 'captain-host'; firstCostGold: 8; laterCostGold: 6; unlockAgents: 1; availableNextTurn: true; oncePerGame: true }
     | { kind: 'take-war-effort'; drawCards: 1; gainGoldWithoutModule: 2 }
     | { kind: 'muster-free-peoples'; recruitCompanies: 2; optionalGoldCost: 2; optionalGainProvisions: 1 }
     | { kind: 'hall-of-fire'; drawFate: 1; revealInfluence: 1 }
@@ -241,6 +242,14 @@ export const BOARD_SPACE_DEFINITIONS: readonly BoardSpaceDefinition[] = [
     region: 'White Council',
     placementIcons: ['Council'],
     effect: { kind: 'secret-bargain', requiredShadowStanding: 2, costGold: 3, optionalCycleFate: 1, recallOtherAgents: 1, drawCards: 1 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'captain-host',
+    name: 'Captain of the Host',
+    region: 'White Council',
+    placementIcons: ['Council'],
+    effect: { kind: 'captain-host', firstCostGold: 8, laterCostGold: 6, unlockAgents: 1, availableNextTurn: true, oncePerGame: true },
     reviewedCapabilities: ['agent-placement']
   },
   {

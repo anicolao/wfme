@@ -1,6 +1,6 @@
 # Test: Three-player Agent, deck-building, and Scout tracer
 
-Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross faction thresholds, trash a card, use both Scout timings, publicly claim a faction Alliance, earn Mithril, complete the paid Mirror action, and execute a fully ordered Secret Bargain.
+Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross faction thresholds, trash a card, use both Scout timings, publicly claim a faction Alliance, earn Mithril, complete the paid Mirror action, execute a fully ordered Secret Bargain, and fund the first delayed third-Agent Captain.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -212,7 +212,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] All three browsers transition to the production board
 - [x] All 22 final board destinations are structurally present
-- [x] Exactly nine complete destinations are advertised as playable
+- [x] Exactly ten complete destinations are advertised as playable
 - [x] Each seat exposes exactly its own five-card hand
 - [x] Every connected replay has accepted exactly 10 events with no diagnostics
 
@@ -2269,5 +2269,380 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] Payment, Fate cycle, recall, private draw, and reusable Agent replay exactly
 - [x] Every connected replay has accepted exactly 121 events with no diagnostics
+
+---
+
+## Pip chooses a real Roads card for Captain funding
+
+![Phone: Pip chooses a real Roads card for Captain funding](./screenshots/171-choose-captain-funding-0-phone.png)
+
+![Desktop: Pip chooses a real Roads card for Captain funding](./screenshots/171-choose-captain-funding-0-desktop.png)
+
+**Verifications:**
+
+- [x] The base-game War Effort remains the legal funding destination
+
+---
+
+## Pip earns two Gold toward a Captain
+
+![Phone: Pip earns two Gold toward a Captain](./screenshots/172-earn-captain-gold-0-phone.png)
+
+![Desktop: Pip earns two Gold toward a Captain](./screenshots/172-earn-captain-gold-0-desktop.png)
+
+**Verifications:**
+
+- [x] The public treasury rises by exactly two Gold
+- [x] Every connected replay has accepted exactly 122 events with no diagnostics
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/173-captain-funding-1-pip-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/173-captain-funding-1-pip-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 123 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/174-captain-funding-1-pip-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/174-captain-funding-1-pip-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 124 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/175-captain-funding-2-rin-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/175-captain-funding-2-rin-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 125 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/176-captain-funding-2-rin-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/176-captain-funding-2-rin-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 126 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/177-captain-funding-3-mara-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/177-captain-funding-3-mara-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 127 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/178-captain-funding-3-mara-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/178-captain-funding-3-mara-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 128 events with no diagnostics
+
+---
+
+## Pip chooses a real Roads card for Captain funding
+
+![Phone: Pip chooses a real Roads card for Captain funding](./screenshots/179-choose-captain-funding-4-phone.png)
+
+![Desktop: Pip chooses a real Roads card for Captain funding](./screenshots/179-choose-captain-funding-4-desktop.png)
+
+**Verifications:**
+
+- [x] The base-game War Effort remains the legal funding destination
+
+---
+
+## Pip earns two Gold toward a Captain
+
+![Phone: Pip earns two Gold toward a Captain](./screenshots/180-earn-captain-gold-4-phone.png)
+
+![Desktop: Pip earns two Gold toward a Captain](./screenshots/180-earn-captain-gold-4-desktop.png)
+
+**Verifications:**
+
+- [x] The public treasury rises by exactly two Gold
+- [x] Every connected replay has accepted exactly 129 events with no diagnostics
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/181-captain-funding-5-pip-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/181-captain-funding-5-pip-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 130 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/182-captain-funding-5-pip-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/182-captain-funding-5-pip-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 131 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/183-captain-funding-6-mara-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/183-captain-funding-6-mara-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 132 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/184-captain-funding-6-mara-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/184-captain-funding-6-mara-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 133 events with no diagnostics
+
+---
+
+## Pip chooses a real Roads card for Captain funding
+
+![Phone: Pip chooses a real Roads card for Captain funding](./screenshots/185-choose-captain-funding-7-phone.png)
+
+![Desktop: Pip chooses a real Roads card for Captain funding](./screenshots/185-choose-captain-funding-7-desktop.png)
+
+**Verifications:**
+
+- [x] The base-game War Effort remains the legal funding destination
+
+---
+
+## Pip earns two Gold toward a Captain
+
+![Phone: Pip earns two Gold toward a Captain](./screenshots/186-earn-captain-gold-7-phone.png)
+
+![Desktop: Pip earns two Gold toward a Captain](./screenshots/186-earn-captain-gold-7-desktop.png)
+
+**Verifications:**
+
+- [x] The public treasury rises by exactly two Gold
+- [x] Every connected replay has accepted exactly 134 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/187-captain-funding-8-rin-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/187-captain-funding-8-rin-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 135 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/188-captain-funding-8-rin-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/188-captain-funding-8-rin-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 136 events with no diagnostics
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/189-captain-funding-9-pip-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/189-captain-funding-9-pip-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 137 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/190-captain-funding-9-pip-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/190-captain-funding-9-pip-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 138 events with no diagnostics
+
+---
+
+## Pip chooses Armed Escort to appoint a Captain
+
+![Phone: Pip chooses Armed Escort to appoint a Captain](./screenshots/191-choose-captain-escort-phone.png)
+
+![Desktop: Pip chooses Armed Escort to appoint a Captain](./screenshots/191-choose-captain-escort-desktop.png)
+
+**Verifications:**
+
+- [x] Captain of the Host is legal after the real road economy reaches eight Gold
+- [x] Both the first and later global prices and delayed timing are visible
+
+---
+
+## Pip pays the global first-Captain price
+
+![Phone: Pip pays the global first-Captain price](./screenshots/192-appoint-first-captain-phone.png)
+
+![Desktop: Pip pays the global first-Captain price](./screenshots/192-appoint-first-captain-desktop.png)
+
+**Verifications:**
+
+- [x] Every client sees the Agent and exact eight-Gold payment
+- [x] The connected Scout opens its normal pre-effect intelligence window before appointment
+- [x] Every connected replay has accepted exactly 139 events with no diagnostics
+
+---
+
+## Pip leaves the connected Scout before appointing the Captain
+
+![Phone: Pip leaves the connected Scout before appointing the Captain](./screenshots/193-decline-captain-intelligence-phone.png)
+
+![Desktop: Pip leaves the connected Scout before appointing the Captain](./screenshots/193-decline-captain-intelligence-desktop.png)
+
+**Verifications:**
+
+- [x] The Captain effect resolves only after the ordered Scout window
+- [x] Every connected replay has accepted exactly 140 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/194-captain-arrival-0-rin-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/194-captain-arrival-0-rin-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 141 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/195-captain-arrival-0-rin-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/195-captain-arrival-0-rin-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 142 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/196-captain-arrival-1-mara-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/196-captain-arrival-1-mara-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 143 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/197-captain-arrival-1-mara-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/197-captain-arrival-1-mara-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 144 events with no diagnostics
+
+---
+
+## Pip's Captain joins at the next turn
+
+![Phone: Pip's Captain joins at the next turn](./screenshots/198-captain-arrives-next-turn-phone.png)
+
+![Desktop: Pip's Captain joins at the next turn](./screenshots/198-captain-arrives-next-turn-desktop.png)
+
+**Verifications:**
+
+- [x] The active player now has the delayed third Agent available
+- [x] The Chronicle records the next-turn arrival without granting a fourth Agent
+
+---
+
+## Pip reloads the appointed Captain
+
+![Phone: Pip reloads the appointed Captain](./screenshots/199-reload-appointed-captain-phone.png)
+
+![Desktop: Pip reloads the appointed Captain](./screenshots/199-reload-appointed-captain-desktop.png)
+
+**Verifications:**
+
+- [x] Captain ownership, third-Agent availability, payment, and occupation replay exactly
+- [x] Every connected replay has accepted exactly 144 events with no diagnostics
 
 ---
