@@ -212,7 +212,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] All three browsers transition to the production board
 - [x] All 22 final board destinations are structurally present
-- [x] Exactly five complete destinations are advertised as playable
+- [x] Exactly six complete destinations are advertised as playable
 - [x] Each seat exposes exactly its own five-card hand
 - [x] Every connected replay has accepted exactly 10 events with no diagnostics
 
@@ -337,7 +337,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] The genuinely drawn Armed Escort is selected from the private hand
-- [x] Muster the Free Peoples is the sole legal Council destination
+- [x] Both reviewed free Council destinations are legal
 
 ---
 

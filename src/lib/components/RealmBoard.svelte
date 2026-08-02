@@ -56,7 +56,7 @@
       </p>
     </div>
     <dl class="ledger" aria-label="Construction capability ledger">
-      <div><dt>Playable spaces</dt><dd>5 / 22</dd></div>
+      <div><dt>Playable spaces</dt><dd>6 / 22</dd></div>
       <div><dt>Agent-ready cards</dt><dd>5 / 7</dd></div>
       <div><dt>Commander powers</dt><dd>0 / 16</dd></div>
     </dl>
@@ -134,7 +134,9 @@
                           ? 'Draw 1 card · +2 Gold'
                             : definition?.effect.kind === 'muster-free-peoples'
                               ? 'Recruit 2 · optionally pay 2 Gold for 1 Provision'
-                              : 'Pay 5 Gold · gain a permanent +2 Reveal Influence; repeat for 2 Mithril, 1 Fate, recruit 3'}
+                              : definition?.effect.kind === 'hall-of-fire'
+                                ? 'Draw 1 Fate · +1 Reveal Influence this round while your Agent remains'
+                                : 'Pay 5 Gold · gain a permanent +2 Reveal Influence; repeat for 2 Mithril, 1 Fate, recruit 3'}
                     </span>
                   {:else}
                     <span>Later tracer</span>
@@ -379,6 +381,10 @@
     .board { grid-template-columns: 1fr; max-height: 34rem; overflow-y: auto; }
     .hand { grid-template-columns: repeat(5, 9rem); }
     .reveal-panel { grid-template-columns: 1fr; }
+    .reveal-panel > div { min-width: 0; }
+    .muster-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow-x: visible; }
+    .muster-row article { min-width: 0; overflow-wrap: anywhere; }
+    .reserve button { width: 100%; min-width: 0; overflow-wrap: anywhere; }
     .posts { grid-template-columns: 1fr; max-height: 19rem; overflow-y: auto; }
     .pending-choice { align-items: stretch; flex-direction: column; }
     .choice-actions { display: grid; grid-template-columns: 1fr 1fr; }

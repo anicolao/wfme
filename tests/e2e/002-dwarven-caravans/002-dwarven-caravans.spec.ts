@@ -120,8 +120,8 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
           for (const seat of seats) await expect(seat.page.getByRole('heading', { name: 'The living board' })).toBeVisible();
         } },
         { spec: 'All 22 final board destinations are structurally present', check: async () => await expect(page.locator('.spaces button')).toHaveCount(22) },
-        { spec: 'Exactly five complete destinations are advertised as playable', check: async () => {
-          await expect(page.getByText('Playable spaces').locator('..').getByText('5 / 22')).toBeVisible();
+        { spec: 'Exactly six complete destinations are advertised as playable', check: async () => {
+          await expect(page.getByText('Playable spaces').locator('..').getByText('6 / 22')).toBeVisible();
           await expect(page.getByTestId('space-dwarven-caravans')).toContainText('+1 standing');
           await expect(page.getByTestId('space-tribute-shadow')).toContainText('+1 standing');
         } },
@@ -263,9 +263,10 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       () => roadActor!.page.getByTestId('private-hand').getByRole('button', { name: /^Armed Escort/ }).click(),
       [
         { spec: 'The genuinely drawn Armed Escort is selected from the private hand', check: async () => await expect(roadActor!.page.getByRole('button', { name: /^Armed Escort/ })).toHaveAttribute('aria-pressed', 'true') },
-        { spec: 'Muster the Free Peoples is the sole legal Council destination', check: async () => {
+        { spec: 'Both reviewed free Council destinations are legal', check: async () => {
+          await expect(roadActor!.page.getByTestId('space-hall-fire')).toBeEnabled();
           await expect(roadActor!.page.getByTestId('space-muster-free-peoples')).toBeEnabled();
-          await expect(roadActor!.page.locator('.spaces button:enabled')).toHaveCount(1);
+          await expect(roadActor!.page.locator('.spaces button:enabled')).toHaveCount(2);
         } }
       ]
     );

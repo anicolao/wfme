@@ -178,6 +178,7 @@ export type BoardSpaceDefinition = BoardSpaceIdentity & {
     | { kind: 'tribute-shadow'; gainStanding: 'shadow'; gainGold: 2 }
     | { kind: 'take-war-effort'; drawCards: 1; gainGoldWithoutModule: 2 }
     | { kind: 'muster-free-peoples'; recruitCompanies: 2; optionalGoldCost: 2; optionalGainProvisions: 1 }
+    | { kind: 'hall-of-fire'; drawFate: 1; revealInfluence: 1 }
     | { kind: 'white-council-seat'; costGold: 5; repeatGainMithril: 2; repeatDrawFate: 1; repeatRecruitCompanies: 3; revealInfluence: 2 };
   reviewedCapabilities: readonly ['agent-placement'];
 };
@@ -205,6 +206,14 @@ export const BOARD_SPACE_DEFINITIONS: readonly BoardSpaceDefinition[] = [
     region: 'Roads',
     placementIcons: ['Roads'],
     effect: { kind: 'take-war-effort', drawCards: 1, gainGoldWithoutModule: 2 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'hall-fire',
+    name: 'Hall of Fire',
+    region: 'White Council',
+    placementIcons: ['Council'],
+    effect: { kind: 'hall-of-fire', drawFate: 1, revealInfluence: 1 },
     reviewedCapabilities: ['agent-placement']
   },
   {

@@ -315,6 +315,10 @@ function resolveAgentEffects(
         options: ['pay-2-gold', 'decline']
       };
     }
+  } else if (space.effect.kind === 'hall-of-fire') {
+    const fate = match.fateDeck.shift();
+    if (fate) player.fateHand.push(fate);
+    resolution = `drawing ${fate ? '1 Fate' : 'no Fate'} and gaining 1 Influence during this round's Reveal while the Agent remains`;
   } else if (!player.councilSeat) {
     player.councilSeat = true;
     resolution = 'taking a Council seat and gaining 2 Influence on every future Reveal';
@@ -583,6 +587,9 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     player.revealInfluence = player.muster.reduce((total, card) =>
       total + (MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === card.definitionId)?.muster.influence ?? 0), 0);
     if (player.councilSeat) player.revealInfluence += 2;
+    if (state.match.boardAgents['hall-fire']?.some((occupation) => occupation.uid === event.actorUid)) {
+      player.revealInfluence += 1;
+    }
     player.revealedSwords = player.muster.reduce((total, card) =>
       total + (MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === card.definitionId)?.muster.swords ?? 0), 0);
     state.match.turnMode = 'reveal';

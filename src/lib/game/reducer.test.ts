@@ -155,7 +155,7 @@ describe('integrated Agent placement replay', () => {
     const shadowEvent = createEvent('agent/placed', shadowActor, 5, { cardInstanceId: shadow.id, spaceId: 'tribute-shadow' }, 13);
     const beforeMuster = reduceGame([...events, afterRoadEvent, dwarfEvent, shadowEvent]);
     const escort = beforeMuster.match!.players[roadActor].hand.find((card) => card.definitionId === 'armed-escort')!;
-    expect(legalAgentSpaces(beforeMuster, roadActor, escort.id)).toEqual(['muster-free-peoples']);
+    expect(legalAgentSpaces(beforeMuster, roadActor, escort.id)).toEqual(['hall-fire', 'muster-free-peoples']);
 
     const musterEvent = createEvent('agent/placed', roadActor, 6, { cardInstanceId: escort.id, spaceId: 'muster-free-peoples' }, 14);
     const pending = reduceGame([...events, afterRoadEvent, dwarfEvent, shadowEvent, musterEvent]);
@@ -603,5 +603,62 @@ describe('integrated Agent placement replay', () => {
     expect(repeated.match!.players[target].resources.mithril).toBe(2);
     expect(repeated.match!.players[target].fateHand).toHaveLength(1);
     expect(repeated.match!.fateDeck).toHaveLength(29);
+  });
+
+  it('draws Fate at Hall of Fire and grants Influence only while its Agent remains that round', () => {
+    const setup = readyRoom();
+    const started = reduceGame(setup);
+    const [roadActor, dwarfActor, shadowActor] = started.match!.playerOrder;
+    const road = started.match!.players[roadActor].hand.find((card) => card.definitionId === 'the-open-road')!;
+    const afterRoadEvent = createEvent('agent/placed', roadActor, 5, { cardInstanceId: road.id, spaceId: 'take-war-effort' }, 11);
+    const afterRoad = reduceGame([...setup, afterRoadEvent]);
+    const dwarfMission = afterRoad.match!.players[dwarfActor].hand.find((card) => card.definitionId === 'diplomatic-mission')!;
+    const dwarfEvent = createEvent('agent/placed', dwarfActor, 5, { cardInstanceId: dwarfMission.id, spaceId: 'dwarven-caravans' }, 12);
+    const afterDwarf = reduceGame([...setup, afterRoadEvent, dwarfEvent]);
+    const shadowMission = afterDwarf.match!.players[shadowActor].hand.find((card) => card.definitionId === 'diplomatic-mission')!;
+    const shadowEvent = createEvent('agent/placed', shadowActor, 5, { cardInstanceId: shadowMission.id, spaceId: 'tribute-shadow' }, 13);
+    const beforeHall = reduceGame([...setup, afterRoadEvent, dwarfEvent, shadowEvent]);
+    const escort = beforeHall.match!.players[roadActor].hand.find((card) => card.definitionId === 'armed-escort')!;
+    const hallEvent = createEvent('agent/placed', roadActor, 6, { cardInstanceId: escort.id, spaceId: 'hall-fire' }, 14);
+    const atHall = reduceGame([...setup, afterRoadEvent, dwarfEvent, shadowEvent, hallEvent]);
+
+    expect(atHall.diagnostics).toEqual([]);
+    expect(atHall.match!.players[roadActor].fateHand).toHaveLength(1);
+    expect(atHall.match!.fateDeck).toHaveLength(29);
+    expect(atHall.match!.players[roadActor].companies.garrison).toBe(4);
+    expect(atHall.match!.boardAgents['hall-fire']).toEqual([{ uid: roadActor, agentNumber: 2 }]);
+
+    const firstRound = [
+      ...setup, afterRoadEvent, dwarfEvent, shadowEvent, hallEvent,
+      createEvent('turn/revealed', dwarfActor, 6, {}, 15),
+      createEvent('reveal/finished', dwarfActor, 7, {}, 16),
+      createEvent('turn/revealed', shadowActor, 6, {}, 17),
+      createEvent('reveal/finished', shadowActor, 7, {}, 18)
+    ];
+    const beforeHallReveal = reduceGame(firstRound);
+    const firstBase = beforeHallReveal.match!.players[roadActor].hand.reduce((total, card) => total + (
+      card.definitionId === 'rallying-words' ? 2 : card.definitionId === 'armed-escort' ? 0 : 1
+    ), 0);
+    const hallReveal = reduceGame([...firstRound, createEvent('turn/revealed', roadActor, 7, {}, 19)]);
+    expect(hallReveal.match!.players[roadActor].revealInfluence).toBe(firstBase + 1);
+
+    const roundTwoLead = [
+      ...firstRound,
+      createEvent('turn/revealed', roadActor, 7, {}, 19),
+      createEvent('reveal/finished', roadActor, 8, {}, 20),
+      createEvent('turn/revealed', dwarfActor, 8, {}, 21),
+      createEvent('reveal/finished', dwarfActor, 9, {}, 22),
+      createEvent('turn/revealed', shadowActor, 8, {}, 23),
+      createEvent('reveal/finished', shadowActor, 9, {}, 24)
+    ];
+    const beforePlainReveal = reduceGame(roundTwoLead);
+    expect(beforePlainReveal.match!.boardAgents).toEqual({});
+    const secondBase = beforePlainReveal.match!.players[roadActor].hand.reduce((total, card) => total + (
+      card.definitionId === 'rallying-words' ? 2 : card.definitionId === 'armed-escort' ? 0 : 1
+    ), 0);
+    const plainReveal = reduceGame([...roundTwoLead, createEvent('turn/revealed', roadActor, 9, {}, 25)]);
+    expect(plainReveal.diagnostics).toEqual([]);
+    expect(plainReveal.match!.players[roadActor].revealInfluence).toBe(secondBase);
+    expect(plainReveal.match!.players[roadActor].fateHand).toHaveLength(1);
   });
 });
