@@ -83,6 +83,7 @@ export type MatchState = {
   consecutiveBattlePasses: number;
   battleHistory: Array<{ battleId: string; winnerUid: string | null; strengths: Record<string, number> }>;
   criticalControl: Record<'minas-tirith' | 'osgiliath' | 'edoras', string | null>;
+  richesMithril: Record<'edoras', number>;
   queuedBattleDeployment: { actorUid: string; spaceId: string } | null;
   pendingChoice: null | {
     kind: 'critical-defense';
@@ -255,6 +256,7 @@ function createMatch(state: GameState, seed: string): MatchState {
     consecutiveBattlePasses: 0,
     battleHistory: [],
     criticalControl: { 'minas-tirith': null, osgiliath: null, edoras: null },
+    richesMithril: { edoras: 0 },
     queuedBattleDeployment: null,
     pendingChoice: null,
     reserveSupply: { 'muster-host': 8 },
@@ -365,6 +367,9 @@ function drawOneCard(match: MatchState, uid: string, reason: string): CardInstan
 }
 
 function recallAndBeginNextRound(match: MatchState): void {
+  if (!(match.boardAgents.edoras?.length > 0)) {
+    match.richesMithril.edoras += 1;
+  }
   match.round += 1;
   match.boardAgents = {};
   match.pendingChoice = null;
@@ -703,6 +708,11 @@ function resolveAgentEffects(
     const recruited = recruitCompanies(player, space.effect.recruitCompanies);
     const drawn = drawOneCard(match, player.uid, 'Minas Tirith');
     resolution = `recruiting ${recruited} Company, drawing ${drawn ? '1 card' : 'no card'}, and preparing forces for Battle`;
+  } else if (space.effect.kind === 'edoras') {
+    const riches = match.richesMithril.edoras;
+    player.resources.mithril += space.effect.gainMithril + riches;
+    match.richesMithril.edoras = 0;
+    resolution = `gaining ${space.effect.gainMithril} Mithril and taking ${riches} bonus Mithril from Riches`;
   } else if (!player.councilSeat) {
     player.councilSeat = true;
     resolution = 'taking a Council seat and gaining 2 Influence on every future Reveal';
@@ -859,6 +869,13 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       if (controllerUid) {
         state.match.players[controllerUid].resources.gold += 1;
         state.match.activity.push(`${state.players.find((candidate) => candidate.uid === controllerUid)?.displayName ?? 'The controller'} gains 1 Gold from Minas Tirith.`);
+      }
+    }
+    if (space.id === 'edoras') {
+      const controllerUid = state.match.criticalControl.edoras;
+      if (controllerUid) {
+        state.match.players[controllerUid].resources.mithril += 1;
+        state.match.activity.push(`${state.players.find((candidate) => candidate.uid === controllerUid)?.displayName ?? 'The controller'} gains 1 Mithril from Edoras.`);
       }
     }
     const occupants = state.match.boardAgents[spaceId] ?? [];

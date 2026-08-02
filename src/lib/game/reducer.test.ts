@@ -208,7 +208,7 @@ describe('integrated Agent placement replay', () => {
     const actor = before.match!.playerOrder[0];
     const road = before.match!.players[actor].hand.find((card) => card.definitionId === 'the-open-road')!;
     const drawn = before.match!.players[actor].drawPile[0];
-    expect(legalAgentSpaces(before, actor, road.id)).toEqual(['take-war-effort']);
+    expect(legalAgentSpaces(before, actor, road.id)).toEqual(['take-war-effort', 'edoras']);
 
     const after = reduceGame([...events, createEvent('agent/placed', actor, 5, {
       cardInstanceId: road.id,
@@ -220,6 +220,24 @@ describe('integrated Agent placement replay', () => {
     expect(after.match!.players[actor].hand).toHaveLength(5);
     expect(after.match!.players[actor].drawPile).toHaveLength(4);
     expect(after.match!.boardAgents['take-war-effort'][0].uid).toBe(actor);
+  });
+
+  it('collects the printed and accumulated Riches at Edoras', () => {
+    const events = readyRoom();
+    const before = reduceGame(events);
+    const actor = before.match!.playerOrder[0];
+    const road = before.match!.players[actor].hand.find((card) => card.definitionId === 'the-open-road')!;
+    const mithrilBefore = before.match!.players[actor].resources.mithril;
+    const after = reduceGame([...events, createEvent('agent/placed', actor, 5, {
+      cardInstanceId: road.id,
+      spaceId: 'edoras'
+    }, 11)]);
+
+    expect(after.diagnostics).toEqual([]);
+    expect(after.match!.players[actor].resources.mithril).toBe(mithrilBefore + 1);
+    expect(after.match!.richesMithril.edoras).toBe(0);
+    expect(after.match!.boardAgents.edoras[0].uid).toBe(actor);
+    expect(after.match!.activity.at(-1)).toContain('taking 0 bonus Mithril from Riches');
   });
 
   it('orders Armed Escort recruitment before the optional Muster payment', () => {
@@ -296,6 +314,7 @@ describe('integrated Agent placement replay', () => {
     const roundTwo = reduceGame(roundTwoEvents);
     expect(roundTwo.diagnostics).toEqual([]);
     expect(roundTwo.match!.round).toBe(2);
+    expect(roundTwo.match!.richesMithril.edoras).toBe(1);
     expect(roundTwo.match!.boardAgents).toEqual({});
     expect(currentPlayerUid(roundTwo)).toBe(dwarfActor);
     for (const player of Object.values(roundTwo.match!.players)) {
@@ -316,6 +335,7 @@ describe('integrated Agent placement replay', () => {
     const roundThree = reduceGame(roundThreeEvents);
     expect(roundThree.diagnostics).toEqual([]);
     expect(roundThree.match!.round).toBe(3);
+    expect(roundThree.match!.richesMithril.edoras).toBe(2);
     const dwarfCards = [
       ...roundThree.match!.players[dwarfActor].hand,
       ...roundThree.match!.players[dwarfActor].drawPile,

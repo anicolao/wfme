@@ -83,7 +83,7 @@
       </p>
     </div>
     <dl class="ledger" aria-label="Construction capability ledger">
-      <div><dt>Playable spaces</dt><dd>15 / 22</dd></div>
+      <div><dt>Playable spaces</dt><dd>16 / 22</dd></div>
       <div><dt>Agent-ready cards</dt><dd>5 / 7</dd></div>
       <div><dt>Commander powers</dt><dd>0 / 16</dd></div>
     </dl>
@@ -204,6 +204,9 @@
                   <strong>{space.name}</strong>
                   {#if occupants.length}
                     <span>Agent · {occupants.join(' · ')}</span>
+                    {#if definition?.effect.kind === 'edoras'}
+                      <span>{game.match?.richesMithril.edoras ?? 0} Riches</span>
+                    {/if}
                   {:else if implemented}
                     <span>
                       {definition?.effect.kind === 'dwarven-caravans'
@@ -234,6 +237,8 @@
                                 ? 'Draw 1 Fate · +1 Reveal Influence this round while your Agent remains'
                                 : definition?.effect.kind === 'minas-tirith'
                                   ? 'Battle · recruit 1 · draw 1 card · controller gains 1 Gold'
+                                  : definition?.effect.kind === 'edoras'
+                                    ? `Battle · gain 1 Mithril + ${game.match?.richesMithril.edoras ?? 0} Riches · controller gains 1 Mithril`
                                   : 'Pay 5 Gold · gain a permanent +2 Reveal Influence; repeat for 2 Mithril, 1 Fate, recruit 3'}
                     </span>
                   {:else}

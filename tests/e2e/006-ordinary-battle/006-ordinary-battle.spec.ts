@@ -77,7 +77,7 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
       { spec: 'Every human sees Crossing of the Isen as the active Battle', check: async () => {
         for (const seat of seats) await expect(seat.page.getByTestId('active-battle')).toContainText('Crossing of the Isen');
       } },
-      { spec: 'The production board exposes Minas Tirith as the fifteenth executable destination', check: async () => await expect(page.getByText('15 / 22')).toBeVisible() },
+      { spec: 'The production board reports all sixteen executable destinations', check: async () => await expect(page.getByText('16 / 22')).toBeVisible() },
       converged(accepted + 1)
     ]);
 
@@ -625,9 +625,56 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
       converged(accepted + 1)
     ]);
 
+    let roundFiveReveal = 0;
+    while (await currentSeat() !== controllerSeat) {
+      const actor = await currentSeat();
+      roundFiveReveal += 1;
+      await steps.gesture(actor.page, `round-five-reveal-${roundFiveReveal}`, `${actor.name} Reveals before the Edoras visit`, async () => {
+        await actor.page.getByRole('button', { name: 'Reveal remaining hand' }).click(); accepted += 1;
+      }, [{ spec: 'Every observer sees the real public Muster row', check: async () => {
+        for (const observer of seats) await expect(observer.page.getByTestId('reveal-panel')).toContainText(`${actor.name} Reveals`);
+      } }, converged(accepted + 1)]);
+      await steps.gesture(actor.page, `round-five-finish-${roundFiveReveal}`, `${actor.name} finishes the round-five Reveal`, async () => {
+        await actor.page.getByRole('button', { name: 'Finish Reveal' }).click(); accepted += 1;
+      }, [{ spec: 'Turn authority advances toward the Edoras controller', check: async () => await expect(actor.page.getByTestId('space-edoras')).toBeDisabled() }, converged(accepted + 1)]);
+    }
+    let edorasCardName = '';
+    for (const cardName of ['The Open Road', 'Muster the Host']) {
+      if (await controllerSeat.page.getByTestId('private-hand').getByRole('button', { name: new RegExp(`^${cardName}`) }).first().isVisible().catch(() => false)) {
+        edorasCardName = cardName;
+        break;
+      }
+    }
+    if (!edorasCardName) throw new Error('The Edoras controller has no real Roads card in round five');
+    await steps.gesture(controllerSeat.page, 'choose-edoras-road', `${controllerSeat.name} chooses ${edorasCardName} for Edoras`, async () => {
+      await controllerSeat.page.getByTestId('private-hand').getByRole('button', { name: new RegExp(`^${edorasCardName}`) }).first().click();
+    }, [{ spec: 'The newly executable Edoras destination is enabled by the real Roads icon', check: async () => {
+      await expect(controllerSeat.page.getByTestId('space-edoras')).toBeEnabled();
+      await expect(controllerSeat.page.getByTestId('space-edoras')).toContainText('4 Riches');
+    } }]);
+    const controllerMithrilBeforeEdoras = Number((await controllerSeat.page.locator('.players article').filter({ hasText: controllerSeat.name }).getByText('Mithril', { exact: true }).locator('..').textContent())?.match(/(\d+)/)?.[1] ?? '-1');
+    await steps.gesture(controllerSeat.page, 'collect-edoras-riches', `${controllerSeat.name} visits controlled Edoras and gathers Riches`, async () => {
+      await controllerSeat.page.getByTestId('space-edoras').click(); accepted += 1;
+    }, [
+      { spec: 'The controller gains one tribute, one printed Mithril, and all four accumulated Riches', check: async () => {
+        for (const observer of seats) {
+          await expect(observer.page.locator('.players article').filter({ hasText: controllerSeat.name }).getByText('Mithril', { exact: true }).locator('..')).toContainText(`${controllerMithrilBeforeEdoras + 6}`);
+          await expect(observer.page.getByTestId('space-edoras')).toContainText(controllerSeat.name);
+          await expect(observer.page.getByTestId('activity-log')).toContainText(`${controllerSeat.name} gains 1 Mithril from Edoras`);
+        }
+      } },
+      { spec: 'The collected Riches area resets to zero and replay remains deterministic', check: async () => {
+        for (const observer of seats) {
+          await expect(observer.page.getByTestId('space-edoras')).toContainText('0 Riches');
+          await expect(observer.page.getByTestId('activity-log')).toContainText('taking 4 bonus Mithril from Riches');
+        }
+      } },
+      converged(accepted + 1)
+    ]);
+
     steps.generateDocs(
       'Three-player ordinary Battle',
-      "Three isolated humans start in the real lobby, resolve ordinary Battles with Combat Fate, establish and defend Minas Tirith, contest Helm's Deep, play Hold the Line, Hidden Archers, Reinforcements, and Desperate Valor from private Fate, and preserve participation after a last Company returns to supply."
+      "Three isolated humans start in the real lobby, resolve ordinary Battles with Combat Fate, establish and defend Minas Tirith, contest Helm's Deep, play Hold the Line, Hidden Archers, Reinforcements, and Desperate Valor from private Fate, preserve participation after a last Company returns to supply, and gather accumulated Riches at controlled Edoras."
     );
   } finally {
     await guestAContext.close();

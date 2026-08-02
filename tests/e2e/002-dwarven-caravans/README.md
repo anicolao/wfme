@@ -227,7 +227,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] The Open Road is selected through the private hand
-- [x] Take Up a War Effort is the sole legal Roads destination
+- [x] The Roads card enables both complete Roads destinations
 
 ---
 

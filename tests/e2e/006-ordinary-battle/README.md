@@ -1,6 +1,6 @@
 # Test: Three-player ordinary Battle
 
-Three isolated humans start in the real lobby, resolve ordinary Battles with Combat Fate, establish and defend Minas Tirith, contest Helm's Deep, play Hold the Line, Hidden Archers, Reinforcements, and Desperate Valor from private Fate, and preserve participation after a last Company returns to supply.
+Three isolated humans start in the real lobby, resolve ordinary Battles with Combat Fate, establish and defend Minas Tirith, contest Helm's Deep, play Hold the Line, Hidden Archers, Reinforcements, and Desperate Valor from private Fate, preserve participation after a last Company returns to supply, and gather accumulated Riches at controlled Edoras.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -214,7 +214,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] Every human sees Crossing of the Isen as the active Battle
-- [x] The production board exposes Minas Tirith as the fifteenth executable destination
+- [x] The production board reports all sixteen executable destinations
 - [x] Every connected browser replays 10 accepted events with no diagnostics
 
 ---
@@ -1291,5 +1291,83 @@ Every numbered frame is captured only after its listed semantic validations pass
 - [x] Every observer sees exact Edoras control and printed two Renown reward
 - [x] Cleanup opens round five with no reviewed Battle silently substituted
 - [x] Every connected browser replays 79 accepted events with no diagnostics
+
+---
+
+## Rin Reveals before the Edoras visit
+
+![Phone: Rin Reveals before the Edoras visit](./screenshots/100-round-five-reveal-1-phone.png)
+
+![Desktop: Rin Reveals before the Edoras visit](./screenshots/100-round-five-reveal-1-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees the real public Muster row
+- [x] Every connected browser replays 80 accepted events with no diagnostics
+
+---
+
+## Rin finishes the round-five Reveal
+
+![Phone: Rin finishes the round-five Reveal](./screenshots/101-round-five-finish-1-phone.png)
+
+![Desktop: Rin finishes the round-five Reveal](./screenshots/101-round-five-finish-1-desktop.png)
+
+**Verifications:**
+
+- [x] Turn authority advances toward the Edoras controller
+- [x] Every connected browser replays 81 accepted events with no diagnostics
+
+---
+
+## Pip Reveals before the Edoras visit
+
+![Phone: Pip Reveals before the Edoras visit](./screenshots/102-round-five-reveal-2-phone.png)
+
+![Desktop: Pip Reveals before the Edoras visit](./screenshots/102-round-five-reveal-2-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees the real public Muster row
+- [x] Every connected browser replays 82 accepted events with no diagnostics
+
+---
+
+## Pip finishes the round-five Reveal
+
+![Phone: Pip finishes the round-five Reveal](./screenshots/103-round-five-finish-2-phone.png)
+
+![Desktop: Pip finishes the round-five Reveal](./screenshots/103-round-five-finish-2-desktop.png)
+
+**Verifications:**
+
+- [x] Turn authority advances toward the Edoras controller
+- [x] Every connected browser replays 83 accepted events with no diagnostics
+
+---
+
+## Mara chooses The Open Road for Edoras
+
+![Phone: Mara chooses The Open Road for Edoras](./screenshots/104-choose-edoras-road-phone.png)
+
+![Desktop: Mara chooses The Open Road for Edoras](./screenshots/104-choose-edoras-road-desktop.png)
+
+**Verifications:**
+
+- [x] The newly executable Edoras destination is enabled by the real Roads icon
+
+---
+
+## Mara visits controlled Edoras and gathers Riches
+
+![Phone: Mara visits controlled Edoras and gathers Riches](./screenshots/105-collect-edoras-riches-phone.png)
+
+![Desktop: Mara visits controlled Edoras and gathers Riches](./screenshots/105-collect-edoras-riches-desktop.png)
+
+**Verifications:**
+
+- [x] The controller gains one tribute, one printed Mithril, and all four accumulated Riches
+- [x] The collected Riches area resets to zero and replay remains deterministic
+- [x] Every connected browser replays 84 accepted events with no diagnostics
 
 ---
