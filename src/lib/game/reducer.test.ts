@@ -244,6 +244,36 @@ describe('integrated Agent placement replay', () => {
     expect(dwarfCards.filter((card) => card.definitionId === 'muster-host')).toHaveLength(1);
     expect(new Set(dwarfCards.map((card) => card.id)).size).toBe(11);
     expect(roundThree.match!.players[dwarfActor].hand.some((card) => card.definitionId === 'muster-host')).toBe(true);
+
+    for (const actorUid of [shadowActor, roadActor]) {
+      sequences[actorUid] += 1;
+      roundThreeEvents.push(createEvent('turn/revealed', actorUid, sequences[actorUid], {}, timestamp++));
+      sequences[actorUid] += 1;
+      roundThreeEvents.push(createEvent('reveal/finished', actorUid, sequences[actorUid], {}, timestamp++));
+    }
+    let extended = reduceGame(roundThreeEvents);
+    const acquiredCard = extended.match!.players[dwarfActor].hand.find((card) => card.definitionId === 'muster-host')!;
+    sequences[dwarfActor] += 1;
+    roundThreeEvents.push(createEvent('agent/placed', dwarfActor, sequences[dwarfActor], {
+      cardInstanceId: acquiredCard.id, spaceId: 'take-war-effort'
+    }, timestamp++));
+    sequences[dwarfActor] += 1;
+    roundThreeEvents.push(createEvent('turn/revealed', dwarfActor, sequences[dwarfActor], {}, timestamp++));
+    sequences[dwarfActor] += 1;
+    roundThreeEvents.push(createEvent('reveal/finished', dwarfActor, sequences[dwarfActor], {}, timestamp++));
+    sequences[roadActor] += 1;
+    roundThreeEvents.push(createEvent('turn/revealed', roadActor, sequences[roadActor], {}, timestamp++));
+    sequences[roadActor] += 1;
+    roundThreeEvents.push(createEvent('reveal/finished', roadActor, sequences[roadActor], {}, timestamp++));
+    extended = reduceGame(roundThreeEvents);
+    const secondMission = extended.match!.players[dwarfActor].hand.find((card) => card.definitionId === 'diplomatic-mission')!;
+    sequences[dwarfActor] += 1;
+    const respected = reduceGame([...roundThreeEvents, createEvent('agent/placed', dwarfActor, sequences[dwarfActor], {
+      cardInstanceId: secondMission.id, spaceId: 'dwarven-caravans'
+    }, timestamp)]);
+    expect(respected.diagnostics).toEqual([]);
+    expect(respected.match!.players[dwarfActor].standing.dwarven).toBe(2);
+    expect(respected.match!.players[dwarfActor].renown).toBe(1);
   });
 
   it('rejects unavailable Reserve definitions without mutating the player', () => {

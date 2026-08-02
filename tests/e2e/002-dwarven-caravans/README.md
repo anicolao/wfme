@@ -1,6 +1,6 @@
 # Test: Three-player ordinary Agent destinations tracer
 
-Three isolated human browser sessions create and join a Firebase room, resolve Roads, faction, and Council actions, then Reveal, acquire from the Reserve, Recall, reshuffle, draw and use the acquired card on the final board with convergence and replay.
+Three isolated human browser sessions create and join a Firebase room, resolve Roads, faction, and Council actions, then Reveal, acquire, Recall, reshuffle, use the acquired card, and cross a persistent faction threshold with convergence and replay.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -674,5 +674,109 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] Acquisition, reshuffle, draw, Journey effect, and occupation replay identically
 - [x] Every connected replay has accepted exactly 33 events with no diagnostics
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/050-round-3-seat-2-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/050-round-3-seat-2-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 34 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/051-round-3-seat-2-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/051-round-3-seat-2-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 35 events with no diagnostics
+
+---
+
+## Recall opens round 4 with accumulated standing
+
+![Phone: Recall opens round 4 with accumulated standing](./screenshots/052-round-4-recall-phone.png)
+
+![Desktop: Recall opens round 4 with accumulated standing](./screenshots/052-round-4-recall-desktop.png)
+
+**Verifications:**
+
+- [x] The first-player marker rotates and prior standing persists
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/053-round-4-seat-1-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/053-round-4-seat-1-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 36 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/054-round-4-seat-1-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/054-round-4-seat-1-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 37 events with no diagnostics
+
+---
+
+## Pip chooses a reshuffled Diplomatic Mission
+
+![Phone: Pip chooses a reshuffled Diplomatic Mission](./screenshots/055-play-second-diplomatic-mission-phone.png)
+
+![Desktop: Pip chooses a reshuffled Diplomatic Mission](./screenshots/055-play-second-diplomatic-mission-desktop.png)
+
+**Verifications:**
+
+- [x] The reshuffled faction card is visibly selected
+- [x] Recalled Dwarven Caravans is legal again
+
+---
+
+## Pip earns Dwarven respect
+
+![Phone: Pip earns Dwarven respect](./screenshots/056-earn-dwarven-respect-phone.png)
+
+![Desktop: Pip earns Dwarven respect](./screenshots/056-earn-dwarven-respect-desktop.png)
+
+**Verifications:**
+
+- [x] Crossing to standing two awards exactly one Renown
+- [x] Every client sees the second-round Dwarven occupation
+- [x] Every connected replay has accepted exactly 38 events with no diagnostics
+
+---
+
+## Pip reloads the standing threshold
+
+![Phone: Pip reloads the standing threshold](./screenshots/057-reload-dwarven-respect-phone.png)
+
+![Desktop: Pip reloads the standing threshold](./screenshots/057-reload-dwarven-respect-desktop.png)
+
+**Verifications:**
+
+- [x] Standing, Renown, Provision, and occupation replay exactly
+- [x] Every connected replay has accepted exactly 38 events with no diagnostics
 
 ---

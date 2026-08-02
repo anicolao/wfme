@@ -460,9 +460,58 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
 
+    await revealAndFinish(actor!, 'round-3-seat-2', 34, 35);
+    await steps.observe(actor!.page, 'round-4-recall', 'Recall opens round 4 with accumulated standing', [
+      { spec: 'The first-player marker rotates and prior standing persists', check: async () => {
+        for (const seat of seats) {
+          await expect(seat.page.getByText('Round 4 · Agent turns')).toBeVisible();
+          await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Dwarven1');
+          await expect(seat.page.locator('footer')).toContainText(`Current actor ${roadActor!.name}`);
+        }
+      } }
+    ]);
+    await revealAndFinish(roadActor!, 'round-4-seat-1', 36, 37);
+    await steps.gesture(actor!.page, 'play-second-diplomatic-mission', `${actor!.name} chooses a reshuffled Diplomatic Mission`,
+      () => actor!.page.getByTestId('private-hand').getByRole('button', { name: /^Diplomatic Mission/ }).click(),
+      [
+        { spec: 'The reshuffled faction card is visibly selected', check: async () => await expect(actor!.page.getByRole('button', { name: /^Diplomatic Mission/ })).toHaveAttribute('aria-pressed', 'true') },
+        { spec: 'Recalled Dwarven Caravans is legal again', check: async () => await expect(actor!.page.getByTestId('space-dwarven-caravans')).toBeEnabled() }
+      ]
+    );
+    await steps.gesture(actor!.page, 'earn-dwarven-respect', `${actor!.name} earns Dwarven respect`,
+      () => actor!.page.getByTestId('space-dwarven-caravans').click(),
+      [
+        { spec: 'Crossing to standing two awards exactly one Renown', check: async () => {
+          for (const seat of seats) {
+            const player = seat.page.locator('.players article').filter({ hasText: actor!.name });
+            await expect(player).toContainText('Dwarven2');
+            await expect(player).toContainText('Renown1');
+            await expect(player).toContainText('Provision3');
+          }
+        } },
+        { spec: 'Every client sees the second-round Dwarven occupation', check: async () => {
+          for (const seat of seats) await expect(seat.page.getByTestId('space-dwarven-caravans')).toContainText(`Agent · ${actor!.name}`);
+        } },
+        convergedEvents(38)
+      ]
+    );
+    await steps.gesture(actor!.page, 'reload-dwarven-respect', `${actor!.name} reloads the standing threshold`,
+      async () => { await actor!.page.reload(); },
+      [
+        { spec: 'Standing, Renown, Provision, and occupation replay exactly', check: async () => {
+          const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
+          await expect(player).toContainText('Dwarven2');
+          await expect(player).toContainText('Renown1');
+          await expect(player).toContainText('Provision3');
+          await expect(actor!.page.getByTestId('space-dwarven-caravans')).toContainText(`Agent · ${actor!.name}`);
+        } },
+        convergedEvents(38)
+      ]
+    );
+
     steps.generateDocs(
       'Three-player ordinary Agent destinations tracer',
-      'Three isolated human browser sessions create and join a Firebase room, resolve Roads, faction, and Council actions, then Reveal, acquire from the Reserve, Recall, reshuffle, draw and use the acquired card on the final board with convergence and replay.'
+      'Three isolated human browser sessions create and join a Firebase room, resolve Roads, faction, and Council actions, then Reveal, acquire, Recall, reshuffle, use the acquired card, and cross a persistent faction threshold with convergence and replay.'
     );
   } finally {
     await guestAContext.close();

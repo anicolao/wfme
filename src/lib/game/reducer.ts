@@ -62,6 +62,7 @@ export type MatchState = {
     options: readonly ['pay-2-gold', 'decline'];
   };
   reserveSupply: Record<ReserveCardId, number>;
+  alliances: Record<'shadow' | 'dwarven' | 'elven' | 'wild', string | null>;
   activity: string[];
 };
 
@@ -144,6 +145,7 @@ function createMatch(state: GameState, seed: string): MatchState {
     boardAgents: {},
     pendingChoice: null,
     reserveSupply: { 'muster-host': 8 },
+    alliances: { shadow: null, dwarven: null, elven: null, wild: null },
     activity: [`The seeded match begins. ${state.players.find((player) => player.uid === playerOrder[0])?.displayName ?? 'Seat 1'} acts first.`]
   };
 }
@@ -213,6 +215,30 @@ function recallAndBeginNextRound(match: MatchState): void {
   match.firstPlayerIndex = (match.firstPlayerIndex + 1) % match.playerOrder.length;
   match.currentPlayerIndex = match.firstPlayerIndex;
   match.activity.push(`Recall completes. Round ${match.round} begins.`);
+}
+
+function recruitCompanies(player: MatchPlayer, amount: number): number {
+  const recruited = Math.min(amount, player.companies.supply);
+  player.companies.supply -= recruited;
+  player.companies.garrison += recruited;
+  return recruited;
+}
+
+function gainStanding(match: MatchState, player: MatchPlayer, faction: 'shadow' | 'dwarven'): void {
+  const before = player.standing[faction];
+  player.standing[faction] = Math.min(6, before + 1);
+  const after = player.standing[faction];
+  if (before < 2 && after >= 2) player.renown += 1;
+  if (before < 4 && after >= 4) {
+    if (faction === 'shadow') recruitCompanies(player, 2);
+    if (faction === 'dwarven') player.resources.provisions += 2;
+  }
+  const holder = match.alliances[faction];
+  if (after >= 4 && (!holder || match.players[holder].standing[faction] < after)) {
+    if (holder) match.players[holder].renown -= 1;
+    match.alliances[faction] = player.uid;
+    player.renown += 1;
+  }
 }
 
 function applyEvent(state: GameState, event: GameEvent): string | null {
@@ -307,17 +333,15 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     state.match.boardAgents[spaceId] = { uid: event.actorUid, agentNumber };
     let resolution: string;
     if (cardDefinition.journeyEffect?.recruitCompanies) {
-      const recruited = Math.min(cardDefinition.journeyEffect.recruitCompanies, player.companies.supply);
-      player.companies.supply -= recruited;
-      player.companies.garrison += recruited;
+      recruitCompanies(player, cardDefinition.journeyEffect.recruitCompanies);
     }
     if (space.effect.kind === 'dwarven-caravans') {
       player.resources.provisions += space.effect.gainProvisions;
-      player.standing.dwarven += 1;
+      gainStanding(state.match, player, 'dwarven');
       resolution = 'gaining 1 Dwarven standing and 1 Provision';
     } else if (space.effect.kind === 'tribute-shadow') {
       player.resources.gold += space.effect.gainGold;
-      player.standing.shadow += 1;
+      gainStanding(state.match, player, 'shadow');
       resolution = 'gaining 1 Shadow standing and 2 Gold';
     } else if (space.effect.kind === 'take-war-effort') {
       const drawn = player.drawPile.shift();
@@ -325,9 +349,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       player.resources.gold += space.effect.gainGoldWithoutModule;
       resolution = `drawing ${drawn ? '1 card' : 'no card'} and gaining 2 Gold because War Efforts are disabled`;
     } else {
-      const recruited = Math.min(space.effect.recruitCompanies, player.companies.supply);
-      player.companies.supply -= recruited;
-      player.companies.garrison += recruited;
+      const recruited = recruitCompanies(player, space.effect.recruitCompanies);
       resolution = `recruiting ${recruited} Companies`;
       if (player.resources.gold >= space.effect.optionalGoldCost) {
         state.match.pendingChoice = {
