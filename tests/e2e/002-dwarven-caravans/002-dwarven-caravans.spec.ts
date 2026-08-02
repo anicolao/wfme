@@ -120,8 +120,8 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
           for (const seat of seats) await expect(seat.page.getByRole('heading', { name: 'The living board' })).toBeVisible();
         } },
         { spec: 'All 22 final board destinations are structurally present', check: async () => await expect(page.locator('.spaces button')).toHaveCount(22) },
-        { spec: 'Exactly three complete destinations are advertised as playable', check: async () => {
-          await expect(page.getByText('Playable spaces').locator('..').getByText('3 / 22')).toBeVisible();
+        { spec: 'Exactly four complete destinations are advertised as playable', check: async () => {
+          await expect(page.getByText('Playable spaces').locator('..').getByText('4 / 22')).toBeVisible();
           await expect(page.getByTestId('space-dwarven-caravans')).toContainText('+1 standing');
           await expect(page.getByTestId('space-tribute-shadow')).toContainText('+1 standing');
         } },
@@ -259,9 +259,73 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
 
+    await steps.gesture(roadActor!.page, 'play-armed-escort', `${roadActor!.name} chooses the drawn Armed Escort`,
+      () => roadActor!.page.getByTestId('private-hand').getByRole('button', { name: /^Armed Escort/ }).click(),
+      [
+        { spec: 'The genuinely drawn Armed Escort is selected from the private hand', check: async () => await expect(roadActor!.page.getByRole('button', { name: /^Armed Escort/ })).toHaveAttribute('aria-pressed', 'true') },
+        { spec: 'Muster the Free Peoples is the sole legal Council destination', check: async () => {
+          await expect(roadActor!.page.getByTestId('space-muster-free-peoples')).toBeEnabled();
+          await expect(roadActor!.page.locator('.spaces button:enabled')).toHaveCount(1);
+        } }
+      ]
+    );
+    await steps.gesture(roadActor!.page, 'muster-free-peoples', `${roadActor!.name} musters the Free Peoples`,
+      () => roadActor!.page.getByTestId('space-muster-free-peoples').click(),
+      [
+        { spec: 'Every client sees the named Agent occupying the Council space', check: async () => {
+          for (const seat of seats) await expect(seat.page.getByTestId('space-muster-free-peoples')).toContainText(`Agent · ${roadActor!.name}`);
+        } },
+        { spec: 'Armed Escort and the space recruit exactly three Companies before the choice', check: async () => {
+          const player = roadActor!.page.locator('.players article').filter({ hasText: roadActor!.name });
+          await expect(player).toContainText('Garrison6');
+          await expect(player).toContainText('Supply6');
+        } },
+        { spec: 'All clients see the ordered payment choice but only the actor may resolve it', check: async () => {
+          await expect(roadActor!.page.getByTestId('pending-choice').getByRole('button', { name: 'Pay 2 Gold' })).toBeEnabled();
+          for (const observer of seats.filter((seat) => seat !== roadActor)) {
+            await expect(observer.page.getByTestId('pending-choice').getByRole('button', { name: 'Pay 2 Gold' })).toBeDisabled();
+          }
+        } },
+        { spec: 'The turn remains with the actor until the choice is resolved', check: async () => {
+          for (const seat of seats) await expect(seat.page.locator('footer')).toContainText(`Current actor ${roadActor!.name}`);
+        } },
+        convergedEvents(14)
+      ]
+    );
+    await steps.gesture(roadActor!.page, 'pay-muster-gold', `${roadActor!.name} pays the optional Muster cost`,
+      () => roadActor!.page.getByTestId('pending-choice').getByRole('button', { name: 'Pay 2 Gold' }).click(),
+      [
+        { spec: 'The ordered choice closes for every client', check: async () => {
+          for (const seat of seats) await expect(seat.page.getByTestId('pending-choice')).toHaveCount(0);
+        } },
+        { spec: 'Exactly two Gold become one Provision', check: async () => {
+          const player = roadActor!.page.locator('.players article').filter({ hasText: roadActor!.name });
+          await expect(player).toContainText('Gold0');
+          await expect(player).toContainText('Provision2');
+        } },
+        { spec: 'The completed choice advances to another human', check: async () => {
+          for (const seat of seats) await expect(seat.page.locator('footer')).not.toContainText(`Current actor ${roadActor!.name}`);
+        } },
+        convergedEvents(15)
+      ]
+    );
+    await steps.gesture(roadActor!.page, 'reload-muster', `${roadActor!.name} reloads the completed Council action`,
+      async () => { await roadActor!.page.reload(); },
+      [
+        { spec: 'The Council occupation and resolved payment survive replay', check: async () => {
+          await expect(roadActor!.page.getByTestId('space-muster-free-peoples')).toContainText(`Agent · ${roadActor!.name}`);
+          const player = roadActor!.page.locator('.players article').filter({ hasText: roadActor!.name });
+          await expect(player).toContainText('Garrison6');
+          await expect(player).toContainText('Gold0');
+          await expect(player).toContainText('Provision2');
+        } },
+        convergedEvents(15)
+      ]
+    );
+
     steps.generateDocs(
       'Three-player ordinary Agent destinations tracer',
-      'Three isolated human browser sessions create and join a Firebase room, choose power-free Commander identities, start a seeded game on the final board, then resolve a Roads draw and base-game reward plus Dwarven and Shadow faction actions with convergence and replay.'
+      'Three isolated human browser sessions create and join a Firebase room, choose power-free Commander identities, start a seeded game, then resolve Roads, faction, and Council actions—including a private draw and ordered optional payment—with convergence and replay.'
     );
   } finally {
     await guestAContext.close();

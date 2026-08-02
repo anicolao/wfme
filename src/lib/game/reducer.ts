@@ -45,6 +45,11 @@ export type MatchState = {
   currentPlayerIndex: number;
   players: Record<string, MatchPlayer>;
   boardAgents: Record<string, AgentOccupation>;
+  pendingChoice: null | {
+    kind: 'muster-free-peoples';
+    actorUid: string;
+    options: readonly ['pay-2-gold', 'decline'];
+  };
   activity: string[];
 };
 
@@ -117,6 +122,7 @@ function createMatch(state: GameState, seed: string): MatchState {
     currentPlayerIndex: 0,
     players,
     boardAgents: {},
+    pendingChoice: null,
     activity: [`The seeded match begins. ${state.players.find((player) => player.uid === playerOrder[0])?.displayName ?? 'Seat 1'} acts first.`]
   };
 }
@@ -135,7 +141,7 @@ export function currentPlayerUid(state: GameState): string | null {
 export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanceId: string): string[] {
   const match = state.match;
   const player = match?.players[actorUid];
-  if (!match || !player || currentPlayerUid(state) !== actorUid || player.availableAgents < 1) return [];
+  if (!match || match.pendingChoice || !player || currentPlayerUid(state) !== actorUid || player.availableAgents < 1) return [];
   const card = player.hand.find((candidate) => candidate.id === cardInstanceId);
   const definition = card && AGENT_CARD_DEFINITIONS.find((candidate) => candidate.id === card.definitionId);
   if (!definition) return [];
@@ -231,11 +237,17 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === spaceId)!;
     const cardIndex = player.hand.findIndex((card) => card.id === cardInstanceId);
     const [card] = player.hand.splice(cardIndex, 1);
+    const cardDefinition = AGENT_CARD_DEFINITIONS.find((candidate) => candidate.id === card.definitionId)!;
     player.journey.push(card);
     const agentNumber = 3 - player.availableAgents;
     player.availableAgents -= 1;
     state.match.boardAgents[spaceId] = { uid: event.actorUid, agentNumber };
     let resolution: string;
+    if (cardDefinition.journeyEffect?.recruitCompanies) {
+      const recruited = Math.min(cardDefinition.journeyEffect.recruitCompanies, player.companies.supply);
+      player.companies.supply -= recruited;
+      player.companies.garrison += recruited;
+    }
     if (space.effect.kind === 'dwarven-caravans') {
       player.resources.provisions += space.effect.gainProvisions;
       player.standing.dwarven += 1;
@@ -244,13 +256,52 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       player.resources.gold += space.effect.gainGold;
       player.standing.shadow += 1;
       resolution = 'gaining 1 Shadow standing and 2 Gold';
-    } else {
+    } else if (space.effect.kind === 'take-war-effort') {
       const drawn = player.drawPile.shift();
       if (drawn) player.hand.push(drawn);
       player.resources.gold += space.effect.gainGoldWithoutModule;
       resolution = `drawing ${drawn ? '1 card' : 'no card'} and gaining 2 Gold because War Efforts are disabled`;
+    } else {
+      const recruited = Math.min(space.effect.recruitCompanies, player.companies.supply);
+      player.companies.supply -= recruited;
+      player.companies.garrison += recruited;
+      resolution = `recruiting ${recruited} Companies`;
+      if (player.resources.gold >= space.effect.optionalGoldCost) {
+        state.match.pendingChoice = {
+          kind: 'muster-free-peoples',
+          actorUid: event.actorUid,
+          options: ['pay-2-gold', 'decline']
+        };
+      }
     }
     state.match.activity.push(`${actor.displayName} sends an Agent to ${space.name}, ${resolution}.`);
+    if (!state.match.pendingChoice) {
+      state.match.currentPlayerIndex = (state.match.currentPlayerIndex + 1) % state.match.playerOrder.length;
+    }
+    return null;
+  }
+
+  if (event.type === 'choice/resolved') {
+    const choice = event.payload.choice;
+    const pending = state.match?.pendingChoice;
+    if (
+      state.phase !== 'playing' ||
+      !state.match ||
+      !pending ||
+      pending.actorUid !== event.actorUid ||
+      currentPlayerUid(state) !== event.actorUid ||
+      (choice !== 'pay-2-gold' && choice !== 'decline')
+    ) return 'illegal choice resolution';
+    const player = state.match.players[event.actorUid];
+    if (choice === 'pay-2-gold') {
+      if (player.resources.gold < 2) return 'illegal choice resolution';
+      player.resources.gold -= 2;
+      player.resources.provisions += 1;
+      state.match.activity.push(`${actor.displayName} pays 2 Gold for 1 Provision.`);
+    } else {
+      state.match.activity.push(`${actor.displayName} keeps their Gold.`);
+    }
+    state.match.pendingChoice = null;
     state.match.currentPlayerIndex = (state.match.currentPlayerIndex + 1) % state.match.playerOrder.length;
     return null;
   }

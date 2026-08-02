@@ -7,7 +7,8 @@ export type GameEventType =
   | 'player/commander-selected'
   | 'player/ready'
   | 'match/started'
-  | 'agent/placed';
+  | 'agent/placed'
+  | 'choice/resolved';
 
 export type GameEvent = {
   id: string;

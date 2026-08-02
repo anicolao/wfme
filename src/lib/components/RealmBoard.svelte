@@ -15,6 +15,7 @@
   export let selectedCardId = '';
   export let onSelectCard: (cardId: string) => void;
   export let onPlaceAgent: (spaceId: string) => void;
+  export let onResolveChoice: (choice: 'pay-2-gold' | 'decline') => void;
 
   const regions: BoardRegion[] = [
     'Shadow Hosts',
@@ -46,8 +47,8 @@
       </p>
     </div>
     <dl class="ledger" aria-label="Construction capability ledger">
-      <div><dt>Playable spaces</dt><dd>3 / 22</dd></div>
-      <div><dt>Agent-ready cards</dt><dd>2 / 7</dd></div>
+      <div><dt>Playable spaces</dt><dd>4 / 22</dd></div>
+      <div><dt>Agent-ready cards</dt><dd>3 / 7</dd></div>
       <div><dt>Commander powers</dt><dd>0 / 16</dd></div>
     </dl>
   </header>
@@ -66,6 +67,8 @@
             <div><dt>Dwarven</dt><dd>{matchPlayer?.standing.dwarven ?? 0}</dd></div>
             <div><dt>Gold</dt><dd>{matchPlayer?.resources.gold ?? 0}</dd></div>
             <div><dt>Shadow</dt><dd>{matchPlayer?.standing.shadow ?? 0}</dd></div>
+            <div><dt>Garrison</dt><dd>{matchPlayer?.companies.garrison ?? 0}</dd></div>
+            <div><dt>Supply</dt><dd>{matchPlayer?.companies.supply ?? 0}</dd></div>
           </dl>
           {#if player.uid === localUid}<small>Your seat · private hand below</small>{/if}
         </article>
@@ -102,7 +105,9 @@
                         ? 'Dwarven · +1 standing · +1 Provision'
                         : definition?.effect.kind === 'tribute-shadow'
                           ? 'Shadow · +1 standing · +2 Gold'
-                          : 'Draw 1 card · +2 Gold'}
+                          : definition?.effect.kind === 'take-war-effort'
+                            ? 'Draw 1 card · +2 Gold'
+                            : 'Recruit 2 · optionally pay 2 Gold for 1 Provision'}
                     </span>
                   {:else}
                     <span>Later tracer</span>
@@ -115,6 +120,20 @@
       </div>
     </div>
   </div>
+
+  {#if game.match?.pendingChoice}
+    <section class="pending-choice" data-testid="pending-choice" aria-labelledby="choice-title">
+      <div>
+        <p class="eyebrow">Ordered Council choice</p>
+        <h2 id="choice-title">Pay 2 Gold to gain 1 Provision?</h2>
+        <p>The Companies have already been recruited. Resolve this choice before the turn advances.</p>
+      </div>
+      <div class="choice-actions">
+        <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('pay-2-gold')}>Pay 2 Gold</button>
+        <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid} onclick={() => onResolveChoice('decline')}>Keep the Gold</button>
+      </div>
+    </section>
+  {/if}
 
   <section class="decision" aria-labelledby="decision-title">
     <div>
@@ -135,7 +154,7 @@
         <button
           type="button"
           class:selected={card.id === selectedCardId}
-          disabled={currentUid !== localUid}
+          disabled={currentUid !== localUid || Boolean(game.match?.pendingChoice)}
           aria-pressed={card.id === selectedCardId}
           onclick={() => onSelectCard(card.id)}
         >
@@ -188,6 +207,9 @@
   .spaces strong, .spaces span { display: block; }
   .spaces span { margin-top: .15rem; font-size: .74rem; }
   .decision, .history { margin-top: 1rem; padding: 1rem; color: #28291f; background: #f3e8ce; border-radius: .7rem; }
+  .pending-choice { position: fixed; z-index: 10; left: 50%; bottom: 1rem; display: flex; width: min(calc(100% - 2rem), 60rem); justify-content: space-between; gap: 1rem; align-items: center; margin-top: 1rem; padding: 1rem; color: #28291f; background: #f2d9a6; border: 3px solid #c98a45; border-radius: .7rem; box-shadow: 0 1rem 3rem rgb(0 0 0 / 55%); transform: translateX(-50%); }
+  .pending-choice h2, .pending-choice p { margin: .2rem 0; }
+  .choice-actions { display: flex; gap: .5rem; }
   .decision h2, .history h2 { margin: .1rem 0 .6rem; font: 700 1.8rem 'Cormorant Garamond', serif; }
   .decision .eyebrow { color: #6d452d; }
   .hand { display: grid; grid-template-columns: repeat(5, minmax(8rem, 1fr)); gap: .55rem; overflow-x: auto; padding: .2rem; }
@@ -207,5 +229,7 @@
   @media (max-width: 520px) {
     .board { grid-template-columns: 1fr; max-height: 34rem; overflow-y: auto; }
     .hand { grid-template-columns: repeat(5, 9rem); }
+    .pending-choice { align-items: stretch; flex-direction: column; }
+    .choice-actions { display: grid; grid-template-columns: 1fr 1fr; }
   }
 </style>

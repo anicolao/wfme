@@ -31,10 +31,19 @@ export const STARTING_CARD_IDENTITIES: readonly StartingCardIdentity[] = [
 
 export type AgentCardDefinition = StartingCardIdentity & {
   placementIcons: readonly PlacementIcon[];
+  journeyEffect?: { recruitCompanies: 1 };
   reviewedCapabilities: readonly ['agent-placement'];
 };
 
 export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
+  {
+    id: 'armed-escort',
+    name: 'Armed Escort',
+    copies: 2,
+    placementIcons: ['Council', 'Stronghold'],
+    journeyEffect: { recruitCompanies: 1 },
+    reviewedCapabilities: ['agent-placement']
+  },
   {
     id: 'the-open-road',
     name: 'The Open Road',
@@ -89,7 +98,8 @@ export type BoardSpaceDefinition = BoardSpaceIdentity & {
   effect:
     | { kind: 'dwarven-caravans'; gainStanding: 'dwarven'; gainProvisions: 1 }
     | { kind: 'tribute-shadow'; gainStanding: 'shadow'; gainGold: 2 }
-    | { kind: 'take-war-effort'; drawCards: 1; gainGoldWithoutModule: 2 };
+    | { kind: 'take-war-effort'; drawCards: 1; gainGoldWithoutModule: 2 }
+    | { kind: 'muster-free-peoples'; recruitCompanies: 2; optionalGoldCost: 2; optionalGainProvisions: 1 };
   reviewedCapabilities: readonly ['agent-placement'];
 };
 
@@ -116,6 +126,14 @@ export const BOARD_SPACE_DEFINITIONS: readonly BoardSpaceDefinition[] = [
     region: 'Roads',
     placementIcons: ['Roads'],
     effect: { kind: 'take-war-effort', drawCards: 1, gainGoldWithoutModule: 2 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'muster-free-peoples',
+    name: 'Muster the Free Peoples',
+    region: 'White Council',
+    placementIcons: ['Council'],
+    effect: { kind: 'muster-free-peoples', recruitCompanies: 2, optionalGoldCost: 2, optionalGainProvisions: 1 },
     reviewedCapabilities: ['agent-placement']
   }
 ];

@@ -167,6 +167,19 @@
     }
   }
 
+  async function resolveChoice(choice: 'pay-2-gold' | 'decline') {
+    busy = true;
+    try {
+      await append('choice/resolved', { choice });
+      message = 'Council choice committed to the shared Chronicle.';
+    } catch (error) {
+      backendStatus = 'error';
+      message = `Choice failed: ${error instanceof Error ? error.message : String(error)}`;
+    } finally {
+      busy = false;
+    }
+  }
+
   onMount(() => {
     roomCodeInput = normalizeRoomCode(new URLSearchParams(location.search).get('room') ?? '');
     void initializeFirebase()
@@ -210,6 +223,7 @@
       {selectedCardId}
       onSelectCard={(cardId) => (selectedCardId = cardId)}
       onPlaceAgent={placeAgent}
+      onResolveChoice={resolveChoice}
     />
   {:else}
     <section class="lobby" aria-labelledby="lobby-title">

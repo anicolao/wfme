@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createEvent } from './events';
-import { legalAgentSpaces, reduceGame } from './reducer';
+import { currentPlayerUid, legalAgentSpaces, reduceGame } from './reducer';
 
 function readyRoom(seed = 'road-2') {
   const events = [
@@ -115,5 +115,51 @@ describe('integrated Agent placement replay', () => {
     expect(after.match!.players[actor].hand).toHaveLength(5);
     expect(after.match!.players[actor].drawPile).toHaveLength(4);
     expect(after.match!.boardAgents['take-war-effort'].uid).toBe(actor);
+  });
+
+  it('orders Armed Escort recruitment before the optional Muster payment', () => {
+    const events = readyRoom();
+    const started = reduceGame(events);
+    const [roadActor, dwarfActor, shadowActor] = started.match!.playerOrder;
+    const road = started.match!.players[roadActor].hand.find((card) => card.definitionId === 'the-open-road')!;
+    const afterRoadEvent = createEvent('agent/placed', roadActor, 5, { cardInstanceId: road.id, spaceId: 'take-war-effort' }, 11);
+    const afterRoad = reduceGame([...events, afterRoadEvent]);
+    const dwarf = afterRoad.match!.players[dwarfActor].hand.find((card) => card.definitionId === 'diplomatic-mission')!;
+    const dwarfEvent = createEvent('agent/placed', dwarfActor, 5, { cardInstanceId: dwarf.id, spaceId: 'dwarven-caravans' }, 12);
+    const afterDwarf = reduceGame([...events, afterRoadEvent, dwarfEvent]);
+    const shadow = afterDwarf.match!.players[shadowActor].hand.find((card) => card.definitionId === 'diplomatic-mission')!;
+    const shadowEvent = createEvent('agent/placed', shadowActor, 5, { cardInstanceId: shadow.id, spaceId: 'tribute-shadow' }, 13);
+    const beforeMuster = reduceGame([...events, afterRoadEvent, dwarfEvent, shadowEvent]);
+    const escort = beforeMuster.match!.players[roadActor].hand.find((card) => card.definitionId === 'armed-escort')!;
+    expect(legalAgentSpaces(beforeMuster, roadActor, escort.id)).toEqual(['muster-free-peoples']);
+
+    const musterEvent = createEvent('agent/placed', roadActor, 6, { cardInstanceId: escort.id, spaceId: 'muster-free-peoples' }, 14);
+    const pending = reduceGame([...events, afterRoadEvent, dwarfEvent, shadowEvent, musterEvent]);
+    expect(pending.diagnostics).toEqual([]);
+    expect(pending.match!.players[roadActor].companies).toEqual({ supply: 6, garrison: 6 });
+    expect(pending.match!.players[roadActor].resources).toEqual({ gold: 2, mithril: 0, provisions: 1 });
+    expect(pending.match!.pendingChoice).toEqual({
+      kind: 'muster-free-peoples', actorUid: roadActor, options: ['pay-2-gold', 'decline']
+    });
+    expect(currentPlayerUid(pending)).toBe(roadActor);
+    expect(legalAgentSpaces(pending, roadActor, escort.id)).toEqual([]);
+
+    const resolved = reduceGame([
+      ...events, afterRoadEvent, dwarfEvent, shadowEvent, musterEvent,
+      createEvent('choice/resolved', roadActor, 7, { choice: 'pay-2-gold' }, 15)
+    ]);
+    expect(resolved.diagnostics).toEqual([]);
+    expect(resolved.match!.players[roadActor].resources).toEqual({ gold: 0, mithril: 0, provisions: 2 });
+    expect(resolved.match!.pendingChoice).toBeNull();
+    expect(currentPlayerUid(resolved)).not.toBe(roadActor);
+  });
+
+  it('rejects another player resolving a pending Council choice without mutation', () => {
+    const events = readyRoom();
+    const state = reduceGame(events);
+    const actor = state.match!.playerOrder[0];
+    const rejected = reduceGame([...events, createEvent('choice/resolved', state.match!.playerOrder[1], 5, { choice: 'pay-2-gold' }, 11)]);
+    expect(rejected.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(rejected.match!.players[actor].resources.gold).toBe(0);
   });
 });

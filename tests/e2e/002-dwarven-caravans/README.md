@@ -1,6 +1,6 @@
 # Test: Three-player ordinary Agent destinations tracer
 
-Three isolated human browser sessions create and join a Firebase room, choose power-free Commander identities, start a seeded game on the final board, then resolve a Roads draw and base-game reward plus Dwarven and Shadow faction actions with convergence and replay.
+Three isolated human browser sessions create and join a Firebase room, choose power-free Commander identities, start a seeded game, then resolve Roads, faction, and Council actions—including a private draw and ordered optional payment—with convergence and replay.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -212,7 +212,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] All three browsers transition to the production board
 - [x] All 22 final board destinations are structurally present
-- [x] Exactly three complete destinations are advertised as playable
+- [x] Exactly four complete destinations are advertised as playable
 - [x] Each seat exposes exactly its own five-card hand
 - [x] Every connected replay has accepted exactly 10 events with no diagnostics
 
@@ -325,5 +325,62 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] The Shadow occupation survives immutable replay
 - [x] Shadow rewards remain exact after reload
+
+---
+
+## Mara chooses the drawn Armed Escort
+
+![Phone: Mara chooses the drawn Armed Escort](./screenshots/024-play-armed-escort-phone.png)
+
+![Desktop: Mara chooses the drawn Armed Escort](./screenshots/024-play-armed-escort-desktop.png)
+
+**Verifications:**
+
+- [x] The genuinely drawn Armed Escort is selected from the private hand
+- [x] Muster the Free Peoples is the sole legal Council destination
+
+---
+
+## Mara musters the Free Peoples
+
+![Phone: Mara musters the Free Peoples](./screenshots/025-muster-free-peoples-phone.png)
+
+![Desktop: Mara musters the Free Peoples](./screenshots/025-muster-free-peoples-desktop.png)
+
+**Verifications:**
+
+- [x] Every client sees the named Agent occupying the Council space
+- [x] Armed Escort and the space recruit exactly three Companies before the choice
+- [x] All clients see the ordered payment choice but only the actor may resolve it
+- [x] The turn remains with the actor until the choice is resolved
+- [x] Every connected replay has accepted exactly 14 events with no diagnostics
+
+---
+
+## Mara pays the optional Muster cost
+
+![Phone: Mara pays the optional Muster cost](./screenshots/026-pay-muster-gold-phone.png)
+
+![Desktop: Mara pays the optional Muster cost](./screenshots/026-pay-muster-gold-desktop.png)
+
+**Verifications:**
+
+- [x] The ordered choice closes for every client
+- [x] Exactly two Gold become one Provision
+- [x] The completed choice advances to another human
+- [x] Every connected replay has accepted exactly 15 events with no diagnostics
+
+---
+
+## Mara reloads the completed Council action
+
+![Phone: Mara reloads the completed Council action](./screenshots/027-reload-muster-phone.png)
+
+![Desktop: Mara reloads the completed Council action](./screenshots/027-reload-muster-desktop.png)
+
+**Verifications:**
+
+- [x] The Council occupation and resolved payment survive replay
+- [x] Every connected replay has accepted exactly 15 events with no diagnostics
 
 ---

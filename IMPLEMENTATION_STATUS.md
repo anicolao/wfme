@@ -8,9 +8,9 @@ This is the construction ledger for the one canonical game at the repository roo
 | --- | ---: | --- |
 | Root lobby and live room | 1 / 1 | `002-dwarven-caravans` creates and joins with three isolated Firebase identities |
 | Seeded match and private opening hands | 1 / 1 | Reducer conservation tests and the three-seat browser journey |
-| Board destinations | 3 / 22 | Dwarven Caravans, Tribute to the Shadow, and Take Up a War Effort; the other 19 are disabled |
+| Board destinations | 4 / 22 | Two faction spaces, Take Up a War Effort, and Muster the Free Peoples; the other 18 are disabled |
 | Starting card instances | 10 / 10 | Exact deterministic deck composition and conservation |
-| Starting cards with executable Agent boxes | 2 / 7 definitions | Diplomatic Mission and The Open Road |
+| Starting cards with executable Agent boxes | 3 / 7 definitions | Diplomatic Mission, The Open Road, and Armed Escort |
 | Commander identities | 8 / 8 | Unique lobby identities, explicitly power-free |
 | Commander powers | 0 / 16 | No power text is presented as active |
 | Chronicle, Reserve, Fate, Battle, War Effort, and Rival content | 0 | Introduced only with the tracer that makes each item executable |
@@ -28,6 +28,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | Dwarven Caravans occupancy and +1 Dwarven/+1 Provision | resolution and no-partial-mutation tests | gesture 019 validates all three clients |
 | Tribute to the Shadow occupancy and +1 Shadow/+2 Gold | resolution and turn-advance test | gesture 022 validates all three clients |
 | Take Up a War Effort draw and disabled-module +2 Gold | card-zone conservation test | gestures 016–017 validate private draw and public reward |
+| Armed Escort + Muster ordered recruitment and optional payment | pending-choice legality and conservation tests | gestures 024–027 validate actor, observers, and replay |
 | Immutable event replay after reload | repository ordering tests | gestures 020 and 023 reload the acting browsers |
 | Append-only authenticated event storage | Firestore emulator rule suite | the entire room journey uses the emulators/live backend |
 

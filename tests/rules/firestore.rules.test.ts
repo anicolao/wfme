@@ -43,6 +43,16 @@ describe('integrated game event security rules', () => {
     await assertSucceeds(getDoc(ref));
     await assertFails(updateDoc(ref, { type: 'changed' }));
     await assertFails(deleteDoc(ref));
+    await assertSucceeds(setDoc(
+      doc(db, 'games/RIVEN/events/player-a-000002'),
+      validEvent({
+        id: 'player-a-000002', type: 'choice/resolved', payload: { choice: 'pay-2-gold' }, clientSeq: 2
+      })
+    ));
+    await assertFails(setDoc(
+      doc(db, 'games/RIVEN/events/player-a-000003'),
+      validEvent({ id: 'player-a-000003', type: 'client/bypassed-choice', clientSeq: 3 })
+    ));
   });
 
   it('denies anonymous reads, false attribution, cross-room writes, and extra fields', async () => {

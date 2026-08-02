@@ -40,7 +40,7 @@ The generated images are mood and composition targets, not print-ready productio
 
 ## Play the construction build
 
-The root URL is now the actual game lobby. The construction build supports a real 3–4 player Firebase room, unique power-free Commander identities, deterministic setup, and private starting hands on the production board. Three complete Agent actions are currently live: **Diplomatic Mission** at **Dwarven Caravans** and **Tribute to the Shadow**, plus **The Open Road** at **Take Up a War Effort** with the disabled-module Gold fallback. The other board destinations remain visibly unavailable until their own tracer makes them final.
+The root URL is now the actual game lobby. The construction build supports a real 3–4 player Firebase room, unique power-free Commander identities, deterministic setup, and private starting hands on the production board. Four complete Agent actions are live: **Diplomatic Mission** at two faction spaces, **The Open Road** at **Take Up a War Effort**, and **Armed Escort** at **Muster the Free Peoples**, including its ordered optional payment. The other board destinations remain visibly unavailable until their own tracer makes them final.
 
 This is a construction build, not yet a playable alpha or complete match. The exact boundary is recorded in [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).
 
