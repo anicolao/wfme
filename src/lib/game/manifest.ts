@@ -140,6 +140,7 @@ export const RESERVE_CARD_DEFINITIONS: readonly ReserveCardDefinition[] = [
 
 export type BattleReward = {
   gold?: number;
+  mithril?: number;
   recruitCompanies?: number;
   renown?: number;
   drawFate?: number;
@@ -181,6 +182,19 @@ export const BATTLE_CARD_DEFINITIONS: readonly BattleCardDefinition[] = [
       { controlLocationId: 'minas-tirith', renown: 1 },
       { gold: 3, drawFate: 1 },
       { gold: 2 }
+    ],
+    reviewedCapabilities: ['battle-resolution']
+  },
+  {
+    id: 'battle-pelennor-fields',
+    name: 'Battle of the Pelennor Fields',
+    age: 3,
+    standard: 'White Tree',
+    contestedLocationId: 'minas-tirith',
+    rewards: [
+      { controlLocationId: 'minas-tirith', renown: 2 },
+      { renown: 1, drawFate: 1 },
+      { mithril: 2 }
     ],
     reviewedCapabilities: ['battle-resolution']
   }

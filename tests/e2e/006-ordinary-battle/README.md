@@ -1,6 +1,6 @@
 # Test: Three-player ordinary Battle
 
-Three isolated humans start in the real lobby, resolve an ordinary Battle with Combat Fate, then contest the Siege of Minas Tirith and establish synchronized critical-location control.
+Three isolated humans start in the real lobby, resolve an ordinary Battle with Combat Fate, establish Minas Tirith control, then defend it at Pelennor and pair matching White Tree Standards.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -782,5 +782,124 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] The sole winner controls Minas Tirith
 - [x] Every connected browser replays 46 accepted events with no diagnostics
+
+---
+
+## Mara reloads before the Pelennor defense choice
+
+![Phone: Mara reloads before the Pelennor defense choice](./screenshots/061-reload-pelennor-decision-phone.png)
+
+![Desktop: Mara reloads before the Pelennor defense choice](./screenshots/061-reload-pelennor-decision-desktop.png)
+
+**Verifications:**
+
+- [x] The contested Age III Battle and controller-only defense choice survive replay
+- [x] Every connected browser replays 46 accepted events with no diagnostics
+
+---
+
+## Mara deploys from supply to defend Minas Tirith
+
+![Phone: Mara deploys from supply to defend Minas Tirith](./screenshots/062-deploy-pelennor-defender-phone.png)
+
+![Desktop: Mara deploys from supply to defend Minas Tirith](./screenshots/062-deploy-pelennor-defender-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees exactly one defending Company before Agent turns
+- [x] Every connected browser replays 47 accepted events with no diagnostics
+
+---
+
+## Pip Reveals without deploying at Pelennor
+
+![Phone: Pip Reveals without deploying at Pelennor](./screenshots/063-pelennor-reveal-1-phone.png)
+
+![Desktop: Pip Reveals without deploying at Pelennor](./screenshots/063-pelennor-reveal-1-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees the current public Pelennor Muster row
+- [x] Every connected browser replays 48 accepted events with no diagnostics
+
+---
+
+## Pip finishes the Pelennor Reveal
+
+![Phone: Pip finishes the Pelennor Reveal](./screenshots/064-pelennor-finish-1-phone.png)
+
+![Desktop: Pip finishes the Pelennor Reveal](./screenshots/064-pelennor-finish-1-desktop.png)
+
+**Verifications:**
+
+- [x] Turn authority advances to the next human
+- [x] Every connected browser replays 49 accepted events with no diagnostics
+
+---
+
+## Mara Reveals without deploying at Pelennor
+
+![Phone: Mara Reveals without deploying at Pelennor](./screenshots/065-pelennor-reveal-2-phone.png)
+
+![Desktop: Mara Reveals without deploying at Pelennor](./screenshots/065-pelennor-reveal-2-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees the current public Pelennor Muster row
+- [x] Every connected browser replays 50 accepted events with no diagnostics
+
+---
+
+## Mara finishes the Pelennor Reveal
+
+![Phone: Mara finishes the Pelennor Reveal](./screenshots/066-pelennor-finish-2-phone.png)
+
+![Desktop: Mara finishes the Pelennor Reveal](./screenshots/066-pelennor-finish-2-desktop.png)
+
+**Verifications:**
+
+- [x] Turn authority advances to the next human
+- [x] Every connected browser replays 51 accepted events with no diagnostics
+
+---
+
+## Rin Reveals without deploying at Pelennor
+
+![Phone: Rin Reveals without deploying at Pelennor](./screenshots/067-pelennor-reveal-3-phone.png)
+
+![Desktop: Rin Reveals without deploying at Pelennor](./screenshots/067-pelennor-reveal-3-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees the current public Pelennor Muster row
+- [x] Every connected browser replays 52 accepted events with no diagnostics
+
+---
+
+## Rin finishes the Pelennor Reveal
+
+![Phone: Rin finishes the Pelennor Reveal](./screenshots/068-pelennor-finish-3-phone.png)
+
+![Desktop: Rin finishes the Pelennor Reveal](./screenshots/068-pelennor-finish-3-desktop.png)
+
+**Verifications:**
+
+- [x] Only the automatic defender enters Combat
+- [x] Every connected browser replays 53 accepted events with no diagnostics
+
+---
+
+## Mara passes and wins Pelennor
+
+![Phone: Mara passes and wins Pelennor](./screenshots/069-pelennor-pass-phone.png)
+
+![Desktop: Mara passes and wins Pelennor](./screenshots/069-pelennor-pass-desktop.png)
+
+**Verifications:**
+
+- [x] The two White Tree Battle cards turn face down as one paired Standard
+- [x] Printed Pelennor Renown and separate Standard-pair Renown total four
+- [x] Cleanup opens round four with Minas Tirith still controlled by the winner
+- [x] Every connected browser replays 54 accepted events with no diagnostics
 
 ---

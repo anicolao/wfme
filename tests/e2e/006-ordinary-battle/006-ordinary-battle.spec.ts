@@ -273,13 +273,88 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
         if (pass === 2) for (const observer of seats) {
           await expect(observer.page.getByTestId('control-minas-tirith')).not.toContainText('Uncontrolled');
           await expect(observer.page.getByTestId('activity-log')).toContainText('Siege of Minas Tirith is won');
+          await expect(observer.page.getByTestId('active-battle')).toContainText('Battle of the Pelennor Fields');
         }
       } }, converged(accepted + 1)]);
     }
 
+    const controllerName = (await page.getByTestId('control-minas-tirith').locator('dd').textContent())?.trim();
+    const controllerSeat = seats.find((seat) => seat.name === controllerName);
+    if (!controllerSeat) throw new Error('The synchronized Minas Tirith controller has no browser seat');
+    await steps.gesture(controllerSeat.page, 'reload-pelennor-decision', `${controllerSeat.name} reloads before the Pelennor defense choice`, async () => {
+      await controllerSeat.page.reload();
+    }, [
+      { spec: 'The contested Age III Battle and controller-only defense choice survive replay', check: async () => {
+        await expect(controllerSeat.page.getByTestId('active-battle')).toContainText('Battle of the Pelennor Fields');
+        await expect(controllerSeat.page.getByRole('heading', { name: 'Defend the contested location?' })).toBeVisible();
+        await expect(controllerSeat.page.getByRole('button', { name: 'Deploy defending Company' })).toBeEnabled();
+        for (const observer of seats.filter((seat) => seat !== controllerSeat)) {
+          await expect(observer.page.getByRole('button', { name: 'Deploy defending Company' })).toBeDisabled();
+        }
+      } },
+      converged(accepted)
+    ]);
+    await steps.gesture(controllerSeat.page, 'deploy-pelennor-defender', `${controllerSeat.name} deploys from supply to defend Minas Tirith`, async () => {
+      await controllerSeat.page.getByRole('button', { name: 'Deploy defending Company' }).click(); accepted += 1;
+    }, [
+      { spec: 'Every observer sees exactly one defending Company before Agent turns', check: async () => {
+        for (const observer of seats) {
+          await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: controllerSeat.name })).toContainText('1 Companies');
+          await expect(observer.page.getByTestId('activity-log')).toContainText('deploys 1 defending Company from supply at Minas Tirith');
+        }
+      } },
+      converged(accepted + 1)
+    ]);
+
+    for (let reveal = 0; reveal < 3; reveal += 1) {
+      const actor = await currentSeat();
+      await steps.gesture(actor.page, `pelennor-reveal-${reveal + 1}`, `${actor.name} Reveals without deploying at Pelennor`, async () => {
+        await actor.page.getByRole('button', { name: 'Reveal remaining hand' }).click(); accepted += 1;
+      }, [{ spec: 'Every observer sees the current public Pelennor Muster row', check: async () => {
+        for (const observer of seats) await expect(observer.page.getByTestId('reveal-panel')).toContainText(`${actor.name} Reveals`);
+      } }, converged(accepted + 1)]);
+      await steps.gesture(actor.page, `pelennor-finish-${reveal + 1}`, `${actor.name} finishes the Pelennor Reveal`, async () => {
+        await actor.page.getByRole('button', { name: 'Finish Reveal' }).click(); accepted += 1;
+      }, [{ spec: reveal < 2 ? 'Turn authority advances to the next human' : 'Only the automatic defender enters Combat', check: async () => {
+        if (reveal === 2) for (const observer of seats) {
+          await expect(observer.page.getByText(/Round 3 · Combat Fate/)).toBeVisible();
+          for (const nonController of seats.filter((seat) => seat !== controllerSeat)) {
+            await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: nonController.name })).toContainText('0 Companies');
+          }
+        }
+      } }, converged(accepted + 1)]);
+    }
+
+    const defender = await currentSeat();
+    if (defender !== controllerSeat) throw new Error('Combat authority did not begin with the sole Pelennor defender');
+    await steps.gesture(defender.page, 'pelennor-pass', `${defender.name} passes and wins Pelennor`, async () => {
+      await defender.page.getByTestId('pass-battle').click(); accepted += 1;
+    }, [
+      { spec: 'The two White Tree Battle cards turn face down as one paired Standard', check: async () => {
+        for (const observer of seats) {
+          const playerArea = observer.page.locator('.players article').filter({ hasText: controllerSeat.name });
+          await expect(playerArea.locator('[data-testid^="battle-trophies-"]')).toContainText('1 face up · 1 paired');
+        }
+      } },
+      { spec: 'Printed Pelennor Renown and separate Standard-pair Renown total four', check: async () => {
+        for (const observer of seats) {
+          const playerArea = observer.page.locator('.players article').filter({ hasText: controllerSeat.name });
+          await expect(playerArea.getByText('Renown').locator('..')).toContainText('4');
+          await expect(observer.page.getByTestId('activity-log')).toContainText('White Tree Standards are paired face down for 1 Renown');
+        }
+      } },
+      { spec: 'Cleanup opens round four with Minas Tirith still controlled by the winner', check: async () => {
+        for (const observer of seats) {
+          await expect(observer.page.getByText('Round 4 · Agent turns')).toBeVisible();
+          await expect(observer.page.getByTestId('control-minas-tirith')).toContainText(controllerSeat.name);
+        }
+      } },
+      converged(accepted + 1)
+    ]);
+
     steps.generateDocs(
       'Three-player ordinary Battle',
-      'Three isolated humans start in the real lobby, resolve an ordinary Battle with Combat Fate, then contest the Siege of Minas Tirith and establish synchronized critical-location control.'
+      'Three isolated humans start in the real lobby, resolve an ordinary Battle with Combat Fate, establish Minas Tirith control, then defend it at Pelennor and pair matching White Tree Standards.'
     );
   } finally {
     await guestAContext.close();

@@ -51,6 +51,7 @@ export type MatchPlayer = {
   companies: { supply: number; garrison: number };
   recruitedThisRound: number;
   wonBattleIds: string[];
+  pairedBattleIds: string[];
   scouts: { supply: number };
   fateHand: FateInstance[];
   councilSeat: boolean;
@@ -83,6 +84,11 @@ export type MatchState = {
   criticalControl: Record<'minas-tirith' | 'osgiliath' | 'edoras', string | null>;
   queuedBattleDeployment: { actorUid: string; spaceId: string } | null;
   pendingChoice: null | {
+    kind: 'critical-defense';
+    actorUid: string;
+    locationId: 'minas-tirith' | 'osgiliath' | 'edoras';
+    options: readonly ['deploy-defender', 'decline-defender'];
+  } | {
     kind: 'battle-deployment';
     actorUid: string;
     spaceId: string;
@@ -206,6 +212,7 @@ function createMatch(state: GameState, seed: string): MatchState {
           companies: { supply: 9, garrison: 3 },
           recruitedThisRound: 0,
           wonBattleIds: [],
+          pairedBattleIds: [],
           scouts: { supply: 3 },
           fateHand: [],
           councilSeat: false
@@ -367,9 +374,13 @@ function recallAndBeginNextRound(match: MatchState): void {
   const nextBattle = BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === match.activeBattleId);
   const defender = nextBattle?.contestedLocationId ? match.criticalControl[nextBattle.contestedLocationId] : null;
   if (defender && match.players[defender].companies.supply > 0) {
-    match.players[defender].companies.supply -= 1;
-    match.battleCompanies[defender] = (match.battleCompanies[defender] ?? 0) + 1;
-    match.activity.push(`The controller of ${BOARD_SPACE_DEFINITIONS.find((space) => space.id === nextBattle?.contestedLocationId)?.name} deploys 1 defending Company from supply.`);
+    match.pendingChoice = {
+      kind: 'critical-defense',
+      actorUid: defender,
+      locationId: nextBattle!.contestedLocationId!,
+      options: ['deploy-defender', 'decline-defender']
+    };
+    match.activity.push(`The controller of ${BOARD_SPACE_DEFINITIONS.find((space) => space.id === nextBattle?.contestedLocationId)?.name} may deploy 1 defending Company from supply.`);
   }
   match.activity.push(`Recall completes. Round ${match.round} begins.`);
 }
@@ -426,6 +437,7 @@ function applyBattleReward(match: MatchState, uid: string, rank: 0 | 1 | 2): voi
   const reward = definition.rewards[rank];
   const player = match.players[uid];
   if (reward.gold) player.resources.gold += reward.gold;
+  if (reward.mithril) player.resources.mithril += reward.mithril;
   if (reward.recruitCompanies) recruitCompanies(player, reward.recruitCompanies);
   if (reward.renown) player.renown += reward.renown;
   if (reward.drawFate) {
@@ -469,7 +481,17 @@ function resolveBattle(match: MatchState): void {
     }
   }
   if (winnerUid) {
-    match.players[winnerUid].wonBattleIds.push(battleId);
+    const winner = match.players[winnerUid];
+    const matchingFaceUpBattleId = winner.wonBattleIds.find((ownedBattleId) =>
+      !winner.pairedBattleIds.includes(ownedBattleId) &&
+      BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === ownedBattleId)?.standard === definition.standard
+    );
+    winner.wonBattleIds.push(battleId);
+    if (matchingFaceUpBattleId) {
+      winner.pairedBattleIds.push(matchingFaceUpBattleId, battleId);
+      winner.renown += 1;
+      match.activity.push(`${definition.standard} Standards are paired face down for 1 Renown.`);
+    }
     match.activity.push(`${definition.name} is won at ${strengths[winnerUid]} Strength.`);
   } else {
     match.battleDiscard.push(battleId);
@@ -875,11 +897,23 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       !state.match ||
       !pending ||
       pending.actorUid !== event.actorUid ||
-      currentPlayerUid(state) !== event.actorUid ||
+      (pending.kind !== 'critical-defense' && currentPlayerUid(state) !== event.actorUid) ||
       typeof choice !== 'string' ||
       !pending.options.some((option) => option === choice)
     ) return 'illegal choice resolution';
     const player = state.match.players[event.actorUid];
+    if (pending.kind === 'critical-defense') {
+      if (choice === 'deploy-defender') {
+        if (player.companies.supply < 1) return 'illegal choice resolution';
+        player.companies.supply -= 1;
+        state.match.battleCompanies[event.actorUid] = (state.match.battleCompanies[event.actorUid] ?? 0) + 1;
+        state.match.activity.push(`${actor.displayName} deploys 1 defending Company from supply at ${BOARD_SPACE_DEFINITIONS.find((space) => space.id === pending.locationId)?.name}.`);
+      } else {
+        state.match.activity.push(`${actor.displayName} declines to deploy a defending Company at ${BOARD_SPACE_DEFINITIONS.find((space) => space.id === pending.locationId)?.name}.`);
+      }
+      state.match.pendingChoice = null;
+      return null;
+    }
     if (pending.kind === 'ranger-mustering-trash') {
       if (choice !== 'decline-trash') {
         const cardId = choice.slice('trash-card:'.length);

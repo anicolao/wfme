@@ -1133,8 +1133,42 @@ describe('integrated Agent placement replay', () => {
     expect(controller).not.toBeNull();
     expect(afterSiege.match!.players[controller!].renown).toBeGreaterThanOrEqual(1);
     expect(afterSiege.match!.players[controller!].wonBattleIds).toContain('siege-minas-tirith');
+    expect(afterSiege.match!.activeBattleId).toBe('battle-pelennor-fields');
+    expect(afterSiege.match!.battleCompanies[controller!] ?? 0).toBe(0);
+    expect(afterSiege.match!.pendingChoice).toMatchObject({
+      kind: 'critical-defense', actorUid: controller, locationId: 'minas-tirith'
+    });
+    expect(afterSiege.match!.activity).toContain('The controller of Minas Tirith may deploy 1 defending Company from supply.');
+    append(controller!, 'choice/resolved', { choice: 'deploy-defender' });
+    const afterDefense = reduceGame(stream);
+    expect(afterDefense.match!.battleCompanies[controller!]).toBe(1);
+    expect(afterDefense.match!.activity).toContain(`${afterDefense.players.find((player) => player.uid === controller)?.displayName} deploys 1 defending Company from supply at Minas Tirith.`);
 
-    const controllerGold = afterSiege.match!.players[controller!].resources.gold;
+    const renownBeforePelennor = afterDefense.match!.players[controller!].renown;
+    for (let reveals = 0; reveals < 3; reveals += 1) {
+      const state = reduceGame(stream);
+      const current = currentPlayerUid(state)!;
+      append(current, 'turn/revealed', {});
+      append(current, 'reveal/finished', {});
+    }
+    const pelennorCombat = reduceGame(stream);
+    expect(pelennorCombat.match!.turnMode).toBe('battle');
+    expect(Object.entries(pelennorCombat.match!.battleCompanies).filter(([, amount]) => amount > 0)).toEqual([[controller, 1]]);
+    append(controller!, 'battle/passed', {});
+    const afterPelennor = reduceGame(stream);
+    expect(afterPelennor.diagnostics).toEqual([]);
+    expect(afterPelennor.match!.players[controller!].wonBattleIds).toEqual(expect.arrayContaining([
+      'siege-minas-tirith',
+      'battle-pelennor-fields'
+    ]));
+    expect(afterPelennor.match!.players[controller!].pairedBattleIds).toEqual([
+      'siege-minas-tirith',
+      'battle-pelennor-fields'
+    ]);
+    expect(afterPelennor.match!.players[controller!].renown).toBe(renownBeforePelennor + 3);
+    expect(afterPelennor.match!.activity).toContain('White Tree Standards are paired face down for 1 Renown.');
+
+    const controllerGold = afterPelennor.match!.players[controller!].resources.gold;
     for (let guard = 0; guard < 12; guard += 1) {
       const state = reduceGame(stream);
       if (state.match!.boardAgents['minas-tirith']) break;
