@@ -6,6 +6,7 @@
     BOARD_LAYOUT,
     BOARD_SPACE_DEFINITIONS,
     COMMANDERS,
+    FATE_CARD_DEFINITIONS,
     MUSTER_CARD_DEFINITIONS,
     OBSERVATION_POSTS,
     RESERVE_CARD_DEFINITIONS,
@@ -25,6 +26,7 @@
   export let onFinishReveal: () => void;
   export let onPlaceScout: (postId: string, recallPostId?: string) => void;
   export let onPassBattle: () => void;
+  export let onPlayFate: (cardInstanceId: string) => void;
   let selectedScoutRecall = '';
   let selectedInfiltrationSpace = '';
 
@@ -89,7 +91,17 @@
         {/each}
       </div>
       {#if game.match.turnMode === 'battle'}
-        <button type="button" data-testid="pass-battle" disabled={currentUid !== localUid} onclick={onPassBattle}>Pass Combat Fate</button>
+        <div class="battle-actions">
+          {#each localMatch?.fateHand ?? [] as fate}
+            {@const fateDefinition = FATE_CARD_DEFINITIONS.find((definition) => definition.id === fate.definitionId)}
+            {#if fateDefinition}
+              <button type="button" data-testid={`play-fate-${fate.id}`} disabled={currentUid !== localUid} onclick={() => onPlayFate(fate.id)}>
+                Play {fateDefinition.name} · +{fateDefinition.effect.amount} Strength
+              </button>
+            {/if}
+          {/each}
+          <button type="button" data-testid="pass-battle" disabled={currentUid !== localUid} onclick={onPassBattle}>Pass Combat Fate</button>
+        </div>
       {/if}
     </section>
   {/if}
@@ -412,6 +424,7 @@
   .battle-forces { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem; }
   .battle-forces article { display: grid; padding: .55rem; background: #f8e7ca; border-radius: .35rem; }
   .battle-forces span { font-size: .78rem; }
+  .battle-actions { display: grid; gap: .4rem; }
   .pending-choice { position: fixed; z-index: 10; left: 50%; bottom: 1rem; display: flex; width: min(calc(100% - 2rem), 60rem); justify-content: space-between; gap: 1rem; align-items: center; margin-top: 1rem; padding: 1rem; color: #28291f; background: #f2d9a6; border: 3px solid #c98a45; border-radius: .7rem; box-shadow: 0 1rem 3rem rgb(0 0 0 / 55%); transform: translateX(-50%); }
   .pending-choice h2, .pending-choice p { margin: .2rem 0; }
   .choice-actions { display: flex; gap: .5rem; }

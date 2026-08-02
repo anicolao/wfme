@@ -68,8 +68,8 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
         for (const observer of seats) await expect(observer.page.locator('.player-list article').filter({ hasText: seat.name })).toContainText('Ready');
       } }, converged(accepted + 1)]);
     }
-    await steps.gesture(page, 'battle-seed', 'Mara chooses the published Battle seed', () => page.getByLabel('Match seed').fill('battle-three'), [
-      { spec: 'The deterministic setup seed is visible', check: async () => await expect(page.getByLabel('Match seed')).toHaveValue('battle-three') }
+    await steps.gesture(page, 'battle-seed', 'Mara chooses the published Battle seed', () => page.getByLabel('Match seed').fill('combat-33'), [
+      { spec: 'The deterministic setup seed is visible', check: async () => await expect(page.getByLabel('Match seed')).toHaveValue('combat-33') }
     ]);
     await steps.gesture(page, 'start-match', 'Mara starts the match', async () => {
       await page.getByRole('button', { name: 'Start seeded match' }).click(); accepted += 1;
@@ -81,6 +81,20 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
       converged(accepted + 1)
     ]);
 
+    const fateHolder = await currentSeat();
+    await steps.gesture(fateHolder.page, 'choose-hall-escort', `${fateHolder.name} chooses Armed Escort for Hall of Fire`, () =>
+      fateHolder.page.getByTestId('private-hand').getByRole('button', { name: /^Armed Escort/ }).first().click(), [
+      { spec: 'The real Council icon enables Hall of Fire', check: async () => await expect(fateHolder.page.getByTestId('space-hall-fire')).toBeEnabled() }
+    ]);
+    await steps.gesture(fateHolder.page, 'draw-combat-fate', `${fateHolder.name} draws Fate at Hall of Fire`, async () => {
+      await fateHolder.page.getByTestId('space-hall-fire').click(); accepted += 1;
+    }, [
+      { spec: 'Every observer sees one private Fate card without its identity', check: async () => {
+        for (const observer of seats) await expect(observer.page.locator('.players article').filter({ hasText: fateHolder.name })).toContainText('Fate1');
+        for (const observer of seats.filter((seat) => seat !== fateHolder)) await expect(observer.page.getByRole('button', { name: /Sudden Charge/ })).toHaveCount(0);
+      } }, converged(accepted + 1)
+    ]);
+
     const usedSpaces = new Set<string>();
     for (let deployment = 0; deployment < 3; deployment += 1) {
       const actor = await currentSeat();
@@ -90,7 +104,8 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
         const candidate = actor.page.getByTestId('private-hand').getByRole('button', { name: new RegExp(`^${cardName}`) }).first();
         if (!await candidate.isVisible().catch(() => false)) continue;
         await candidate.click();
-        for (const spaceId of ['minas-tirith', 'hidden-paths', 'ranger-mustering']) {
+        const candidateSpaces = deployment < 2 ? ['hidden-paths', 'ranger-mustering'] : ['minas-tirith'];
+        for (const spaceId of candidateSpaces) {
           if (!usedSpaces.has(spaceId) && await actor.page.getByTestId(`space-${spaceId}`).isEnabled()) {
             chosenCard = candidate;
             chosenSpace = spaceId;
@@ -160,6 +175,19 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
         await expect(fateActor.page.getByTestId('pass-battle')).toBeEnabled();
         await expect(fateActor.page.getByTestId('active-battle').locator('.battle-forces article')).toHaveCount(3);
       } }, converged(accepted)
+    ]);
+    const strengthBeforeFate = Number((await fateActor.page.getByTestId('active-battle').locator('article').filter({ hasText: fateActor.name }).getByText(/Strength/).textContent())?.match(/(\d+)/)?.[1] ?? '0');
+    await steps.gesture(fateActor.page, 'play-sudden-charge', `${fateActor.name} plays Sudden Charge`, async () => {
+      await fateActor.page.getByRole('button', { name: /Play Sudden Charge/ }).click(); accepted += 1;
+    }, [
+      { spec: 'Every observer sees exactly three added Strength and the public Fate discard', check: async () => {
+        for (const observer of seats) {
+          await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: fateActor.name })).toContainText(`${strengthBeforeFate + 3} Strength`);
+          await expect(observer.page.getByTestId('fate-discard')).toContainText('1 cards');
+        }
+      } },
+      { spec: 'The same participant may play another Combat Fate or pass', check: async () => await expect(fateActor.page.getByTestId('pass-battle')).toBeEnabled() },
+      converged(accepted + 1)
     ]);
     for (let pass = 0; pass < 3; pass += 1) {
       const actor = await currentSeat();

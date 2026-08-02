@@ -13,6 +13,7 @@ export type GameEventType =
   | 'card/acquired'
   | 'reveal/finished'
   | 'scout/placed'
+  | 'fate/played'
   | 'battle/passed';
 
 export type GameEvent = {

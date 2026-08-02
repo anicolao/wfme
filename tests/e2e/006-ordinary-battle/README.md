@@ -219,49 +219,36 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin chooses a card for Battle
+## Mara chooses Armed Escort for Hall of Fire
 
-![Phone: Rin chooses a card for Battle](./screenshots/017-choose-battle-card-1-phone.png)
+![Phone: Mara chooses Armed Escort for Hall of Fire](./screenshots/017-choose-hall-escort-phone.png)
 
-![Desktop: Rin chooses a card for Battle](./screenshots/017-choose-battle-card-1-desktop.png)
+![Desktop: Mara chooses Armed Escort for Hall of Fire](./screenshots/017-choose-hall-escort-desktop.png)
 
 **Verifications:**
 
-- [x] The real card gesture enables minas-tirith
+- [x] The real Council icon enables Hall of Fire
 
 ---
 
-## Rin enters minas-tirith
+## Mara draws Fate at Hall of Fire
 
-![Phone: Rin enters minas-tirith](./screenshots/018-enter-battle-space-1-phone.png)
+![Phone: Mara draws Fate at Hall of Fire](./screenshots/018-draw-combat-fate-phone.png)
 
-![Desktop: Rin enters minas-tirith](./screenshots/018-enter-battle-space-1-desktop.png)
+![Desktop: Mara draws Fate at Hall of Fire](./screenshots/018-draw-combat-fate-desktop.png)
 
 **Verifications:**
 
-- [x] The chosen Agent is publicly visible at the Battle destination
+- [x] Every observer sees one private Fate card without its identity
 - [x] Every connected browser replays 11 accepted events with no diagnostics
 
 ---
 
-## Rin deploys the maximum legal force
+## Rin chooses a card for Battle
 
-![Phone: Rin deploys the maximum legal force](./screenshots/019-deploy-companies-1-phone.png)
+![Phone: Rin chooses a card for Battle](./screenshots/019-choose-battle-card-1-phone.png)
 
-![Desktop: Rin deploys the maximum legal force](./screenshots/019-deploy-companies-1-desktop.png)
-
-**Verifications:**
-
-- [x] Every observer sees this participant’s Companies in the active Battle
-- [x] Every connected browser replays 12 accepted events with no diagnostics
-
----
-
-## Mara chooses a card for Battle
-
-![Phone: Mara chooses a card for Battle](./screenshots/020-choose-battle-card-2-phone.png)
-
-![Desktop: Mara chooses a card for Battle](./screenshots/020-choose-battle-card-2-desktop.png)
+![Desktop: Rin chooses a card for Battle](./screenshots/019-choose-battle-card-1-desktop.png)
 
 **Verifications:**
 
@@ -269,37 +256,37 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara enters hidden-paths
+## Rin enters hidden-paths
 
-![Phone: Mara enters hidden-paths](./screenshots/021-enter-battle-space-2-phone.png)
+![Phone: Rin enters hidden-paths](./screenshots/020-enter-battle-space-1-phone.png)
 
-![Desktop: Mara enters hidden-paths](./screenshots/021-enter-battle-space-2-desktop.png)
+![Desktop: Rin enters hidden-paths](./screenshots/020-enter-battle-space-1-desktop.png)
 
 **Verifications:**
 
 - [x] The chosen Agent is publicly visible at the Battle destination
-- [x] Every connected browser replays 13 accepted events with no diagnostics
+- [x] Every connected browser replays 12 accepted events with no diagnostics
 
 ---
 
-## Mara deploys the maximum legal force
+## Rin deploys the maximum legal force
 
-![Phone: Mara deploys the maximum legal force](./screenshots/022-deploy-companies-2-phone.png)
+![Phone: Rin deploys the maximum legal force](./screenshots/021-deploy-companies-1-phone.png)
 
-![Desktop: Mara deploys the maximum legal force](./screenshots/022-deploy-companies-2-desktop.png)
+![Desktop: Rin deploys the maximum legal force](./screenshots/021-deploy-companies-1-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees this participant’s Companies in the active Battle
-- [x] Every connected browser replays 14 accepted events with no diagnostics
+- [x] Every connected browser replays 13 accepted events with no diagnostics
 
 ---
 
 ## Pip chooses a card for Battle
 
-![Phone: Pip chooses a card for Battle](./screenshots/023-choose-battle-card-3-phone.png)
+![Phone: Pip chooses a card for Battle](./screenshots/022-choose-battle-card-2-phone.png)
 
-![Desktop: Pip chooses a card for Battle](./screenshots/023-choose-battle-card-3-desktop.png)
+![Desktop: Pip chooses a card for Battle](./screenshots/022-choose-battle-card-2-desktop.png)
 
 **Verifications:**
 
@@ -309,74 +296,99 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Pip enters ranger-mustering
 
-![Phone: Pip enters ranger-mustering](./screenshots/024-enter-battle-space-3-phone.png)
+![Phone: Pip enters ranger-mustering](./screenshots/023-enter-battle-space-2-phone.png)
 
-![Desktop: Pip enters ranger-mustering](./screenshots/024-enter-battle-space-3-desktop.png)
+![Desktop: Pip enters ranger-mustering](./screenshots/023-enter-battle-space-2-desktop.png)
 
 **Verifications:**
 
 - [x] The chosen Agent is publicly visible at the Battle destination
-- [x] Every connected browser replays 15 accepted events with no diagnostics
+- [x] Every connected browser replays 14 accepted events with no diagnostics
 
 ---
 
 ## Pip declines the Ranger trash
 
-![Phone: Pip declines the Ranger trash](./screenshots/025-keep-ranger-cards-3-phone.png)
+![Phone: Pip declines the Ranger trash](./screenshots/024-keep-ranger-cards-2-phone.png)
 
-![Desktop: Pip declines the Ranger trash](./screenshots/025-keep-ranger-cards-3-desktop.png)
+![Desktop: Pip declines the Ranger trash](./screenshots/024-keep-ranger-cards-2-desktop.png)
 
 **Verifications:**
 
 - [x] The ordered Battle deployment follows the Ranger choice
-- [x] Every connected browser replays 16 accepted events with no diagnostics
+- [x] Every connected browser replays 15 accepted events with no diagnostics
 
 ---
 
 ## Pip deploys the maximum legal force
 
-![Phone: Pip deploys the maximum legal force](./screenshots/026-deploy-companies-3-phone.png)
+![Phone: Pip deploys the maximum legal force](./screenshots/025-deploy-companies-2-phone.png)
 
-![Desktop: Pip deploys the maximum legal force](./screenshots/026-deploy-companies-3-desktop.png)
+![Desktop: Pip deploys the maximum legal force](./screenshots/025-deploy-companies-2-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees this participant’s Companies in the active Battle
+- [x] Every connected browser replays 16 accepted events with no diagnostics
+
+---
+
+## Mara chooses a card for Battle
+
+![Phone: Mara chooses a card for Battle](./screenshots/026-choose-battle-card-3-phone.png)
+
+![Desktop: Mara chooses a card for Battle](./screenshots/026-choose-battle-card-3-desktop.png)
+
+**Verifications:**
+
+- [x] The real card gesture enables minas-tirith
+
+---
+
+## Mara enters minas-tirith
+
+![Phone: Mara enters minas-tirith](./screenshots/027-enter-battle-space-3-phone.png)
+
+![Desktop: Mara enters minas-tirith](./screenshots/027-enter-battle-space-3-desktop.png)
+
+**Verifications:**
+
+- [x] The chosen Agent is publicly visible at the Battle destination
 - [x] Every connected browser replays 17 accepted events with no diagnostics
+
+---
+
+## Mara resolves Reconnaissance first
+
+![Phone: Mara resolves Reconnaissance first](./screenshots/028-place-battle-scout-3-phone.png)
+
+![Desktop: Mara resolves Reconnaissance first](./screenshots/028-place-battle-scout-3-desktop.png)
+
+**Verifications:**
+
+- [x] The ordered Battle deployment follows Scout placement
+- [x] Every connected browser replays 18 accepted events with no diagnostics
+
+---
+
+## Mara deploys the maximum legal force
+
+![Phone: Mara deploys the maximum legal force](./screenshots/029-deploy-companies-3-phone.png)
+
+![Desktop: Mara deploys the maximum legal force](./screenshots/029-deploy-companies-3-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees this participant’s Companies in the active Battle
+- [x] Every connected browser replays 19 accepted events with no diagnostics
 
 ---
 
 ## Rin Reveals Battle swords
 
-![Phone: Rin Reveals Battle swords](./screenshots/027-reveal-1-phone.png)
+![Phone: Rin Reveals Battle swords](./screenshots/030-reveal-1-phone.png)
 
-![Desktop: Rin Reveals Battle swords](./screenshots/027-reveal-1-desktop.png)
-
-**Verifications:**
-
-- [x] All observers see the public Muster row and sword total
-- [x] Every connected browser replays 18 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/028-finish-reveal-1-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/028-finish-reveal-1-desktop.png)
-
-**Verifications:**
-
-- [x] The next participating human receives the turn
-- [x] Every connected browser replays 19 accepted events with no diagnostics
-
----
-
-## Mara Reveals Battle swords
-
-![Phone: Mara Reveals Battle swords](./screenshots/029-reveal-2-phone.png)
-
-![Desktop: Mara Reveals Battle swords](./screenshots/029-reveal-2-desktop.png)
+![Desktop: Rin Reveals Battle swords](./screenshots/030-reveal-1-desktop.png)
 
 **Verifications:**
 
@@ -385,11 +397,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal
+## Rin finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/030-finish-reveal-2-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/031-finish-reveal-1-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/030-finish-reveal-2-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/031-finish-reveal-1-desktop.png)
 
 **Verifications:**
 
@@ -400,9 +412,9 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Pip Reveals Battle swords
 
-![Phone: Pip Reveals Battle swords](./screenshots/031-reveal-3-phone.png)
+![Phone: Pip Reveals Battle swords](./screenshots/032-reveal-2-phone.png)
 
-![Desktop: Pip Reveals Battle swords](./screenshots/031-reveal-3-desktop.png)
+![Desktop: Pip Reveals Battle swords](./screenshots/032-reveal-2-desktop.png)
 
 **Verifications:**
 
@@ -413,65 +425,105 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Pip finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/032-finish-reveal-3-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/033-finish-reveal-2-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/032-finish-reveal-3-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/033-finish-reveal-2-desktop.png)
+
+**Verifications:**
+
+- [x] The next participating human receives the turn
+- [x] Every connected browser replays 23 accepted events with no diagnostics
+
+---
+
+## Mara Reveals Battle swords
+
+![Phone: Mara Reveals Battle swords](./screenshots/034-reveal-3-phone.png)
+
+![Desktop: Mara Reveals Battle swords](./screenshots/034-reveal-3-desktop.png)
+
+**Verifications:**
+
+- [x] All observers see the public Muster row and sword total
+- [x] Every connected browser replays 24 accepted events with no diagnostics
+
+---
+
+## Mara finishes Reveal
+
+![Phone: Mara finishes Reveal](./screenshots/035-finish-reveal-3-phone.png)
+
+![Desktop: Mara finishes Reveal](./screenshots/035-finish-reveal-3-desktop.png)
 
 **Verifications:**
 
 - [x] The Combat Fate window opens after all three Reveals
-- [x] Every connected browser replays 23 accepted events with no diagnostics
+- [x] Every connected browser replays 25 accepted events with no diagnostics
 
 ---
 
-## Rin reloads during Combat Fate
+## Mara reloads during Combat Fate
 
-![Phone: Rin reloads during Combat Fate](./screenshots/033-reload-fate-window-phone.png)
+![Phone: Mara reloads during Combat Fate](./screenshots/036-reload-fate-window-phone.png)
 
-![Desktop: Rin reloads during Combat Fate](./screenshots/033-reload-fate-window-desktop.png)
+![Desktop: Mara reloads during Combat Fate](./screenshots/036-reload-fate-window-desktop.png)
 
 **Verifications:**
 
 - [x] Replay restores the same authorized pass decision and all three forces
-- [x] Every connected browser replays 23 accepted events with no diagnostics
+- [x] Every connected browser replays 25 accepted events with no diagnostics
 
 ---
 
-## Rin passes Combat Fate
+## Mara plays Sudden Charge
 
-![Phone: Rin passes Combat Fate](./screenshots/034-pass-fate-1-phone.png)
+![Phone: Mara plays Sudden Charge](./screenshots/037-play-sudden-charge-phone.png)
 
-![Desktop: Rin passes Combat Fate](./screenshots/034-pass-fate-1-desktop.png)
+![Desktop: Mara plays Sudden Charge](./screenshots/037-play-sudden-charge-desktop.png)
 
 **Verifications:**
 
-- [x] Pass authority advances clockwise to the next participant
-- [x] Every connected browser replays 24 accepted events with no diagnostics
+- [x] Every observer sees exactly three added Strength and the public Fate discard
+- [x] The same participant may play another Combat Fate or pass
+- [x] Every connected browser replays 26 accepted events with no diagnostics
 
 ---
 
 ## Mara passes Combat Fate
 
-![Phone: Mara passes Combat Fate](./screenshots/035-pass-fate-2-phone.png)
+![Phone: Mara passes Combat Fate](./screenshots/038-pass-fate-1-phone.png)
 
-![Desktop: Mara passes Combat Fate](./screenshots/035-pass-fate-2-desktop.png)
+![Desktop: Mara passes Combat Fate](./screenshots/038-pass-fate-1-desktop.png)
 
 **Verifications:**
 
 - [x] Pass authority advances clockwise to the next participant
-- [x] Every connected browser replays 25 accepted events with no diagnostics
+- [x] Every connected browser replays 27 accepted events with no diagnostics
+
+---
+
+## Rin passes Combat Fate
+
+![Phone: Rin passes Combat Fate](./screenshots/039-pass-fate-2-phone.png)
+
+![Desktop: Rin passes Combat Fate](./screenshots/039-pass-fate-2-desktop.png)
+
+**Verifications:**
+
+- [x] Pass authority advances clockwise to the next participant
+- [x] Every connected browser replays 28 accepted events with no diagnostics
 
 ---
 
 ## Pip passes Combat Fate
 
-![Phone: Pip passes Combat Fate](./screenshots/036-pass-fate-3-phone.png)
+![Phone: Pip passes Combat Fate](./screenshots/040-pass-fate-3-phone.png)
 
-![Desktop: Pip passes Combat Fate](./screenshots/036-pass-fate-3-desktop.png)
+![Desktop: Pip passes Combat Fate](./screenshots/040-pass-fate-3-desktop.png)
 
 **Verifications:**
 
 - [x] The third consecutive pass resolves rewards, cleanup, and Recall
-- [x] Every connected browser replays 26 accepted events with no diagnostics
+- [x] Every connected browser replays 29 accepted events with no diagnostics
 
 ---

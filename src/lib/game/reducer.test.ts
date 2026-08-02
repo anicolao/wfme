@@ -56,6 +56,10 @@ describe('integrated Agent placement replay', () => {
       expect(player.drawPile).toHaveLength(5);
       expect(new Set([...player.hand, ...player.drawPile].map((card) => card.id)).size).toBe(10);
     }
+    expect(first.match!.fateDeck.filter((card) => card.definitionId === 'sudden-charge')).toHaveLength(2);
+    const rejectedFate = reduceGame([...readyRoom(), createEvent('fate/played', currentPlayerUid(first)!, 5, { cardInstanceId: 'fate:1' }, 11)]);
+    expect(rejectedFate.diagnostics.at(-1)).toContain('illegal Fate play');
+    expect(rejectedFate.match!.fateDiscard).toEqual([]);
   });
 
   it('resolves Diplomatic Mission at Dwarven Caravans and advances the real turn', () => {

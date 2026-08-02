@@ -231,6 +231,16 @@
     }
   }
 
+  async function playFate(cardInstanceId: string) {
+    busy = true;
+    try {
+      await append('fate/played', { cardInstanceId });
+      message = 'Combat Fate resolved in the shared Battle.';
+    } finally {
+      busy = false;
+    }
+  }
+
   onMount(() => {
     roomCodeInput = normalizeRoomCode(new URLSearchParams(location.search).get('room') ?? '');
     void initializeFirebase()
@@ -280,6 +290,7 @@
       onFinishReveal={finishReveal}
       onPlaceScout={placeScout}
       onPassBattle={passBattle}
+      onPlayFate={playFate}
     />
   {:else}
     <section class="lobby" aria-labelledby="lobby-title">

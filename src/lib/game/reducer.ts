@@ -5,6 +5,7 @@ import {
   BATTLE_CARD_DEFINITIONS,
   BOARD_SPACE_DEFINITIONS,
   COMMANDERS,
+  FATE_CARD_DEFINITIONS,
   MUSTER_CARD_DEFINITIONS,
   OBSERVATION_POSTS,
   RESERVE_CARD_DEFINITIONS,
@@ -28,7 +29,7 @@ export type CardInstance = {
   definitionId: string;
 };
 
-export type FateInstance = { id: string };
+export type FateInstance = { id: string; definitionId: string };
 
 export type MatchPlayer = {
   uid: string;
@@ -221,7 +222,10 @@ function createMatch(state: GameState, seed: string): MatchState {
     players,
     boardAgents: {},
     boardScouts: {},
-    fateDeck: shuffled(Array.from({ length: 30 }, (_, index) => ({ id: `fate:${index + 1}` })), `${seed}:fate-deck`),
+    fateDeck: shuffled(Array.from({ length: 30 }, (_, index) => ({
+      id: `fate:${index + 1}`,
+      definitionId: index < 2 ? 'sudden-charge' : 'sealed-fate'
+    })), `${seed}:fate-deck`),
     fateDiscard: [],
     activeBattleId: BATTLE_CARD_DEFINITIONS[0]?.id ?? null,
     battleDeck: BATTLE_CARD_DEFINITIONS.slice(1).map((battle) => battle.id),
@@ -1120,6 +1124,29 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       const nextUid = participants[(currentIndex + 1) % participants.length];
       state.match.currentPlayerIndex = state.match.playerOrder.indexOf(nextUid);
     }
+    return null;
+  }
+
+  if (event.type === 'fate/played') {
+    const cardInstanceId = event.payload.cardInstanceId;
+    if (
+      state.phase !== 'playing' ||
+      !state.match ||
+      state.match.turnMode !== 'battle' ||
+      currentPlayerUid(state) !== event.actorUid ||
+      typeof cardInstanceId !== 'string' ||
+      (state.match.battleCompanies[event.actorUid] ?? 0) < 1
+    ) return 'illegal Fate play';
+    const player = state.match.players[event.actorUid];
+    const cardIndex = player.fateHand.findIndex((card) => card.id === cardInstanceId);
+    const card = player.fateHand[cardIndex];
+    const definition = card && FATE_CARD_DEFINITIONS.find((candidate) => candidate.id === card.definitionId);
+    if (!card || !definition || definition.timing !== 'Combat') return 'illegal Fate play';
+    player.fateHand.splice(cardIndex, 1);
+    state.match.fateDiscard.push(card);
+    state.match.battleBonusStrength[event.actorUid] = (state.match.battleBonusStrength[event.actorUid] ?? 0) + definition.effect.amount;
+    state.match.consecutiveBattlePasses = 0;
+    state.match.activity.push(`${actor.displayName} plays ${definition.name} for ${definition.effect.amount} Strength.`);
     return null;
   }
 
