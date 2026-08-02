@@ -49,9 +49,21 @@ describe('integrated game event security rules', () => {
         id: 'player-a-000002', type: 'choice/resolved', payload: { choice: 'pay-2-gold' }, clientSeq: 2
       })
     ));
+    for (const [index, type] of ['turn/revealed', 'card/acquired', 'reveal/finished'].entries()) {
+      const sequence = index + 3;
+      await assertSucceeds(setDoc(
+        doc(db, `games/RIVEN/events/player-a-${String(sequence).padStart(6, '0')}`),
+        validEvent({
+          id: `player-a-${String(sequence).padStart(6, '0')}`,
+          type,
+          payload: type === 'card/acquired' ? { definitionId: 'muster-host' } : {},
+          clientSeq: sequence
+        })
+      ));
+    }
     await assertFails(setDoc(
-      doc(db, 'games/RIVEN/events/player-a-000003'),
-      validEvent({ id: 'player-a-000003', type: 'client/bypassed-choice', clientSeq: 3 })
+      doc(db, 'games/RIVEN/events/player-a-000006'),
+      validEvent({ id: 'player-a-000006', type: 'client/bypassed-choice', clientSeq: 6 })
     ));
   });
 

@@ -8,7 +8,10 @@ export type GameEventType =
   | 'player/ready'
   | 'match/started'
   | 'agent/placed'
-  | 'choice/resolved';
+  | 'choice/resolved'
+  | 'turn/revealed'
+  | 'card/acquired'
+  | 'reveal/finished';
 
 export type GameEvent = {
   id: string;

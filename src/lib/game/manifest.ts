@@ -37,6 +37,14 @@ export type AgentCardDefinition = StartingCardIdentity & {
 
 export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
   {
+    id: 'muster-host',
+    name: 'Muster the Host',
+    copies: 8,
+    placementIcons: ['Stronghold', 'Roads'],
+    journeyEffect: { recruitCompanies: 1 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
     id: 'armed-escort',
     name: 'Armed Escort',
     copies: 2,
@@ -57,6 +65,39 @@ export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
     copies: 1,
     placementIcons: ['Shadow', 'Dwarven', 'Elven', 'Wild'],
     reviewedCapabilities: ['agent-placement']
+  }
+];
+
+export type MusterCardDefinition = {
+  id: string;
+  name: string;
+  muster: { influence: number; swords: number };
+};
+
+export const MUSTER_CARD_DEFINITIONS: readonly MusterCardDefinition[] = [
+  { id: 'rallying-words', name: 'Rallying Words', muster: { influence: 2, swords: 0 } },
+  { id: 'armed-escort', name: 'Armed Escort', muster: { influence: 0, swords: 1 } },
+  { id: 'the-open-road', name: 'The Open Road', muster: { influence: 1, swords: 0 } },
+  { id: 'diplomatic-mission', name: 'Diplomatic Mission', muster: { influence: 1, swords: 0 } },
+  { id: 'reconnaissance', name: 'Reconnaissance', muster: { influence: 1, swords: 0 } },
+  { id: 'seek-allies', name: 'Seek Allies', muster: { influence: 1, swords: 0 } },
+  { id: 'token-of-command', name: 'Token of Command', muster: { influence: 1, swords: 0 } },
+  { id: 'muster-host', name: 'Muster the Host', muster: { influence: 1, swords: 1 } }
+];
+
+export type ReserveCardId = 'muster-host';
+
+export type ReserveCardDefinition = Omit<MusterCardDefinition, 'id'> & {
+  id: ReserveCardId;
+  copies: number;
+  cost: number;
+  onAcquireRenown: number;
+};
+
+export const RESERVE_CARD_DEFINITIONS: readonly ReserveCardDefinition[] = [
+  {
+    id: 'muster-host', name: 'Muster the Host', copies: 8, cost: 2,
+    onAcquireRenown: 0, muster: { influence: 1, swords: 1 }
   }
 ];
 
@@ -139,5 +180,7 @@ export const BOARD_SPACE_DEFINITIONS: readonly BoardSpaceDefinition[] = [
 ];
 
 export function cardName(id: string): string {
-  return STARTING_CARD_IDENTITIES.find((card) => card.id === id)?.name ?? id;
+  return STARTING_CARD_IDENTITIES.find((card) => card.id === id)?.name
+    ?? RESERVE_CARD_DEFINITIONS.find((card) => card.id === id)?.name
+    ?? id;
 }

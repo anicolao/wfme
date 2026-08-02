@@ -11,10 +11,12 @@ This is the construction ledger for the one canonical game at the repository roo
 | Board destinations | 4 / 22 | Two faction spaces, Take Up a War Effort, and Muster the Free Peoples; the other 18 are disabled |
 | Starting card instances | 10 / 10 | Exact deterministic deck composition and conservation |
 | Starting cards with executable Agent boxes | 3 / 7 definitions | Diplomatic Mission, The Open Road, and Armed Escort |
+| Starting cards with executable Muster boxes | 7 / 7 definitions | Public Reveal totals and card-instance conservation |
+| Reserve cards | 1 / 2 definitions | Muster the Host cost, finite supply, discard destination, reshuffle, and later Agent use are executable |
 | Commander identities | 8 / 8 | Unique lobby identities, explicitly power-free |
 | Commander powers | 0 / 16 | No power text is presented as active |
-| Chronicle, Reserve, Fate, Battle, War Effort, and Rival content | 0 | Introduced only with the tracer that makes each item executable |
-| Complete ordinary rounds | 0 | Reveal, Battle, Riches, and Recall are not yet available |
+| Chronicle, Fate, Battle, War Effort, and Rival content | 0 | Introduced only with the tracer that makes each item executable |
+| Round phases | Agent, Reveal, Recall | Battle and Riches arrive with their own complete subsystems |
 | Complete matches | 0 | Endgame and rematch are not yet available |
 
 ## Implemented rules coverage
@@ -29,9 +31,12 @@ This is the construction ledger for the one canonical game at the repository roo
 | Tribute to the Shadow occupancy and +1 Shadow/+2 Gold | resolution and turn-advance test | gesture 022 validates all three clients |
 | Take Up a War Effort draw and disabled-module +2 Gold | card-zone conservation test | gestures 016–017 validate private draw and public reward |
 | Armed Escort + Muster ordered recruitment and optional payment | pending-choice legality and conservation tests | gestures 024–027 validate actor, observers, and replay |
+| Public Reveal, exact Influence/swords, and turn skipping | Reveal legality and zone-conservation tests | gestures 028–034 show all three clients through the first Reveal sequence |
+| Reserve acquisition and finite supply | affordability, supply, and illegal-acquisition tests | gesture 029 validates shared supply and private discard |
+| Recall, first-player rotation, redraw, and deterministic reshuffle | two-round reducer replay and 11-instance conservation | gestures 035–049 reach round 3 and use the acquired card |
 | Immutable event replay after reload | repository ordering tests | gestures 020 and 023 reload the acting browsers |
 | Append-only authenticated event storage | Firestore emulator rule suite | the entire room journey uses the emulators/live backend |
 
 ## Next accepted tracer
 
-Tracer 2 adds the next coherent ordinary Agent-space family with only the card/effect vocabulary required by that family. This ledger must change in the same commit as its passing reducer and browser evidence.
+Tracer 2 continues with the next coherent ordinary Agent-space family. Reveal and Recall now provide the genuine multi-round path needed to exercise costs, standing thresholds, and later-acquired cards without manufactured state.

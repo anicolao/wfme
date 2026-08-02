@@ -1,6 +1,6 @@
 # Test: Three-player ordinary Agent destinations tracer
 
-Three isolated human browser sessions create and join a Firebase room, choose power-free Commander identities, start a seeded game, then resolve Roads, faction, and Council actions—including a private draw and ordered optional payment—with convergence and replay.
+Three isolated human browser sessions create and join a Firebase room, resolve Roads, faction, and Council actions, then Reveal, acquire from the Reserve, Recall, reshuffle, draw and use the acquired card on the final board with convergence and replay.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -382,5 +382,297 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] The Council occupation and resolved payment survive replay
 - [x] Every connected replay has accepted exactly 15 events with no diagnostics
+
+---
+
+## Pip Reveals the remaining hand
+
+![Phone: Pip Reveals the remaining hand](./screenshots/028-reveal-first-hand-phone.png)
+
+![Desktop: Pip Reveals the remaining hand](./screenshots/028-reveal-first-hand-desktop.png)
+
+**Verifications:**
+
+- [x] Every client sees the same four-card public Muster row
+- [x] Muster totals are exactly four Influence and one sword
+- [x] The reviewed Muster the Host Reserve batch is affordable and unavailable content is absent
+- [x] Every connected replay has accepted exactly 16 events with no diagnostics
+
+---
+
+## Pip acquires Muster the Host
+
+![Phone: Pip acquires Muster the Host](./screenshots/029-acquire-muster-host-phone.png)
+
+![Desktop: Pip acquires Muster the Host](./screenshots/029-acquire-muster-host-desktop.png)
+
+**Verifications:**
+
+- [x] The shared Reserve count falls from eight to seven
+- [x] Exactly two Influence remains
+- [x] The acquired private instance enters the actor discard pile
+- [x] Every connected replay has accepted exactly 17 events with no diagnostics
+
+---
+
+## Pip finishes the Reveal turn
+
+![Phone: Pip finishes the Reveal turn](./screenshots/030-finish-first-reveal-phone.png)
+
+![Desktop: Pip finishes the Reveal turn](./screenshots/030-finish-first-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row closes after cards move to discard
+- [x] The public seat reports Reveal complete
+- [x] The next unrevealed human gets the Agent-or-Reveal decision
+- [x] Every connected replay has accepted exactly 18 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/031-round-1-seat-3-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/031-round-1-seat-3-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 19 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/032-round-1-seat-3-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/032-round-1-seat-3-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 20 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/033-round-1-seat-1-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/033-round-1-seat-1-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 21 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/034-round-1-seat-1-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/034-round-1-seat-1-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 22 events with no diagnostics
+
+---
+
+## Recall opens round 2
+
+![Phone: Recall opens round 2](./screenshots/035-round-2-recall-phone.png)
+
+![Desktop: Recall opens round 2](./screenshots/035-round-2-recall-desktop.png)
+
+**Verifications:**
+
+- [x] All Agents return and every seat redraws five cards
+- [x] First player rotates to the next seat
+
+---
+
+## Pip Reveals without buying
+
+![Phone: Pip Reveals without buying](./screenshots/036-round-2-seat-2-reveal-phone.png)
+
+![Desktop: Pip Reveals without buying](./screenshots/036-round-2-seat-2-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 23 events with no diagnostics
+
+---
+
+## Pip finishes Reveal without an acquisition
+
+![Phone: Pip finishes Reveal without an acquisition](./screenshots/037-round-2-seat-2-finish-phone.png)
+
+![Desktop: Pip finishes Reveal without an acquisition](./screenshots/037-round-2-seat-2-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Pip's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 24 events with no diagnostics
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/038-round-2-seat-3-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/038-round-2-seat-3-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 25 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/039-round-2-seat-3-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/039-round-2-seat-3-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 26 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/040-round-2-seat-1-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/040-round-2-seat-1-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 27 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/041-round-2-seat-1-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/041-round-2-seat-1-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 28 events with no diagnostics
+
+---
+
+## The deterministic reshuffle opens round 3
+
+![Phone: The deterministic reshuffle opens round 3](./screenshots/042-round-3-reshuffle-phone.png)
+
+![Desktop: The deterministic reshuffle opens round 3](./screenshots/042-round-3-reshuffle-desktop.png)
+
+**Verifications:**
+
+- [x] Round 3 begins from real Recall with five-card hands
+
+---
+
+## Rin Reveals without buying
+
+![Phone: Rin Reveals without buying](./screenshots/043-round-3-seat-3-reveal-phone.png)
+
+![Desktop: Rin Reveals without buying](./screenshots/043-round-3-seat-3-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 29 events with no diagnostics
+
+---
+
+## Rin finishes Reveal without an acquisition
+
+![Phone: Rin finishes Reveal without an acquisition](./screenshots/044-round-3-seat-3-finish-phone.png)
+
+![Desktop: Rin finishes Reveal without an acquisition](./screenshots/044-round-3-seat-3-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Rin's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 30 events with no diagnostics
+
+---
+
+## Mara Reveals without buying
+
+![Phone: Mara Reveals without buying](./screenshots/045-round-3-seat-1-reveal-phone.png)
+
+![Desktop: Mara Reveals without buying](./screenshots/045-round-3-seat-1-reveal-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's real remaining hand becomes the public Muster row
+- [x] Every connected replay has accepted exactly 31 events with no diagnostics
+
+---
+
+## Mara finishes Reveal without an acquisition
+
+![Phone: Mara finishes Reveal without an acquisition](./screenshots/046-round-3-seat-1-finish-phone.png)
+
+![Desktop: Mara finishes Reveal without an acquisition](./screenshots/046-round-3-seat-1-finish-desktop.png)
+
+**Verifications:**
+
+- [x] Mara's cards leave Muster and remain conserved
+- [x] Every connected replay has accepted exactly 32 events with no diagnostics
+
+---
+
+## Pip plays the acquired Muster the Host
+
+![Phone: Pip plays the acquired Muster the Host](./screenshots/047-play-acquired-muster-host-phone.png)
+
+![Desktop: Pip plays the acquired Muster the Host](./screenshots/047-play-acquired-muster-host-desktop.png)
+
+**Verifications:**
+
+- [x] The card acquired two rounds earlier was genuinely drawn after reshuffle
+- [x] Its complete Stronghold and Roads placement icons make the available Roads space legal
+
+---
+
+## Pip uses the acquired card on the board
+
+![Phone: Pip uses the acquired card on the board](./screenshots/048-use-acquired-muster-host-phone.png)
+
+![Desktop: Pip uses the acquired card on the board](./screenshots/048-use-acquired-muster-host-desktop.png)
+
+**Verifications:**
+
+- [x] The acquired card recruits one Company before the board reward
+- [x] Every client sees the new occupation and base-game Gold reward
+- [x] Every connected replay has accepted exactly 33 events with no diagnostics
+
+---
+
+## Pip reloads after using the acquired card
+
+![Phone: Pip reloads after using the acquired card](./screenshots/049-reload-acquired-card-phone.png)
+
+![Desktop: Pip reloads after using the acquired card](./screenshots/049-reload-acquired-card-desktop.png)
+
+**Verifications:**
+
+- [x] Acquisition, reshuffle, draw, Journey effect, and occupation replay identically
+- [x] Every connected replay has accepted exactly 33 events with no diagnostics
 
 ---

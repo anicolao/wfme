@@ -5,6 +5,8 @@
     BOARD_LAYOUT,
     BOARD_SPACE_DEFINITIONS,
     COMMANDERS,
+    MUSTER_CARD_DEFINITIONS,
+    RESERVE_CARD_DEFINITIONS,
     cardName,
     type BoardRegion
   } from '$lib/game/manifest';
@@ -16,6 +18,9 @@
   export let onSelectCard: (cardId: string) => void;
   export let onPlaceAgent: (spaceId: string) => void;
   export let onResolveChoice: (choice: 'pay-2-gold' | 'decline') => void;
+  export let onReveal: () => void;
+  export let onAcquire: (definitionId: string) => void;
+  export let onFinishReveal: () => void;
 
   const regions: BoardRegion[] = [
     'Shadow Hosts',
@@ -39,7 +44,7 @@
 <section class="table" aria-labelledby="table-title">
   <header class="table-header">
     <div>
-      <p class="eyebrow">Round {game.match?.round ?? 1} · Agent turns</p>
+      <p class="eyebrow">Round {game.match?.round ?? 1} · {game.match?.turnMode === 'reveal' ? 'Reveal turn' : 'Agent turns'}</p>
       <h1 id="table-title">The living board</h1>
       <p>
         {game.players.find((player) => player.uid === currentUid)?.displayName ?? 'A player'}
@@ -69,8 +74,11 @@
             <div><dt>Shadow</dt><dd>{matchPlayer?.standing.shadow ?? 0}</dd></div>
             <div><dt>Garrison</dt><dd>{matchPlayer?.companies.garrison ?? 0}</dd></div>
             <div><dt>Supply</dt><dd>{matchPlayer?.companies.supply ?? 0}</dd></div>
+            <div><dt>Renown</dt><dd>{matchPlayer?.renown ?? 0}</dd></div>
+            <div><dt>Discard</dt><dd>{matchPlayer?.discardPile.length ?? 0}</dd></div>
           </dl>
           {#if player.uid === localUid}<small>Your seat · private hand below</small>{/if}
+          {#if matchPlayer?.revealedThisRound}<small>Reveal complete · waiting for Recall</small>{/if}
         </article>
       {/each}
     </aside>
@@ -135,16 +143,49 @@
     </section>
   {/if}
 
+  {#if game.match?.turnMode === 'reveal'}
+    {@const revealPlayer = game.match.players[currentUid!]}
+    <section class="reveal-panel" data-testid="reveal-panel" aria-labelledby="reveal-title">
+      <div>
+        <p class="eyebrow">Public Muster row</p>
+        <h2 id="reveal-title">{game.players.find((player) => player.uid === currentUid)?.displayName} Reveals</h2>
+        <div class="muster-row">
+          {#each revealPlayer.muster as card}
+            {@const muster = MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === card.definitionId)?.muster}
+            <article><strong>{cardName(card.definitionId)}</strong><span>{muster?.influence ?? 0} Influence · {muster?.swords ?? 0} swords</span></article>
+          {/each}
+        </div>
+        <p class="reveal-total"><strong>{revealPlayer.revealInfluence} Influence</strong> remaining · {revealPlayer.revealedSwords} {revealPlayer.revealedSwords === 1 ? 'sword' : 'swords'}</p>
+      </div>
+      <div class="reserve" aria-label="Reserve market">
+        {#each RESERVE_CARD_DEFINITIONS as card}
+          <button
+            type="button"
+            disabled={currentUid !== localUid || revealPlayer.revealInfluence < card.cost || game.match.reserveSupply[card.id] < 1}
+            onclick={() => onAcquire(card.id)}
+          >
+            <strong>{card.name} · {card.cost} Influence</strong>
+            <span>{game.match.reserveSupply[card.id]} remain{card.onAcquireRenown ? ` · gain ${card.onAcquireRenown} Renown` : ''}</span>
+          </button>
+        {/each}
+        <button class="finish-reveal" type="button" disabled={currentUid !== localUid} onclick={onFinishReveal}>Finish Reveal</button>
+      </div>
+    </section>
+  {/if}
+
   <section class="decision" aria-labelledby="decision-title">
     <div>
       <p class="eyebrow">Your hand</p>
       <h2 id="decision-title">
-        {#if currentUid === localUid}Choose a card, then a legal space.{:else}Waiting for the active player.{/if}
+        {#if game.match?.turnMode === 'reveal'}Resolve Muster and acquisitions above.{:else if currentUid === localUid}Choose a card, then a legal space.{:else}Waiting for the active player.{/if}
       </h2>
       {#if selectedCardId && !selectedIsImplemented}
         <p role="status">{selectedName} is part of the final deck, but its Agent feature is not active in this tracer.</p>
       {:else if selectedCardId}
         <p role="status">{selectedName} can send an Agent to the highlighted board destinations.</p>
+      {/if}
+      {#if currentUid === localUid && game.match?.turnMode === 'agent' && !game.match.pendingChoice}
+        <button class="reveal-button" type="button" onclick={onReveal}>Reveal remaining hand</button>
       {/if}
     </div>
     <div class="hand" data-testid="private-hand">
@@ -210,6 +251,18 @@
   .pending-choice { position: fixed; z-index: 10; left: 50%; bottom: 1rem; display: flex; width: min(calc(100% - 2rem), 60rem); justify-content: space-between; gap: 1rem; align-items: center; margin-top: 1rem; padding: 1rem; color: #28291f; background: #f2d9a6; border: 3px solid #c98a45; border-radius: .7rem; box-shadow: 0 1rem 3rem rgb(0 0 0 / 55%); transform: translateX(-50%); }
   .pending-choice h2, .pending-choice p { margin: .2rem 0; }
   .choice-actions { display: flex; gap: .5rem; }
+  .reveal-panel { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-top: 1rem; padding: 1rem; color: #28291f; background: #efe3c4; border: 3px solid #6d8265; border-radius: .7rem; }
+  .reveal-panel h2, .reveal-panel p { margin: .2rem 0 .6rem; }
+  .muster-row { display: flex; gap: .45rem; overflow-x: auto; }
+  .muster-row article { min-width: 9rem; padding: .65rem; background: #dfd1b2; border: 1px solid #a58c61; border-radius: .4rem; }
+  .muster-row strong, .muster-row span, .reserve strong, .reserve span { display: block; }
+  .muster-row span, .reserve span { margin-top: .35rem; font-size: .8rem; }
+  .reveal-total { padding-top: .5rem; }
+  .reserve { display: grid; gap: .45rem; }
+  .reserve button, .reveal-button, .choice-actions button { min-height: 48px; padding: .6rem; color: #fff; background: #6d452d; border: 0; border-radius: .4rem; font-weight: 700; cursor: pointer; }
+  .reserve button:disabled, .choice-actions button:disabled { cursor: not-allowed; opacity: .5; }
+  .reserve .finish-reveal { background: #3f6049; }
+  .reveal-button { margin-top: .6rem; background: #3f6049; }
   .decision h2, .history h2 { margin: .1rem 0 .6rem; font: 700 1.8rem 'Cormorant Garamond', serif; }
   .decision .eyebrow { color: #6d452d; }
   .hand { display: grid; grid-template-columns: repeat(5, minmax(8rem, 1fr)); gap: .55rem; overflow-x: auto; padding: .2rem; }
@@ -229,6 +282,7 @@
   @media (max-width: 520px) {
     .board { grid-template-columns: 1fr; max-height: 34rem; overflow-y: auto; }
     .hand { grid-template-columns: repeat(5, 9rem); }
+    .reveal-panel { grid-template-columns: 1fr; }
     .pending-choice { align-items: stretch; flex-direction: column; }
     .choice-actions { display: grid; grid-template-columns: 1fr 1fr; }
   }

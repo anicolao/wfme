@@ -323,9 +323,146 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
 
+    await steps.gesture(actor!.page, 'reveal-first-hand', `${actor!.name} Reveals the remaining hand`,
+      () => actor!.page.getByRole('button', { name: 'Reveal remaining hand' }).click(),
+      [
+        { spec: 'Every client sees the same four-card public Muster row', check: async () => {
+          for (const seat of seats) {
+            await expect(seat.page.getByTestId('reveal-panel')).toContainText(`${actor!.name} Reveals`);
+            await expect(seat.page.getByTestId('reveal-panel').locator('.muster-row article')).toHaveCount(4);
+          }
+        } },
+        { spec: 'Muster totals are exactly four Influence and one sword', check: async () => {
+          await expect(actor!.page.getByTestId('reveal-panel')).toContainText('4 Influence remaining · 1 sword');
+        } },
+        { spec: 'The reviewed Muster the Host Reserve batch is affordable and unavailable content is absent', check: async () => {
+          await expect(actor!.page.getByRole('button', { name: /^Muster the Host/ })).toBeEnabled();
+          await expect(actor!.page.getByRole('button', { name: /^Deed Worthy of Song/ })).toHaveCount(0);
+        } },
+        convergedEvents(16)
+      ]
+    );
+    await steps.gesture(actor!.page, 'acquire-muster-host', `${actor!.name} acquires Muster the Host`,
+      () => actor!.page.getByRole('button', { name: /^Muster the Host/ }).click(),
+      [
+        { spec: 'The shared Reserve count falls from eight to seven', check: async () => {
+          for (const seat of seats) await expect(seat.page.getByRole('button', { name: /^Muster the Host/ })).toContainText('7 remain');
+        } },
+        { spec: 'Exactly two Influence remains', check: async () => await expect(actor!.page.getByTestId('reveal-panel')).toContainText('2 Influence remaining') },
+        { spec: 'The acquired private instance enters the actor discard pile', check: async () => {
+          const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
+          await expect(player).toContainText('Discard1');
+        } },
+        convergedEvents(17)
+      ]
+    );
+    await steps.gesture(actor!.page, 'finish-first-reveal', `${actor!.name} finishes the Reveal turn`,
+      () => actor!.page.getByRole('button', { name: 'Finish Reveal' }).click(),
+      [
+        { spec: 'The public Muster row closes after cards move to discard', check: async () => {
+          for (const seat of seats) await expect(seat.page.getByTestId('reveal-panel')).toHaveCount(0);
+        } },
+        { spec: 'The public seat reports Reveal complete', check: async () => {
+          for (const seat of seats) await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Reveal complete');
+        } },
+        { spec: 'The next unrevealed human gets the Agent-or-Reveal decision', check: async () => {
+          for (const seat of seats) await expect(seat.page.locator('footer')).toContainText(`Current actor ${shadowActor!.name}`);
+        } },
+        convergedEvents(18)
+      ]
+    );
+
+    const revealAndFinish = async (seat: Seat, prefix: string, revealCount: number, finishCount: number) => {
+      await steps.gesture(seat.page, `${prefix}-reveal`, `${seat.name} Reveals without buying`,
+        () => seat.page.getByRole('button', { name: 'Reveal remaining hand' }).click(),
+        [
+          { spec: `${seat.name}'s real remaining hand becomes the public Muster row`, check: async () => {
+            for (const observer of seats) await expect(observer.page.getByTestId('reveal-panel')).toContainText(`${seat.name} Reveals`);
+          } },
+          convergedEvents(revealCount)
+        ]
+      );
+      await steps.gesture(seat.page, `${prefix}-finish`, `${seat.name} finishes Reveal without an acquisition`,
+        () => seat.page.getByRole('button', { name: 'Finish Reveal' }).click(),
+        [
+          { spec: `${seat.name}'s cards leave Muster and remain conserved`, check: async () => {
+            for (const observer of seats) await expect(observer.page.getByTestId('reveal-panel')).toHaveCount(0);
+          } },
+          convergedEvents(finishCount)
+        ]
+      );
+    };
+
+    await revealAndFinish(shadowActor!, 'round-1-seat-3', 19, 20);
+    await revealAndFinish(roadActor!, 'round-1-seat-1', 21, 22);
+    await steps.observe(roadActor!.page, 'round-2-recall', 'Recall opens round 2', [
+      { spec: 'All Agents return and every seat redraws five cards', check: async () => {
+        for (const seat of seats) {
+          await expect(seat.page.getByText('Round 2 · Agent turns')).toBeVisible();
+          await expect(seat.page.locator('.spaces button.occupied')).toHaveCount(0);
+          for (const player of seats) {
+            const area = seat.page.locator('.players article').filter({ hasText: player.name });
+            await expect(area).toContainText('Agents2');
+            await expect(area).toContainText('Hand5');
+          }
+        }
+      } },
+      { spec: 'First player rotates to the next seat', check: async () => {
+        for (const seat of seats) await expect(seat.page.locator('footer')).toContainText(`Current actor ${actor!.name}`);
+      } }
+    ]);
+
+    await revealAndFinish(actor!, 'round-2-seat-2', 23, 24);
+    await revealAndFinish(shadowActor!, 'round-2-seat-3', 25, 26);
+    await revealAndFinish(roadActor!, 'round-2-seat-1', 27, 28);
+    await steps.observe(roadActor!.page, 'round-3-reshuffle', 'The deterministic reshuffle opens round 3', [
+      { spec: 'Round 3 begins from real Recall with five-card hands', check: async () => {
+        for (const seat of seats) await expect(seat.page.getByText('Round 3 · Agent turns')).toBeVisible();
+      } }
+    ]);
+
+    await revealAndFinish(shadowActor!, 'round-3-seat-3', 29, 30);
+    await revealAndFinish(roadActor!, 'round-3-seat-1', 31, 32);
+    await steps.gesture(actor!.page, 'play-acquired-muster-host', `${actor!.name} plays the acquired Muster the Host`,
+      () => actor!.page.getByTestId('private-hand').getByRole('button', { name: /^Muster the Host/ }).click(),
+      [
+        { spec: 'The card acquired two rounds earlier was genuinely drawn after reshuffle', check: async () => await expect(actor!.page.getByRole('button', { name: /^Muster the Host/ })).toHaveAttribute('aria-pressed', 'true') },
+        { spec: 'Its complete Stronghold and Roads placement icons make the available Roads space legal', check: async () => await expect(actor!.page.getByTestId('space-take-war-effort')).toBeEnabled() }
+      ]
+    );
+    await steps.gesture(actor!.page, 'use-acquired-muster-host', `${actor!.name} uses the acquired card on the board`,
+      () => actor!.page.getByTestId('space-take-war-effort').click(),
+      [
+        { spec: 'The acquired card recruits one Company before the board reward', check: async () => {
+          const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
+          await expect(player).toContainText('Garrison4');
+          await expect(player).toContainText('Supply8');
+        } },
+        { spec: 'Every client sees the new occupation and base-game Gold reward', check: async () => {
+          for (const seat of seats) {
+            await expect(seat.page.getByTestId('space-take-war-effort')).toContainText(`Agent · ${actor!.name}`);
+            await expect(seat.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Gold2');
+          }
+        } },
+        convergedEvents(33)
+      ]
+    );
+    await steps.gesture(actor!.page, 'reload-acquired-card', `${actor!.name} reloads after using the acquired card`,
+      async () => { await actor!.page.reload(); },
+      [
+        { spec: 'Acquisition, reshuffle, draw, Journey effect, and occupation replay identically', check: async () => {
+          await expect(actor!.page.getByTestId('space-take-war-effort')).toContainText(`Agent · ${actor!.name}`);
+          const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
+          await expect(player).toContainText('Garrison4');
+          await expect(player).toContainText('Gold2');
+        } },
+        convergedEvents(33)
+      ]
+    );
+
     steps.generateDocs(
       'Three-player ordinary Agent destinations tracer',
-      'Three isolated human browser sessions create and join a Firebase room, choose power-free Commander identities, start a seeded game, then resolve Roads, faction, and Council actions—including a private draw and ordered optional payment—with convergence and replay.'
+      'Three isolated human browser sessions create and join a Firebase room, resolve Roads, faction, and Council actions, then Reveal, acquire from the Reserve, Recall, reshuffle, draw and use the acquired card on the final board with convergence and replay.'
     );
   } finally {
     await guestAContext.close();

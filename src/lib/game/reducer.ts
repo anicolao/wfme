@@ -4,8 +4,11 @@ import {
   AGENT_CARD_DEFINITIONS,
   BOARD_SPACE_DEFINITIONS,
   COMMANDERS,
+  MUSTER_CARD_DEFINITIONS,
+  RESERVE_CARD_DEFINITIONS,
   STARTING_CARD_IDENTITIES,
-  type CommanderId
+  type CommanderId,
+  type ReserveCardId
 } from './manifest';
 import { shuffled } from './prng';
 
@@ -26,7 +29,13 @@ export type MatchPlayer = {
   uid: string;
   hand: CardInstance[];
   drawPile: CardInstance[];
+  discardPile: CardInstance[];
   journey: CardInstance[];
+  muster: CardInstance[];
+  revealInfluence: number;
+  revealedSwords: number;
+  revealedThisRound: boolean;
+  renown: number;
   availableAgents: number;
   resources: { gold: number; mithril: number; provisions: number };
   standing: { shadow: number; dwarven: number; elven: number; wild: number };
@@ -43,6 +52,8 @@ export type MatchState = {
   round: number;
   playerOrder: string[];
   currentPlayerIndex: number;
+  firstPlayerIndex: number;
+  turnMode: 'agent' | 'reveal';
   players: Record<string, MatchPlayer>;
   boardAgents: Record<string, AgentOccupation>;
   pendingChoice: null | {
@@ -50,6 +61,7 @@ export type MatchState = {
     actorUid: string;
     options: readonly ['pay-2-gold', 'decline'];
   };
+  reserveSupply: Record<ReserveCardId, number>;
   activity: string[];
 };
 
@@ -106,7 +118,13 @@ function createMatch(state: GameState, seed: string): MatchState {
           uid: player.uid,
           hand: deck.slice(0, 5),
           drawPile: deck.slice(5),
+          discardPile: [],
           journey: [],
+          muster: [],
+          revealInfluence: 0,
+          revealedSwords: 0,
+          revealedThisRound: false,
+          renown: 0,
           availableAgents: 2,
           resources: { gold: 0, mithril: 0, provisions: 1 },
           standing: { shadow: 0, dwarven: 0, elven: 0, wild: 0 },
@@ -120,9 +138,12 @@ function createMatch(state: GameState, seed: string): MatchState {
     round: 1,
     playerOrder,
     currentPlayerIndex: 0,
+    firstPlayerIndex: 0,
+    turnMode: 'agent',
     players,
     boardAgents: {},
     pendingChoice: null,
+    reserveSupply: { 'muster-host': 8 },
     activity: [`The seeded match begins. ${state.players.find((player) => player.uid === playerOrder[0])?.displayName ?? 'Seat 1'} acts first.`]
   };
 }
@@ -141,7 +162,7 @@ export function currentPlayerUid(state: GameState): string | null {
 export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanceId: string): string[] {
   const match = state.match;
   const player = match?.players[actorUid];
-  if (!match || match.pendingChoice || !player || currentPlayerUid(state) !== actorUid || player.availableAgents < 1) return [];
+  if (!match || match.turnMode !== 'agent' || match.pendingChoice || !player || currentPlayerUid(state) !== actorUid || player.availableAgents < 1) return [];
   const card = player.hand.find((candidate) => candidate.id === cardInstanceId);
   const definition = card && AGENT_CARD_DEFINITIONS.find((candidate) => candidate.id === card.definitionId);
   if (!definition) return [];
@@ -150,6 +171,48 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
       !match.boardAgents[space.id] &&
       definition.placementIcons.some((icon) => space.placementIcons.includes(icon))
   ).map((space) => space.id);
+}
+
+function advanceToNextAgentPlayer(match: MatchState): void {
+  for (let offset = 1; offset <= match.playerOrder.length; offset += 1) {
+    const index = (match.currentPlayerIndex + offset) % match.playerOrder.length;
+    if (!match.players[match.playerOrder[index]].revealedThisRound) {
+      match.currentPlayerIndex = index;
+      return;
+    }
+  }
+}
+
+function drawToFive(match: MatchState, uid: string): void {
+  const player = match.players[uid];
+  while (player.hand.length < 5) {
+    if (player.drawPile.length === 0 && player.discardPile.length > 0) {
+      const seat = match.playerOrder.indexOf(uid) + 1;
+      player.drawPile = shuffled(player.discardPile, `${match.seed}:round-${match.round}:seat-${seat}:reshuffle`);
+      player.discardPile = [];
+    }
+    const card = player.drawPile.shift();
+    if (!card) break;
+    player.hand.push(card);
+  }
+}
+
+function recallAndBeginNextRound(match: MatchState): void {
+  match.round += 1;
+  match.boardAgents = {};
+  match.pendingChoice = null;
+  match.turnMode = 'agent';
+  for (const uid of match.playerOrder) {
+    const player = match.players[uid];
+    player.availableAgents = 2;
+    player.revealedThisRound = false;
+    player.revealInfluence = 0;
+    player.revealedSwords = 0;
+    drawToFive(match, uid);
+  }
+  match.firstPlayerIndex = (match.firstPlayerIndex + 1) % match.playerOrder.length;
+  match.currentPlayerIndex = match.firstPlayerIndex;
+  match.activity.push(`Recall completes. Round ${match.round} begins.`);
 }
 
 function applyEvent(state: GameState, event: GameEvent): string | null {
@@ -275,9 +338,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       }
     }
     state.match.activity.push(`${actor.displayName} sends an Agent to ${space.name}, ${resolution}.`);
-    if (!state.match.pendingChoice) {
-      state.match.currentPlayerIndex = (state.match.currentPlayerIndex + 1) % state.match.playerOrder.length;
-    }
+    if (!state.match.pendingChoice) advanceToNextAgentPlayer(state.match);
     return null;
   }
 
@@ -302,7 +363,71 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       state.match.activity.push(`${actor.displayName} keeps their Gold.`);
     }
     state.match.pendingChoice = null;
-    state.match.currentPlayerIndex = (state.match.currentPlayerIndex + 1) % state.match.playerOrder.length;
+    advanceToNextAgentPlayer(state.match);
+    return null;
+  }
+
+  if (event.type === 'turn/revealed') {
+    if (
+      state.phase !== 'playing' ||
+      !state.match ||
+      state.match.turnMode !== 'agent' ||
+      state.match.pendingChoice ||
+      currentPlayerUid(state) !== event.actorUid
+    ) return 'illegal Reveal';
+    const player = state.match.players[event.actorUid];
+    player.muster.push(...player.hand.splice(0));
+    player.revealInfluence = player.muster.reduce((total, card) =>
+      total + (MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === card.definitionId)?.muster.influence ?? 0), 0);
+    player.revealedSwords = player.muster.reduce((total, card) =>
+      total + (MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === card.definitionId)?.muster.swords ?? 0), 0);
+    state.match.turnMode = 'reveal';
+    state.match.activity.push(`${actor.displayName} Reveals ${player.muster.length} cards for ${player.revealInfluence} Influence and ${player.revealedSwords} swords.`);
+    return null;
+  }
+
+  if (event.type === 'card/acquired') {
+    const definitionId = event.payload.definitionId;
+    if (
+      state.phase !== 'playing' ||
+      !state.match ||
+      state.match.turnMode !== 'reveal' ||
+      currentPlayerUid(state) !== event.actorUid ||
+      typeof definitionId !== 'string'
+    ) return 'illegal acquisition';
+    const definition = RESERVE_CARD_DEFINITIONS.find((card) => card.id === definitionId);
+    const player = state.match.players[event.actorUid];
+    if (!definition || definition.cost > player.revealInfluence || state.match.reserveSupply[definition.id] < 1) {
+      return 'illegal acquisition';
+    }
+    const copy = definition.copies - state.match.reserveSupply[definition.id] + 1;
+    state.match.reserveSupply[definition.id] -= 1;
+    player.revealInfluence -= definition.cost;
+    player.renown += definition.onAcquireRenown;
+    player.discardPile.push({ id: `reserve:${definition.id}:${copy}`, definitionId: definition.id });
+    state.match.activity.push(`${actor.displayName} acquires ${definition.name} for ${definition.cost} Influence.`);
+    return null;
+  }
+
+  if (event.type === 'reveal/finished') {
+    if (
+      state.phase !== 'playing' ||
+      !state.match ||
+      state.match.turnMode !== 'reveal' ||
+      currentPlayerUid(state) !== event.actorUid
+    ) return 'illegal Reveal finish';
+    const player = state.match.players[event.actorUid];
+    player.discardPile.push(...player.journey.splice(0), ...player.muster.splice(0));
+    player.revealInfluence = 0;
+    player.revealedSwords = 0;
+    player.revealedThisRound = true;
+    state.match.turnMode = 'agent';
+    state.match.activity.push(`${actor.displayName} finishes their Reveal turn.`);
+    if (state.match.playerOrder.every((uid) => state.match!.players[uid].revealedThisRound)) {
+      recallAndBeginNextRound(state.match);
+    } else {
+      advanceToNextAgentPlayer(state.match);
+    }
     return null;
   }
 

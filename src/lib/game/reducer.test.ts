@@ -18,6 +18,30 @@ function readyRoom(seed = 'road-2') {
   return events;
 }
 
+function completedAgentRound() {
+  const setup = readyRoom();
+  const started = reduceGame(setup);
+  const [roadActor, dwarfActor, shadowActor] = started.match!.playerOrder;
+  const road = started.match!.players[roadActor].hand.find((card) => card.definitionId === 'the-open-road')!;
+  const roadEvent = createEvent('agent/placed', roadActor, 5, { cardInstanceId: road.id, spaceId: 'take-war-effort' }, 11);
+  const afterRoad = reduceGame([...setup, roadEvent]);
+  const dwarf = afterRoad.match!.players[dwarfActor].hand.find((card) => card.definitionId === 'diplomatic-mission')!;
+  const dwarfEvent = createEvent('agent/placed', dwarfActor, 5, { cardInstanceId: dwarf.id, spaceId: 'dwarven-caravans' }, 12);
+  const afterDwarf = reduceGame([...setup, roadEvent, dwarfEvent]);
+  const shadow = afterDwarf.match!.players[shadowActor].hand.find((card) => card.definitionId === 'diplomatic-mission')!;
+  const shadowEvent = createEvent('agent/placed', shadowActor, 5, { cardInstanceId: shadow.id, spaceId: 'tribute-shadow' }, 13);
+  const beforeMuster = reduceGame([...setup, roadEvent, dwarfEvent, shadowEvent]);
+  const escort = beforeMuster.match!.players[roadActor].hand.find((card) => card.definitionId === 'armed-escort')!;
+  return {
+    order: { roadActor, dwarfActor, shadowActor },
+    events: [
+      ...setup, roadEvent, dwarfEvent, shadowEvent,
+      createEvent('agent/placed', roadActor, 6, { cardInstanceId: escort.id, spaceId: 'muster-free-peoples' }, 14),
+      createEvent('choice/resolved', roadActor, 7, { choice: 'pay-2-gold' }, 15)
+    ]
+  };
+}
+
 describe('integrated Agent placement replay', () => {
   it('creates a deterministic three-player match with conserved starting cards', () => {
     const first = reduceGame(readyRoom());
@@ -161,5 +185,77 @@ describe('integrated Agent placement replay', () => {
     const rejected = reduceGame([...events, createEvent('choice/resolved', state.match!.playerOrder[1], 5, { choice: 'pay-2-gold' }, 11)]);
     expect(rejected.diagnostics.at(-1)).toContain('illegal choice resolution');
     expect(rejected.match!.players[actor].resources.gold).toBe(0);
+  });
+
+  it('Reveals, acquires from the Reserve, Recalls, and deterministically reshuffles', () => {
+    const completed = completedAgentRound();
+    const { roadActor, dwarfActor, shadowActor } = completed.order;
+    const dwarfReveal = createEvent('turn/revealed', dwarfActor, 6, {}, 16);
+    const revealed = reduceGame([...completed.events, dwarfReveal]);
+    expect(revealed.match!.turnMode).toBe('reveal');
+    expect(revealed.match!.players[dwarfActor].hand).toEqual([]);
+    expect(revealed.match!.players[dwarfActor].muster).toHaveLength(4);
+    expect(revealed.match!.players[dwarfActor].revealInfluence).toBe(4);
+    expect(revealed.match!.players[dwarfActor].revealedSwords).toBe(1);
+
+    const acquire = createEvent('card/acquired', dwarfActor, 7, { definitionId: 'muster-host' }, 17);
+    const acquired = reduceGame([...completed.events, dwarfReveal, acquire]);
+    expect(acquired.match!.reserveSupply['muster-host']).toBe(7);
+    expect(acquired.match!.players[dwarfActor].revealInfluence).toBe(2);
+    expect(acquired.match!.players[dwarfActor].discardPile).toContainEqual({
+      id: 'reserve:muster-host:1', definitionId: 'muster-host'
+    });
+
+    const firstFinish = createEvent('reveal/finished', dwarfActor, 8, {}, 18);
+    const shadowReveal = createEvent('turn/revealed', shadowActor, 6, {}, 19);
+    const shadowFinish = createEvent('reveal/finished', shadowActor, 7, {}, 20);
+    const roadReveal = createEvent('turn/revealed', roadActor, 8, {}, 21);
+    const roadFinish = createEvent('reveal/finished', roadActor, 9, {}, 22);
+    const roundTwoEvents = [...completed.events, dwarfReveal, acquire, firstFinish, shadowReveal, shadowFinish, roadReveal, roadFinish];
+    const roundTwo = reduceGame(roundTwoEvents);
+    expect(roundTwo.diagnostics).toEqual([]);
+    expect(roundTwo.match!.round).toBe(2);
+    expect(roundTwo.match!.boardAgents).toEqual({});
+    expect(currentPlayerUid(roundTwo)).toBe(dwarfActor);
+    for (const player of Object.values(roundTwo.match!.players)) {
+      expect(player.availableAgents).toBe(2);
+      expect(player.hand).toHaveLength(5);
+      expect(player.revealedThisRound).toBe(false);
+    }
+
+    const roundThreeEvents = [...roundTwoEvents];
+    const sequences: Record<string, number> = { [roadActor]: 9, [dwarfActor]: 8, [shadowActor]: 7 };
+    let timestamp = 23;
+    for (const actorUid of [dwarfActor, shadowActor, roadActor]) {
+      sequences[actorUid] += 1;
+      roundThreeEvents.push(createEvent('turn/revealed', actorUid, sequences[actorUid], {}, timestamp++));
+      sequences[actorUid] += 1;
+      roundThreeEvents.push(createEvent('reveal/finished', actorUid, sequences[actorUid], {}, timestamp++));
+    }
+    const roundThree = reduceGame(roundThreeEvents);
+    expect(roundThree.diagnostics).toEqual([]);
+    expect(roundThree.match!.round).toBe(3);
+    const dwarfCards = [
+      ...roundThree.match!.players[dwarfActor].hand,
+      ...roundThree.match!.players[dwarfActor].drawPile,
+      ...roundThree.match!.players[dwarfActor].discardPile
+    ];
+    expect(dwarfCards).toHaveLength(11);
+    expect(dwarfCards.filter((card) => card.definitionId === 'muster-host')).toHaveLength(1);
+    expect(new Set(dwarfCards.map((card) => card.id)).size).toBe(11);
+    expect(roundThree.match!.players[dwarfActor].hand.some((card) => card.definitionId === 'muster-host')).toBe(true);
+  });
+
+  it('rejects unavailable Reserve definitions without mutating the player', () => {
+    const completed = completedAgentRound();
+    const actor = completed.order.dwarfActor;
+    const state = reduceGame([
+      ...completed.events,
+      createEvent('turn/revealed', actor, 6, {}, 16),
+      createEvent('card/acquired', actor, 7, { definitionId: 'deed-worthy-song' }, 17)
+    ]);
+    expect(state.diagnostics.at(-1)).toContain('illegal acquisition');
+    expect(state.match!.reserveSupply['muster-host']).toBe(8);
+    expect(state.match!.players[actor].renown).toBe(0);
   });
 });

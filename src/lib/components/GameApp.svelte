@@ -180,6 +180,37 @@
     }
   }
 
+  async function revealTurn() {
+    busy = true;
+    try {
+      selectedCardId = '';
+      await append('turn/revealed', {});
+      message = 'Your remaining hand is face up for Muster and acquisition.';
+    } finally {
+      busy = false;
+    }
+  }
+
+  async function acquireCard(definitionId: string) {
+    busy = true;
+    try {
+      await append('card/acquired', { definitionId });
+      message = 'The acquired card enters your discard pile.';
+    } finally {
+      busy = false;
+    }
+  }
+
+  async function finishReveal() {
+    busy = true;
+    try {
+      await append('reveal/finished', {});
+      message = 'Reveal complete. Journey and Muster cards enter the discard pile.';
+    } finally {
+      busy = false;
+    }
+  }
+
   onMount(() => {
     roomCodeInput = normalizeRoomCode(new URLSearchParams(location.search).get('room') ?? '');
     void initializeFirebase()
@@ -224,14 +255,17 @@
       onSelectCard={(cardId) => (selectedCardId = cardId)}
       onPlaceAgent={placeAgent}
       onResolveChoice={resolveChoice}
+      onReveal={revealTurn}
+      onAcquire={acquireCard}
+      onFinishReveal={finishReveal}
     />
   {:else}
     <section class="lobby" aria-labelledby="lobby-title">
-      <p class="eyebrow">Integrated construction game · Tracer 1</p>
+      <p class="eyebrow">Integrated construction game</p>
       <h1 id="lobby-title">Gather at the real table.</h1>
       <p class="lede">
         This preview grows one final capability at a time. Tracer 1 supports a real seeded room,
-        production board, private starting hand, faction actions, and the first complete Roads action.
+        production board, private decks, ordinary Agent actions, Reveal, acquisition, reshuffle, and Recall.
       </p>
 
       {#if !game.roomCode}
