@@ -184,6 +184,24 @@ export type MatchState = {
     resumeTurn: 'agent' | 'reveal';
     options: readonly string[];
   } | {
+    kind: 'divided-counsel-opponent';
+    actorUid: string;
+    resumeTurn: 'agent' | 'reveal';
+    options: readonly string[];
+  } | {
+    kind: 'divided-counsel-response';
+    actorUid: string;
+    fateActorUid: string;
+    resumeTurn: 'agent' | 'reveal';
+    options: readonly ('lose-1-gold' | 'reveal-hand')[];
+  } | {
+    kind: 'divided-counsel-review';
+    actorUid: string;
+    targetUid: string;
+    cardInstanceIds: readonly string[];
+    resumeTurn: 'agent' | 'reveal';
+    options: readonly ['finish-review'];
+  } | {
     kind: 'gather-intelligence';
     actorUid: string;
     cardInstanceId: string;
@@ -296,6 +314,8 @@ function createMatch(state: GameState, seed: string): MatchState {
           ? 'gifts-tokens'
         : index === 10 || index === 11
           ? 'tidings-afar'
+        : index === 12 || index === 15
+          ? 'divided-counsel'
         : index === 9 || index === 29
           ? 'hold-line'
           : index === 13 || index === 14
@@ -1091,7 +1111,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       !state.match ||
       !pending ||
       pending.actorUid !== event.actorUid ||
-      (pending.kind !== 'critical-defense' && currentPlayerUid(state) !== event.actorUid) ||
+      (pending.kind !== 'critical-defense' && pending.kind !== 'divided-counsel-response' && currentPlayerUid(state) !== event.actorUid) ||
       typeof choice !== 'string' ||
       !pending.options.some((option) => option === choice)
     ) return 'illegal choice resolution';
@@ -1143,6 +1163,47 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       player.drawPile.unshift(returned);
       state.match.pendingChoice = null;
       state.match.activity.push(`${actor.displayName} puts one private card on top of their deck to complete Tidings from Afar and resumes their ${pending.resumeTurn === 'agent' ? 'Agent' : 'Reveal'} turn.`);
+      return null;
+    }
+    if (pending.kind === 'divided-counsel-opponent') {
+      const targetUid = choice.slice('opponent:'.length);
+      if (targetUid === event.actorUid || !state.match.playerOrder.includes(targetUid)) return 'illegal choice resolution';
+      const target = state.match.players[targetUid];
+      const options: ('lose-1-gold' | 'reveal-hand')[] = target.resources.gold >= 1
+        ? ['lose-1-gold', 'reveal-hand']
+        : ['reveal-hand'];
+      state.match.pendingChoice = {
+        kind: 'divided-counsel-response',
+        actorUid: targetUid,
+        fateActorUid: event.actorUid,
+        resumeTurn: pending.resumeTurn,
+        options
+      };
+      state.match.activity.push(`${actor.displayName} chooses ${state.players.find((candidate) => candidate.uid === targetUid)?.displayName ?? 'an opponent'} for Divided Counsel.`);
+      return null;
+    }
+    if (pending.kind === 'divided-counsel-response') {
+      if (choice === 'lose-1-gold') {
+        if (player.resources.gold < 1) return 'illegal choice resolution';
+        player.resources.gold -= 1;
+        state.match.pendingChoice = null;
+        state.match.activity.push(`${actor.displayName} loses 1 Gold to Divided Counsel. ${state.players.find((candidate) => candidate.uid === pending.fateActorUid)?.displayName ?? 'The Fate player'} resumes their ${pending.resumeTurn === 'agent' ? 'Agent' : 'Reveal'} turn.`);
+      } else {
+        state.match.pendingChoice = {
+          kind: 'divided-counsel-review',
+          actorUid: pending.fateActorUid,
+          targetUid: event.actorUid,
+          cardInstanceIds: player.hand.map((card) => card.id),
+          resumeTurn: pending.resumeTurn,
+          options: ['finish-review']
+        };
+        state.match.activity.push(`${actor.displayName} reveals their hand only to ${state.players.find((candidate) => candidate.uid === pending.fateActorUid)?.displayName ?? 'the Fate player'}.`);
+      }
+      return null;
+    }
+    if (pending.kind === 'divided-counsel-review') {
+      state.match.pendingChoice = null;
+      state.match.activity.push(`${actor.displayName} finishes reviewing the Divided Counsel hand and resumes their ${pending.resumeTurn === 'agent' ? 'Agent' : 'Reveal'} turn.`);
       return null;
     }
     if (pending.kind === 'fangorn-moot') {
@@ -1608,11 +1669,19 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
           options: cardInstanceIds.map((id) => `top-deck:${id}`)
         };
         state.match.activity.push(`${actor.displayName} plays ${definition.name} during their ${resumeTurn === 'agent' ? 'Agent' : 'Reveal'} turn, draws ${drawn} cards, and must put 1 card on top of their deck.`);
+      } else if (definition.effect.kind === 'opponent-gold-or-reveal') {
+        state.match.pendingChoice = {
+          kind: 'divided-counsel-opponent',
+          actorUid: event.actorUid,
+          resumeTurn: state.match.turnMode,
+          options: state.match.playerOrder.filter((uid) => uid !== event.actorUid).map((uid) => `opponent:${uid}`)
+        };
+        state.match.activity.push(`${actor.displayName} plays ${definition.name} during their ${state.match.turnMode === 'agent' ? 'Agent' : 'Reveal'} turn and must choose an opponent.`);
       }
       return null;
     }
     if (state.match.turnMode !== 'battle' || !state.match.battleParticipantUids.includes(event.actorUid)) return 'illegal Fate play';
-    if (definition.effect.kind === 'place-scout' || definition.effect.kind === 'draw-discard' || definition.effect.kind === 'choose-resources' || definition.effect.kind === 'draw-top-deck') return 'illegal Fate play';
+    if (definition.effect.kind === 'place-scout' || definition.effect.kind === 'draw-discard' || definition.effect.kind === 'choose-resources' || definition.effect.kind === 'draw-top-deck' || definition.effect.kind === 'opponent-gold-or-reveal') return 'illegal Fate play';
     if (definition.effect.kind === 'desperate-valor' && (state.match.battleCompanies[event.actorUid] ?? 0) < definition.effect.returnCompanies) {
       return 'illegal Fate play';
     }

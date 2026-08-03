@@ -64,6 +64,7 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'chance-meeting')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'gifts-tokens')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'tidings-afar')).toHaveLength(2);
+    expect(first.match!.fateDeck.filter((card) => card.definitionId === 'divided-counsel')).toHaveLength(2);
     const rejectedFate = reduceGame([...readyRoom(), createEvent('fate/played', currentPlayerUid(first)!, 5, { cardInstanceId: 'fate:1' }, 11)]);
     expect(rejectedFate.diagnostics.at(-1)).toContain('illegal Fate play');
     expect(rejectedFate.match!.fateDiscard).toEqual([]);
@@ -1587,6 +1588,79 @@ describe('integrated Agent placement replay', () => {
       ...resumed.match!.players[actor].muster,
       ...resumed.match!.players[actor].trashPile
     ]).toHaveLength(10);
+  });
+
+  it('lets the chosen Divided Counsel opponent lose Gold or reveal their hand out of turn', () => {
+    const buildCounsel = () => {
+      const stream = readyRoom('divided-10');
+      const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+      let timestamp = 11;
+      const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+        sequences[uid] += 1;
+        stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+      };
+      let state = reduceGame(stream);
+      const fateActor = currentPlayerUid(state)!;
+      const escort = state.match!.players[fateActor].hand.find((card) => card.definitionId === 'armed-escort')!;
+      append(fateActor, 'agent/placed', { cardInstanceId: escort.id, spaceId: 'hall-fire' });
+      state = reduceGame(stream);
+      const target = currentPlayerUid(state)!;
+      const mission = state.match!.players[target].hand.find((card) => legalAgentSpaces(state, target, card.id).includes('tribute-shadow'))!;
+      append(target, 'agent/placed', { cardInstanceId: mission.id, spaceId: 'tribute-shadow' });
+      state = reduceGame(stream);
+      const third = currentPlayerUid(state)!;
+      append(third, 'turn/revealed', {});
+      append(third, 'reveal/finished', {});
+      state = reduceGame(stream);
+      expect(currentPlayerUid(state)).toBe(fateActor);
+      expect(state.match!.players[target].resources.gold).toBe(2);
+      const fate = state.match!.players[fateActor].fateHand.find((card) => card.definitionId === 'divided-counsel')!;
+      append(fateActor, 'fate/played', { cardInstanceId: fate.id });
+      expect(reduceGame(stream).match!.pendingChoice).toEqual({
+        kind: 'divided-counsel-opponent',
+        actorUid: fateActor,
+        resumeTurn: 'agent',
+        options: state.match!.playerOrder.filter((uid) => uid !== fateActor).map((uid) => `opponent:${uid}`)
+      });
+      append(fateActor, 'choice/resolved', { choice: `opponent:${target}` });
+      expect(reduceGame(stream).match!.pendingChoice).toEqual({
+        kind: 'divided-counsel-response',
+        actorUid: target,
+        fateActorUid: fateActor,
+        resumeTurn: 'agent',
+        options: ['lose-1-gold', 'reveal-hand']
+      });
+      return { stream, sequences, timestamp, append, fateActor, target, fate };
+    };
+
+    const paid = buildCounsel();
+    paid.append(paid.target, 'choice/resolved', { choice: 'lose-1-gold' });
+    const afterPayment = reduceGame(paid.stream);
+    expect(afterPayment.diagnostics).toEqual([]);
+    expect(afterPayment.match!.players[paid.target].resources.gold).toBe(1);
+    expect(afterPayment.match!.pendingChoice).toBeNull();
+    expect(afterPayment.match!.fateDiscard.at(-1)).toEqual(paid.fate);
+    expect(currentPlayerUid(afterPayment)).toBe(paid.fateActor);
+
+    const revealed = buildCounsel();
+    const targetHand = reduceGame(revealed.stream).match!.players[revealed.target].hand.map((card) => card.id);
+    revealed.append(revealed.target, 'choice/resolved', { choice: 'reveal-hand' });
+    const review = reduceGame(revealed.stream);
+    expect(review.diagnostics).toEqual([]);
+    expect(review.match!.pendingChoice).toEqual({
+      kind: 'divided-counsel-review',
+      actorUid: revealed.fateActor,
+      targetUid: revealed.target,
+      cardInstanceIds: targetHand,
+      resumeTurn: 'agent',
+      options: ['finish-review']
+    });
+    revealed.append(revealed.fateActor, 'choice/resolved', { choice: 'finish-review' });
+    const afterReview = reduceGame(revealed.stream);
+    expect(afterReview.diagnostics).toEqual([]);
+    expect(afterReview.match!.players[revealed.target].resources.gold).toBe(2);
+    expect(afterReview.match!.pendingChoice).toBeNull();
+    expect(currentPlayerUid(afterReview)).toBe(revealed.fateActor);
   });
 
   it('runs a three-player Battle from legal deployments through ranked rewards and cleanup', () => {

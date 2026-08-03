@@ -293,7 +293,7 @@ export const BATTLE_CARD_DEFINITIONS: readonly BattleCardDefinition[] = [
 ];
 
 export type FateCardDefinition = {
-  id: 'secret-ways' | 'chance-meeting' | 'gifts-tokens' | 'tidings-afar' | 'sudden-charge' | 'hold-line' | 'hidden-archers' | 'reinforcements' | 'desperate-valor';
+  id: 'secret-ways' | 'chance-meeting' | 'gifts-tokens' | 'tidings-afar' | 'divided-counsel' | 'sudden-charge' | 'hold-line' | 'hidden-archers' | 'reinforcements' | 'desperate-valor';
   name: string;
   copies: 2;
   timing: 'Plot' | 'Combat';
@@ -302,6 +302,7 @@ export type FateCardDefinition = {
     | { kind: 'draw-discard'; draw: 1; discard: 1 }
     | { kind: 'choose-resources'; gainGold: 2; payGold: 2; gainMithril: 1; gainProvision: 1 }
     | { kind: 'draw-top-deck'; draw: 2; topDeck: 1 }
+    | { kind: 'opponent-gold-or-reveal'; loseGold: 1 }
     | { kind: 'gain-battle-strength'; amount: 3 }
     | { kind: 'hold-line'; amount: 2; controlledLocationBonus: 2 }
     | { kind: 'hidden-archers'; maximum: 3 }
@@ -341,6 +342,14 @@ export const FATE_CARD_DEFINITIONS: readonly FateCardDefinition[] = [
     copies: 2,
     timing: 'Plot',
     effect: { kind: 'draw-top-deck', draw: 2, topDeck: 1 },
+    reviewedCapabilities: ['plot-fate']
+  },
+  {
+    id: 'divided-counsel',
+    name: 'Divided Counsel',
+    copies: 2,
+    timing: 'Plot',
+    effect: { kind: 'opponent-gold-or-reveal', loseGold: 1 },
     reviewedCapabilities: ['plot-fate']
   },
   {
