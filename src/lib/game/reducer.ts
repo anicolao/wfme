@@ -173,6 +173,11 @@ export type MatchState = {
     resumeTurn: 'agent' | 'reveal';
     options: readonly string[];
   } | {
+    kind: 'gifts-tokens';
+    actorUid: string;
+    resumeTurn: 'agent' | 'reveal';
+    options: readonly ('gain-2-gold' | 'pay-2-gold')[];
+  } | {
     kind: 'gather-intelligence';
     actorUid: string;
     cardInstanceId: string;
@@ -281,6 +286,8 @@ function createMatch(state: GameState, seed: string): MatchState {
           ? 'secret-ways'
         : index === 5 || index === 6
           ? 'chance-meeting'
+        : index === 7 || index === 8
+          ? 'gifts-tokens'
         : index === 9 || index === 29
           ? 'hold-line'
           : index === 13 || index === 14
@@ -1104,6 +1111,21 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       state.match.activity.push(`${actor.displayName} discards one private card to complete A Chance Meeting and resumes their ${pending.resumeTurn === 'agent' ? 'Agent' : 'Reveal'} turn.`);
       return null;
     }
+    if (pending.kind === 'gifts-tokens') {
+      if (choice === 'pay-2-gold') {
+        if (player.resources.gold < 2) return 'illegal choice resolution';
+        player.resources.gold -= 2;
+        player.resources.mithril += 1;
+        player.resources.provisions += 1;
+        state.match.activity.push(`${actor.displayName} pays 2 Gold and gains 1 Mithril and 1 Provision from Gifts and Tokens.`);
+      } else {
+        player.resources.gold += 2;
+        state.match.activity.push(`${actor.displayName} gains 2 Gold from Gifts and Tokens.`);
+      }
+      state.match.pendingChoice = null;
+      state.match.activity.push(`${actor.displayName} resumes their ${pending.resumeTurn === 'agent' ? 'Agent' : 'Reveal'} turn.`);
+      return null;
+    }
     if (pending.kind === 'fangorn-moot') {
       if (choice === 'take-ent-draught') {
         if (player.entDraught) return 'illegal choice resolution';
@@ -1542,11 +1564,21 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
           };
         }
         state.match.activity.push(`${actor.displayName} plays ${definition.name} during their ${resumeTurn === 'agent' ? 'Agent' : 'Reveal'} turn, draws ${drawn ? '1 card' : 'no card'}, and must discard 1 card.`);
+      } else if (definition.effect.kind === 'choose-resources') {
+        const options: ('gain-2-gold' | 'pay-2-gold')[] = ['gain-2-gold'];
+        if (player.resources.gold >= definition.effect.payGold) options.push('pay-2-gold');
+        state.match.pendingChoice = {
+          kind: 'gifts-tokens',
+          actorUid: event.actorUid,
+          resumeTurn: state.match.turnMode,
+          options
+        };
+        state.match.activity.push(`${actor.displayName} plays ${definition.name} during their ${state.match.turnMode === 'agent' ? 'Agent' : 'Reveal'} turn and must choose its resource gift.`);
       }
       return null;
     }
     if (state.match.turnMode !== 'battle' || !state.match.battleParticipantUids.includes(event.actorUid)) return 'illegal Fate play';
-    if (definition.effect.kind === 'place-scout' || definition.effect.kind === 'draw-discard') return 'illegal Fate play';
+    if (definition.effect.kind === 'place-scout' || definition.effect.kind === 'draw-discard' || definition.effect.kind === 'choose-resources') return 'illegal Fate play';
     if (definition.effect.kind === 'desperate-valor' && (state.match.battleCompanies[event.actorUid] ?? 0) < definition.effect.returnCompanies) {
       return 'illegal Fate play';
     }

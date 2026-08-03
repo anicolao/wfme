@@ -62,6 +62,7 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'reinforcements')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'desperate-valor')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'chance-meeting')).toHaveLength(2);
+    expect(first.match!.fateDeck.filter((card) => card.definitionId === 'gifts-tokens')).toHaveLength(2);
     const rejectedFate = reduceGame([...readyRoom(), createEvent('fate/played', currentPlayerUid(first)!, 5, { cardInstanceId: 'fate:1' }, 11)]);
     expect(rejectedFate.diagnostics.at(-1)).toContain('illegal Fate play');
     expect(rejectedFate.match!.fateDiscard).toEqual([]);
@@ -1470,6 +1471,60 @@ describe('integrated Agent placement replay', () => {
       ...resumed.match!.players[actor].muster,
       ...resumed.match!.players[actor].trashPile
     ]).toHaveLength(10);
+  });
+
+  it('resolves both Gifts and Tokens resource branches and resumes the same turn', () => {
+    const buildGiftChoice = () => {
+      const stream = readyRoom('gifts-34');
+      const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+      let timestamp = 11;
+      const appendCurrent = (type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+        const state = reduceGame(stream);
+        const uid = currentPlayerUid(state)!;
+        sequences[uid] += 1;
+        stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+      };
+      const started = reduceGame(stream);
+      const actor = currentPlayerUid(started)!;
+      const mission = started.match!.players[actor].hand.find((card) => card.definitionId === 'diplomatic-mission');
+      const escort = started.match!.players[actor].hand.find((card) => card.definitionId === 'armed-escort');
+      expect(mission).toBeDefined();
+      expect(escort).toBeDefined();
+      appendCurrent('agent/placed', { cardInstanceId: mission!.id, spaceId: 'tribute-shadow' });
+      for (let other = 0; other < 2; other += 1) {
+        appendCurrent('turn/revealed', {});
+        appendCurrent('reveal/finished', {});
+      }
+      expect(currentPlayerUid(reduceGame(stream))).toBe(actor);
+      appendCurrent('agent/placed', { cardInstanceId: escort!.id, spaceId: 'hall-fire' });
+      const beforePlay = reduceGame(stream);
+      expect(beforePlay.match!.players[actor].resources.gold).toBe(2);
+      const fate = beforePlay.match!.players[actor].fateHand.find((card) => card.definitionId === 'gifts-tokens')!;
+      appendCurrent('fate/played', { cardInstanceId: fate.id });
+      expect(reduceGame(stream).match!.pendingChoice).toEqual({
+        kind: 'gifts-tokens', actorUid: actor, resumeTurn: 'agent', options: ['gain-2-gold', 'pay-2-gold']
+      });
+      return { stream, sequences, timestamp, actor, fate };
+    };
+
+    const goldGift = buildGiftChoice();
+    goldGift.sequences[goldGift.actor] += 1;
+    goldGift.stream.push(createEvent('choice/resolved', goldGift.actor, goldGift.sequences[goldGift.actor], { choice: 'gain-2-gold' }, goldGift.timestamp));
+    const afterGold = reduceGame(goldGift.stream);
+    expect(afterGold.diagnostics).toEqual([]);
+    expect(afterGold.match!.players[goldGift.actor].resources.gold).toBe(4);
+    expect(afterGold.match!.pendingChoice).toBeNull();
+    expect(currentPlayerUid(afterGold)).toBe(goldGift.actor);
+
+    const tokenGift = buildGiftChoice();
+    tokenGift.sequences[tokenGift.actor] += 1;
+    tokenGift.stream.push(createEvent('choice/resolved', tokenGift.actor, tokenGift.sequences[tokenGift.actor], { choice: 'pay-2-gold' }, tokenGift.timestamp));
+    const afterTokens = reduceGame(tokenGift.stream);
+    expect(afterTokens.diagnostics).toEqual([]);
+    expect(afterTokens.match!.players[tokenGift.actor].resources).toMatchObject({ gold: 0, mithril: 1, provisions: 2 });
+    expect(afterTokens.match!.fateDiscard.at(-1)).toEqual(tokenGift.fate);
+    expect(afterTokens.match!.pendingChoice).toBeNull();
+    expect(currentPlayerUid(afterTokens)).toBe(tokenGift.actor);
   });
 
   it('runs a three-player Battle from legal deployments through ranked rewards and cleanup', () => {
