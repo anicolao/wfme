@@ -211,6 +211,11 @@ export type MatchState = {
     resumeTurn: 'agent' | 'reveal';
     options: readonly string[];
   } | {
+    kind: 'fell-sorcery';
+    actorUid: string;
+    strengthLoss: number;
+    options: readonly string[];
+  } | {
     kind: 'gather-intelligence';
     actorUid: string;
     cardInstanceId: string;
@@ -321,6 +326,8 @@ function createMatch(state: GameState, seed: string): MatchState {
       id: `fate:${index + 1}`,
       definitionId: index < 2
         ? 'sudden-charge'
+        : index === 18 || index === 22
+          ? 'fell-sorcery'
         : index === 2 || index === 3
           ? 'secret-ways'
         : index === 5 || index === 6
@@ -557,7 +564,7 @@ export function battleStrength(match: MatchState, uid: string): number {
   const companies = match.battleCompanies[uid] ?? 0;
   const ents = match.battleEnts[uid] ?? 0;
   if (companies + ents < 1) return 0;
-  return companies * 2 + ents * 3 + match.players[uid].revealedSwords + (match.battleBonusStrength[uid] ?? 0);
+  return Math.max(0, companies * 2 + ents * 3 + match.players[uid].revealedSwords + (match.battleBonusStrength[uid] ?? 0));
 }
 
 function clockwiseParticipants(match: MatchState): string[] {
@@ -1241,6 +1248,17 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       state.match.activity.push(`${actor.displayName} puts ${cardName(cycled.definitionId)} on the bottom of the Chronicle deck, refills its place, and resumes their ${pending.resumeTurn === 'agent' ? 'Agent' : 'Reveal'} turn.`);
       return null;
     }
+    if (pending.kind === 'fell-sorcery') {
+      const targetUid = choice.slice('opponent:'.length);
+      if (targetUid === event.actorUid || !state.match.battleParticipantUids.includes(targetUid)) {
+        return 'illegal choice resolution';
+      }
+      state.match.battleBonusStrength[targetUid] = (state.match.battleBonusStrength[targetUid] ?? 0) - pending.strengthLoss;
+      state.match.pendingChoice = null;
+      state.match.consecutiveBattlePasses = 0;
+      state.match.activity.push(`${actor.displayName} chooses ${state.players.find((candidate) => candidate.uid === targetUid)?.displayName ?? 'an opponent'} to lose ${pending.strengthLoss} Strength to Fell Sorcery.`);
+      return null;
+    }
     if (pending.kind === 'fangorn-moot') {
       if (choice === 'take-ent-draught') {
         if (player.entDraught) return 'illegal choice resolution';
@@ -1760,10 +1778,27 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     if (definition.effect.kind === 'desperate-valor' && (state.match.battleCompanies[event.actorUid] ?? 0) < definition.effect.returnCompanies) {
       return 'illegal Fate play';
     }
+    if (definition.effect.kind === 'fell-sorcery') {
+      if (
+        player.resources.mithril < definition.effect.costMithril ||
+        !state.match.battleParticipantUids.some((uid) => uid !== event.actorUid)
+      ) return 'illegal Fate play';
+    }
     player.fateHand.splice(cardIndex, 1);
     state.match.fateDiscard.push(card);
     const activeBattle = BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === state.match!.activeBattleId);
     let strengthBonus = 0;
+    if (definition.effect.kind === 'fell-sorcery') {
+      player.resources.mithril -= definition.effect.costMithril;
+      state.match.pendingChoice = {
+        kind: 'fell-sorcery',
+        actorUid: event.actorUid,
+        strengthLoss: definition.effect.strengthLoss,
+        options: state.match.battleParticipantUids.filter((uid) => uid !== event.actorUid).map((uid) => `opponent:${uid}`)
+      };
+      state.match.activity.push(`${actor.displayName} plays ${definition.name}, pays ${definition.effect.costMithril} Mithril, and must choose an opposing Battle participant.`);
+      return null;
+    }
     if (definition.effect.kind === 'reinforcements') {
       if (player.companies.garrison >= definition.effect.deployCompanies) {
         player.companies.garrison -= definition.effect.deployCompanies;

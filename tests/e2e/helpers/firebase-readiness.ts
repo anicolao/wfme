@@ -9,6 +9,8 @@ export async function waitForFirebase(page: Page) {
 }
 
 export async function reloadGameClient(page: Page) {
+  await page.evaluate(() => { history.scrollRestoration = 'manual'; });
   await page.reload({ waitUntil: 'domcontentloaded', timeout: firebaseReadinessTimeout });
   await waitForFirebase(page);
+  await page.evaluate(() => scrollTo(0, 0));
 }

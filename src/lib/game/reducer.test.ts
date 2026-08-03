@@ -66,6 +66,7 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'tidings-afar')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'divided-counsel')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'long-memory')).toHaveLength(2);
+    expect(first.match!.fateDeck.filter((card) => card.definitionId === 'fell-sorcery')).toHaveLength(2);
     expect(first.match!.chronicleRow).toHaveLength(5);
     expect(first.match!.chronicleDeck).toHaveLength(1);
     const chronicleInstances = [...first.match!.chronicleRow, ...first.match!.chronicleDeck];
@@ -1813,6 +1814,89 @@ describe('integrated Agent placement replay', () => {
     );
     expect(currentPlayerUid(resumed)).toBe(actor);
     expect(resumed.match!.turnMode).toBe('agent');
+  });
+
+  it('pays for Fell Sorcery, rejects friendly targets, and weakens one opposing Battle force', () => {
+    const stream = readyRoom('fell-11');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      sequences[uid] += 1;
+      stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+    };
+    let state = reduceGame(stream);
+    const caster = currentPlayerUid(state)!;
+    const hallCard = state.match!.players[caster].hand.find((card) => legalAgentSpaces(state, caster, card.id).includes('hall-fire'))!;
+    append(caster, 'agent/placed', { cardInstanceId: hallCard.id, spaceId: 'hall-fire' });
+    state = reduceGame(stream);
+    expect(state.match!.players[caster].fateHand).toContainEqual(expect.objectContaining({ definitionId: 'fell-sorcery' }));
+
+    const firstOpponent = currentPlayerUid(state)!;
+    const minasCard = state.match!.players[firstOpponent].hand.find((card) => legalAgentSpaces(state, firstOpponent, card.id).includes('minas-tirith'))!;
+    append(firstOpponent, 'agent/placed', { cardInstanceId: minasCard.id, spaceId: 'minas-tirith' });
+    append(firstOpponent, 'choice/resolved', { choice: 'deploy:1' });
+
+    state = reduceGame(stream);
+    const secondOpponent = currentPlayerUid(state)!;
+    const entwashCard = state.match!.players[secondOpponent].hand.find((card) => legalAgentSpaces(state, secondOpponent, card.id).includes('entwash'))!;
+    append(secondOpponent, 'agent/placed', { cardInstanceId: entwashCard.id, spaceId: 'entwash' });
+    append(secondOpponent, 'choice/resolved', { choice: 'gain-2-mithril' });
+    append(secondOpponent, 'choice/resolved', { choice: 'deploy:1' });
+
+    state = reduceGame(stream);
+    expect(currentPlayerUid(state)).toBe(caster);
+    const edorasCard = state.match!.players[caster].hand.find((card) => legalAgentSpaces(state, caster, card.id).includes('edoras'))!;
+    append(caster, 'agent/placed', { cardInstanceId: edorasCard.id, spaceId: 'edoras' });
+    append(caster, 'choice/resolved', { choice: 'deploy:1' });
+
+    for (let guard = 0; guard < 3; guard += 1) {
+      state = reduceGame(stream);
+      const actor = currentPlayerUid(state)!;
+      append(actor, 'turn/revealed', {});
+      append(actor, 'reveal/finished', {});
+    }
+    state = reduceGame(stream);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.turnMode).toBe('battle');
+    expect(state.match!.battleParticipantUids).toHaveLength(3);
+
+    for (let guard = 0; guard < 3 && currentPlayerUid(state) !== caster; guard += 1) {
+      append(currentPlayerUid(state)!, 'battle/passed', {});
+      state = reduceGame(stream);
+    }
+    expect(currentPlayerUid(state)).toBe(caster);
+    const fate = state.match!.players[caster].fateHand.find((card) => card.definitionId === 'fell-sorcery')!;
+    const mithrilBefore = state.match!.players[caster].resources.mithril;
+    const target = state.match!.battleParticipantUids.find((uid) => uid !== caster)!;
+    const strengthBefore = battleStrength(state.match!, target);
+    append(caster, 'fate/played', { cardInstanceId: fate.id });
+    const awaitingTarget = reduceGame(stream);
+    expect(awaitingTarget.diagnostics).toEqual([]);
+    expect(awaitingTarget.match!.players[caster].resources.mithril).toBe(mithrilBefore - 1);
+    expect(awaitingTarget.match!.players[caster].fateHand).not.toContainEqual(fate);
+    expect(awaitingTarget.match!.fateDiscard.at(-1)).toEqual(fate);
+    expect(awaitingTarget.match!.pendingChoice).toEqual({
+      kind: 'fell-sorcery',
+      actorUid: caster,
+      strengthLoss: 3,
+      options: awaitingTarget.match!.battleParticipantUids.filter((uid) => uid !== caster).map((uid) => `opponent:${uid}`)
+    });
+
+    const rejected = reduceGame([
+      ...stream,
+      createEvent('choice/resolved', caster, sequences[caster] + 1, { choice: `opponent:${caster}` }, timestamp)
+    ]);
+    expect(rejected.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(rejected.match!.pendingChoice).toEqual(awaitingTarget.match!.pendingChoice);
+    expect(battleStrength(rejected.match!, target)).toBe(strengthBefore);
+
+    append(caster, 'choice/resolved', { choice: `opponent:${target}` });
+    const resolved = reduceGame(stream);
+    expect(resolved.diagnostics).toEqual([]);
+    expect(resolved.match!.pendingChoice).toBeNull();
+    expect(battleStrength(resolved.match!, target)).toBe(Math.max(0, strengthBefore - 3));
+    expect(currentPlayerUid(resolved)).toBe(caster);
+    expect(resolved.match!.consecutiveBattlePasses).toBe(0);
   });
 
   it('runs a three-player Battle from legal deployments through ranked rewards and cleanup', () => {

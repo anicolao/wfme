@@ -17,6 +17,7 @@
   import { battleStrength, currentPlayerUid, legalAgentSpaces, type GameState } from '$lib/game/reducer';
 
   export let game: GameState;
+  export let busy = false;
   export let localUid: string;
   export let selectedCardId = '';
   export let onSelectCard: (cardId: string) => void;
@@ -80,6 +81,8 @@
       ? 'Deploy 1 garrison Company · otherwise +2 Strength'
       : definition.effect.kind === 'hidden-archers'
       ? 'Gain Strength for Scouts on the board · maximum 3'
+      : definition.effect.kind === 'fell-sorcery'
+      ? 'Pay 1 Mithril · choose an opponent to lose 3 Strength'
       : definition.effect.kind === 'hold-line'
       ? '+2 Strength · +2 more while controlling the contested location'
       : `+${definition.effect.amount} Strength`;
@@ -101,7 +104,7 @@
       <div><dt>Playable spaces</dt><dd>22 / 22</dd></div>
       <div><dt>Starting Agent boxes</dt><dd>5 / 7</dd></div>
       <div><dt>Chronicle cards</dt><dd>6 / 54</dd></div>
-      <div><dt>Fate effects</dt><dd>22 / 30</dd></div>
+      <div><dt>Fate effects</dt><dd>24 / 30</dd></div>
       <div><dt>Battle cards</dt><dd>10 / 16</dd></div>
       <div><dt>Commander powers</dt><dd>0 / 16</dd></div>
     </dl>
@@ -123,7 +126,7 @@
     {#if plotFate.length}
       <section class="battle-actions" data-testid="plot-fate-actions" aria-label="Plot Fate actions">
         {#each plotFate as playable}
-          <button type="button" data-testid={`play-fate-${playable.fate.id}`} onclick={() => onPlayFate(playable.fate.id)}>
+          <button type="button" data-testid={`play-fate-${playable.fate.id}`} disabled={busy} onclick={() => onPlayFate(playable.fate.id)}>
             Play {playable.definition.name} · {fateEffectText(playable.definition)}
           </button>
         {/each}
@@ -154,12 +157,12 @@
           {#each localMatch?.fateHand ?? [] as fate}
             {@const fateDefinition = FATE_CARD_DEFINITIONS.find((definition) => definition.id === fate.definitionId)}
             {#if fateDefinition?.timing === 'Combat'}
-              <button type="button" data-testid={`play-fate-${fate.id}`} disabled={currentUid !== localUid} onclick={() => onPlayFate(fate.id)}>
+              <button type="button" data-testid={`play-fate-${fate.id}`} disabled={currentUid !== localUid || busy} onclick={() => onPlayFate(fate.id)}>
                 Play {fateDefinition.name} · {fateEffectText(fateDefinition)}
               </button>
             {/if}
           {/each}
-          <button type="button" data-testid="pass-battle" disabled={currentUid !== localUid} onclick={onPassBattle}>Pass Combat Fate</button>
+          <button type="button" data-testid="pass-battle" disabled={currentUid !== localUid || busy} onclick={onPassBattle}>Pass Combat Fate</button>
         </div>
       {/if}
     </section>
@@ -355,7 +358,23 @@
     </div>
   </section>
 
-  {#if game.match?.pendingChoice && game.match.pendingChoice.kind !== 'place-scout'}
+  {#if game.match?.pendingChoice?.kind === 'fell-sorcery'}
+    <section class="pending-choice" data-testid="pending-choice" aria-labelledby="fell-sorcery-title">
+      <div>
+        <p class="eyebrow">Ordered Battle choice</p>
+        <h2 id="fell-sorcery-title">Whose Strength will Fell Sorcery break?</h2>
+        <p>The Mithril is paid and the Fate card is public. Choose one opposing Battle participant to lose 3 Strength before continuing the same Combat Fate turn.</p>
+      </div>
+      <div class="choice-actions">
+        {#each game.match.pendingChoice.options as option}
+          {@const targetUid = option.slice('opponent:'.length)}
+          <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid || busy} onclick={() => onResolveChoice(option)}>Choose {game.players.find((player) => player.uid === targetUid)?.displayName} · lose 3 Strength</button>
+        {/each}
+      </div>
+    </section>
+  {/if}
+
+  {#if game.match?.pendingChoice && game.match.pendingChoice.kind !== 'place-scout' && game.match.pendingChoice.kind !== 'fell-sorcery'}
     <section class="pending-choice" data-testid="pending-choice" aria-labelledby="choice-title">
       <div>
         <p class="eyebrow">Ordered {game.match.pendingChoice.kind === 'critical-defense' || game.match.pendingChoice.kind === 'battle-deployment' ? 'Battle' : game.match.pendingChoice.kind === 'plot-discard' || game.match.pendingChoice.kind === 'gifts-tokens' || game.match.pendingChoice.kind === 'tidings-afar' || game.match.pendingChoice.kind === 'long-memory' || game.match.pendingChoice.kind.startsWith('divided-counsel') ? 'Plot Fate' : game.match.pendingChoice.kind === 'fangorn-moot' ? 'Fangorn Moot' : game.match.pendingChoice.kind === 'deep-fangorn' ? 'Deep Fangorn' : game.match.pendingChoice.kind === 'entwash' ? 'Entwash' : game.match.pendingChoice.kind === 'osgiliath' ? 'Osgiliath' : game.match.pendingChoice.kind === 'great-forge' ? 'Great Forge' : game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Council' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'Ranger' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Scout' : game.match.pendingChoice.kind === 'elven-favor' ? 'Elven favor' : game.match.pendingChoice.kind.startsWith('secret-bargain') ? 'Secret Bargain' : 'Journey'} choice</p>

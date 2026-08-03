@@ -280,6 +280,7 @@
   {#if game.phase === 'playing'}
     <RealmBoard
       {game}
+      {busy}
       localUid={activeUid}
       {selectedCardId}
       onSelectCard={(cardId) => (selectedCardId = cardId)}
