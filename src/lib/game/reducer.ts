@@ -586,6 +586,9 @@ function applyBattleReward(match: MatchState, uid: string, rank: 0 | 1 | 2): voi
     if (reward.provisions) player.resources.provisions += reward.provisions;
     if (reward.recruitCompanies) recruitCompanies(player, reward.recruitCompanies);
     if (reward.renown) player.renown += reward.renown;
+    if (reward.dwarvenStanding) {
+      for (let step = 0; step < reward.dwarvenStanding; step += 1) gainStanding(match, player, 'dwarven');
+    }
     if (reward.drawFate) {
       const drawn = match.fateDeck.splice(0, reward.drawFate);
       player.fateHand.push(...drawn);

@@ -1899,6 +1899,69 @@ describe('integrated Agent placement replay', () => {
     expect(resolved.match!.consecutiveBattlePasses).toBe(0);
   });
 
+  it('plays Defence of Dale as a final Battle with exact Renown and Dwarven standing', () => {
+    const stream = readyRoom('defence-dale');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      sequences[uid] += 1;
+      stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+    };
+
+    for (let guard = 0; guard < 100; guard += 1) {
+      const state = reduceGame(stream);
+      if (state.match!.activeBattleId === 'defence-dale') break;
+      const current = currentPlayerUid(state)!;
+      if (state.match!.turnMode === 'reveal') append(current, 'reveal/finished', {});
+      else append(current, 'turn/revealed', {});
+    }
+    let state = reduceGame(stream);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.round).toBe(11);
+    expect(state.match!.activeBattleId).toBe('defence-dale');
+    const winner = currentPlayerUid(state)!;
+    const placement = state.match!.players[winner].hand.flatMap((card) =>
+      legalAgentSpaces(state, winner, card.id)
+        .filter((spaceId) => spaceId === 'minas-tirith' || spaceId === 'edoras')
+        .map((spaceId) => ({ card, spaceId }))
+    )[0];
+    expect(placement, 'the final Battle must be reached by a real Stronghold or Roads card').toBeDefined();
+    append(winner, 'agent/placed', { cardInstanceId: placement!.card.id, spaceId: placement!.spaceId });
+    state = reduceGame(stream);
+    if (state.match!.pendingChoice?.kind === 'place-scout') {
+      const emptyPost = OBSERVATION_POSTS.find((post) => !state.match!.boardScouts[post.id])!;
+      append(winner, 'scout/placed', { postId: emptyPost.id });
+      state = reduceGame(stream);
+    }
+    if (state.match!.pendingChoice?.kind === 'seek-allies') {
+      append(winner, 'choice/resolved', { choice: 'keep-card' });
+      state = reduceGame(stream);
+    }
+    expect(state.match!.pendingChoice?.kind).toBe('battle-deployment');
+    append(winner, 'choice/resolved', { choice: 'deploy:1' });
+
+    for (let guard = 0; guard < 10; guard += 1) {
+      state = reduceGame(stream);
+      if (state.match!.turnMode === 'battle') break;
+      const current = currentPlayerUid(state)!;
+      if (state.match!.turnMode === 'reveal') append(current, 'reveal/finished', {});
+      else append(current, 'turn/revealed', {});
+    }
+    const combat = reduceGame(stream);
+    expect(combat.diagnostics).toEqual([]);
+    expect(combat.match!.turnMode).toBe('battle');
+    expect(combat.match!.battleParticipantUids).toEqual([winner]);
+    const renownBefore = combat.match!.players[winner].renown;
+    const dwarvenBefore = combat.match!.players[winner].standing.dwarven;
+    append(winner, 'battle/passed', {});
+    const resolved = reduceGame(stream);
+    expect(resolved.diagnostics).toEqual([]);
+    expect(resolved.match!.battleHistory.at(-1)).toMatchObject({ battleId: 'defence-dale', winnerUid: winner });
+    expect(resolved.match!.players[winner].wonBattleIds).toContain('defence-dale');
+    expect(resolved.match!.players[winner].renown).toBe(renownBefore + 1);
+    expect(resolved.match!.players[winner].standing.dwarven).toBe(dwarvenBefore + 1);
+  });
+
   it('runs a three-player Battle from legal deployments through ranked rewards and cleanup', () => {
     const stream = readyRoom('battle-reinforce-4035');
     const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };

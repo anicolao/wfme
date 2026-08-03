@@ -58,7 +58,8 @@
       reward.mithril ? `${reward.mithril} Mithril` : '',
       reward.provisions ? `${reward.provisions} Provisions` : '',
       reward.recruitCompanies ? `recruit ${reward.recruitCompanies}` : '',
-      reward.drawFate ? `draw ${reward.drawFate} Fate` : ''
+      reward.drawFate ? `draw ${reward.drawFate} Fate` : '',
+      reward.dwarvenStanding ? `${reward.dwarvenStanding} Dwarven standing` : ''
     ].filter(Boolean).join(' + ');
   }
 
@@ -105,7 +106,7 @@
       <div><dt>Starting Agent boxes</dt><dd>5 / 7</dd></div>
       <div><dt>Chronicle cards</dt><dd>6 / 54</dd></div>
       <div><dt>Fate effects</dt><dd>24 / 30</dd></div>
-      <div><dt>Battle cards</dt><dd>10 / 16</dd></div>
+      <div><dt>Battle cards</dt><dd>11 / 16</dd></div>
       <div><dt>Commander powers</dt><dd>0 / 16</dd></div>
     </dl>
   </header>

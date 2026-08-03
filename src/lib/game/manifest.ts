@@ -208,6 +208,7 @@ export type BattleReward = {
   recruitCompanies?: number;
   renown?: number;
   drawFate?: number;
+  dwarvenStanding?: number;
   controlLocationId?: 'minas-tirith' | 'osgiliath' | 'edoras';
 };
 
@@ -350,6 +351,19 @@ export const BATTLE_CARD_DEFINITIONS: readonly BattleCardDefinition[] = [
       { controlLocationId: 'edoras', recruitCompanies: 3 },
       { recruitCompanies: 2, gold: 2 },
       { recruitCompanies: 1, gold: 1 }
+    ],
+    reviewedCapabilities: ['battle-resolution']
+  },
+  {
+    id: 'defence-dale',
+    name: 'Defence of Dale',
+    age: 2,
+    standard: 'White Tree',
+    contestedLocationId: null,
+    rewards: [
+      { renown: 1, dwarvenStanding: 1 },
+      { mithril: 2, gold: 1 },
+      { gold: 2 }
     ],
     reviewedCapabilities: ['battle-resolution']
   }
