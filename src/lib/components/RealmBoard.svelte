@@ -62,6 +62,7 @@
       reward.dwarvenStanding ? `${reward.dwarvenStanding} Dwarven standing` : '',
       reward.wildStanding ? `${reward.wildStanding} Wild standing` : '',
       reward.chooseFactionStanding ? `${reward.chooseFactionStanding} standing with any faction` : '',
+      reward.placeScouts ? `place ${reward.placeScouts} Scout` : '',
       reward.breachDam ? 'breach the Dam' : ''
     ].filter(Boolean).join(' + ');
   }

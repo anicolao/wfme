@@ -211,6 +211,7 @@ export type BattleReward = {
   dwarvenStanding?: number;
   wildStanding?: number;
   chooseFactionStanding?: number;
+  placeScouts?: number;
   breachDam?: boolean;
   controlLocationId?: 'minas-tirith' | 'osgiliath' | 'edoras';
 };
@@ -393,6 +394,19 @@ export const BATTLE_CARD_DEFINITIONS: readonly BattleCardDefinition[] = [
       { renown: 1, wildStanding: 1 },
       { chooseFactionStanding: 1 },
       { gold: 2 }
+    ],
+    reviewedCapabilities: ['battle-resolution']
+  },
+  {
+    id: 'ambush-ithilien',
+    name: 'Ambush in Ithilien',
+    age: 2,
+    standard: 'Horse',
+    contestedLocationId: null,
+    rewards: [
+      { renown: 1, placeScouts: 1 },
+      { drawFate: 1, mithril: 1 },
+      { mithril: 1 }
     ],
     reviewedCapabilities: ['battle-resolution']
   }

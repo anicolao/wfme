@@ -4567,11 +4567,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip chooses Reconnaissance Agent: Stronghold for Fangorn Moot
+## Pip chooses Armed Escort Agent: Council for Fangorn Moot
 
-![Phone: Pip chooses Reconnaissance Agent: Stronghold for Fangorn Moot](./screenshots/349-choose-fangorn-breach-phone.png)
+![Phone: Pip chooses Armed Escort Agent: Council for Fangorn Moot](./screenshots/349-choose-fangorn-breach-phone.png)
 
-![Desktop: Pip chooses Reconnaissance Agent: Stronghold for Fangorn Moot](./screenshots/349-choose-fangorn-breach-desktop.png)
+![Desktop: Pip chooses Armed Escort Agent: Council for Fangorn Moot](./screenshots/349-choose-fangorn-breach-desktop.png)
 
 **Verifications:**
 
@@ -4606,28 +4606,15 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip completes the ordered Reconnaissance placement
-
-![Phone: Pip completes the ordered Reconnaissance placement](./screenshots/352-place-fangorn-breach-scout-phone.png)
-
-![Desktop: Pip completes the ordered Reconnaissance placement](./screenshots/352-place-fangorn-breach-scout-desktop.png)
-
-**Verifications:**
-
-- [x] The Scout is placed only after the Moot decision
-- [x] Every connected replay has accepted exactly 272 events with no diagnostics
-
----
-
 ## Pip reloads the completed Fangorn decisions
 
-![Phone: Pip reloads the completed Fangorn decisions](./screenshots/353-reload-fangorn-moot-phone.png)
+![Phone: Pip reloads the completed Fangorn decisions](./screenshots/352-reload-fangorn-moot-phone.png)
 
-![Desktop: Pip reloads the completed Fangorn decisions](./screenshots/353-reload-fangorn-moot-desktop.png)
+![Desktop: Pip reloads the completed Fangorn decisions](./screenshots/352-reload-fangorn-moot-desktop.png)
 
 **Verifications:**
 
 - [x] Ent-draught ownership and the breached Dam replay exactly
-- [x] Every connected replay has accepted exactly 272 events with no diagnostics
+- [x] Every connected replay has accepted exactly 271 events with no diagnostics
 
 ---

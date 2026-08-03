@@ -91,7 +91,7 @@ export type MatchState = {
   richesMithril: Record<'deep-fangorn' | 'entwash' | 'edoras', number>;
   damBreached: boolean;
   queuedBattleDeployment: { actorUid: string; spaceId: string } | null;
-  pendingBattleStandingUids: string[];
+  pendingBattleRewardChoices: Array<{ kind: 'standing' | 'place-scout'; actorUid: string }>;
   pendingChoice: null | {
     kind: 'critical-defense';
     actorUid: string;
@@ -174,6 +174,7 @@ export type MatchState = {
     actorUid: string;
     followupSeekAlliesCardId: string | null;
     resumeTurn?: 'agent' | 'reveal';
+    resumeBattleReward?: boolean;
     options: readonly [];
   } | {
     kind: 'plot-discard';
@@ -372,7 +373,7 @@ function createMatch(state: GameState, seed: string): MatchState {
     richesMithril: { 'deep-fangorn': 0, entwash: 0, edoras: 0 },
     damBreached: false,
     queuedBattleDeployment: null,
-    pendingBattleStandingUids: [],
+    pendingBattleRewardChoices: [],
     pendingChoice: null,
     reserveSupply: { 'muster-host': 8 },
     alliances: { shadow: null, dwarven: null, elven: null, wild: null },
@@ -498,7 +499,7 @@ function recallAndBeginNextRound(match: MatchState): void {
   match.round += 1;
   match.boardAgents = {};
   match.pendingChoice = null;
-  match.pendingBattleStandingUids = [];
+  match.pendingBattleRewardChoices = [];
   match.turnMode = 'agent';
   for (const uid of match.playerOrder) {
     const player = match.players[uid];
@@ -602,7 +603,12 @@ function applyBattleReward(match: MatchState, uid: string, rank: 0 | 1 | 2): voi
     }
     if (reward.chooseFactionStanding) {
       for (let step = 0; step < reward.chooseFactionStanding; step += 1) {
-        match.pendingBattleStandingUids.push(uid);
+        match.pendingBattleRewardChoices.push({ kind: 'standing', actorUid: uid });
+      }
+    }
+    if (reward.placeScouts) {
+      for (let step = 0; step < reward.placeScouts; step += 1) {
+        match.pendingBattleRewardChoices.push({ kind: 'place-scout', actorUid: uid });
       }
     }
     if (reward.drawFate) {
@@ -614,15 +620,35 @@ function applyBattleReward(match: MatchState, uid: string, rank: 0 | 1 | 2): voi
   if (reward.controlLocationId) match.criticalControl[reward.controlLocationId] = uid;
 }
 
-function continueBattleStandingRewardsOrRecall(match: MatchState): void {
-  const actorUid = match.pendingBattleStandingUids.shift();
-  if (actorUid) {
+function continueBattleRewardChoicesOrRecall(match: MatchState): void {
+  const next = match.pendingBattleRewardChoices.shift();
+  if (next?.kind === 'standing') {
     match.pendingChoice = {
       kind: 'battle-standing',
-      actorUid,
+      actorUid: next.actorUid,
       options: ['standing-shadow', 'standing-dwarven', 'standing-elven', 'standing-wild']
     };
-    match.activity.push(`${actorUid} must choose a faction for a Battle standing reward.`);
+    match.activity.push('A ranked player must choose a faction for a Battle standing reward.');
+    return;
+  }
+  if (next?.kind === 'place-scout') {
+    const player = match.players[next.actorUid];
+    const canPlace = player.scouts.supply > 0
+      ? OBSERVATION_POSTS.some((post) => !match.boardScouts[post.id])
+      : OBSERVATION_POSTS.some((post) => match.boardScouts[post.id] === next.actorUid);
+    if (!canPlace) {
+      match.activity.push('A ranked Scout reward is lost because no observation post can be opened.');
+      continueBattleRewardChoicesOrRecall(match);
+      return;
+    }
+    match.pendingChoice = {
+      kind: 'place-scout',
+      actorUid: next.actorUid,
+      followupSeekAlliesCardId: null,
+      resumeBattleReward: true,
+      options: []
+    };
+    match.activity.push('A ranked player must place a Scout before Recall.');
     return;
   }
   recallAndBeginNextRound(match);
@@ -687,7 +713,7 @@ function resolveBattle(match: MatchState): void {
   }
   match.battleParticipantUids = [];
   match.activeBattleId = null;
-  continueBattleStandingRewardsOrRecall(match);
+  continueBattleRewardChoicesOrRecall(match);
 }
 
 function beginBattleOrRecall(match: MatchState): void {
@@ -1431,7 +1457,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       state.match.pendingChoice = null;
       gainStanding(state.match, player, faction, null, false, true);
       state.match.activity.push(`${actor.displayName} gains 1 ${faction[0].toUpperCase()}${faction.slice(1)} standing from a Battle reward.`);
-      if (!state.match.pendingChoice) continueBattleStandingRewardsOrRecall(state.match);
+      if (!state.match.pendingChoice) continueBattleRewardChoicesOrRecall(state.match);
       return null;
     }
     if (pending.kind === 'ranger-mustering-trash') {
@@ -1535,7 +1561,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         };
       } else {
         state.match.pendingChoice = null;
-        if (pending.resumeBattleStanding) continueBattleStandingRewardsOrRecall(state.match);
+        if (pending.resumeBattleStanding) continueBattleRewardChoicesOrRecall(state.match);
         else finishAgentAction(state.match, event.actorUid);
       }
       return null;
@@ -1586,7 +1612,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       !pending ||
       pending.kind !== 'place-scout' ||
       pending.actorUid !== event.actorUid ||
-      currentPlayerUid(state) !== event.actorUid ||
+      (!pending.resumeBattleReward && currentPlayerUid(state) !== event.actorUid) ||
       typeof postId !== 'string' ||
       !OBSERVATION_POSTS.some((post) => post.id === postId)
     ) return 'illegal Scout placement';
@@ -1609,6 +1635,9 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         kind: 'seek-allies', actorUid: player.uid, cardInstanceId: pending.followupSeekAlliesCardId,
         options: ['trash-self', 'keep-card']
       };
+    } else if (pending.resumeBattleReward) {
+      state.match.pendingChoice = null;
+      continueBattleRewardChoicesOrRecall(state.match);
     } else if (pending.resumeTurn) {
       state.match.pendingChoice = null;
       state.match.activity.push(`${actor.displayName} resumes their ${pending.resumeTurn === 'agent' ? 'Agent' : 'Reveal'} turn after resolving Secret Ways.`);
