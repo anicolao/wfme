@@ -91,6 +91,7 @@ export type MatchState = {
   richesMithril: Record<'deep-fangorn' | 'entwash' | 'edoras', number>;
   damBreached: boolean;
   queuedBattleDeployment: { actorUid: string; spaceId: string } | null;
+  pendingBattleStandingUids: string[];
   pendingChoice: null | {
     kind: 'critical-defense';
     actorUid: string;
@@ -127,6 +128,10 @@ export type MatchState = {
     followupPlaceScout: boolean;
     options: readonly ('standing-shadow' | 'standing-dwarven' | 'standing-elven' | 'standing-wild')[];
   } | {
+    kind: 'battle-standing';
+    actorUid: string;
+    options: readonly ('standing-shadow' | 'standing-dwarven' | 'standing-elven' | 'standing-wild')[];
+  } | {
     kind: 'battle-deployment';
     actorUid: string;
     spaceId: string;
@@ -157,6 +162,7 @@ export type MatchState = {
     drawnFateIds: readonly string[];
     followupSeekAlliesCardId: string | null;
     followupPlaceScout: boolean;
+    resumeBattleStanding?: boolean;
     options: readonly string[];
   } | {
     kind: 'seek-allies';
@@ -366,6 +372,7 @@ function createMatch(state: GameState, seed: string): MatchState {
     richesMithril: { 'deep-fangorn': 0, entwash: 0, edoras: 0 },
     damBreached: false,
     queuedBattleDeployment: null,
+    pendingBattleStandingUids: [],
     pendingChoice: null,
     reserveSupply: { 'muster-host': 8 },
     alliances: { shadow: null, dwarven: null, elven: null, wild: null },
@@ -491,6 +498,7 @@ function recallAndBeginNextRound(match: MatchState): void {
   match.round += 1;
   match.boardAgents = {};
   match.pendingChoice = null;
+  match.pendingBattleStandingUids = [];
   match.turnMode = 'agent';
   for (const uid of match.playerOrder) {
     const player = match.players[uid];
@@ -589,6 +597,14 @@ function applyBattleReward(match: MatchState, uid: string, rank: 0 | 1 | 2): voi
     if (reward.dwarvenStanding) {
       for (let step = 0; step < reward.dwarvenStanding; step += 1) gainStanding(match, player, 'dwarven');
     }
+    if (reward.wildStanding) {
+      for (let step = 0; step < reward.wildStanding; step += 1) gainStanding(match, player, 'wild');
+    }
+    if (reward.chooseFactionStanding) {
+      for (let step = 0; step < reward.chooseFactionStanding; step += 1) {
+        match.pendingBattleStandingUids.push(uid);
+      }
+    }
     if (reward.drawFate) {
       const drawn = match.fateDeck.splice(0, reward.drawFate);
       player.fateHand.push(...drawn);
@@ -596,6 +612,20 @@ function applyBattleReward(match: MatchState, uid: string, rank: 0 | 1 | 2): voi
   }
   if (reward.breachDam) match.damBreached = true;
   if (reward.controlLocationId) match.criticalControl[reward.controlLocationId] = uid;
+}
+
+function continueBattleStandingRewardsOrRecall(match: MatchState): void {
+  const actorUid = match.pendingBattleStandingUids.shift();
+  if (actorUid) {
+    match.pendingChoice = {
+      kind: 'battle-standing',
+      actorUid,
+      options: ['standing-shadow', 'standing-dwarven', 'standing-elven', 'standing-wild']
+    };
+    match.activity.push(`${actorUid} must choose a faction for a Battle standing reward.`);
+    return;
+  }
+  recallAndBeginNextRound(match);
 }
 
 function resolveBattle(match: MatchState): void {
@@ -657,7 +687,7 @@ function resolveBattle(match: MatchState): void {
   }
   match.battleParticipantUids = [];
   match.activeBattleId = null;
-  recallAndBeginNextRound(match);
+  continueBattleStandingRewardsOrRecall(match);
 }
 
 function beginBattleOrRecall(match: MatchState): void {
@@ -683,7 +713,8 @@ function gainStanding(
   player: MatchPlayer,
   faction: 'shadow' | 'dwarven' | 'elven' | 'wild',
   followupSeekAlliesCardId: string | null = null,
-  followupPlaceScout = false
+  followupPlaceScout = false,
+  resumeBattleStanding = false
 ): void {
   const before = player.standing[faction];
   player.standing[faction] = Math.min(6, before + 1);
@@ -702,6 +733,7 @@ function gainStanding(
           drawnFateIds: drawn.map((fate) => fate.id),
           followupSeekAlliesCardId,
           followupPlaceScout,
+          resumeBattleStanding,
           options: drawn.map((fate) => `keep:${fate.id}`)
         };
       }
@@ -1144,7 +1176,13 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       !state.match ||
       !pending ||
       pending.actorUid !== event.actorUid ||
-      (pending.kind !== 'critical-defense' && pending.kind !== 'divided-counsel-response' && currentPlayerUid(state) !== event.actorUid) ||
+      (
+        pending.kind !== 'critical-defense' &&
+        pending.kind !== 'divided-counsel-response' &&
+        pending.kind !== 'battle-standing' &&
+        !(pending.kind === 'elven-favor' && pending.resumeBattleStanding) &&
+        currentPlayerUid(state) !== event.actorUid
+      ) ||
       typeof choice !== 'string' ||
       !pending.options.some((option) => option === choice)
     ) return 'illegal choice resolution';
@@ -1388,6 +1426,14 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       }
       return null;
     }
+    if (pending.kind === 'battle-standing') {
+      const faction = choice.slice('standing-'.length) as 'shadow' | 'dwarven' | 'elven' | 'wild';
+      state.match.pendingChoice = null;
+      gainStanding(state.match, player, faction, null, false, true);
+      state.match.activity.push(`${actor.displayName} gains 1 ${faction[0].toUpperCase()}${faction.slice(1)} standing from a Battle reward.`);
+      if (!state.match.pendingChoice) continueBattleStandingRewardsOrRecall(state.match);
+      return null;
+    }
     if (pending.kind === 'ranger-mustering-trash') {
       if (choice !== 'decline-trash') {
         const cardId = choice.slice('trash-card:'.length);
@@ -1489,7 +1535,8 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         };
       } else {
         state.match.pendingChoice = null;
-        finishAgentAction(state.match, event.actorUid);
+        if (pending.resumeBattleStanding) continueBattleStandingRewardsOrRecall(state.match);
+        else finishAgentAction(state.match, event.actorUid);
       }
       return null;
     }

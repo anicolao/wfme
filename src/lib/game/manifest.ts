@@ -209,6 +209,8 @@ export type BattleReward = {
   renown?: number;
   drawFate?: number;
   dwarvenStanding?: number;
+  wildStanding?: number;
+  chooseFactionStanding?: number;
   breachDam?: boolean;
   controlLocationId?: 'minas-tirith' | 'osgiliath' | 'edoras';
 };
@@ -378,6 +380,19 @@ export const BATTLE_CARD_DEFINITIONS: readonly BattleCardDefinition[] = [
       { renown: 2, breachDam: true, mithril: 2 },
       { renown: 1, provisions: 2 },
       { renown: 1 }
+    ],
+    reviewedCapabilities: ['battle-resolution']
+  },
+  {
+    id: 'assault-fords',
+    name: 'Assault on the Fords',
+    age: 2,
+    standard: 'Horse',
+    contestedLocationId: null,
+    rewards: [
+      { renown: 1, wildStanding: 1 },
+      { chooseFactionStanding: 1 },
+      { gold: 2 }
     ],
     reviewedCapabilities: ['battle-resolution']
   }
