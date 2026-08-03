@@ -209,6 +209,7 @@ export type BattleReward = {
   renown?: number;
   drawFate?: number;
   dwarvenStanding?: number;
+  breachDam?: boolean;
   controlLocationId?: 'minas-tirith' | 'osgiliath' | 'edoras';
 };
 
@@ -364,6 +365,19 @@ export const BATTLE_CARD_DEFINITIONS: readonly BattleCardDefinition[] = [
       { renown: 1, dwarvenStanding: 1 },
       { mithril: 2, gold: 1 },
       { gold: 2 }
+    ],
+    reviewedCapabilities: ['battle-resolution']
+  },
+  {
+    id: 'last-march-ents',
+    name: 'Last March of the Ents',
+    age: 3,
+    standard: 'Horse',
+    contestedLocationId: null,
+    rewards: [
+      { renown: 2, breachDam: true, mithril: 2 },
+      { renown: 1, provisions: 2 },
+      { renown: 1 }
     ],
     reviewedCapabilities: ['battle-resolution']
   }

@@ -594,6 +594,7 @@ function applyBattleReward(match: MatchState, uid: string, rank: 0 | 1 | 2): voi
       player.fateHand.push(...drawn);
     }
   }
+  if (reward.breachDam) match.damBreached = true;
   if (reward.controlLocationId) match.criticalControl[reward.controlLocationId] = uid;
 }
 
