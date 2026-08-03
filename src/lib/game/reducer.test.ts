@@ -65,6 +65,7 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'gifts-tokens')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'tidings-afar')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'divided-counsel')).toHaveLength(2);
+    expect(first.match!.fateDeck.filter((card) => card.definitionId === 'long-memory')).toHaveLength(2);
     expect(first.match!.chronicleRow).toHaveLength(5);
     expect(first.match!.chronicleDeck).toHaveLength(1);
     const chronicleInstances = [...first.match!.chronicleRow, ...first.match!.chronicleDeck];
@@ -1744,6 +1745,74 @@ describe('integrated Agent placement replay', () => {
     expect(afterReview.match!.players[revealed.target].resources.gold).toBe(2);
     expect(afterReview.match!.pendingChoice).toBeNull();
     expect(currentPlayerUid(afterReview)).toBe(revealed.fateActor);
+  });
+
+  it('cycles one affordable exact Chronicle instance with Long Memory and resumes the interrupted turn', () => {
+    const stream = readyRoom('memory-7');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      sequences[uid] += 1;
+      stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+    };
+    let state = reduceGame(stream);
+    const actor = currentPlayerUid(state)!;
+    const escort = state.match!.players[actor].hand.find((card) => card.definitionId === 'armed-escort')!;
+    append(actor, 'agent/placed', { cardInstanceId: escort.id, spaceId: 'hall-fire' });
+    for (let other = 0; other < 2; other += 1) {
+      state = reduceGame(stream);
+      const uid = currentPlayerUid(state)!;
+      append(uid, 'turn/revealed', {});
+      append(uid, 'reveal/finished', {});
+    }
+    state = reduceGame(stream);
+    expect(currentPlayerUid(state)).toBe(actor);
+    const fate = state.match!.players[actor].fateHand.find((card) => card.definitionId === 'long-memory')!;
+    const rowBefore = [...state.match!.chronicleRow];
+    const deckBefore = [...state.match!.chronicleDeck];
+    expect(deckBefore).toHaveLength(1);
+    append(actor, 'fate/played', { cardInstanceId: fate.id });
+    const awaitingChoice = reduceGame(stream);
+    expect(awaitingChoice.match!.pendingChoice).toEqual({
+      kind: 'long-memory',
+      actorUid: actor,
+      cardInstanceIds: rowBefore.filter((card) => card.definitionId !== 'captain-gondor').map((card) => card.id),
+      resumeTurn: 'agent',
+      options: rowBefore.filter((card) => card.definitionId !== 'captain-gondor').map((card) => `chronicle:${card.id}`)
+    });
+    expect(awaitingChoice.match!.fateDiscard.at(-1)).toEqual(fate);
+
+    const expensive = rowBefore.find((card) => card.definitionId === 'captain-gondor')!;
+    const rejected = reduceGame([
+      ...stream,
+      createEvent('choice/resolved', actor, sequences[actor] + 1, { choice: `chronicle:${expensive.id}` }, timestamp)
+    ]);
+    expect(rejected.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(rejected.match!.chronicleRow).toEqual(rowBefore);
+    expect(rejected.match!.chronicleDeck).toEqual(deckBefore);
+
+    const otherUid = awaitingChoice.match!.playerOrder.find((uid) => uid !== actor)!;
+    const rejectedAuthority = reduceGame([
+      ...stream,
+      createEvent('choice/resolved', otherUid, sequences[otherUid] + 1, { choice: awaitingChoice.match!.pendingChoice!.options[0] }, timestamp)
+    ]);
+    expect(rejectedAuthority.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(rejectedAuthority.match!.chronicleRow).toEqual(rowBefore);
+    expect(rejectedAuthority.match!.chronicleDeck).toEqual(deckBefore);
+
+    const cycled = rowBefore[0];
+    append(actor, 'choice/resolved', { choice: `chronicle:${cycled.id}` });
+    const resumed = reduceGame(stream);
+    expect(resumed.diagnostics).toEqual([]);
+    expect(resumed.match!.pendingChoice).toBeNull();
+    expect(resumed.match!.chronicleRow[0]).toEqual(deckBefore[0]);
+    expect(resumed.match!.chronicleDeck).toEqual([cycled]);
+    expect(resumed.match!.chronicleRow).toHaveLength(5);
+    expect(new Set([...resumed.match!.chronicleRow, ...resumed.match!.chronicleDeck].map((card) => card.id))).toEqual(
+      new Set([...rowBefore, ...deckBefore].map((card) => card.id))
+    );
+    expect(currentPlayerUid(resumed)).toBe(actor);
+    expect(resumed.match!.turnMode).toBe('agent');
   });
 
   it('runs a three-player Battle from legal deployments through ranked rewards and cleanup', () => {

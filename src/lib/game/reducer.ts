@@ -205,6 +205,12 @@ export type MatchState = {
     resumeTurn: 'agent' | 'reveal';
     options: readonly ['finish-review'];
   } | {
+    kind: 'long-memory';
+    actorUid: string;
+    cardInstanceIds: readonly string[];
+    resumeTurn: 'agent' | 'reveal';
+    options: readonly string[];
+  } | {
     kind: 'gather-intelligence';
     actorUid: string;
     cardInstanceId: string;
@@ -325,6 +331,8 @@ function createMatch(state: GameState, seed: string): MatchState {
           ? 'tidings-afar'
         : index === 12 || index === 15
           ? 'divided-counsel'
+        : index === 16 || index === 17
+          ? 'long-memory'
         : index === 9 || index === 29
           ? 'hold-line'
           : index === 13 || index === 14
@@ -1220,6 +1228,19 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       state.match.activity.push(`${actor.displayName} finishes reviewing the Divided Counsel hand and resumes their ${pending.resumeTurn === 'agent' ? 'Agent' : 'Reveal'} turn.`);
       return null;
     }
+    if (pending.kind === 'long-memory') {
+      const cardId = choice.slice('chronicle:'.length);
+      if (!pending.cardInstanceIds.includes(cardId)) return 'illegal choice resolution';
+      const rowIndex = state.match.chronicleRow.findIndex((card) => card.id === cardId);
+      if (rowIndex < 0) return 'illegal choice resolution';
+      const [cycled] = state.match.chronicleRow.splice(rowIndex, 1);
+      state.match.chronicleDeck.push(cycled);
+      const refill = state.match.chronicleDeck.shift();
+      if (refill) state.match.chronicleRow.splice(rowIndex, 0, refill);
+      state.match.pendingChoice = null;
+      state.match.activity.push(`${actor.displayName} puts ${cardName(cycled.definitionId)} on the bottom of the Chronicle deck, refills its place, and resumes their ${pending.resumeTurn === 'agent' ? 'Agent' : 'Reveal'} turn.`);
+      return null;
+    }
     if (pending.kind === 'fangorn-moot') {
       if (choice === 'take-ent-draught') {
         if (player.entDraught) return 'illegal choice resolution';
@@ -1652,6 +1673,13 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     if (!card || !definition) return 'illegal Fate play';
     if (definition.timing === 'Plot') {
       if (state.match.turnMode !== 'agent' && state.match.turnMode !== 'reveal') return 'illegal Fate play';
+      if (definition.effect.kind === 'cycle-chronicle') {
+        const maximumCost = definition.effect.maximumCost;
+        if (!state.match.chronicleRow.some((instance) => {
+          const chronicle = CHRONICLE_CARD_DEFINITIONS.find((candidate) => candidate.id === instance.definitionId);
+          return Boolean(chronicle && chronicle.cost <= maximumCost);
+        })) return 'illegal Fate play';
+      }
       player.fateHand.splice(cardIndex, 1);
       state.match.fateDiscard.push(card);
       if (definition.effect.kind === 'place-scout') {
@@ -1710,11 +1738,25 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
           options: state.match.playerOrder.filter((uid) => uid !== event.actorUid).map((uid) => `opponent:${uid}`)
         };
         state.match.activity.push(`${actor.displayName} plays ${definition.name} during their ${state.match.turnMode === 'agent' ? 'Agent' : 'Reveal'} turn and must choose an opponent.`);
+      } else if (definition.effect.kind === 'cycle-chronicle') {
+        const maximumCost = definition.effect.maximumCost;
+        const eligibleIds = state.match.chronicleRow.flatMap((instance) => {
+          const chronicle = CHRONICLE_CARD_DEFINITIONS.find((candidate) => candidate.id === instance.definitionId);
+          return chronicle && chronicle.cost <= maximumCost ? [instance.id] : [];
+        });
+        state.match.pendingChoice = {
+          kind: 'long-memory',
+          actorUid: event.actorUid,
+          cardInstanceIds: eligibleIds,
+          resumeTurn: state.match.turnMode,
+          options: eligibleIds.map((id) => `chronicle:${id}`)
+        };
+        state.match.activity.push(`${actor.displayName} plays ${definition.name} during their ${state.match.turnMode === 'agent' ? 'Agent' : 'Reveal'} turn and must cycle one affordable Chronicle card.`);
       }
       return null;
     }
     if (state.match.turnMode !== 'battle' || !state.match.battleParticipantUids.includes(event.actorUid)) return 'illegal Fate play';
-    if (definition.effect.kind === 'place-scout' || definition.effect.kind === 'draw-discard' || definition.effect.kind === 'choose-resources' || definition.effect.kind === 'draw-top-deck' || definition.effect.kind === 'opponent-gold-or-reveal') return 'illegal Fate play';
+    if (definition.effect.kind === 'place-scout' || definition.effect.kind === 'draw-discard' || definition.effect.kind === 'choose-resources' || definition.effect.kind === 'draw-top-deck' || definition.effect.kind === 'opponent-gold-or-reveal' || definition.effect.kind === 'cycle-chronicle') return 'illegal Fate play';
     if (definition.effect.kind === 'desperate-valor' && (state.match.battleCompanies[event.actorUid] ?? 0) < definition.effect.returnCompanies) {
       return 'illegal Fate play';
     }
