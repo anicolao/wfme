@@ -178,6 +178,12 @@ export type MatchState = {
     resumeTurn: 'agent' | 'reveal';
     options: readonly ('gain-2-gold' | 'pay-2-gold')[];
   } | {
+    kind: 'tidings-afar';
+    actorUid: string;
+    cardInstanceIds: readonly string[];
+    resumeTurn: 'agent' | 'reveal';
+    options: readonly string[];
+  } | {
     kind: 'gather-intelligence';
     actorUid: string;
     cardInstanceId: string;
@@ -288,6 +294,8 @@ function createMatch(state: GameState, seed: string): MatchState {
           ? 'chance-meeting'
         : index === 7 || index === 8
           ? 'gifts-tokens'
+        : index === 10 || index === 11
+          ? 'tidings-afar'
         : index === 9 || index === 29
           ? 'hold-line'
           : index === 13 || index === 14
@@ -1126,6 +1134,17 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       state.match.activity.push(`${actor.displayName} resumes their ${pending.resumeTurn === 'agent' ? 'Agent' : 'Reveal'} turn.`);
       return null;
     }
+    if (pending.kind === 'tidings-afar') {
+      const cardId = choice.slice('top-deck:'.length);
+      if (!pending.cardInstanceIds.includes(cardId)) return 'illegal choice resolution';
+      const cardIndex = player.hand.findIndex((card) => card.id === cardId);
+      if (cardIndex < 0) return 'illegal choice resolution';
+      const [returned] = player.hand.splice(cardIndex, 1);
+      player.drawPile.unshift(returned);
+      state.match.pendingChoice = null;
+      state.match.activity.push(`${actor.displayName} puts one private card on top of their deck to complete Tidings from Afar and resumes their ${pending.resumeTurn === 'agent' ? 'Agent' : 'Reveal'} turn.`);
+      return null;
+    }
     if (pending.kind === 'fangorn-moot') {
       if (choice === 'take-ent-draught') {
         if (player.entDraught) return 'illegal choice resolution';
@@ -1574,11 +1593,26 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
           options
         };
         state.match.activity.push(`${actor.displayName} plays ${definition.name} during their ${state.match.turnMode === 'agent' ? 'Agent' : 'Reveal'} turn and must choose its resource gift.`);
+      } else if (definition.effect.kind === 'draw-top-deck') {
+        const resumeTurn = state.match.turnMode;
+        let drawn = 0;
+        for (let index = 0; index < definition.effect.draw; index += 1) {
+          if (drawOneCard(state.match, event.actorUid, definition.name)) drawn += 1;
+        }
+        const cardInstanceIds = player.hand.map((candidate) => candidate.id);
+        state.match.pendingChoice = {
+          kind: 'tidings-afar',
+          actorUid: event.actorUid,
+          cardInstanceIds,
+          resumeTurn,
+          options: cardInstanceIds.map((id) => `top-deck:${id}`)
+        };
+        state.match.activity.push(`${actor.displayName} plays ${definition.name} during their ${resumeTurn === 'agent' ? 'Agent' : 'Reveal'} turn, draws ${drawn} cards, and must put 1 card on top of their deck.`);
       }
       return null;
     }
     if (state.match.turnMode !== 'battle' || !state.match.battleParticipantUids.includes(event.actorUid)) return 'illegal Fate play';
-    if (definition.effect.kind === 'place-scout' || definition.effect.kind === 'draw-discard' || definition.effect.kind === 'choose-resources') return 'illegal Fate play';
+    if (definition.effect.kind === 'place-scout' || definition.effect.kind === 'draw-discard' || definition.effect.kind === 'choose-resources' || definition.effect.kind === 'draw-top-deck') return 'illegal Fate play';
     if (definition.effect.kind === 'desperate-valor' && (state.match.battleCompanies[event.actorUid] ?? 0) < definition.effect.returnCompanies) {
       return 'illegal Fate play';
     }

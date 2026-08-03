@@ -63,6 +63,7 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'desperate-valor')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'chance-meeting')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'gifts-tokens')).toHaveLength(2);
+    expect(first.match!.fateDeck.filter((card) => card.definitionId === 'tidings-afar')).toHaveLength(2);
     const rejectedFate = reduceGame([...readyRoom(), createEvent('fate/played', currentPlayerUid(first)!, 5, { cardInstanceId: 'fate:1' }, 11)]);
     expect(rejectedFate.diagnostics.at(-1)).toContain('illegal Fate play');
     expect(rejectedFate.match!.fateDiscard).toEqual([]);
@@ -1525,6 +1526,67 @@ describe('integrated Agent placement replay', () => {
     expect(afterTokens.match!.fateDiscard.at(-1)).toEqual(tokenGift.fate);
     expect(afterTokens.match!.pendingChoice).toBeNull();
     expect(currentPlayerUid(afterTokens)).toBe(tokenGift.actor);
+  });
+
+  it('draws two cards with Tidings from Afar, privately top-decks one, and resumes the same turn', () => {
+    const stream = readyRoom('tidings-12');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const appendCurrent = (type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      const state = reduceGame(stream);
+      const uid = currentPlayerUid(state)!;
+      sequences[uid] += 1;
+      stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+    };
+    const started = reduceGame(stream);
+    const actor = currentPlayerUid(started)!;
+    const escort = started.match!.players[actor].hand.find((card) => card.definitionId === 'armed-escort');
+    expect(escort).toBeDefined();
+    appendCurrent('agent/placed', { cardInstanceId: escort!.id, spaceId: 'hall-fire' });
+    expect(reduceGame(stream).match!.players[actor].fateHand).toContainEqual(expect.objectContaining({ definitionId: 'tidings-afar' }));
+    for (let other = 0; other < 2; other += 1) {
+      appendCurrent('turn/revealed', {});
+      appendCurrent('reveal/finished', {});
+    }
+
+    const beforePlay = reduceGame(stream);
+    expect(currentPlayerUid(beforePlay)).toBe(actor);
+    const beforePlayer = beforePlay.match!.players[actor];
+    const fate = beforePlayer.fateHand.find((card) => card.definitionId === 'tidings-afar')!;
+    appendCurrent('fate/played', { cardInstanceId: fate.id });
+    const awaitingTopDeck = reduceGame(stream);
+    const pending = awaitingTopDeck.match!.pendingChoice;
+    expect(pending).toMatchObject({ kind: 'tidings-afar', actorUid: actor, resumeTurn: 'agent' });
+    expect(awaitingTopDeck.match!.players[actor].hand).toHaveLength(beforePlayer.hand.length + 2);
+    expect(awaitingTopDeck.match!.players[actor].drawPile).toHaveLength(beforePlayer.drawPile.length - 2);
+    expect(pending?.options).toHaveLength(beforePlayer.hand.length + 2);
+
+    const rejected = reduceGame([
+      ...stream,
+      createEvent('choice/resolved', actor, sequences[actor] + 1, { choice: 'top-deck:not-in-hand' }, timestamp)
+    ]);
+    expect(rejected.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(rejected.match!.pendingChoice).toEqual(pending);
+
+    if (pending?.kind !== 'tidings-afar') throw new Error('Tidings choice is required');
+    const returnedId = pending.cardInstanceIds.at(-1)!;
+    appendCurrent('choice/resolved', { choice: `top-deck:${returnedId}` });
+    const resumed = reduceGame(stream);
+    expect(resumed.diagnostics).toEqual([]);
+    expect(resumed.match!.pendingChoice).toBeNull();
+    expect(resumed.match!.players[actor].hand).toHaveLength(beforePlayer.hand.length + 1);
+    expect(resumed.match!.players[actor].drawPile[0].id).toBe(returnedId);
+    expect(resumed.match!.fateDiscard.at(-1)).toEqual(fate);
+    expect(currentPlayerUid(resumed)).toBe(actor);
+    expect(resumed.match!.turnMode).toBe('agent');
+    expect([
+      ...resumed.match!.players[actor].hand,
+      ...resumed.match!.players[actor].drawPile,
+      ...resumed.match!.players[actor].discardPile,
+      ...resumed.match!.players[actor].journey,
+      ...resumed.match!.players[actor].muster,
+      ...resumed.match!.players[actor].trashPile
+    ]).toHaveLength(10);
   });
 
   it('runs a three-player Battle from legal deployments through ranked rewards and cleanup', () => {
