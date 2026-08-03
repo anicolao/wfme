@@ -32,7 +32,8 @@ export const STARTING_CARD_IDENTITIES: readonly StartingCardIdentity[] = [
 export type AgentCardDefinition = StartingCardIdentity & {
   placementIcons: readonly PlacementIcon[];
   journeyEffect?:
-    | { kind: 'recruit-companies'; amount: 1 }
+    | { kind: 'recruit-companies'; amount: number }
+    | { kind: 'gain-provisions'; amount: number }
     | { kind: 'optional-trash-self' }
     | { kind: 'place-scout'; amount: 1 };
   reviewedCapabilities: readonly ['agent-placement'];
@@ -84,6 +85,30 @@ export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
     placementIcons: ['Stronghold', 'Roads'],
     journeyEffect: { kind: 'place-scout', amount: 1 },
     reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'rider-rohan',
+    name: 'Rider of Rohan',
+    copies: 2,
+    placementIcons: ['Stronghold'],
+    journeyEffect: { kind: 'recruit-companies', amount: 1 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'bree-land-guide',
+    name: 'Bree-land Guide',
+    copies: 2,
+    placementIcons: ['Roads', 'Stronghold'],
+    journeyEffect: { kind: 'gain-provisions', amount: 1 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'captain-gondor',
+    name: 'Captain of Gondor',
+    copies: 2,
+    placementIcons: ['Stronghold', 'Council'],
+    journeyEffect: { kind: 'recruit-companies', amount: 2 },
+    reviewedCapabilities: ['agent-placement']
   }
 ];
 
@@ -119,7 +144,10 @@ export const MUSTER_CARD_DEFINITIONS: readonly MusterCardDefinition[] = [
   { id: 'reconnaissance', name: 'Reconnaissance', muster: { influence: 1, swords: 0 } },
   { id: 'seek-allies', name: 'Seek Allies', muster: { influence: 1, swords: 0 } },
   { id: 'token-of-command', name: 'Token of Command', muster: { influence: 1, swords: 0 } },
-  { id: 'muster-host', name: 'Muster the Host', muster: { influence: 1, swords: 1 } }
+  { id: 'muster-host', name: 'Muster the Host', muster: { influence: 1, swords: 1 } },
+  { id: 'rider-rohan', name: 'Rider of Rohan', muster: { influence: 1, swords: 1 } },
+  { id: 'bree-land-guide', name: 'Bree-land Guide', muster: { influence: 1, swords: 0 } },
+  { id: 'captain-gondor', name: 'Captain of Gondor', muster: { influence: 1, swords: 2 } }
 ];
 
 export type ReserveCardId = 'muster-host';
@@ -135,6 +163,41 @@ export const RESERVE_CARD_DEFINITIONS: readonly ReserveCardDefinition[] = [
   {
     id: 'muster-host', name: 'Muster the Host', copies: 8, cost: 2,
     onAcquireRenown: 0, muster: { influence: 1, swords: 1 }
+  }
+];
+
+export type ChronicleCardId = 'rider-rohan' | 'bree-land-guide' | 'captain-gondor';
+
+export type ChronicleCardDefinition = {
+  id: ChronicleCardId;
+  name: string;
+  copies: 2;
+  cost: number;
+  placementIcons: readonly PlacementIcon[];
+  journeyText: string;
+  muster: { influence: number; swords: number };
+  reviewedCapabilities: readonly ['chronicle-market', 'agent-placement', 'reveal'];
+};
+
+/** The first executable Chronicle batch. Every printed box is live. */
+export const CHRONICLE_CARD_DEFINITIONS: readonly ChronicleCardDefinition[] = [
+  {
+    id: 'rider-rohan', name: 'Rider of Rohan', copies: 2, cost: 2,
+    placementIcons: ['Stronghold'], journeyText: 'Recruit 1 Company',
+    muster: { influence: 1, swords: 1 },
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'bree-land-guide', name: 'Bree-land Guide', copies: 2, cost: 2,
+    placementIcons: ['Roads', 'Stronghold'], journeyText: 'Gain 1 Provision',
+    muster: { influence: 1, swords: 0 },
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'captain-gondor', name: 'Captain of Gondor', copies: 2, cost: 4,
+    placementIcons: ['Stronghold', 'Council'], journeyText: 'Recruit 2 Companies',
+    muster: { influence: 1, swords: 2 },
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
   }
 ];
 
@@ -637,5 +700,6 @@ export const BOARD_SPACE_DEFINITIONS: readonly BoardSpaceDefinition[] = [
 export function cardName(id: string): string {
   return STARTING_CARD_IDENTITIES.find((card) => card.id === id)?.name
     ?? RESERVE_CARD_DEFINITIONS.find((card) => card.id === id)?.name
+    ?? CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === id)?.name
     ?? id;
 }

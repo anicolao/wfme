@@ -438,7 +438,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
     await steps.gesture(actor!.page, 'play-acquired-muster-host', `${actor!.name} plays the acquired Muster the Host`,
       () => actor!.page.getByTestId('private-hand').getByRole('button', { name: /^Muster the Host/ }).click(),
       [
-        { spec: 'The card acquired two rounds earlier was genuinely drawn after reshuffle', check: async () => await expect(actor!.page.getByRole('button', { name: /^Muster the Host/ })).toHaveAttribute('aria-pressed', 'true') },
+        { spec: 'The card acquired two rounds earlier was genuinely drawn after reshuffle', check: async () => await expect(actor!.page.getByTestId('private-hand').getByRole('button', { name: /^Muster the Host/ })).toHaveAttribute('aria-pressed', 'true') },
         { spec: 'Its complete Stronghold and Roads placement icons make the available Roads space legal', check: async () => await expect(actor!.page.getByTestId('space-take-war-effort')).toBeEnabled() }
       ]
     );

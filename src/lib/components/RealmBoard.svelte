@@ -5,6 +5,7 @@
     BATTLE_CARD_DEFINITIONS,
     BOARD_LAYOUT,
     BOARD_SPACE_DEFINITIONS,
+    CHRONICLE_CARD_DEFINITIONS,
     COMMANDERS,
     FATE_CARD_DEFINITIONS,
     MUSTER_CARD_DEFINITIONS,
@@ -22,7 +23,7 @@
   export let onPlaceAgent: (spaceId: string, infiltrationPostId?: string) => void;
   export let onResolveChoice: (choice: string) => void;
   export let onReveal: () => void;
-  export let onAcquire: (definitionId: string) => void;
+  export let onAcquire: (definitionId: string, cardInstanceId?: string) => void;
   export let onFinishReveal: () => void;
   export let onPlaceScout: (postId: string, recallPostId?: string) => void;
   export let onPassBattle: () => void;
@@ -42,6 +43,7 @@
   const boardArt = `${assets}/board-layout-preview.jpg`;
   $: localMatch = game.match?.players[localUid];
   $: currentUid = currentPlayerUid(game);
+  $: currentMatchPlayer = currentUid ? game.match?.players[currentUid] : undefined;
   $: legal = selectedCardId ? legalAgentSpaces(game, localUid, selectedCardId) : [];
   $: selectedDefinitionId = localMatch?.hand.find((card) => card.id === selectedCardId)?.definitionId;
   $: selectedIsImplemented = AGENT_CARD_DEFINITIONS.some((card) => card.id === selectedDefinitionId);
@@ -95,7 +97,10 @@
     </div>
     <dl class="ledger" aria-label="Construction capability ledger">
       <div><dt>Playable spaces</dt><dd>22 / 22</dd></div>
-      <div><dt>Agent-ready cards</dt><dd>5 / 7</dd></div>
+      <div><dt>Starting Agent boxes</dt><dd>5 / 7</dd></div>
+      <div><dt>Chronicle cards</dt><dd>6 / 54</dd></div>
+      <div><dt>Fate effects</dt><dd>20 / 30</dd></div>
+      <div><dt>Battle cards</dt><dd>10 / 16</dd></div>
       <div><dt>Commander powers</dt><dd>0 / 16</dd></div>
     </dl>
   </header>
@@ -471,18 +476,45 @@
         </div>
         <p class="reveal-total"><strong>{revealPlayer.revealInfluence} Influence</strong> remaining · {revealPlayer.revealedSwords} {revealPlayer.revealedSwords === 1 ? 'sword' : 'swords'}</p>
       </div>
+      <div class="reserve">
+        <button class="finish-reveal" type="button" disabled={currentUid !== localUid} onclick={onFinishReveal}>Finish Reveal</button>
+      </div>
+    </section>
+  {/if}
+
+  {#if game.match}
+    <section class="market" data-testid="chronicle-market" aria-labelledby="market-title">
+      <div>
+        <p class="eyebrow">Shared deck-builder market</p>
+        <h2 id="market-title">Chronicle Row</h2>
+        <p class="market-count">Five face-up cards · deck {game.match.chronicleDeck.length}</p>
+      </div>
+      <div class="chronicle-row" data-testid="chronicle-row" aria-label="Chronicle Row">
+        {#each game.match.chronicleRow as instance}
+          {@const card = CHRONICLE_CARD_DEFINITIONS.find((definition) => definition.id === instance.definitionId)!}
+          <button
+            type="button"
+            disabled={game.match.turnMode !== 'reveal' || currentUid !== localUid || (currentMatchPlayer?.revealInfluence ?? 0) < card.cost}
+            onclick={() => onAcquire(card.id, instance.id)}
+          >
+            <strong>{card.name} · {card.cost} Influence</strong>
+            <span>Agent: {card.placementIcons.join(' · ')} · {card.journeyText}</span>
+            <span>Muster: {card.muster.influence} Influence · {card.muster.swords} swords</span>
+          </button>
+        {/each}
+      </div>
       <div class="reserve" aria-label="Reserve market">
+        <p class="eyebrow">Reserve</p>
         {#each RESERVE_CARD_DEFINITIONS as card}
           <button
             type="button"
-            disabled={currentUid !== localUid || revealPlayer.revealInfluence < card.cost || game.match.reserveSupply[card.id] < 1}
+            disabled={game.match.turnMode !== 'reveal' || currentUid !== localUid || (currentMatchPlayer?.revealInfluence ?? 0) < card.cost || game.match.reserveSupply[card.id] < 1}
             onclick={() => onAcquire(card.id)}
           >
             <strong>{card.name} · {card.cost} Influence</strong>
             <span>{game.match.reserveSupply[card.id]} remain{card.onAcquireRenown ? ` · gain ${card.onAcquireRenown} Renown` : ''}</span>
           </button>
         {/each}
-        <button class="finish-reveal" type="button" disabled={currentUid !== localUid} onclick={onFinishReveal}>Finish Reveal</button>
       </div>
     </section>
   {/if}
@@ -596,8 +628,14 @@
   .muster-row span, .reserve span { margin-top: .35rem; font-size: .8rem; }
   .reveal-total { padding-top: .5rem; }
   .reserve { display: grid; gap: .45rem; }
-  .reserve button, .reveal-button, .choice-actions button { min-height: 48px; padding: .6rem; color: #fff; background: #6d452d; border: 0; border-radius: .4rem; font-weight: 700; cursor: pointer; }
-  .reserve button:disabled, .choice-actions button:disabled { cursor: not-allowed; opacity: .5; }
+  .market { display: grid; grid-template-columns: minmax(10rem, .65fr) minmax(0, 3fr) minmax(10rem, .8fr); gap: .8rem; margin-top: 1rem; padding: 1rem; color: #28291f; background: #e8d8b6; border: 2px solid #8a6d43; border-radius: .7rem; }
+  .market h2, .market p { margin: .15rem 0 .45rem; }
+  .chronicle-row { display: grid; grid-template-columns: repeat(5, minmax(8rem, 1fr)); gap: .45rem; overflow-x: auto; }
+  .market-count { font-size: .85rem; font-weight: 700; }
+  .market button, .reserve button, .reveal-button, .choice-actions button { min-height: 48px; padding: .6rem; color: #fff; background: #6d452d; border: 0; border-radius: .4rem; font-weight: 700; cursor: pointer; }
+  .market button strong, .market button span { display: block; }
+  .market button span { margin-top: .3rem; font-size: .72rem; }
+  .market button:disabled, .reserve button:disabled, .choice-actions button:disabled { cursor: not-allowed; opacity: .5; }
   .reserve .finish-reveal { background: #3f6049; }
   .reveal-button { margin-top: .6rem; background: #3f6049; }
   .decision h2, .history h2 { margin: .1rem 0 .6rem; font: 700 1.8rem 'Cormorant Garamond', serif; }
@@ -622,6 +660,8 @@
     .board { grid-template-columns: 1fr; max-height: 34rem; overflow-y: auto; }
     .hand { grid-template-columns: repeat(5, 9rem); }
     .reveal-panel { grid-template-columns: 1fr; }
+    .market { grid-template-columns: 1fr; }
+    .chronicle-row { grid-template-columns: repeat(5, minmax(11rem, 1fr)); }
     .reveal-panel > div { min-width: 0; }
     .muster-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow-x: visible; }
     .muster-row article { min-width: 0; overflow-wrap: anywhere; }

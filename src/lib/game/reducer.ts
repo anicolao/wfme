@@ -4,6 +4,7 @@ import {
   AGENT_CARD_DEFINITIONS,
   BATTLE_CARD_DEFINITIONS,
   BOARD_SPACE_DEFINITIONS,
+  CHRONICLE_CARD_DEFINITIONS,
   COMMANDERS,
   FATE_CARD_DEFINITIONS,
   MUSTER_CARD_DEFINITIONS,
@@ -75,6 +76,8 @@ export type MatchState = {
   boardScouts: Record<string, string>;
   fateDeck: FateInstance[];
   fateDiscard: FateInstance[];
+  chronicleDeck: CardInstance[];
+  chronicleRow: CardInstance[];
   activeBattleId: string | null;
   battleDeck: string[];
   battleDiscard: string[];
@@ -292,6 +295,12 @@ function createMatch(state: GameState, seed: string): MatchState {
       ];
     })
   );
+  const chronicleInstances = shuffled(CHRONICLE_CARD_DEFINITIONS.flatMap((definition) =>
+    Array.from({ length: definition.copies }, (_, index) => ({
+      id: `chronicle:${definition.id}:${index + 1}`,
+      definitionId: definition.id
+    }))
+  ), `${seed}:chronicle-deck`);
   return {
     seed,
     round: 1,
@@ -327,6 +336,8 @@ function createMatch(state: GameState, seed: string): MatchState {
                 : 'sealed-fate'
     })), `${seed}:fate-deck`),
     fateDiscard: [],
+    chronicleDeck: chronicleInstances.slice(5),
+    chronicleRow: chronicleInstances.slice(0, 5),
     activeBattleId: BATTLE_CARD_DEFINITIONS[0]?.id ?? null,
     battleDeck: BATTLE_CARD_DEFINITIONS.slice(1).map((battle) => battle.id),
     battleDiscard: [],
@@ -717,6 +728,9 @@ function resolveAgentEffects(
   let resolution: string;
   if (cardDefinition.journeyEffect?.kind === 'recruit-companies') {
     recruitCompanies(player, cardDefinition.journeyEffect.amount);
+  }
+  if (cardDefinition.journeyEffect?.kind === 'gain-provisions') {
+    player.resources.provisions += cardDefinition.journeyEffect.amount;
   }
   if (space.effect.kind === 'dwarven-caravans') {
     player.resources.provisions += space.effect.gainProvisions;
@@ -1540,15 +1554,34 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
 
   if (event.type === 'card/acquired') {
     const definitionId = event.payload.definitionId;
+    const cardInstanceId = event.payload.cardInstanceId;
     if (
       state.phase !== 'playing' ||
       !state.match ||
       state.match.turnMode !== 'reveal' ||
       currentPlayerUid(state) !== event.actorUid ||
-      typeof definitionId !== 'string'
+      typeof definitionId !== 'string' ||
+      (cardInstanceId !== undefined && typeof cardInstanceId !== 'string')
     ) return 'illegal acquisition';
-    const definition = RESERVE_CARD_DEFINITIONS.find((card) => card.id === definitionId);
     const player = state.match.players[event.actorUid];
+    const chronicleIndex = typeof cardInstanceId === 'string'
+      ? state.match.chronicleRow.findIndex((card) => card.id === cardInstanceId)
+      : -1;
+    if (chronicleIndex >= 0) {
+      const instance = state.match.chronicleRow[chronicleIndex];
+      const definition = CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === instance.definitionId);
+      if (!definition || definition.id !== definitionId || definition.cost > player.revealInfluence) {
+        return 'illegal acquisition';
+      }
+      state.match.chronicleRow.splice(chronicleIndex, 1);
+      player.revealInfluence -= definition.cost;
+      player.discardPile.push(instance);
+      const refill = state.match.chronicleDeck.shift();
+      if (refill) state.match.chronicleRow.splice(chronicleIndex, 0, refill);
+      state.match.activity.push(`${actor.displayName} acquires ${definition.name} from the Chronicle Row for ${definition.cost} Influence${refill ? ' and refills its place' : ''}.`);
+      return null;
+    }
+    const definition = RESERVE_CARD_DEFINITIONS.find((card) => card.id === definitionId);
     if (!definition || definition.cost > player.revealInfluence || state.match.reserveSupply[definition.id] < 1) {
       return 'illegal acquisition';
     }

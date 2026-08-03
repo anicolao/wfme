@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createEvent } from './events';
-import { OBSERVATION_POSTS } from './manifest';
+import { CHRONICLE_CARD_DEFINITIONS, OBSERVATION_POSTS } from './manifest';
 import { battleStrength, currentPlayerUid, legalAgentSpaces, reduceGame } from './reducer';
 
 function readyRoom(seed = 'road-2') {
@@ -65,6 +65,13 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'gifts-tokens')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'tidings-afar')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'divided-counsel')).toHaveLength(2);
+    expect(first.match!.chronicleRow).toHaveLength(5);
+    expect(first.match!.chronicleDeck).toHaveLength(1);
+    const chronicleInstances = [...first.match!.chronicleRow, ...first.match!.chronicleDeck];
+    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(6);
+    for (const definition of CHRONICLE_CARD_DEFINITIONS) {
+      expect(chronicleInstances.filter((card) => card.definitionId === definition.id)).toHaveLength(2);
+    }
     const rejectedFate = reduceGame([...readyRoom(), createEvent('fate/played', currentPlayerUid(first)!, 5, { cardInstanceId: 'fate:1' }, 11)]);
     expect(rejectedFate.diagnostics.at(-1)).toContain('illegal Fate play');
     expect(rejectedFate.match!.fateDiscard).toEqual([]);
@@ -574,6 +581,82 @@ describe('integrated Agent placement replay', () => {
     expect(state.diagnostics.at(-1)).toContain('illegal acquisition');
     expect(state.match!.reserveSupply['muster-host']).toBe(8);
     expect(state.match!.players[actor].renown).toBe(0);
+  });
+
+  it('buys, refills, reshuffles, draws, and executes every card in the first Chronicle batch', () => {
+    const reachAcquiredCard = (definitionId: (typeof CHRONICLE_CARD_DEFINITIONS)[number]['id']) => {
+      const completed = completedAgentRound();
+      const stream = [...completed.events];
+      const sequences = Object.fromEntries(['host', 'guest-a', 'guest-b'].map((uid) => [uid,
+        Math.max(...stream.filter((event) => event.actorUid === uid).map((event) => event.clientSeq))
+      ]));
+      let timestamp = Math.max(...stream.map((event) => event.createdAtMillis)) + 1;
+      const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+        sequences[uid] += 1;
+        stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+      };
+      let state = reduceGame(stream);
+      const actor = currentPlayerUid(state)!;
+      append(actor, 'turn/revealed', {});
+      state = reduceGame(stream);
+      const offered = state.match!.chronicleRow.find((card) => card.definitionId === definitionId)!;
+      const definition = CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!;
+      const influenceBefore = state.match!.players[actor].revealInfluence;
+      const refill = state.match!.chronicleDeck[0];
+      expect(influenceBefore).toBeGreaterThanOrEqual(definition.cost);
+      append(actor, 'card/acquired', { definitionId, cardInstanceId: offered.id });
+      state = reduceGame(stream);
+      expect(state.diagnostics).toEqual([]);
+      expect(state.match!.players[actor].revealInfluence).toBe(influenceBefore - definition.cost);
+      expect(state.match!.players[actor].discardPile).toContainEqual(offered);
+      expect(state.match!.chronicleDeck).toEqual([]);
+      expect(state.match!.chronicleRow).toHaveLength(5);
+      expect(state.match!.chronicleRow).toContainEqual(refill);
+
+      append(actor, 'card/acquired', { definitionId, cardInstanceId: offered.id });
+      const rejected = reduceGame(stream);
+      expect(rejected.diagnostics.at(-1)).toContain('illegal acquisition');
+      stream.pop();
+
+      append(actor, 'reveal/finished', {});
+      for (let guard = 0; guard < 20; guard += 1) {
+        state = reduceGame(stream);
+        if (state.match!.round >= 3 && currentPlayerUid(state) === actor && state.match!.turnMode === 'agent') break;
+        const current = currentPlayerUid(state)!;
+        append(current, state.match!.turnMode === 'reveal' ? 'reveal/finished' : 'turn/revealed', {});
+      }
+      state = reduceGame(stream);
+      expect(state.diagnostics).toEqual([]);
+      expect(state.match!.round).toBe(3);
+      const acquired = state.match!.players[actor].hand.find((card) => card.id === offered.id)!;
+      expect(acquired).toEqual(offered);
+      return { stream, append, actor, acquired, before: state };
+    };
+
+    const rider = reachAcquiredCard('rider-rohan');
+    const riderGarrison = rider.before.match!.players[rider.actor].companies.garrison;
+    rider.append(rider.actor, 'agent/placed', { cardInstanceId: rider.acquired.id, spaceId: 'minas-tirith' });
+    const afterRider = reduceGame(rider.stream);
+    expect(afterRider.diagnostics).toEqual([]);
+    expect(afterRider.match!.players[rider.actor].companies.garrison).toBe(riderGarrison + 2);
+
+    const guide = reachAcquiredCard('bree-land-guide');
+    const guideResources = structuredClone(guide.before.match!.players[guide.actor].resources);
+    guide.append(guide.actor, 'agent/placed', { cardInstanceId: guide.acquired.id, spaceId: 'take-war-effort' });
+    const afterGuide = reduceGame(guide.stream);
+    expect(afterGuide.diagnostics).toEqual([]);
+    expect(afterGuide.match!.players[guide.actor].resources.provisions).toBe(guideResources.provisions + 1);
+    expect(afterGuide.match!.players[guide.actor].resources.gold).toBe(guideResources.gold + 2);
+
+    const captain = reachAcquiredCard('captain-gondor');
+    const captainPlayer = captain.before.match!.players[captain.actor];
+    const captainGarrison = captainPlayer.companies.garrison;
+    const captainFate = captainPlayer.fateHand.length;
+    captain.append(captain.actor, 'agent/placed', { cardInstanceId: captain.acquired.id, spaceId: 'hall-fire' });
+    const afterCaptain = reduceGame(captain.stream);
+    expect(afterCaptain.diagnostics).toEqual([]);
+    expect(afterCaptain.match!.players[captain.actor].companies.garrison).toBe(captainGarrison + 2);
+    expect(afterCaptain.match!.players[captain.actor].fateHand).toHaveLength(captainFate + 1);
   });
 
   it('resolves the Seek Allies self-trash only after its faction space', () => {

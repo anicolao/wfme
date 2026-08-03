@@ -191,10 +191,10 @@
     }
   }
 
-  async function acquireCard(definitionId: string) {
+  async function acquireCard(definitionId: string, cardInstanceId?: string) {
     busy = true;
     try {
-      await append('card/acquired', { definitionId });
+      await append('card/acquired', { definitionId, ...(cardInstanceId ? { cardInstanceId } : {}) });
       message = 'The acquired card enters your discard pile.';
     } finally {
       busy = false;
