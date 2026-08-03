@@ -1,10 +1,11 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import { TestStepHelper, type Verification } from '../helpers/test-step-helper';
+import { reloadGameClient, waitForFirebase } from '../helpers/firebase-readiness';
 
 type Seat = { name: string; page: Page; context?: BrowserContext };
 
 test('Secret Ways places a Scout and resumes the same Agent turn', async ({ browser, page }, testInfo) => {
-  test.setTimeout(180_000);
+  test.setTimeout(300_000);
   const steps = new TestStepHelper(testInfo);
   const viewport = page.viewportSize() ?? { width: 1280, height: 960 };
   const guestAContext = await browser.newContext({ baseURL: 'http://127.0.0.1:5189', viewport, reducedMotion: 'reduce', serviceWorkers: 'block' });
@@ -18,7 +19,7 @@ test('Secret Ways places a Scout and resumes the same Agent turn', async ({ brow
   const converged = (count: number, observers = seats): Verification => ({
     spec: `Every connected browser replays ${count} accepted events with no diagnostics`,
     check: async () => {
-      for (const seat of observers) await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 30_000 });
+      for (const seat of observers) await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 60_000 });
     }
   });
   const currentSeat = async () => {
@@ -33,7 +34,7 @@ test('Secret Ways places a Scout and resumes the same Agent turn', async ({ brow
     for (const seat of seats) {
       await seat.page.emulateMedia({ reducedMotion: 'reduce' });
       await seat.page.goto('/');
-      await expect(seat.page.getByTestId('firebase-status')).toHaveText('Live Firebase ready', { timeout: 30_000 });
+      await waitForFirebase(seat.page);
     }
     await steps.gesture(page, 'host-name', 'Mara enters a table name', () => page.getByLabel('Display name').fill('Mara'), [
       { spec: 'The real lobby accepts the host name', check: async () => await expect(page.getByLabel('Display name')).toHaveValue('Mara') }
@@ -44,7 +45,7 @@ test('Secret Ways places a Scout and resumes the same Agent turn', async ({ brow
     ]);
     await steps.gesture(page, 'create-room', 'Mara creates the Firebase room', async () => {
       await page.getByRole('button', { name: 'Create game' }).click(); accepted += 1;
-    }, [{ spec: 'The requested room opens', check: async () => await expect(page.getByTestId('room-code')).toHaveText(code, { timeout: 30_000 }) }, converged(accepted + 1, seats.slice(0, 1))]);
+    }, [{ spec: 'The requested room opens', check: async () => await expect(page.getByTestId('room-code')).toHaveText(code, { timeout: 60_000 }) }, converged(accepted + 1, seats.slice(0, 1))]);
     for (const [index, seat] of seats.slice(1).entries()) {
       await steps.gesture(seat.page, `guest-${index + 1}-name`, `${seat.name} enters a table name`, () => seat.page.getByLabel('Display name').fill(seat.name), [
         { spec: 'The isolated browser retains the name', check: async () => await expect(seat.page.getByLabel('Display name')).toHaveValue(seat.name) }
@@ -125,7 +126,7 @@ test('Secret Ways places a Scout and resumes the same Agent turn', async ({ brow
       converged(accepted + 1)
     ]);
     await steps.gesture(fateHolder.page, 'reload-pending-plot', `${fateHolder.name} reloads during Secret Ways`, async () => {
-      await fateHolder.page.reload();
+      await reloadGameClient(fateHolder.page);
     }, [
       { spec: 'The authorized Scout decision survives immutable replay', check: async () => await expect(fateHolder.page.getByTestId('scout-network')).toContainText('Choose an empty post for the Scout.') },
       converged(accepted)

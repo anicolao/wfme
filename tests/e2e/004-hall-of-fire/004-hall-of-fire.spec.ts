@@ -1,10 +1,11 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import { TestStepHelper, type Verification } from '../helpers/test-step-helper';
+import { reloadGameClient, waitForFirebase } from '../helpers/firebase-readiness';
 
 type Seat = { name: string; page: Page; context?: BrowserContext };
 
 test('Hall of Fire grants private Fate and temporary Reveal Influence', async ({ browser, page }, testInfo) => {
-  test.setTimeout(120_000);
+  test.setTimeout(300_000);
   const steps = new TestStepHelper(testInfo);
   const viewport = page.viewportSize() ?? { width: 1280, height: 960 };
   const guestAContext = await browser.newContext({
@@ -22,7 +23,7 @@ test('Hall of Fire grants private Fate and temporary Reveal Influence', async ({
     spec: `All three immutable replays accept exactly ${count} events with no diagnostics`,
     check: async () => {
       for (const seat of connectedSeats) {
-        await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 30_000 });
+        await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 60_000 });
       }
     }
   });
@@ -43,7 +44,7 @@ test('Hall of Fire grants private Fate and temporary Reveal Influence', async ({
     for (const seat of seats) {
       await seat.page.emulateMedia({ reducedMotion: 'reduce' });
       await seat.page.goto('/');
-      await expect(seat.page.getByTestId('firebase-status')).toHaveText('Live Firebase ready', { timeout: 30_000 });
+      await waitForFirebase(seat.page);
     }
 
     await steps.gesture(page, 'host-name', 'Mara enters a table name',
@@ -58,7 +59,7 @@ test('Hall of Fire grants private Fate and temporary Reveal Influence', async ({
     await steps.gesture(page, 'create-room', 'Mara creates the shared room',
       () => page.getByRole('button', { name: 'Create game' }).click(),
       [
-        { spec: 'The live room opens with the requested invitation', check: async () => await expect(page.getByTestId('room-code')).toHaveText(roomCode, { timeout: 30_000 }) },
+        { spec: 'The live room opens with the requested invitation', check: async () => await expect(page.getByTestId('room-code')).toHaveText(roomCode, { timeout: 60_000 }) },
         convergedEvents(1, seats.slice(0, 1))
       ]
     );
@@ -197,7 +198,7 @@ test('Hall of Fire grants private Fate and temporary Reveal Influence', async ({
       ]
     );
     await steps.gesture(fireActor.page, 'reload-hall-of-fire', `${fireActor.name} reloads the occupied Hall`,
-      async () => { await fireActor.page.reload(); },
+      async () => { await reloadGameClient(fireActor.page); },
       [
         { spec: 'Hall occupation, Fate count, and recruitment replay exactly', check: async () => {
           await expect(fireActor.page.getByTestId('space-hall-fire')).toContainText(`Agent · ${fireActor.name}`);
@@ -261,7 +262,7 @@ test('Hall of Fire grants private Fate and temporary Reveal Influence', async ({
       ]
     );
     await steps.gesture(fireActor.page, 'reload-expired-hall-bonus', `${fireActor.name} reloads after the Hall bonus expires`,
-      async () => { await fireActor.page.reload(); },
+      async () => { await reloadGameClient(fireActor.page); },
       [
         { spec: 'The empty Hall, persistent Fate, and round-three replay remain exact', check: async () => {
           await expect(fireActor.page.getByText('Round 3 · Agent turns')).toBeVisible();

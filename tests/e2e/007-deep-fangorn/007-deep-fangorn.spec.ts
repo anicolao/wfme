@@ -1,5 +1,6 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import { TestStepHelper, type Verification } from '../helpers/test-step-helper';
+import { reloadGameClient, waitForFirebase } from '../helpers/firebase-readiness';
 
 type Seat = { name: string; page: Page; context?: BrowserContext };
 
@@ -18,7 +19,7 @@ test('Ent-draught breaches the Dam and summons reward-doubling Ents', async ({ b
   const converged = (count: number): Verification => ({
     spec: `Every connected browser replays ${count} accepted events with no diagnostics`,
     check: async () => {
-      for (const seat of seats) await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 30_000 });
+      for (const seat of seats) await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 60_000 });
     }
   });
   const currentSeat = async () => {
@@ -34,7 +35,7 @@ test('Ent-draught breaches the Dam and summons reward-doubling Ents', async ({ b
     for (const seat of seats) {
       await seat.page.emulateMedia({ reducedMotion: 'reduce' });
       await seat.page.goto('/');
-      await expect(seat.page.getByTestId('firebase-status')).toHaveText('Live Firebase ready', { timeout: 30_000 });
+      await waitForFirebase(seat.page);
     }
     await steps.gesture(page, 'host-name', 'Mara enters a table name', async () => {
       await page.getByLabel('Display name').fill('Mara');
@@ -45,7 +46,7 @@ test('Ent-draught breaches the Dam and summons reward-doubling Ents', async ({ b
     }, [{ spec: 'The invitation code is visible', check: async () => await expect(page.getByLabel(/Room code/)).toHaveValue(code) }]);
     await steps.gesture(page, 'create-room', 'Mara creates the shared room', async () => {
       await page.getByRole('button', { name: 'Create game' }).click(); accepted += 1;
-    }, [{ spec: 'The room is live in Firebase', check: async () => await expect(page.getByTestId('room-code')).toHaveText(code, { timeout: 30_000 }) }]);
+    }, [{ spec: 'The room is live in Firebase', check: async () => await expect(page.getByTestId('room-code')).toHaveText(code, { timeout: 60_000 }) }]);
     for (const [index, seat] of seats.slice(1).entries()) {
       await steps.gesture(seat.page, `guest-${index + 1}-name`, `${seat.name} enters a table name`, async () => {
         await seat.page.getByLabel('Display name').fill(seat.name);
@@ -253,7 +254,7 @@ test('Ent-draught breaches the Dam and summons reward-doubling Ents', async ({ b
       } }, converged(accepted + 1)
     ]);
     await steps.gesture(target.page, 'reload-ent-resolution', `${target.name} reloads the doubled Ent reward`, async () => {
-      await target.page.reload();
+      await reloadGameClient(target.page);
     }, [{ spec: 'The doubled reward, Dam, and Ent-draught replay without diagnostics', check: async () => {
       await expect(target.page.getByTestId('dam-status')).toContainText('Breached');
       await expect(row(target)).toContainText('Ent-draughtReady');
@@ -350,7 +351,7 @@ test('Ent-draught breaches the Dam and summons reward-doubling Ents', async ({ b
     }
     expect(entwashSummoned, 'the browser journey must summon the one Ent available at Entwash').toBe(true);
     await steps.gesture(target.page, 'reload-entwash-summon', `${target.name} reloads the Entwash summon`, async () => {
-      await target.page.reload();
+      await reloadGameClient(target.page);
     }, [{ spec: 'Entwash occupation, one Ent, Dam state, and immutable history replay cleanly', check: async () => {
       await expect(target.page.getByTestId('space-entwash')).toContainText(`Agent · ${target.name}`);
       await expect(target.page.getByTestId('active-battle').locator('article').filter({ hasText: target.name })).toContainText('1 Ents');

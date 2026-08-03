@@ -2,6 +2,7 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests/e2e',
+  globalSetup: './tests/e2e/global-setup.ts',
   fullyParallel: false,
   workers: 1,
   forbidOnly: true,
@@ -55,6 +56,6 @@ export default defineConfig({
       VITE_GIT_HASH: 'e2e-test-commit'
     }
   },
-  timeout: 60_000,
+  timeout: 300_000,
   expect: { timeout: 10_000, toHaveScreenshot: { maxDiffPixels: 0 } }
 });

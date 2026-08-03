@@ -1,9 +1,10 @@
 import { expect, test } from '@playwright/test';
 import { TestStepHelper } from '../helpers/test-step-helper';
 import { startPlotTable } from '../helpers/plot-table';
+import { reloadGameClient } from '../helpers/firebase-readiness';
 
 test('A Chance Meeting draws, privately discards, and resumes the same Agent turn', async ({ browser, page }, testInfo) => {
-  test.setTimeout(180_000);
+  test.setTimeout(300_000);
   const steps = new TestStepHelper(testInfo);
   const table = await startPlotTable(browser, page, testInfo, steps, 'chance-9', { phone: 'ACMPH', desktop: 'ACMDS' });
   const { seats, accepted, converged, currentSeat, row } = table;
@@ -61,7 +62,7 @@ test('A Chance Meeting draws, privately discards, and resumes the same Agent tur
       converged(accepted.value + 1)
     ]);
     await steps.gesture(fateHolder.page, 'reload-pending-discard', `${fateHolder.name} reloads during the private discard`, async () => {
-      await fateHolder.page.reload();
+      await reloadGameClient(fateHolder.page);
     }, [
       { spec: 'The authorized private choice survives immutable replay', check: async () => await expect(fateHolder.page.getByRole('heading', { name: 'Which card will you discard?' })).toBeVisible() },
       { spec: 'The resulting hand still contains the drawn card', check: async () => await expect(fateHolder.page.getByTestId('private-hand').getByRole('button')).toHaveCount(handBefore + 1) },

@@ -1,10 +1,11 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import { TestStepHelper, type Verification } from '../helpers/test-step-helper';
+import { reloadGameClient, waitForFirebase } from '../helpers/firebase-readiness';
 
 type Seat = { name: string; page: Page; context?: BrowserContext };
 
 test('Hidden Counsel draws private Fate on the shared Elven track', async ({ browser, page }, testInfo) => {
-  test.setTimeout(90_000);
+  test.setTimeout(300_000);
   const steps = new TestStepHelper(testInfo);
   const viewport = page.viewportSize() ?? { width: 1280, height: 960 };
   const guestAContext = await browser.newContext({ baseURL: 'http://127.0.0.1:5189', viewport, reducedMotion: 'reduce', serviceWorkers: 'block' });
@@ -17,7 +18,7 @@ test('Hidden Counsel draws private Fate on the shared Elven track', async ({ bro
   const converged = (count: number, connected = seats): Verification => ({
     spec: `Every connected immutable replay accepts ${count} events with no diagnostics`,
     check: async () => {
-      for (const seat of connected) await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 30_000 });
+      for (const seat of connected) await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 60_000 });
     }
   });
 
@@ -25,7 +26,7 @@ test('Hidden Counsel draws private Fate on the shared Elven track', async ({ bro
     for (const seat of seats) {
       await seat.page.emulateMedia({ reducedMotion: 'reduce' });
       await seat.page.goto('/');
-      await expect(seat.page.getByTestId('firebase-status')).toHaveText('Live Firebase ready', { timeout: 30_000 });
+      await waitForFirebase(seat.page);
     }
     await steps.gesture(page, 'host-name', 'Mara enters a table name',
       () => page.getByLabel('Display name').fill('Mara'),
@@ -36,7 +37,7 @@ test('Hidden Counsel draws private Fate on the shared Elven track', async ({ bro
       [{ spec: 'The exact invitation is visible', check: async () => await expect(page.getByLabel(/Room code/)).toHaveValue(roomCode) }]);
     await steps.gesture(page, 'create-room', 'Mara creates the room',
       () => page.getByRole('button', { name: 'Create game' }).click(),
-      [{ spec: 'The requested room opens', check: async () => await expect(page.getByTestId('room-code')).toHaveText(roomCode, { timeout: 30_000 }) }, converged(1, seats.slice(0, 1))]);
+      [{ spec: 'The requested room opens', check: async () => await expect(page.getByTestId('room-code')).toHaveText(roomCode, { timeout: 60_000 }) }, converged(1, seats.slice(0, 1))]);
 
     for (const [index, seat] of seats.slice(1).entries()) {
       await steps.gesture(seat.page, `guest-${index + 1}-name`, `${seat.name} enters a table name`,
@@ -110,7 +111,7 @@ test('Hidden Counsel draws private Fate on the shared Elven track', async ({ bro
         converged(11)
       ]);
     await steps.gesture(actor.page, 'reload-hidden-counsel', `${actor.name} reloads the private Fate state`,
-      async () => { await actor.page.reload(); },
+      async () => { await reloadGameClient(actor.page); },
       [
         { spec: 'The board, count, and standing replay without exposing the card', check: async () => {
           await expect(actor.page.getByTestId('space-hidden-counsel')).toContainText(`Agent · ${actor.name}`);

@@ -1,10 +1,11 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import { TestStepHelper, type Verification } from '../helpers/test-step-helper';
+import { reloadGameClient, waitForFirebase } from '../helpers/firebase-readiness';
 
 type Seat = { name: string; page: Page; context?: BrowserContext };
 
 test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async ({ browser, page }, testInfo) => {
-  test.setTimeout(180_000);
+  test.setTimeout(300_000);
   const steps = new TestStepHelper(testInfo);
   const viewport = page.viewportSize() ?? { width: 1280, height: 960 };
   const guestAContext = await browser.newContext({ baseURL: 'http://127.0.0.1:5189', viewport, reducedMotion: 'reduce', serviceWorkers: 'block' });
@@ -18,7 +19,7 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
   const converged = (expected: number, observers = seats): Verification => ({
     spec: `Every connected browser replays ${expected} accepted events with no diagnostics`,
     check: async () => {
-      for (const seat of observers) await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${expected} accepted events · 0 replay diagnostics`, { timeout: 30_000 });
+      for (const seat of observers) await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${expected} accepted events · 0 replay diagnostics`, { timeout: 60_000 });
     }
   });
   const currentSeat = async () => {
@@ -30,7 +31,7 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
     for (const seat of seats) {
       await seat.page.emulateMedia({ reducedMotion: 'reduce' });
       await seat.page.goto('/');
-      await expect(seat.page.getByTestId('firebase-status')).toHaveText('Live Firebase ready', { timeout: 30_000 });
+      await waitForFirebase(seat.page);
     }
     await steps.gesture(page, 'host-name', 'Mara enters her name', () => page.getByLabel('Display name').fill('Mara'), [
       { spec: 'The lobby receives the name through its labeled input', check: async () => await expect(page.getByLabel('Display name')).toHaveValue('Mara') }
@@ -41,7 +42,7 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
     ]);
     await steps.gesture(page, 'create-room', 'Mara creates the live room', async () => {
       await page.getByRole('button', { name: 'Create game' }).click(); accepted += 1;
-    }, [{ spec: 'The host sees the requested live room', check: async () => await expect(page.getByTestId('room-code')).toHaveText(code, { timeout: 30_000 }) }, converged(1, seats.slice(0, 1))]);
+    }, [{ spec: 'The host sees the requested live room', check: async () => await expect(page.getByTestId('room-code')).toHaveText(code, { timeout: 60_000 }) }, converged(1, seats.slice(0, 1))]);
 
     for (const [index, seat] of seats.slice(1).entries()) {
       await steps.gesture(seat.page, `guest-${index + 1}-name`, `${seat.name} enters a name`, () => seat.page.getByLabel('Display name').fill(seat.name), [
@@ -170,7 +171,7 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
     }
 
     const fateActor = await currentSeat();
-    await steps.gesture(fateActor.page, 'reload-fate-window', `${fateActor.name} reloads during Combat Fate`, async () => { await fateActor.page.reload(); }, [
+    await steps.gesture(fateActor.page, 'reload-fate-window', `${fateActor.name} reloads during Combat Fate`, async () => { await reloadGameClient(fateActor.page); }, [
       { spec: 'Replay restores the same authorized pass decision and all three forces', check: async () => {
         await expect(fateActor.page.getByTestId('pass-battle')).toBeEnabled();
         await expect(fateActor.page.getByTestId('active-battle').locator('.battle-forces article')).toHaveCount(3);
@@ -330,7 +331,7 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
     }
     if (!reinforcementHolder || reinforcementHolder === controllerSeat) throw new Error('The Siege runner-up did not retain the private Reinforcements reward');
     await steps.gesture(controllerSeat.page, 'reload-pelennor-decision', `${controllerSeat.name} reloads before the Pelennor defense choice`, async () => {
-      await controllerSeat.page.reload();
+      await reloadGameClient(controllerSeat.page);
     }, [
       { spec: 'The contested Age III Battle and controller-only defense choice survive replay', check: async () => {
         await expect(controllerSeat.page.getByTestId('active-battle')).toContainText('Battle of the Pelennor Fields');

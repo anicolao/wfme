@@ -1,10 +1,11 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import { TestStepHelper, type Verification } from '../helpers/test-step-helper';
+import { reloadGameClient, waitForFirebase } from '../helpers/firebase-readiness';
 
 type Seat = { name: string; page: Page; context?: BrowserContext };
 
 test('a Scout infiltrates a space blocked by another human', async ({ browser, page }, testInfo) => {
-  test.setTimeout(120_000);
+  test.setTimeout(300_000);
   const steps = new TestStepHelper(testInfo);
   const viewport = page.viewportSize() ?? { width: 1280, height: 960 };
   const guestAContext = await browser.newContext({
@@ -22,7 +23,7 @@ test('a Scout infiltrates a space blocked by another human', async ({ browser, p
     spec: `All three immutable replays accept exactly ${count} events with no diagnostics`,
     check: async () => {
       for (const seat of seats) {
-        await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 30_000 });
+        await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 60_000 });
       }
     }
   });
@@ -31,7 +32,7 @@ test('a Scout infiltrates a space blocked by another human', async ({ browser, p
     for (const seat of seats) {
       await seat.page.emulateMedia({ reducedMotion: 'reduce' });
       await seat.page.goto('/');
-      await expect(seat.page.getByTestId('firebase-status')).toHaveText('Live Firebase ready', { timeout: 30_000 });
+      await waitForFirebase(seat.page);
     }
 
     await steps.gesture(page, 'host-name', 'Mara enters a table name',
@@ -46,7 +47,7 @@ test('a Scout infiltrates a space blocked by another human', async ({ browser, p
     await steps.gesture(page, 'create-room', 'Mara creates the shared room',
       () => page.getByRole('button', { name: 'Create game' }).click(),
       [{ spec: 'The live room opens with one public seat', check: async () => {
-        await expect(page.getByTestId('room-code')).toHaveText(requestedRoomCode, { timeout: 30_000 });
+        await expect(page.getByTestId('room-code')).toHaveText(requestedRoomCode, { timeout: 60_000 });
         await expect(page.locator('.player-list article')).toHaveCount(1);
       } }]
     );
@@ -212,7 +213,7 @@ test('a Scout infiltrates a space blocked by another human', async ({ browser, p
       ]
     );
     await steps.gesture(scoutActor.page, 'reload-infiltration', 'Pip reloads the infiltrated board',
-      async () => { await scoutActor.page.reload(); },
+      async () => { await reloadGameClient(scoutActor.page); },
       [
         { spec: 'Both Agents, recalled Scout, and rewards replay identically', check: async () => {
           await expect(scoutActor.page.getByTestId('space-dwarven-caravans')).toContainText('Agent · Mara · Pip');

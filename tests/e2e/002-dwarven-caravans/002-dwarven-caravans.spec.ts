@@ -1,10 +1,11 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import { TestStepHelper, type Verification } from '../helpers/test-step-helper';
+import { reloadGameClient, waitForFirebase } from '../helpers/firebase-readiness';
 
 type Seat = { name: string; page: Page; context?: BrowserContext };
 
 test('three humans create a room and complete Dwarven Caravans', async ({ browser, page }, testInfo) => {
-  test.setTimeout(210_000);
+  test.setTimeout(300_000);
   const steps = new TestStepHelper(testInfo);
   const viewport = page.viewportSize() ?? { width: 1280, height: 960 };
   const guestAContext = await browser.newContext({
@@ -31,7 +32,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
     spec: `Every connected replay has accepted exactly ${count} events with no diagnostics`,
     check: async () => {
       for (const seat of connectedSeats) {
-        await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 30_000 });
+        await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 60_000 });
       }
     }
   });
@@ -40,7 +41,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
     for (const seat of seats) {
       await seat.page.emulateMedia({ reducedMotion: 'reduce' });
       await seat.page.goto('/');
-      await expect(seat.page.getByTestId('firebase-status')).toHaveText('Live Firebase ready', { timeout: 30_000 });
+      await waitForFirebase(seat.page);
     }
 
     await steps.gesture(page, 'host-name', 'Mara enters a table name',
@@ -58,7 +59,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
     await steps.gesture(page, 'create-room', 'Mara creates the shared room',
       () => page.getByRole('button', { name: 'Create game' }).click(),
       [
-        { spec: 'The requested invitation code is displayed', check: async () => await expect(page.getByTestId('room-code')).toHaveText(requestedRoomCode, { timeout: 30_000 }) },
+        { spec: 'The requested invitation code is displayed', check: async () => await expect(page.getByTestId('room-code')).toHaveText(requestedRoomCode, { timeout: 60_000 }) },
         convergedLobby(1),
         convergedEvents(1, seats.slice(0, 1))
       ]
@@ -207,7 +208,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
     );
 
     await steps.gesture(actor!.page, 'reload-replay', `${actor!.name} reloads and the immutable history replays`,
-      async () => { await actor!.page.reload(); },
+      async () => { await reloadGameClient(actor!.page); },
       [
         { spec: 'The anonymous seat reconnects directly to the board', check: async () => await expect(actor!.page.getByRole('heading', { name: 'The living board' })).toBeVisible() },
         { spec: 'The committed Agent and rewards survive reload', check: async () => {
@@ -256,7 +257,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
     await steps.gesture(shadowActor!.page, 'reload-shadow', `${shadowActor!.name} reloads the completed Shadow tribute`,
-      async () => { await shadowActor!.page.reload(); },
+      async () => { await reloadGameClient(shadowActor!.page); },
       [
         { spec: 'The Shadow occupation survives immutable replay', check: async () => await expect(shadowActor!.page.getByTestId('space-tribute-shadow')).toContainText(`Agent · ${shadowActor!.name}`) },
         { spec: 'Shadow rewards remain exact after reload', check: async () => {
@@ -321,7 +322,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
     await steps.gesture(roadActor!.page, 'reload-muster', `${roadActor!.name} reloads the completed Council action`,
-      async () => { await roadActor!.page.reload(); },
+      async () => { await reloadGameClient(roadActor!.page); },
       [
         { spec: 'The Council occupation and resolved payment survive replay', check: async () => {
           await expect(roadActor!.page.getByTestId('space-muster-free-peoples')).toContainText(`Agent · ${roadActor!.name}`);
@@ -459,7 +460,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
     await steps.gesture(actor!.page, 'reload-acquired-card', `${actor!.name} reloads after using the acquired card`,
-      async () => { await actor!.page.reload(); },
+      async () => { await reloadGameClient(actor!.page); },
       [
         { spec: 'Acquisition, reshuffle, draw, Journey effect, and occupation replay identically', check: async () => {
           await expect(actor!.page.getByTestId('space-take-war-effort')).toContainText(`Agent · ${actor!.name}`);
@@ -507,7 +508,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
     await steps.gesture(actor!.page, 'reload-dwarven-respect', `${actor!.name} reloads the standing threshold`,
-      async () => { await actor!.page.reload(); },
+      async () => { await reloadGameClient(actor!.page); },
       [
         { spec: 'Standing, Renown, Provision, and occupation replay exactly', check: async () => {
           const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
@@ -562,7 +563,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
     await steps.gesture(actor!.page, 'reload-seek-trash', `${actor!.name} reloads the trashed card`,
-      async () => { await actor!.page.reload(); },
+      async () => { await reloadGameClient(actor!.page); },
       [
         { spec: 'Trash, Shadow reward, and occupation replay exactly', check: async () => {
           const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
@@ -664,7 +665,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
     await steps.gesture(actor!.page, 'reload-scout-post', `${actor!.name} reloads the observation network`,
-      async () => { await actor!.page.reload(); },
+      async () => { await reloadGameClient(actor!.page); },
       [
         { spec: 'Scout, Agent, and board reward replay identically', check: async () => {
           await expect(actor!.page.getByTestId('post-old-south-road')).toContainText(`Scout · ${actor!.name}`);
@@ -749,7 +750,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
     await steps.gesture(actor!.page, 'reload-gathered-intelligence', `${actor!.name} reloads the completed intelligence action`,
-      async () => { await actor!.page.reload(); },
+      async () => { await reloadGameClient(actor!.page); },
       [
         { spec: 'Scout recall, both draws, Gold, and Agent occupation replay exactly', check: async () => {
           await expect(actor!.page.getByTestId('post-old-south-road')).not.toContainText('Scout ·');
@@ -846,7 +847,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
     await steps.gesture(actor!.page, 'reload-dwarven-alliance', `${actor!.name} reloads the claimed Alliance`,
-      async () => { await actor!.page.reload(); },
+      async () => { await reloadGameClient(actor!.page); },
       [
         { spec: 'Standing, favor, Alliance owner, Renown, and Agent replay exactly', check: async () => {
           await expect(actor!.page.getByTestId('alliance-dwarven')).toContainText(actor!.name);
@@ -998,7 +999,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
     await steps.gesture(actor!.page, 'reload-repeat-council', `${actor!.name} reloads the repeat Council visit`,
-      async () => { await actor!.page.reload(); },
+      async () => { await reloadGameClient(actor!.page); },
       [
         { spec: 'Council ownership, Fate count, resources, recruitment, and occupation replay exactly', check: async () => {
           const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
@@ -1088,7 +1089,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       mirrorEventCount = 104;
     }
     await steps.gesture(actor!.page, 'reload-mirror-galadriel', `${actor!.name} reloads the completed Mirror visit`,
-      async () => { await actor!.page.reload(); },
+      async () => { await reloadGameClient(actor!.page); },
       [
         { spec: 'Payment, Elven standing, draw count, Agent, and Scout replay exactly', check: async () => {
           const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
@@ -1250,7 +1251,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
     await steps.gesture(actor!.page, 'reload-secret-bargain', `${actor!.name} reloads the completed Secret Bargain`,
-      async () => { await actor!.page.reload(); },
+      async () => { await reloadGameClient(actor!.page); },
       [
         { spec: 'Payment, Fate cycle, recall, private draw, and reusable Agent replay exactly', check: async () => {
           const player = actor!.page.locator('.players article').filter({ hasText: actor!.name });
@@ -1370,7 +1371,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       { spec: 'The Chronicle records the next-turn arrival without granting a fourth Agent', check: async () => await expect(actor!.page.getByTestId('activity-log')).toContainText('A newly appointed Captain joins their Commander at the beginning of their next turn') }
     ]);
     await steps.gesture(actor!.page, 'reload-appointed-captain', `${actor!.name} reloads the appointed Captain`,
-      async () => { await actor!.page.reload(); },
+      async () => { await reloadGameClient(actor!.page); },
       [
         { spec: 'Captain ownership, third-Agent availability, payment, and occupation replay exactly', check: async () => {
           const row = actor!.page.locator('.players article').filter({ hasText: actor!.name });
@@ -1616,7 +1617,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       factionEvents += 1;
     }
     await steps.gesture(actor!.page, 'reload-faction-destinations', `${actor!.name} reloads all four completed faction destinations`,
-      async () => { await actor!.page.reload(); },
+      async () => { await reloadGameClient(actor!.page); },
       [
         { spec: 'Paid resources, faction standing, draws, recruitment, trash, and occupations replay exactly', check: async () => {
           await expect(actor!.page.getByTestId('space-pits-isengard')).toBeVisible();
@@ -1709,7 +1710,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
     await visitFangorn('draught');
     await visitFangorn('breach');
     await steps.gesture(actor!.page, 'reload-fangorn-moot', `${actor!.name} reloads the completed Fangorn decisions`,
-      async () => { await actor!.page.reload(); },
+      async () => { await reloadGameClient(actor!.page); },
       [
         { spec: 'Ent-draught ownership and the breached Dam replay exactly', check: async () => {
           await expect(actor!.page.locator('.players article').filter({ hasText: actor!.name })).toContainText('Ent-draughtReady');

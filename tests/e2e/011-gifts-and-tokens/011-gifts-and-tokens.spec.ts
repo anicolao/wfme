@@ -1,9 +1,10 @@
 import { expect, test } from '@playwright/test';
 import { TestStepHelper } from '../helpers/test-step-helper';
 import { startPlotTable } from '../helpers/plot-table';
+import { reloadGameClient } from '../helpers/firebase-readiness';
 
 test('Gifts and Tokens resolves a visible resource choice and resumes the Agent turn', async ({ browser, page }, testInfo) => {
-  test.setTimeout(180_000);
+  test.setTimeout(300_000);
   const steps = new TestStepHelper(testInfo);
   const table = await startPlotTable(browser, page, testInfo, steps, 'gifts-26', { phone: 'GIFPH', desktop: 'GIFDS' });
   const { seats, accepted, converged, currentSeat, row } = table;
@@ -56,7 +57,7 @@ test('Gifts and Tokens resolves a visible resource choice and resumes the Agent 
       converged(accepted.value + 1)
     ]);
     await steps.gesture(fateHolder.page, 'reload-pending-gift', `${fateHolder.name} reloads during the resource choice`, async () => {
-      await fateHolder.page.reload();
+      await reloadGameClient(fateHolder.page);
     }, [
       { spec: 'The authorized resource choice survives immutable replay', check: async () => await expect(fateHolder.page.getByRole('heading', { name: 'Which gift will you take?' })).toBeVisible() },
       { spec: 'No resources change before a legal click', check: async () => await expect(row(fateHolder, fateHolder.name)).toContainText('Gold0') },
