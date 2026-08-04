@@ -97,6 +97,8 @@
       ? 'Pay 4 Mithril · gain 1 Renown'
       : definition.effect.kind === 'alliance-renown'
       ? 'Hold at least 2 Alliances · gain 1 Renown'
+      : definition.effect.kind === 'high-cost-chronicle-renown'
+      ? 'Own at least 4 Chronicle cards costing 5+ · gain 1 Renown'
       : `+${definition.effect.amount} Strength`;
   }
 
@@ -105,6 +107,13 @@
     if (definition.effect.kind === 'pay-mithril-renown') return localMatch.resources.mithril >= definition.effect.costMithril;
     if (definition.effect.kind === 'alliance-renown') {
       return Object.values(game.match.alliances).filter((uid) => uid === localUid).length >= definition.effect.requiredAlliances;
+    }
+    if (definition.effect.kind === 'high-cost-chronicle-renown') {
+      const effect = definition.effect;
+      return [...localMatch.hand, ...localMatch.drawPile, ...localMatch.discardPile].filter((instance) => {
+        const chronicle = CHRONICLE_CARD_DEFINITIONS.find((candidate) => candidate.id === instance.definitionId);
+        return Boolean(chronicle && chronicle.cost >= effect.minimumCost);
+      }).length >= effect.requiredCards;
     }
     return false;
   }
@@ -127,8 +136,8 @@
     <dl class="ledger" aria-label="Construction capability ledger">
       <div><dt>Playable spaces</dt><dd>22 / 22</dd></div>
       <div><dt>Starting Agent boxes</dt><dd>5 / 7</dd></div>
-      <div><dt>Chronicle cards</dt><dd>8 / 54</dd></div>
-      <div><dt>Fate effects</dt><dd>28 / 30</dd></div>
+      <div><dt>Chronicle cards</dt><dd>10 / 54</dd></div>
+      <div><dt>Fate effects</dt><dd>30 / 30</dd></div>
       <div><dt>Battle cards</dt><dd>{BATTLE_CARD_DEFINITIONS.length} / 16</dd></div>
       <div><dt>Commander powers</dt><dd>0 / 16</dd></div>
     </dl>

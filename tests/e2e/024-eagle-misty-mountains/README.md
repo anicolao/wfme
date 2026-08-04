@@ -241,7 +241,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] The five-cost physical card enters discard and consumes all Influence
-- [x] Every browser sees the immediate positional refill and two-card deck
+- [x] Every browser sees the immediate positional refill and four-card deck
 - [x] Every connected browser replays 12 accepted events with no diagnostics
 
 ---

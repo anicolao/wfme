@@ -46,6 +46,10 @@ test('Long Memory cycles an affordable physical Chronicle card and resumes the A
     const initialMarket = fateHolder.page.getByTestId('chronicle-row').getByRole('button');
     await expect(initialMarket).toHaveCount(5);
     const cycledInstanceId = await initialMarket.filter({ hasText: 'Bree-land Guide' }).first().getAttribute('data-card-instance-id');
+    const cycledPosition = await initialMarket.filter({ hasText: 'Bree-land Guide' }).first().evaluate((card) =>
+      Array.from(card.parentElement?.children ?? []).indexOf(card)
+    );
+    const initialInstanceIds = await initialMarket.evaluateAll((cards) => cards.map((card) => card.getAttribute('data-card-instance-id')));
     expect(cycledInstanceId).toBeTruthy();
     await steps.gesture(fateHolder.page, 'play-long-memory', `${fateHolder.name} plays Long Memory`, async () => {
       await fateHolder.page.getByRole('button', { name: 'Play Long Memory · Cycle a Chronicle card costing 3 or less · refill the Row' }).click(); accepted.value += 1;
@@ -78,12 +82,15 @@ test('Long Memory cycles an affordable physical Chronicle card and resumes the A
     await steps.gesture(fateHolder.page, 'cycle-bree-guide', `${fateHolder.name} cycles one physical Bree-land Guide`, async () => {
       await fateHolder.page.getByRole('button', { name: 'Cycle Bree-land Guide · 2 Influence' }).first().click(); accepted.value += 1;
     }, [
-      { spec: 'Every browser sees five Row cards, the same positional refill, and three cards in the deck', check: async () => {
+      { spec: 'Every browser sees five Row cards, the exact positional refill, and five cards in the deck', check: async () => {
         for (const observer of seats) {
-          await expect(observer.page.getByTestId('chronicle-row').getByRole('button')).toHaveCount(5);
-          await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 3');
-          await expect(observer.page.getByTestId('chronicle-row').getByText('Captain of Gondor · 4 Influence')).toHaveCount(2);
-          await expect(observer.page.getByTestId('chronicle-row').getByText('Bree-land Guide · 2 Influence')).toHaveCount(1);
+          const observerMarket = observer.page.getByTestId('chronicle-row').getByRole('button');
+          await expect(observerMarket).toHaveCount(5);
+          await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 5');
+          for (let position = 0; position < initialInstanceIds.length; position += 1) {
+            if (position === cycledPosition) await expect(observerMarket.nth(position)).not.toHaveAttribute('data-card-instance-id', cycledInstanceId!);
+            else await expect(observerMarket.nth(position)).toHaveAttribute('data-card-instance-id', initialInstanceIds[position]!);
+          }
         }
       } },
       { spec: 'The selected physical instance left the Row and the same Agent turn resumed', check: async () => {

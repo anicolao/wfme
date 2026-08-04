@@ -241,7 +241,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] The exact physical card enters the buyer’s discard and costs 2 Influence
-- [x] The Chronicle Row immediately refills to five from its eight-card deck
+- [x] The Chronicle Row immediately refills to five from its ten-card deck
 - [x] Every connected browser replays 12 accepted events with no diagnostics
 
 ---

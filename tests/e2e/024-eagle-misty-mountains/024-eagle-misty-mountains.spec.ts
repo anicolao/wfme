@@ -35,8 +35,8 @@ test('Eagle of the Misty Mountains is acquired, drawn, and played at a Battle', 
     const buyer = await currentSeat();
     for (const observer of seats) {
       await expect(observer.page.getByTestId('chronicle-row').getByRole('button')).toHaveCount(5);
-      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 3');
-      await expect(observer.page.getByTestId('chronicle-row').getByRole('button', { name: /^Eagle of the Misty Mountains/ })).toBeDisabled();
+      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 5');
+      await expect(observer.page.getByTestId('chronicle-row').getByRole('button', { name: /^Eagle of the Misty Mountains/ }).first()).toBeDisabled();
     }
 
     await steps.gesture(buyer.page, 'reveal-five-influence', `${buyer.name} Reveals five Influence`, async () => {
@@ -44,27 +44,27 @@ test('Eagle of the Misty Mountains is acquired, drawn, and played at a Battle', 
     }, [
       { spec: 'The genuine Muster row totals exactly five Influence and enables the Eagle', check: async () => {
         await expect(buyer.page.locator('.reveal-total strong')).toHaveText('5 Influence');
-        await expect(buyer.page.getByTestId('chronicle-row').getByRole('button', { name: /^Eagle of the Misty Mountains/ })).toBeEnabled();
+        await expect(buyer.page.getByTestId('chronicle-row').getByRole('button', { name: /^Eagle of the Misty Mountains/ }).first()).toBeEnabled();
       } },
       { spec: 'Observers see the market but cannot buy for the active human', check: async () => {
         for (const observer of seats.filter((seat) => seat !== buyer)) {
-          await expect(observer.page.getByTestId('chronicle-row').getByRole('button', { name: /^Eagle of the Misty Mountains/ })).toBeDisabled();
+          await expect(observer.page.getByTestId('chronicle-row').getByRole('button', { name: /^Eagle of the Misty Mountains/ }).first()).toBeDisabled();
         }
       } },
       converged(accepted.value + 1)
     ]);
 
     await steps.gesture(buyer.page, 'buy-eagle', `${buyer.name} buys Eagle of the Misty Mountains`, async () => {
-      await buyer.page.getByTestId('chronicle-row').getByRole('button', { name: /^Eagle of the Misty Mountains/ }).click(); accepted.value += 1;
+      await buyer.page.getByTestId('chronicle-row').getByRole('button', { name: /^Eagle of the Misty Mountains/ }).first().click(); accepted.value += 1;
     }, [
       { spec: 'The five-cost physical card enters discard and consumes all Influence', check: async () => {
         await expect(row(buyer, buyer.name)).toContainText('Discard1');
         await expect(buyer.page.locator('.reveal-total strong')).toHaveText('0 Influence');
       } },
-      { spec: 'Every browser sees the immediate positional refill and two-card deck', check: async () => {
+      { spec: 'Every browser sees the immediate positional refill and four-card deck', check: async () => {
         for (const observer of seats) {
           await expect(observer.page.getByTestId('chronicle-row').getByRole('button')).toHaveCount(5);
-          await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 2');
+          await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 4');
           await expect(observer.page.getByTestId('activity-log')).toContainText(`${buyer.name} acquires Eagle of the Misty Mountains from the Chronicle Row for 5 Influence and refills its place.`);
         }
       } },
@@ -77,7 +77,7 @@ test('Eagle of the Misty Mountains is acquired, drawn, and played at a Battle', 
       { spec: 'Replay preserves the spent Influence, acquired discard, and exact refill', check: async () => {
         await expect(buyer.page.locator('.reveal-total strong')).toHaveText('0 Influence');
         await expect(row(buyer, buyer.name)).toContainText('Discard1');
-        await expect(buyer.page.getByTestId('chronicle-market')).toContainText('deck 2');
+        await expect(buyer.page.getByTestId('chronicle-market')).toContainText('deck 4');
       } },
       converged(accepted.value)
     ]);

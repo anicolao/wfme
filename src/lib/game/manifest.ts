@@ -35,6 +35,7 @@ export type AgentCardDefinition = StartingCardIdentity & {
     | { kind: 'recruit-companies'; amount: number }
     | { kind: 'gain-provisions'; amount: number }
     | { kind: 'draw-card-battle-recruit'; draw: 1; recruit: 1 }
+    | { kind: 'draw-fate-place-scout'; drawFate: 1; placeScout: 1 }
     | { kind: 'optional-trash-self' }
     | { kind: 'place-scout'; amount: 1 };
   reviewedCapabilities: readonly ['agent-placement'];
@@ -118,6 +119,14 @@ export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
     placementIcons: ['Wild', 'Stronghold'],
     journeyEffect: { kind: 'draw-card-battle-recruit', draw: 1, recruit: 1 },
     reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'lady-golden-wood',
+    name: 'Lady of the Golden Wood',
+    copies: 2,
+    placementIcons: ['Elven', 'Wild'],
+    journeyEffect: { kind: 'draw-fate-place-scout', drawFate: 1, placeScout: 1 },
+    reviewedCapabilities: ['agent-placement']
   }
 ];
 
@@ -157,7 +166,8 @@ export const MUSTER_CARD_DEFINITIONS: readonly MusterCardDefinition[] = [
   { id: 'rider-rohan', name: 'Rider of Rohan', muster: { influence: 1, swords: 1 } },
   { id: 'bree-land-guide', name: 'Bree-land Guide', muster: { influence: 1, swords: 0 } },
   { id: 'captain-gondor', name: 'Captain of Gondor', muster: { influence: 1, swords: 2 } },
-  { id: 'eagle-misty-mountains', name: 'Eagle of the Misty Mountains', muster: { influence: 2, swords: 2 } }
+  { id: 'eagle-misty-mountains', name: 'Eagle of the Misty Mountains', muster: { influence: 2, swords: 2 } },
+  { id: 'lady-golden-wood', name: 'Lady of the Golden Wood', muster: { influence: 3, swords: 0 } }
 ];
 
 export type ReserveCardId = 'muster-host';
@@ -176,7 +186,7 @@ export const RESERVE_CARD_DEFINITIONS: readonly ReserveCardDefinition[] = [
   }
 ];
 
-export type ChronicleCardId = 'rider-rohan' | 'bree-land-guide' | 'captain-gondor' | 'eagle-misty-mountains';
+export type ChronicleCardId = 'rider-rohan' | 'bree-land-guide' | 'captain-gondor' | 'eagle-misty-mountains' | 'lady-golden-wood';
 
 export type ChronicleCardDefinition = {
   id: ChronicleCardId;
@@ -213,6 +223,12 @@ export const CHRONICLE_CARD_DEFINITIONS: readonly ChronicleCardDefinition[] = [
     id: 'eagle-misty-mountains', name: 'Eagle of the Misty Mountains', copies: 2, cost: 5,
     placementIcons: ['Wild', 'Stronghold'], journeyText: 'Draw 1 card; at a Battle space, recruit 1 Company',
     muster: { influence: 2, swords: 2 },
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'lady-golden-wood', name: 'Lady of the Golden Wood', copies: 2, cost: 5,
+    placementIcons: ['Elven', 'Wild'], journeyText: 'Draw 1 Fate; place 1 Scout',
+    muster: { influence: 3, swords: 0 },
     reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
   }
 ];
@@ -457,7 +473,7 @@ export const BATTLE_CARD_DEFINITIONS: readonly BattleCardDefinition[] = [
 ];
 
 export type FateCardDefinition = {
-  id: 'secret-ways' | 'chance-meeting' | 'gifts-tokens' | 'tidings-afar' | 'divided-counsel' | 'long-memory' | 'sudden-charge' | 'hold-line' | 'hidden-archers' | 'fell-sorcery' | 'reinforcements' | 'desperate-valor' | 'lore-beyond-price' | 'keeper-oaths';
+  id: 'secret-ways' | 'chance-meeting' | 'gifts-tokens' | 'tidings-afar' | 'divided-counsel' | 'long-memory' | 'sudden-charge' | 'hold-line' | 'hidden-archers' | 'fell-sorcery' | 'reinforcements' | 'desperate-valor' | 'lore-beyond-price' | 'keeper-oaths' | 'the-long-game';
   name: string;
   copies: 2;
   timing: 'Plot' | 'Combat' | 'Endgame';
@@ -475,7 +491,8 @@ export type FateCardDefinition = {
     | { kind: 'reinforcements'; deployCompanies: 1; fallbackStrength: 2 }
     | { kind: 'desperate-valor'; returnCompanies: 1; strength: 5 }
     | { kind: 'pay-mithril-renown'; costMithril: 4; renown: 1 }
-    | { kind: 'alliance-renown'; requiredAlliances: 2; renown: 1 };
+    | { kind: 'alliance-renown'; requiredAlliances: 2; renown: 1 }
+    | { kind: 'high-cost-chronicle-renown'; minimumCost: 5; requiredCards: 4; renown: 1 };
   reviewedCapabilities: readonly ('plot-fate' | 'combat-fate' | 'endgame-fate')[];
 };
 
@@ -590,6 +607,14 @@ export const FATE_CARD_DEFINITIONS: readonly FateCardDefinition[] = [
     copies: 2,
     timing: 'Endgame',
     effect: { kind: 'alliance-renown', requiredAlliances: 2, renown: 1 },
+    reviewedCapabilities: ['endgame-fate']
+  },
+  {
+    id: 'the-long-game',
+    name: 'The Long Game',
+    copies: 2,
+    timing: 'Endgame',
+    effect: { kind: 'high-cost-chronicle-renown', minimumCost: 5, requiredCards: 4, renown: 1 },
     reviewedCapabilities: ['endgame-fate']
   }
 ];

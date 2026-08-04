@@ -69,10 +69,11 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'fell-sorcery')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'lore-beyond-price')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'keeper-oaths')).toHaveLength(2);
+    expect(first.match!.fateDeck.filter((card) => card.definitionId === 'the-long-game')).toHaveLength(2);
     expect(first.match!.chronicleRow).toHaveLength(5);
-    expect(first.match!.chronicleDeck).toHaveLength(3);
+    expect(first.match!.chronicleDeck).toHaveLength(5);
     const chronicleInstances = [...first.match!.chronicleRow, ...first.match!.chronicleDeck];
-    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(8);
+    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(10);
     for (const definition of CHRONICLE_CARD_DEFINITIONS) {
       expect(chronicleInstances.filter((card) => card.definitionId === definition.id)).toHaveLength(2);
     }
@@ -589,7 +590,7 @@ describe('integrated Agent placement replay', () => {
 
   it('buys, refills, reshuffles, draws, and executes every card in the first Chronicle batch', () => {
     const reachAcquiredCard = (definitionId: (typeof CHRONICLE_CARD_DEFINITIONS)[number]['id']) => {
-      const completed = completedAgentRound('chronicle-five-13');
+      const completed = completedAgentRound('chronicle-all-30');
       const stream = [...completed.events];
       const sequences = Object.fromEntries(['host', 'guest-a', 'guest-b'].map((uid) => [uid,
         Math.max(...stream.filter((event) => event.actorUid === uid).map((event) => event.clientSeq))
@@ -613,7 +614,7 @@ describe('integrated Agent placement replay', () => {
       expect(state.diagnostics).toEqual([]);
       expect(state.match!.players[actor].revealInfluence).toBe(influenceBefore - definition.cost);
       expect(state.match!.players[actor].discardPile).toContainEqual(offered);
-      expect(state.match!.chronicleDeck).toHaveLength(2);
+      expect(state.match!.chronicleDeck).toHaveLength(4);
       expect(state.match!.chronicleRow).toHaveLength(5);
       expect(state.match!.chronicleRow).toContainEqual(refill);
 
@@ -676,6 +677,19 @@ describe('integrated Agent placement replay', () => {
     expect(afterEagle.diagnostics).toEqual([]);
     expect(afterEagle.match!.players[eagle.actor].companies.garrison).toBe(eagleGarrison + 2);
     expect(afterEagle.match!.players[eagle.actor].hand).toHaveLength(eagleHand + 1);
+
+    const lady = reachAcquiredCard('lady-golden-wood');
+    const ladyFate = lady.before.match!.players[lady.actor].fateHand.length;
+    lady.append(lady.actor, 'agent/placed', { cardInstanceId: lady.acquired.id, spaceId: 'hidden-counsel' });
+    let afterLady = reduceGame(lady.stream);
+    expect(afterLady.diagnostics).toEqual([]);
+    expect(afterLady.match!.players[lady.actor].fateHand).toHaveLength(ladyFate + 2);
+    expect(afterLady.match!.pendingChoice).toMatchObject({ kind: 'place-scout', actorUid: lady.actor });
+    const ladyPost = OBSERVATION_POSTS.find((post) => !afterLady.match!.boardScouts[post.id])!;
+    lady.append(lady.actor, 'scout/placed', { postId: ladyPost.id });
+    afterLady = reduceGame(lady.stream);
+    expect(afterLady.diagnostics).toEqual([]);
+    expect(afterLady.match!.boardScouts[ladyPost.id]).toBe(lady.actor);
   });
 
   it('resolves the Seek Allies self-trash only after its faction space', () => {
@@ -1804,7 +1818,7 @@ describe('integrated Agent placement replay', () => {
     const rowBefore = [...state.match!.chronicleRow];
     const deckBefore = [...state.match!.chronicleDeck];
     const affordable = (definitionId: string) => CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!.cost <= 3;
-    expect(deckBefore).toHaveLength(3);
+    expect(deckBefore).toHaveLength(5);
     append(actor, 'fate/played', { cardInstanceId: fate.id });
     const awaitingChoice = reduceGame(stream);
     expect(awaitingChoice.match!.pendingChoice).toEqual({
@@ -1834,12 +1848,12 @@ describe('integrated Agent placement replay', () => {
     expect(rejectedAuthority.match!.chronicleRow).toEqual(rowBefore);
     expect(rejectedAuthority.match!.chronicleDeck).toEqual(deckBefore);
 
-    const cycled = rowBefore[0];
+    const cycled = rowBefore.find((card) => affordable(card.definitionId))!;
     append(actor, 'choice/resolved', { choice: `chronicle:${cycled.id}` });
     const resumed = reduceGame(stream);
     expect(resumed.diagnostics).toEqual([]);
     expect(resumed.match!.pendingChoice).toBeNull();
-    expect(resumed.match!.chronicleRow[0]).toEqual(deckBefore[0]);
+    expect(resumed.match!.chronicleRow[rowBefore.indexOf(cycled)]).toEqual(deckBefore[0]);
     expect(resumed.match!.chronicleDeck).toEqual([...deckBefore.slice(1), cycled]);
     expect(resumed.match!.chronicleRow).toHaveLength(5);
     expect(new Set([...resumed.match!.chronicleRow, ...resumed.match!.chronicleDeck].map((card) => card.id))).toEqual(
@@ -2932,6 +2946,98 @@ describe('integrated Agent placement replay', () => {
     expect(rejected.match!.players[keeperUid].renown).toBe(renownBefore);
     expect(rejected.match!.players[keeperUid].fateHand).toContainEqual(keeper);
     expect(rejected.match!.fateDiscard).not.toContainEqual(keeper);
+  });
+
+  it('plays The Long Game only after acquiring four physical five-cost Chronicle cards', () => {
+    const stream = readyRoom('long-game-25');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    let state = reduceGame(stream);
+    const longGameUid = currentPlayerUid(state)!;
+    const append = (type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      const uid = currentPlayerUid(state)!;
+      sequences[uid] += 1;
+      stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+      state = reduceGame(stream);
+    };
+    const highCostOwned = () => {
+      const player = state.match!.players[longGameUid];
+      return [...player.hand, ...player.drawPile, ...player.discardPile].filter((instance) => {
+        const definition = CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === instance.definitionId);
+        return Boolean(definition && definition.cost >= 5);
+      });
+    };
+
+    const hallCard = state.match!.players[longGameUid].hand.find((card) => legalAgentSpaces(state, longGameUid, card.id).includes('hall-fire'))!;
+    append('agent/placed', { cardInstanceId: hallCard.id, spaceId: 'hall-fire' });
+    expect(state.match!.players[longGameUid].fateHand).toContainEqual(expect.objectContaining({ definitionId: 'the-long-game' }));
+
+    for (let guard = 0; guard < 600 && state.match!.turnMode !== 'endgame'; guard += 1) {
+      const match = state.match!;
+      const current = currentPlayerUid(state)!;
+      const player = match.players[current];
+      const pending = match.pendingChoice;
+      if (pending?.kind === 'place-scout') {
+        const post = OBSERVATION_POSTS.find((candidate) => !match.boardScouts[candidate.id])!;
+        append('scout/placed', { postId: post.id });
+      } else if (pending?.kind === 'seek-allies') append('choice/resolved', { choice: 'keep-card' });
+      else if (pending?.kind === 'gather-intelligence') append('choice/resolved', { choice: 'decline-intelligence' });
+      else if (match.turnMode === 'reveal') {
+        if (current === longGameUid && highCostOwned().length < 4) {
+          const affordableHigh = match.chronicleRow.find((instance) => {
+            const definition = CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === instance.definitionId)!;
+            return definition.cost >= 5 && definition.cost <= player.revealInfluence;
+          });
+          const affordableCycle = [...match.chronicleRow]
+            .sort((left, right) => CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === left.definitionId)!.cost - CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === right.definitionId)!.cost)
+            .find((instance) => CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === instance.definitionId)!.cost <= player.revealInfluence);
+          const acquisition = affordableHigh ?? affordableCycle;
+          if (acquisition) append('card/acquired', { definitionId: acquisition.definitionId, cardInstanceId: acquisition.id });
+          else append('reveal/finished', {});
+        } else append('reveal/finished', {});
+      } else append('turn/revealed', {});
+    }
+
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.turnMode).toBe('endgame');
+    expect(highCostOwned()).toHaveLength(4);
+    while (currentPlayerUid(state) !== longGameUid) append('endgame/passed', {});
+    const longGame = state.match!.players[longGameUid].fateHand.find((card) => card.definitionId === 'the-long-game')!;
+    const renownBefore = state.match!.players[longGameUid].renown;
+    append('fate/played', { cardInstanceId: longGame.id });
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.players[longGameUid].renown).toBe(renownBefore + 1);
+    expect(state.match!.fateDiscard.at(-1)).toEqual(longGame);
+    expect(currentPlayerUid(state)).toBe(longGameUid);
+    expect(state.match!.consecutiveEndgamePasses).toBe(0);
+  });
+
+  it('rejects The Long Game without four owned five-cost Chronicle cards', () => {
+    const stream = readyRoom('long-game-25');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    let state = reduceGame(stream);
+    const longGameUid = currentPlayerUid(state)!;
+    const append = (type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      const uid = currentPlayerUid(state)!;
+      sequences[uid] += 1;
+      stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+      state = reduceGame(stream);
+    };
+    const hallCard = state.match!.players[longGameUid].hand.find((card) => legalAgentSpaces(state, longGameUid, card.id).includes('hall-fire'))!;
+    append('agent/placed', { cardInstanceId: hallCard.id, spaceId: 'hall-fire' });
+    for (let guard = 0; guard < 220 && state.match!.turnMode !== 'endgame'; guard += 1) {
+      append(state.match!.turnMode === 'reveal' ? 'reveal/finished' : 'turn/revealed', {});
+    }
+    while (currentPlayerUid(state) !== longGameUid) append('endgame/passed', {});
+    const longGame = state.match!.players[longGameUid].fateHand.find((card) => card.definitionId === 'the-long-game')!;
+    const renownBefore = state.match!.players[longGameUid].renown;
+    sequences[longGameUid] += 1;
+    const rejected = reduceGame([...stream, createEvent('fate/played', longGameUid, sequences[longGameUid], { cardInstanceId: longGame.id }, timestamp)]);
+    expect(rejected.diagnostics.at(-1)).toContain('illegal Fate play');
+    expect(rejected.match!.players[longGameUid].renown).toBe(renownBefore);
+    expect(rejected.match!.players[longGameUid].fateHand).toContainEqual(longGame);
+    expect(rejected.match!.fateDiscard).not.toContainEqual(longGame);
   });
 
   it('runs a three-player Battle from legal deployments through ranked rewards and cleanup', () => {

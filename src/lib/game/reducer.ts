@@ -383,7 +383,7 @@ function createMatch(state: GameState, seed: string): MatchState {
                   ? 'lore-beyond-price'
                   : index === 24 || index === 26
                     ? 'keeper-oaths'
-                : 'sealed-fate'
+                    : 'the-long-game'
     })), `${seed}:fate-deck`),
     fateDiscard: [],
     chronicleDeck: chronicleInstances.slice(5),
@@ -928,6 +928,12 @@ function resolveAgentEffects(
     for (let index = 0; index < cardDefinition.journeyEffect.draw; index += 1) drawOneCard(match, player.uid, cardDefinition.name);
     if (isBattleSpace(space)) recruitCompanies(player, cardDefinition.journeyEffect.recruit);
   }
+  if (cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout') {
+    for (let index = 0; index < cardDefinition.journeyEffect.drawFate; index += 1) {
+      const fate = match.fateDeck.shift();
+      if (fate) player.fateHand.push(fate);
+    }
+  }
   if (space.effect.kind === 'dwarven-caravans') {
     player.resources.provisions += space.effect.gainProvisions;
     gainStanding(match, player, 'dwarven');
@@ -1031,14 +1037,14 @@ function resolveAgentEffects(
     if (player.resources.mithril >= space.effect.optionalCostMithril) options.push('pay-1-mithril');
     match.pendingChoice = {
       kind: 'osgiliath', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
-      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout', options
+      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout', options
     };
     resolution = 'choosing whether to pay 1 Mithril for 2 or 4 Gold before deploying to Battle';
   } else if (space.effect.kind === 'great-forge') {
     player.resources.gold += space.effect.gainGold;
     match.pendingChoice = {
       kind: 'great-forge', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
-      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout',
+      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout',
       options: ['standing-shadow', 'standing-dwarven', 'standing-elven', 'standing-wild']
     };
     resolution = 'paying 3 Mithril, gaining 5 Gold, and choosing one faction standing';
@@ -1049,7 +1055,7 @@ function resolveAgentEffects(
     options.push('gain-provision-leave-dam');
     match.pendingChoice = {
       kind: 'fangorn-moot', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
-      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout', options
+      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout', options
     };
     resolution = 'calling the Moot to choose Ent-draught or the fate of the Dam';
   } else if (space.effect.kind === 'deep-fangorn') {
@@ -1060,7 +1066,7 @@ function resolveAgentEffects(
     if (canSummonEnts(match, player)) options.push('summon-2-ents');
     match.pendingChoice = {
       kind: 'deep-fangorn', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
-      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout', options
+      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout', options
     };
     resolution = `paying 3 Provisions, taking ${riches} Riches, and choosing Mithril or Ents`;
   } else if (space.effect.kind === 'entwash') {
@@ -1071,7 +1077,7 @@ function resolveAgentEffects(
     if (canSummonEnts(match, player)) options.push('summon-1-ent');
     match.pendingChoice = {
       kind: 'entwash', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
-      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout', options
+      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout', options
     };
     resolution = `paying 1 Provision, taking ${riches} Riches, and choosing Mithril or an Ent`;
   } else if (space.effect.kind === 'edoras') {
@@ -1097,7 +1103,7 @@ function resolveAgentEffects(
       options: ['trash-self', 'keep-card']
     };
   }
-  if (cardDefinition.journeyEffect?.kind === 'place-scout' && !match.pendingChoice) {
+  if ((cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout') && !match.pendingChoice) {
     match.pendingChoice = {
       kind: 'place-scout',
       actorUid: player.uid,
@@ -1929,6 +1935,14 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       } else if (definition.effect.kind === 'alliance-renown') {
         const heldAlliances = Object.values(state.match.alliances).filter((uid) => uid === event.actorUid).length;
         if (heldAlliances < definition.effect.requiredAlliances) return 'illegal Fate play';
+      } else if (definition.effect.kind === 'high-cost-chronicle-renown') {
+        const effect = definition.effect;
+        const ownedHighCost = [...player.hand, ...player.drawPile, ...player.discardPile]
+          .filter((instance) => {
+            const chronicle = CHRONICLE_CARD_DEFINITIONS.find((candidate) => candidate.id === instance.definitionId);
+            return Boolean(chronicle && chronicle.cost >= effect.minimumCost);
+          });
+        if (ownedHighCost.length < effect.requiredCards) return 'illegal Fate play';
       } else return 'illegal Fate play';
       player.fateHand.splice(cardIndex, 1);
       state.match.fateDiscard.push(card);
@@ -1936,7 +1950,9 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       state.match.consecutiveEndgamePasses = 0;
       state.match.activity.push(definition.effect.kind === 'pay-mithril-renown'
         ? `${actor.displayName} plays ${definition.name}, pays ${definition.effect.costMithril} Mithril, and gains ${definition.effect.renown} Renown.`
-        : `${actor.displayName} plays ${definition.name} while holding ${definition.effect.requiredAlliances} Alliances and gains ${definition.effect.renown} Renown.`);
+        : definition.effect.kind === 'alliance-renown'
+          ? `${actor.displayName} plays ${definition.name} while holding ${definition.effect.requiredAlliances} Alliances and gains ${definition.effect.renown} Renown.`
+          : `${actor.displayName} plays ${definition.name} while owning ${definition.effect.requiredCards} Chronicle cards costing ${definition.effect.minimumCost} or more and gains ${definition.effect.renown} Renown.`);
       return null;
     }
     if (definition.timing === 'Plot') {
@@ -2024,7 +2040,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       return null;
     }
     if (state.match.turnMode !== 'battle' || !state.match.battleParticipantUids.includes(event.actorUid)) return 'illegal Fate play';
-    if (definition.effect.kind === 'place-scout' || definition.effect.kind === 'draw-discard' || definition.effect.kind === 'choose-resources' || definition.effect.kind === 'draw-top-deck' || definition.effect.kind === 'opponent-gold-or-reveal' || definition.effect.kind === 'cycle-chronicle' || definition.effect.kind === 'pay-mithril-renown' || definition.effect.kind === 'alliance-renown') return 'illegal Fate play';
+    if (definition.effect.kind === 'place-scout' || definition.effect.kind === 'draw-discard' || definition.effect.kind === 'choose-resources' || definition.effect.kind === 'draw-top-deck' || definition.effect.kind === 'opponent-gold-or-reveal' || definition.effect.kind === 'cycle-chronicle' || definition.effect.kind === 'pay-mithril-renown' || definition.effect.kind === 'alliance-renown' || definition.effect.kind === 'high-cost-chronicle-renown') return 'illegal Fate play';
     if (definition.effect.kind === 'desperate-valor' && (state.match.battleCompanies[event.actorUid] ?? 0) < definition.effect.returnCompanies) {
       return 'illegal Fate play';
     }
