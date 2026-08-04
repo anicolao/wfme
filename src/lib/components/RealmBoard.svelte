@@ -93,6 +93,8 @@
       ? 'Pay 1 Mithril · choose an opponent to lose 3 Strength'
       : definition.effect.kind === 'hold-line'
       ? '+2 Strength · +2 more while controlling the contested location'
+      : definition.effect.kind === 'pay-mithril-renown'
+      ? 'Pay 4 Mithril · gain 1 Renown'
       : `+${definition.effect.amount} Strength`;
   }
 
@@ -115,7 +117,7 @@
       <div><dt>Playable spaces</dt><dd>22 / 22</dd></div>
       <div><dt>Starting Agent boxes</dt><dd>5 / 7</dd></div>
       <div><dt>Chronicle cards</dt><dd>6 / 54</dd></div>
-      <div><dt>Fate effects</dt><dd>24 / 30</dd></div>
+      <div><dt>Fate effects</dt><dd>26 / 30</dd></div>
       <div><dt>Battle cards</dt><dd>{BATTLE_CARD_DEFINITIONS.length} / 16</dd></div>
       <div><dt>Commander powers</dt><dd>0 / 16</dd></div>
     </dl>
@@ -152,7 +154,17 @@
         <h2 id="endgame-title">The final reckoning</h2>
         <p>{game.players.find((player) => player.uid === currentUid)?.displayName} may resolve Endgame Fate or pass. Scoring begins after every Commander passes consecutively.</p>
       </div>
-      <button type="button" data-testid="pass-endgame" disabled={currentUid !== localUid || busy} onclick={onPassEndgame}>Pass Endgame</button>
+      <div class="battle-actions">
+        {#each localMatch?.fateHand ?? [] as fate}
+          {@const fateDefinition = FATE_CARD_DEFINITIONS.find((definition) => definition.id === fate.definitionId)}
+          {#if fateDefinition?.timing === 'Endgame'}
+            <button type="button" data-testid={`play-fate-${fate.id}`} disabled={currentUid !== localUid || busy || localMatch!.resources.mithril < 4} onclick={() => onPlayFate(fate.id)}>
+              Play {fateDefinition.name} · {fateEffectText(fateDefinition)}
+            </button>
+          {/if}
+        {/each}
+        <button type="button" data-testid="pass-endgame" disabled={currentUid !== localUid || busy} onclick={onPassEndgame}>Pass Endgame</button>
+      </div>
     </section>
   {/if}
 

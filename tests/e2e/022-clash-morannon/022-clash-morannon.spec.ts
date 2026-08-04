@@ -6,7 +6,7 @@ import { TestStepHelper } from '../helpers/test-step-helper';
 test('Clash at the Morannon resolves the final Battle rewards before Recall', async ({ browser, page }, testInfo) => {
   test.setTimeout(450_000);
   const steps = new TestStepHelper(testInfo);
-  const table = await startPlotTable(browser, page, testInfo, steps, 'clash-morannon', { phone: 'MORAP', desktop: 'MORAD' });
+  const table = await startPlotTable(browser, page, testInfo, steps, 'lore-23', { phone: 'MORAP', desktop: 'MORAD' });
   const { seats, accepted, converged, currentSeat, row } = table;
   const occupied = new Set<string>();
 
@@ -84,6 +84,29 @@ test('Clash at the Morannon resolves the final Battle rewards before Recall', as
   );
 
   try {
+    const loreActor = await currentSeat();
+    const loreCard = loreActor.page.getByTestId('private-hand').getByRole('button', { name: /^Armed Escort/ }).first();
+    await steps.gesture(loreActor.page, 'choose-hall-of-fire', `${loreActor.name} chooses a real Council card`, async () => {
+      await loreCard.click();
+    }, [
+      { spec: 'Hall of Fire is enabled by the printed Council icon', check: async () => await expect(loreActor.page.getByTestId('space-hall-fire')).toBeEnabled() }
+    ]);
+    await steps.gesture(loreActor.page, 'draw-endgame-fate', `${loreActor.name} draws private Fate at Hall of Fire`, async () => {
+      await loreActor.page.getByTestId('space-hall-fire').click(); accepted.value += 1;
+    }, [
+      { spec: 'Every observer sees only the public Fate count before the Endgame timing window', check: async () => {
+        for (const observer of seats) await expect(row(observer, loreActor.name).getByText('Fate', { exact: true }).locator('..')).toContainText('1');
+      } },
+      converged(accepted.value + 1)
+    ]);
+    if (await loreActor.page.getByText('Choose an empty post for the Scout.').isVisible().catch(() => false)) {
+      await steps.gesture(loreActor.page, 'place-hall-scout', `${loreActor.name} completes the card's Scout placement`, async () => {
+        await loreActor.page.locator('[data-testid^="post-"]:enabled').first().click(); accepted.value += 1;
+      }, [
+        { spec: 'The ordered card effect finishes before the next human acts', check: async () => await expect(loreActor.page.getByText('Choose an empty post for the Scout.')).toHaveCount(0) },
+        converged(accepted.value + 1)
+      ]);
+    }
     for (let round = 1; round <= 15; round += 1) {
       for (let turn = 0; turn < 3; turn += 1) {
         const actor = await currentSeat();
@@ -221,6 +244,23 @@ test('Clash at the Morannon resolves the final Battle rewards before Recall', as
           await expect(observer.page.getByTestId('endgame-window')).toContainText('Battle deck exhausted');
           await expect(observer.page.getByText('16 / 16')).toBeVisible();
         }
+      } },
+      converged(accepted.value + 1)
+    ]);
+
+    expect(loreActor.name, 'the Hall of Fire actor must win the deterministic Morannon journey').toBe(winner.name);
+    const loreMithrilBefore = await count(seats[0], loreActor.name, 'Mithril');
+    const loreRenownBefore = await count(seats[0], loreActor.name, 'Renown');
+    await steps.gesture(loreActor.page, 'play-lore-beyond-price', `${loreActor.name} plays Lore Beyond Price`, async () => {
+      await loreActor.page.getByRole('button', { name: /Play Lore Beyond Price/ }).click(); accepted.value += 1;
+    }, [
+      { spec: 'The Endgame Fate pays exactly four earned Mithril for one Renown and retains authority', check: async () => {
+        for (const observer of seats) {
+          await expect(row(observer, loreActor.name).getByText('Mithril', { exact: true }).locator('..')).toContainText(String(loreMithrilBefore - 4));
+          await expect(row(observer, loreActor.name).getByText('Renown', { exact: true }).locator('..')).toContainText(String(loreRenownBefore + 1));
+          await expect(observer.page.getByTestId('fate-discard')).toContainText('1 cards');
+        }
+        await expect(loreActor.page.getByTestId('pass-endgame')).toBeEnabled();
       } },
       converged(accepted.value + 1)
     ]);

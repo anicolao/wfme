@@ -2769,6 +2769,63 @@ describe('integrated Agent placement replay', () => {
     expect(reduceGame(stream)).toEqual(state);
   });
 
+  it('plays Lore Beyond Price from a real draw and earned Mithril before final scoring', () => {
+    const stream = readyRoom('lore-23');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      sequences[uid] += 1;
+      stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+    };
+    let loreUid = '';
+    for (let guard = 0; guard < 260; guard += 1) {
+      const state = reduceGame(stream);
+      const match = state.match!;
+      if (match.turnMode === 'endgame') break;
+      const current = currentPlayerUid(state)!;
+      const pending = match.pendingChoice;
+      const player = match.players[current];
+      if (pending?.kind === 'place-scout') {
+        const post = OBSERVATION_POSTS.find((candidate) => !match.boardScouts[candidate.id])!;
+        append(current, 'scout/placed', { postId: post.id });
+      } else if (pending?.kind === 'seek-allies') append(current, 'choice/resolved', { choice: 'keep-card' });
+      else if (pending?.kind === 'battle-deployment') append(current, 'choice/resolved', { choice: 'deploy:0' });
+      else if (match.turnMode === 'reveal') append(current, 'reveal/finished', {});
+      else if (!loreUid) {
+        const card = player.hand.find((candidate) => legalAgentSpaces(state, current, candidate.id).includes('hall-fire'));
+        expect(card).toBeDefined();
+        append(current, 'agent/placed', { cardInstanceId: card!.id, spaceId: 'hall-fire' });
+        loreUid = current;
+      } else if (current === loreUid && player.resources.mithril < 4 && match.richesMithril.edoras >= 4) {
+        const card = player.hand.find((candidate) => legalAgentSpaces(state, current, candidate.id).includes('edoras'));
+        if (card) append(current, 'agent/placed', { cardInstanceId: card.id, spaceId: 'edoras' });
+        else append(current, 'turn/revealed', {});
+      } else append(current, 'turn/revealed', {});
+    }
+    let state = reduceGame(stream);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.turnMode).toBe('endgame');
+    expect(state.match!.players[loreUid].resources.mithril).toBeGreaterThanOrEqual(4);
+    const lore = state.match!.players[loreUid].fateHand.find((card) => card.definitionId === 'lore-beyond-price');
+    expect(lore).toBeDefined();
+    const mithrilBefore = state.match!.players[loreUid].resources.mithril;
+    const renownBefore = state.match!.players[loreUid].renown;
+    append(loreUid, 'fate/played', { cardInstanceId: lore!.id });
+    state = reduceGame(stream);
+    expect(state.match!.players[loreUid].resources.mithril).toBe(mithrilBefore - 4);
+    expect(state.match!.players[loreUid].renown).toBe(renownBefore + 1);
+    expect(state.match!.fateDiscard.at(-1)).toEqual(lore);
+    expect(currentPlayerUid(state)).toBe(loreUid);
+    expect(state.match!.consecutiveEndgamePasses).toBe(0);
+    for (let pass = 0; pass < 3; pass += 1) {
+      state = reduceGame(stream);
+      append(currentPlayerUid(state)!, 'endgame/passed', {});
+    }
+    state = reduceGame(stream);
+    expect(state.phase).toBe('finished');
+    expect(state.match!.finalResult!.winnerUids).toEqual([loreUid]);
+  });
+
   it('runs a three-player Battle from legal deployments through ranked rewards and cleanup', () => {
     const stream = readyRoom('battle-reinforce-4035');
     const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };

@@ -377,8 +377,10 @@ function createMatch(state: GameState, seed: string): MatchState {
             ? 'hidden-archers'
             : index === 20 || index === 25
               ? 'reinforcements'
-              : index === 4 || index === 19
+            : index === 4 || index === 19
                 ? 'desperate-valor'
+                : index === 21 || index === 23
+                  ? 'lore-beyond-price'
                 : 'sealed-fate'
     })), `${seed}:fate-deck`),
     fateDiscard: [],
@@ -1913,6 +1915,17 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     const card = player.fateHand[cardIndex];
     const definition = card && FATE_CARD_DEFINITIONS.find((candidate) => candidate.id === card.definitionId);
     if (!card || !definition) return 'illegal Fate play';
+    if (definition.timing === 'Endgame') {
+      if (state.match.turnMode !== 'endgame' || definition.effect.kind !== 'pay-mithril-renown') return 'illegal Fate play';
+      if (player.resources.mithril < definition.effect.costMithril) return 'illegal Fate play';
+      player.fateHand.splice(cardIndex, 1);
+      state.match.fateDiscard.push(card);
+      player.resources.mithril -= definition.effect.costMithril;
+      player.renown += definition.effect.renown;
+      state.match.consecutiveEndgamePasses = 0;
+      state.match.activity.push(`${actor.displayName} plays ${definition.name}, pays ${definition.effect.costMithril} Mithril, and gains ${definition.effect.renown} Renown.`);
+      return null;
+    }
     if (definition.timing === 'Plot') {
       if (state.match.turnMode !== 'agent' && state.match.turnMode !== 'reveal') return 'illegal Fate play';
       if (definition.effect.kind === 'cycle-chronicle') {
@@ -1998,7 +2011,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       return null;
     }
     if (state.match.turnMode !== 'battle' || !state.match.battleParticipantUids.includes(event.actorUid)) return 'illegal Fate play';
-    if (definition.effect.kind === 'place-scout' || definition.effect.kind === 'draw-discard' || definition.effect.kind === 'choose-resources' || definition.effect.kind === 'draw-top-deck' || definition.effect.kind === 'opponent-gold-or-reveal' || definition.effect.kind === 'cycle-chronicle') return 'illegal Fate play';
+    if (definition.effect.kind === 'place-scout' || definition.effect.kind === 'draw-discard' || definition.effect.kind === 'choose-resources' || definition.effect.kind === 'draw-top-deck' || definition.effect.kind === 'opponent-gold-or-reveal' || definition.effect.kind === 'cycle-chronicle' || definition.effect.kind === 'pay-mithril-renown') return 'illegal Fate play';
     if (definition.effect.kind === 'desperate-valor' && (state.match.battleCompanies[event.actorUid] ?? 0) < definition.effect.returnCompanies) {
       return 'illegal Fate play';
     }
