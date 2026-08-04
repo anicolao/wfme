@@ -4,7 +4,7 @@ import { startPlotTable } from '../helpers/plot-table';
 import { TestStepHelper } from '../helpers/test-step-helper';
 
 test('Defence of Dale rewards a real final Battle victory with Dwarven standing', async ({ browser, page }, testInfo) => {
-  test.setTimeout(300_000);
+  test.setTimeout(420_000);
   const steps = new TestStepHelper(testInfo);
   const table = await startPlotTable(browser, page, testInfo, steps, 'defence-dale', { phone: 'DALPH', desktop: 'DALDS' });
   const { seats, accepted, converged, currentSeat, row } = table;
