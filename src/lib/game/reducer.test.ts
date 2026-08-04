@@ -2353,6 +2353,172 @@ describe('integrated Agent placement replay', () => {
     expect(resolved.match!.round).toBe(15);
   });
 
+  it('plays Treachery at Orthanc with its exact sole-winner reward and Star trophy', () => {
+    expect(BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === 'treachery-orthanc')).toMatchObject({
+      age: 2,
+      standard: 'Star',
+      rewards: [
+        { renown: 1, shadowStanding: 1 },
+        { drawTwoFateKeepOne: true },
+        { drawFate: 1 }
+      ]
+    });
+    const stream = readyRoom('treachery-orthanc');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      sequences[uid] += 1;
+      stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+    };
+
+    for (let guard = 0; guard < 180; guard += 1) {
+      const state = reduceGame(stream);
+      if (state.match!.activeBattleId === 'treachery-orthanc') break;
+      const current = currentPlayerUid(state)!;
+      if (state.match!.turnMode === 'reveal') append(current, 'reveal/finished', {});
+      else append(current, 'turn/revealed', {});
+    }
+    let state = reduceGame(stream);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.round).toBe(15);
+    const winner = currentPlayerUid(state)!;
+    const placement = state.match!.players[winner].hand.flatMap((card) =>
+      legalAgentSpaces(state, winner, card.id)
+        .filter((spaceId) => spaceId === 'minas-tirith' || spaceId === 'edoras')
+        .map((spaceId) => ({ card, spaceId }))
+    )[0];
+    expect(placement, 'Treachery must be reached by a real Stronghold or Roads card').toBeDefined();
+    append(winner, 'agent/placed', { cardInstanceId: placement!.card.id, spaceId: placement!.spaceId });
+    state = reduceGame(stream);
+    if (state.match!.pendingChoice?.kind === 'place-scout') {
+      const emptyPost = OBSERVATION_POSTS.find((post) => !state.match!.boardScouts[post.id])!;
+      append(winner, 'scout/placed', { postId: emptyPost.id });
+      state = reduceGame(stream);
+    }
+    if (state.match!.pendingChoice?.kind === 'seek-allies') {
+      append(winner, 'choice/resolved', { choice: 'keep-card' });
+      state = reduceGame(stream);
+    }
+    expect(state.match!.pendingChoice?.kind).toBe('battle-deployment');
+    append(winner, 'choice/resolved', { choice: 'deploy:1' });
+    for (let guard = 0; guard < 10; guard += 1) {
+      state = reduceGame(stream);
+      if (state.match!.turnMode === 'battle') break;
+      const current = currentPlayerUid(state)!;
+      if (state.match!.turnMode === 'reveal') append(current, 'reveal/finished', {});
+      else append(current, 'turn/revealed', {});
+    }
+    const combat = reduceGame(stream);
+    expect(combat.diagnostics).toEqual([]);
+    expect(combat.match!.battleParticipantUids).toEqual([winner]);
+    const renownBefore = combat.match!.players[winner].renown;
+    const shadowBefore = combat.match!.players[winner].standing.shadow;
+    append(winner, 'battle/passed', {});
+    const resolved = reduceGame(stream);
+    expect(resolved.diagnostics).toEqual([]);
+    expect(resolved.match!.players[winner].renown).toBe(renownBefore + 1);
+    expect(resolved.match!.players[winner].standing.shadow).toBe(shadowBefore + 1);
+    expect(resolved.match!.players[winner].wonBattleIds).toContain('treachery-orthanc');
+    expect(resolved.match!.pendingBattleRewardChoices).toEqual([]);
+    expect(resolved.match!.pendingChoice).toBeNull();
+    expect(resolved.match!.round).toBe(16);
+    expect(reduceGame(stream)).toEqual(resolved);
+  });
+
+  it('orders Treachery ranked Fate choices privately and blocks every other player before Recall', () => {
+    const stream = readyRoom('treachery-ranked-fate');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      sequences[uid] += 1;
+      stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+    };
+    for (let guard = 0; guard < 180; guard += 1) {
+      const state = reduceGame(stream);
+      if (state.match!.activeBattleId === 'treachery-orthanc') break;
+      const current = currentPlayerUid(state)!;
+      if (state.match!.turnMode === 'reveal') append(current, 'reveal/finished', {});
+      else append(current, 'turn/revealed', {});
+    }
+
+    const battleSpaces = ['minas-tirith', 'hidden-paths', 'ranger-mustering', 'osgiliath', 'edoras'];
+    const used = new Set<string>();
+    const deployed = new Set<string>();
+    for (let guard = 0; guard < 80; guard += 1) {
+      const state = reduceGame(stream);
+      const match = state.match!;
+      if (match.turnMode === 'battle') break;
+      const current = currentPlayerUid(state)!;
+      const pending = match.pendingChoice;
+      if (pending?.kind === 'battle-deployment') {
+        append(current, 'choice/resolved', { choice: `deploy:${Math.max(1, pending.maximum)}` });
+        deployed.add(current);
+      } else if (pending?.kind === 'ranger-mustering-trash') append(current, 'choice/resolved', { choice: 'decline-trash' });
+      else if (pending?.kind === 'seek-allies') append(current, 'choice/resolved', { choice: 'keep-card' });
+      else if (pending?.kind === 'place-scout') {
+        const emptyPost = OBSERVATION_POSTS.find((post) => !match.boardScouts[post.id])!;
+        append(current, 'scout/placed', { postId: emptyPost.id });
+      } else if (pending?.kind === 'osgiliath') append(current, 'choice/resolved', { choice: 'pay-0-mithril' });
+      else if (match.turnMode === 'reveal') append(current, 'reveal/finished', {});
+      else if (deployed.size >= 2 || deployed.has(current)) append(current, 'turn/revealed', {});
+      else {
+        const placement = match.players[current].hand.flatMap((card) => legalAgentSpaces(state, current, card.id)
+          .filter((spaceId) => battleSpaces.includes(spaceId) && !used.has(spaceId))
+          .map((spaceId) => ({ card, spaceId })))[0];
+        expect(placement, `${current} must reach an unused Treachery Battle space`).toBeDefined();
+        used.add(placement!.spaceId);
+        append(current, 'agent/placed', { cardInstanceId: placement!.card.id, spaceId: placement!.spaceId });
+      }
+    }
+
+    const combat = reduceGame(stream);
+    expect(combat.diagnostics).toEqual([]);
+    expect(combat.match!.activeBattleId).toBe('treachery-orthanc');
+    expect(combat.match!.battleParticipantUids).toHaveLength(2);
+    const strengths = Object.fromEntries(combat.match!.battleParticipantUids.map((uid) => [uid, battleStrength(combat.match!, uid)]));
+    const [left, right] = combat.match!.battleParticipantUids;
+    const recipients = strengths[left] === strengths[right]
+      ? [left, right]
+      : [strengths[left] < strengths[right] ? left : right];
+    const fateBefore = Object.fromEntries(recipients.map((uid) => [uid, combat.match!.players[uid].fateHand.length]));
+    const discardBefore = combat.match!.fateDiscard.length;
+    while (reduceGame(stream).match!.activeBattleId) {
+      const active = reduceGame(stream);
+      append(currentPlayerUid(active)!, 'battle/passed', {});
+    }
+
+    for (const expectedUid of recipients) {
+      const awaiting = reduceGame(stream);
+      expect(awaiting.diagnostics).toEqual([]);
+      expect(awaiting.match!.round).toBe(15);
+      expect(awaiting.match!.pendingChoice).toMatchObject({
+        kind: 'battle-fate-keep', actorUid: expectedUid
+      });
+      if (awaiting.match!.pendingChoice?.kind !== 'battle-fate-keep') throw new Error('expected a private Treachery Fate choice');
+      expect(awaiting.match!.pendingChoice.drawnFateIds).toHaveLength(2);
+      expect(awaiting.match!.players[expectedUid].fateHand).toHaveLength(fateBefore[expectedUid] + 2);
+      const unauthorized = awaiting.match!.playerOrder.find((uid) => uid !== expectedUid)!;
+      const rejected = reduceGame([
+        ...stream,
+        createEvent('choice/resolved', unauthorized, sequences[unauthorized] + 1, {
+          choice: awaiting.match!.pendingChoice.options[0]
+        }, timestamp)
+      ]);
+      expect(rejected.diagnostics.at(-1)).toContain('illegal choice resolution');
+      expect(rejected.match!.pendingChoice).toEqual(awaiting.match!.pendingChoice);
+      append(expectedUid, 'choice/resolved', { choice: awaiting.match!.pendingChoice.options[0] });
+    }
+
+    const resolved = reduceGame(stream);
+    expect(resolved.diagnostics).toEqual([]);
+    for (const uid of recipients) expect(resolved.match!.players[uid].fateHand).toHaveLength(fateBefore[uid] + 1);
+    expect(resolved.match!.fateDiscard).toHaveLength(discardBefore + recipients.length);
+    expect(resolved.match!.pendingBattleRewardChoices).toEqual([]);
+    expect(resolved.match!.pendingChoice).toBeNull();
+    expect(resolved.match!.round).toBe(16);
+    expect(reduceGame(stream)).toEqual(resolved);
+  });
+
   it('runs a three-player Battle from legal deployments through ranked rewards and cleanup', () => {
     const stream = readyRoom('battle-reinforce-4035');
     const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };

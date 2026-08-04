@@ -208,6 +208,8 @@ export type BattleReward = {
   recruitCompanies?: number;
   renown?: number;
   drawFate?: number;
+  drawTwoFateKeepOne?: boolean;
+  shadowStanding?: number;
   dwarvenStanding?: number;
   wildStanding?: number;
   chooseFactionStanding?: number;
@@ -407,6 +409,19 @@ export const BATTLE_CARD_DEFINITIONS: readonly BattleCardDefinition[] = [
       { renown: 1, placeScouts: 1 },
       { drawFate: 1, mithril: 1 },
       { mithril: 1 }
+    ],
+    reviewedCapabilities: ['battle-resolution']
+  },
+  {
+    id: 'treachery-orthanc',
+    name: 'Treachery at Orthanc',
+    age: 2,
+    standard: 'Star',
+    contestedLocationId: null,
+    rewards: [
+      { renown: 1, shadowStanding: 1 },
+      { drawTwoFateKeepOne: true },
+      { drawFate: 1 }
     ],
     reviewedCapabilities: ['battle-resolution']
   }

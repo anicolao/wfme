@@ -91,7 +91,7 @@ export type MatchState = {
   richesMithril: Record<'deep-fangorn' | 'entwash' | 'edoras', number>;
   damBreached: boolean;
   queuedBattleDeployment: { actorUid: string; spaceId: string } | null;
-  pendingBattleRewardChoices: Array<{ kind: 'standing' | 'place-scout'; actorUid: string }>;
+  pendingBattleRewardChoices: Array<{ kind: 'standing' | 'place-scout' | 'fate-keep-one'; actorUid: string }>;
   pendingChoice: null | {
     kind: 'critical-defense';
     actorUid: string;
@@ -131,6 +131,11 @@ export type MatchState = {
     kind: 'battle-standing';
     actorUid: string;
     options: readonly ('standing-shadow' | 'standing-dwarven' | 'standing-elven' | 'standing-wild')[];
+  } | {
+    kind: 'battle-fate-keep';
+    actorUid: string;
+    drawnFateIds: readonly string[];
+    options: readonly string[];
   } | {
     kind: 'battle-deployment';
     actorUid: string;
@@ -595,6 +600,9 @@ function applyBattleReward(match: MatchState, uid: string, rank: 0 | 1 | 2): voi
     if (reward.provisions) player.resources.provisions += reward.provisions;
     if (reward.recruitCompanies) recruitCompanies(player, reward.recruitCompanies);
     if (reward.renown) player.renown += reward.renown;
+    if (reward.shadowStanding) {
+      for (let step = 0; step < reward.shadowStanding; step += 1) gainStanding(match, player, 'shadow');
+    }
     if (reward.dwarvenStanding) {
       for (let step = 0; step < reward.dwarvenStanding; step += 1) gainStanding(match, player, 'dwarven');
     }
@@ -610,6 +618,9 @@ function applyBattleReward(match: MatchState, uid: string, rank: 0 | 1 | 2): voi
       for (let step = 0; step < reward.placeScouts; step += 1) {
         match.pendingBattleRewardChoices.push({ kind: 'place-scout', actorUid: uid });
       }
+    }
+    if (reward.drawTwoFateKeepOne) {
+      match.pendingBattleRewardChoices.push({ kind: 'fate-keep-one', actorUid: uid });
     }
     if (reward.drawFate) {
       const drawn = match.fateDeck.splice(0, reward.drawFate);
@@ -649,6 +660,24 @@ function continueBattleRewardChoicesOrRecall(match: MatchState): void {
       options: []
     };
     match.activity.push('A ranked player must place a Scout before Recall.');
+    return;
+  }
+  if (next?.kind === 'fate-keep-one') {
+    const player = match.players[next.actorUid];
+    const drawn = match.fateDeck.splice(0, 2);
+    player.fateHand.push(...drawn);
+    if (drawn.length < 2) {
+      match.activity.push(`A ranked player draws and keeps ${drawn.length} Fate because the deck cannot supply two cards.`);
+      continueBattleRewardChoicesOrRecall(match);
+      return;
+    }
+    match.pendingChoice = {
+      kind: 'battle-fate-keep',
+      actorUid: next.actorUid,
+      drawnFateIds: drawn.map((fate) => fate.id),
+      options: drawn.map((fate) => `keep:${fate.id}`)
+    };
+    match.activity.push('A ranked player privately draws two Fate cards and must keep one before Recall.');
     return;
   }
   recallAndBeginNextRound(match);
@@ -1206,6 +1235,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         pending.kind !== 'critical-defense' &&
         pending.kind !== 'divided-counsel-response' &&
         pending.kind !== 'battle-standing' &&
+        pending.kind !== 'battle-fate-keep' &&
         !(pending.kind === 'elven-favor' && pending.resumeBattleStanding) &&
         currentPlayerUid(state) !== event.actorUid
       ) ||
@@ -1458,6 +1488,19 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       gainStanding(state.match, player, faction, null, false, true);
       state.match.activity.push(`${actor.displayName} gains 1 ${faction[0].toUpperCase()}${faction.slice(1)} standing from a Battle reward.`);
       if (!state.match.pendingChoice) continueBattleRewardChoicesOrRecall(state.match);
+      return null;
+    }
+    if (pending.kind === 'battle-fate-keep') {
+      const keptId = choice.slice('keep:'.length);
+      if (!pending.drawnFateIds.includes(keptId)) return 'illegal choice resolution';
+      const discardedId = pending.drawnFateIds.find((id) => id !== keptId);
+      const discardedIndex = player.fateHand.findIndex((fate) => fate.id === discardedId);
+      if (discardedIndex < 0) return 'illegal choice resolution';
+      const [discarded] = player.fateHand.splice(discardedIndex, 1);
+      state.match.fateDiscard.push(discarded);
+      state.match.pendingChoice = null;
+      state.match.activity.push(`${actor.displayName} privately keeps one of two Fate cards from a Battle reward and discards the other.`);
+      continueBattleRewardChoicesOrRecall(state.match);
       return null;
     }
     if (pending.kind === 'ranger-mustering-trash') {
