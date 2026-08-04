@@ -6,10 +6,11 @@ import { TestStepHelper } from '../helpers/test-step-helper';
 test('The Long Game rewards four five-cost Chronicle cards acquired through ordinary Reveals', async ({ browser, page }, testInfo) => {
   test.setTimeout(600_000);
   const steps = new TestStepHelper(testInfo);
-  const table = await startPlotTable(browser, page, testInfo, steps, 'long-game-25', { phone: 'LONGP', desktop: 'LONGD' });
+  const table = await startPlotTable(browser, page, testInfo, steps, 'catalog-proof-201', { phone: 'LONGP', desktop: 'LONGD' });
   const { seats, accepted, converged, currentSeat, row } = table;
   let gestureNumber = 0;
   let highCostBought = 0;
+  let ladyBought = false;
   let ladyPlayed = false;
 
   const count = async (observer: PlotSeat, name: string, label: string) => Number(
@@ -99,7 +100,10 @@ test('The Long Game rewards four five-cost Chronicle cards acquired through ordi
 
       if (actor === strategist && highCostBought < 4) {
         for (let purchase = 0; purchase < 6 && highCostBought < 4; purchase += 1) {
-          const high = await firstEnabled(strategist.page.getByTestId('chronicle-row').getByRole('button', { name: /^(Eagle of the Misty Mountains|Lady of the Golden Wood|Durin's Heir|Voice of Orthanc)/ }));
+          const neededLady = ladyBought
+            ? null
+            : await firstEnabled(strategist.page.getByTestId('chronicle-row').getByRole('button', { name: /^Lady of the Golden Wood/ }));
+          const high = neededLady ?? await firstEnabled(strategist.page.getByTestId('chronicle-row').getByRole('button', { name: /^(Eagle of the Misty Mountains|Lady of the Golden Wood|Durin's Heir|Voice of Orthanc)/ }));
           const card = high ?? await firstEnabled(strategist.page.getByTestId('chronicle-row').getByRole('button'));
           if (!card) break;
           const name = (await card.textContent())?.split(' · ')[0].trim() ?? 'Chronicle card';
@@ -111,6 +115,7 @@ test('The Long Game rewards four five-cost Chronicle cards acquired through ordi
           await steps.gesture(strategist.page, `acquire-${gestureNumber}`, `${strategist.name} acquires ${name}`, async () => {
             await card.click(); accepted.value += 1;
             if (isHigh) highCostBought += 1;
+            if (name === 'Lady of the Golden Wood') ladyBought = true;
           }, [
             { spec: deckBefore > 0 ? 'The Row immediately refills after the legal purchase' : 'The exhausted physical deck leaves one fewer Row card', check: async () => await expect(strategist.page.getByTestId('chronicle-row').getByRole('button')).toHaveCount(deckBefore > 0 ? rowBefore : rowBefore - 1) },
             { spec: isHigh ? `The public log records five-cost card ${highCostOrdinal} of four` : 'The affordable card cycles the market toward the ownership condition', check: async () => await expect(strategist.page.getByTestId('activity-log')).toContainText(`${strategist.name} acquires ${name}`) },

@@ -71,9 +71,9 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'keeper-oaths')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'the-long-game')).toHaveLength(2);
     expect(first.match!.chronicleRow).toHaveLength(5);
-    expect(first.match!.chronicleDeck).toHaveLength(13);
+    expect(first.match!.chronicleDeck).toHaveLength(19);
     const chronicleInstances = [...first.match!.chronicleRow, ...first.match!.chronicleDeck];
-    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(18);
+    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(24);
     for (const definition of CHRONICLE_CARD_DEFINITIONS) {
       expect(chronicleInstances.filter((card) => card.definitionId === definition.id)).toHaveLength(2);
     }
@@ -589,7 +589,7 @@ describe('integrated Agent placement replay', () => {
   });
 
   it('buys, refills, reshuffles, draws, and executes every reviewed Chronicle card', () => {
-    const reachAcquiredCard = (definitionId: (typeof CHRONICLE_CARD_DEFINITIONS)[number]['id']) => {
+    const reachAcquiredCard = (definitionId: (typeof CHRONICLE_CARD_DEFINITIONS)[number]['id'], minimumGold = 0) => {
       const definition = CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!;
       let completed: ReturnType<typeof completedAgentRound> | null = null;
       for (let candidate = 0; candidate < 500 && !completed; candidate += 1) {
@@ -606,7 +606,8 @@ describe('integrated Agent placement replay', () => {
           ]);
           if (
             revealedAttempt.match!.chronicleRow.some((card) => card.definitionId === definitionId) &&
-            revealedAttempt.match!.players[attemptActor].revealInfluence >= definition.cost
+            revealedAttempt.match!.players[attemptActor].revealInfluence >= definition.cost &&
+            revealedAttempt.match!.players[attemptActor].resources.gold >= minimumGold
           ) completed = attempt;
         } catch {
           // Some seeds do not put the setup cards in the opening hands; keep looking.
@@ -635,7 +636,7 @@ describe('integrated Agent placement replay', () => {
       expect(state.diagnostics).toEqual([]);
       expect(state.match!.players[actor].revealInfluence).toBe(influenceBefore - definition.cost);
       expect(state.match!.players[actor].discardPile).toContainEqual(offered);
-      expect(state.match!.chronicleDeck).toHaveLength(12);
+      expect(state.match!.chronicleDeck).toHaveLength(18);
       expect(state.match!.chronicleRow).toHaveLength(5);
       expect(state.match!.chronicleRow).toContainEqual(refill);
 
@@ -758,11 +759,72 @@ describe('integrated Agent placement replay', () => {
       expect(afterVoice.match!.players[uid].resources.gold).toBe(gold > voiceGold + 2 ? gold - 1 : gold);
     }
 
+    const smith = reachAcquiredCard('dwarven-smith');
+    const smithPlayer = smith.before.match!.players[smith.actor];
+    const smithGold = smithPlayer.resources.gold;
+    const smithMithril = smithPlayer.resources.mithril;
+    smith.append(smith.actor, 'agent/placed', { cardInstanceId: smith.acquired.id, spaceId: 'dwarven-caravans' });
+    let afterSmith = reduceGame(smith.stream);
+    expect(afterSmith.diagnostics).toEqual([]);
+    expect(afterSmith.match!.pendingChoice).toMatchObject({
+      kind: 'chronicle-payment', actorUid: smith.actor, definitionId: 'dwarven-smith'
+    });
+    const smithPays = smithGold >= 1;
+    expect(afterSmith.match!.pendingChoice!.options).toEqual(smithPays
+      ? ['pay-chronicle-cost', 'decline-chronicle-cost']
+      : ['decline-chronicle-cost']);
+    smith.append(smith.actor, 'choice/resolved', { choice: smithPays ? 'pay-chronicle-cost' : 'decline-chronicle-cost' });
+    afterSmith = reduceGame(smith.stream);
+    expect(afterSmith.diagnostics).toEqual([]);
+    expect(afterSmith.match!.players[smith.actor].resources.gold).toBe(smithGold - (smithPays ? 1 : 0));
+    expect(afterSmith.match!.players[smith.actor].resources.mithril).toBe(smithMithril + (smithPays ? 1 : 0));
+
+    const uruk = reachAcquiredCard('uruk-hai-captain');
+    const urukPlayer = uruk.before.match!.players[uruk.actor];
+    const urukGold = urukPlayer.resources.gold;
+    const urukGarrison = urukPlayer.companies.garrison;
+    const urukSupply = urukPlayer.companies.supply;
+    uruk.append(uruk.actor, 'agent/placed', { cardInstanceId: uruk.acquired.id, spaceId: 'tribute-shadow' });
+    let afterUruk = reduceGame(uruk.stream);
+    expect(afterUruk.diagnostics).toEqual([]);
+    expect(afterUruk.match!.players[uruk.actor].resources.gold).toBe(urukGold + 2);
+    expect(afterUruk.match!.pendingChoice).toMatchObject({
+      kind: 'chronicle-payment', actorUid: uruk.actor, definitionId: 'uruk-hai-captain',
+      options: ['pay-chronicle-cost', 'decline-chronicle-cost']
+    });
+    uruk.append(uruk.actor, 'choice/resolved', { choice: 'pay-chronicle-cost' });
+    afterUruk = reduceGame(uruk.stream);
+    expect(afterUruk.diagnostics).toEqual([]);
+    expect(afterUruk.match!.players[uruk.actor].resources.gold).toBe(urukGold + 1);
+    expect(afterUruk.match!.players[uruk.actor].companies.garrison).toBe(urukGarrison + Math.min(3, urukSupply));
+    expect(afterUruk.match!.players[uruk.actor].companies.supply).toBe(urukSupply - Math.min(3, urukSupply));
+
+    const envoy = reachAcquiredCard('envoy-dale');
+    const envoyPlayer = envoy.before.match!.players[envoy.actor];
+    const envoyGold = envoyPlayer.resources.gold;
+    const envoyStanding = envoyPlayer.standing.dwarven;
+    envoy.append(envoy.actor, 'agent/placed', { cardInstanceId: envoy.acquired.id, spaceId: 'dwarven-caravans' });
+    let afterEnvoy = reduceGame(envoy.stream);
+    expect(afterEnvoy.diagnostics).toEqual([]);
+    expect(afterEnvoy.match!.players[envoy.actor].resources.gold).toBe(envoyGold + 2);
+    expect(afterEnvoy.match!.pendingChoice).toMatchObject({
+      kind: 'chronicle-payment', actorUid: envoy.actor, definitionId: 'envoy-dale',
+      options: ['pay-chronicle-cost', 'decline-chronicle-cost']
+    });
+    envoy.append(envoy.actor, 'choice/resolved', { choice: 'pay-chronicle-cost' });
+    afterEnvoy = reduceGame(envoy.stream);
+    expect(afterEnvoy.diagnostics).toEqual([]);
+    expect(afterEnvoy.match!.players[envoy.actor].resources.gold).toBe(envoyGold);
+    expect(afterEnvoy.match!.players[envoy.actor].standing.dwarven).toBe(Math.min(6, envoyStanding + 2));
+
     const economyMuster = {
       'stewards-messenger': { influence: 2, swords: 0 },
       'delving-expedition': { influence: 1, swords: 1 },
       'durins-heir': { influence: 2, swords: 2 },
-      'voice-orthanc': { influence: 3, swords: 0 }
+      'voice-orthanc': { influence: 3, swords: 0 },
+      'dwarven-smith': { influence: 2, swords: 0 },
+      'uruk-hai-captain': { influence: 0, swords: 3 },
+      'envoy-dale': { influence: 2, swords: 0 }
     } as const;
     for (const [definitionId, printed] of Object.entries(economyMuster)) {
       expect(MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === definitionId)?.muster).toEqual(printed);
@@ -1905,7 +1967,7 @@ describe('integrated Agent placement replay', () => {
     const rowBefore = [...state.match!.chronicleRow];
     const deckBefore = [...state.match!.chronicleDeck];
     const affordable = (definitionId: string) => CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!.cost <= 3;
-    expect(deckBefore).toHaveLength(13);
+    expect(deckBefore).toHaveLength(19);
     append(actor, 'fate/played', { cardInstanceId: fate.id });
     const awaitingChoice = reduceGame(stream);
     expect(awaitingChoice.match!.pendingChoice).toEqual({

@@ -40,6 +40,9 @@ export type AgentCardDefinition = StartingCardIdentity & {
     | { kind: 'paid-space-mithril'; amount: 1 }
     | { kind: 'gain-mithril-recruit'; mithril: 1; recruit: 2 }
     | { kind: 'gain-gold-tax-richer'; gold: 2; opponentLoss: 1 }
+    | { kind: 'optional-pay-gold-mithril'; costGold: 1; gainMithril: 1 }
+    | { kind: 'optional-pay-gold-recruit'; costGold: 1; recruit: 3 }
+    | { kind: 'gain-gold-optional-pay-standing'; gainGold: 2; costGold: 2; faction: 'dwarven' }
     | { kind: 'optional-trash-self' }
     | { kind: 'place-scout'; amount: 1 };
   reviewedCapabilities: readonly ['agent-placement'];
@@ -163,6 +166,30 @@ export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
     placementIcons: ['Shadow', 'Council'],
     journeyEffect: { kind: 'gain-gold-tax-richer', gold: 2, opponentLoss: 1 },
     reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'dwarven-smith',
+    name: 'Dwarven Smith',
+    copies: 2,
+    placementIcons: ['Dwarven', 'Stronghold'],
+    journeyEffect: { kind: 'optional-pay-gold-mithril', costGold: 1, gainMithril: 1 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'uruk-hai-captain',
+    name: 'Uruk-hai Captain',
+    copies: 2,
+    placementIcons: ['Shadow', 'Stronghold'],
+    journeyEffect: { kind: 'optional-pay-gold-recruit', costGold: 1, recruit: 3 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'envoy-dale',
+    name: 'Envoy of Dale',
+    copies: 2,
+    placementIcons: ['Dwarven', 'Council'],
+    journeyEffect: { kind: 'gain-gold-optional-pay-standing', gainGold: 2, costGold: 2, faction: 'dwarven' },
+    reviewedCapabilities: ['agent-placement']
   }
 ];
 
@@ -207,7 +234,10 @@ export const MUSTER_CARD_DEFINITIONS: readonly MusterCardDefinition[] = [
   { id: 'stewards-messenger', name: "Steward's Messenger", muster: { influence: 2, swords: 0 } },
   { id: 'delving-expedition', name: 'Delving Expedition', muster: { influence: 1, swords: 1 } },
   { id: 'durins-heir', name: "Durin's Heir", muster: { influence: 2, swords: 2 } },
-  { id: 'voice-orthanc', name: 'Voice of Orthanc', muster: { influence: 3, swords: 0 } }
+  { id: 'voice-orthanc', name: 'Voice of Orthanc', muster: { influence: 3, swords: 0 } },
+  { id: 'dwarven-smith', name: 'Dwarven Smith', muster: { influence: 2, swords: 0 } },
+  { id: 'uruk-hai-captain', name: 'Uruk-hai Captain', muster: { influence: 0, swords: 3 } },
+  { id: 'envoy-dale', name: 'Envoy of Dale', muster: { influence: 2, swords: 0 } }
 ];
 
 export type ReserveCardId = 'muster-host';
@@ -235,7 +265,10 @@ export type ChronicleCardId =
   | 'stewards-messenger'
   | 'delving-expedition'
   | 'durins-heir'
-  | 'voice-orthanc';
+  | 'voice-orthanc'
+  | 'dwarven-smith'
+  | 'uruk-hai-captain'
+  | 'envoy-dale';
 
 export type ChronicleCardDefinition = {
   id: ChronicleCardId;
@@ -302,6 +335,24 @@ export const CHRONICLE_CARD_DEFINITIONS: readonly ChronicleCardDefinition[] = [
     id: 'voice-orthanc', name: 'Voice of Orthanc', copies: 2, cost: 5,
     placementIcons: ['Shadow', 'Council'], journeyText: 'Gain 2 Gold; each opponent with more Gold than you loses 1 Gold',
     muster: { influence: 3, swords: 0 },
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'dwarven-smith', name: 'Dwarven Smith', copies: 2, cost: 3,
+    placementIcons: ['Dwarven', 'Stronghold'], journeyText: 'You may pay 1 Gold to gain 1 Mithril',
+    muster: { influence: 2, swords: 0 },
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'uruk-hai-captain', name: 'Uruk-hai Captain', copies: 2, cost: 4,
+    placementIcons: ['Shadow', 'Stronghold'], journeyText: 'You may pay 1 Gold to recruit 3 Companies',
+    muster: { influence: 0, swords: 3 },
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'envoy-dale', name: 'Envoy of Dale', copies: 2, cost: 4,
+    placementIcons: ['Dwarven', 'Council'], journeyText: 'Gain 2 Gold; you may pay 2 Gold to gain 1 Dwarven standing',
+    muster: { influence: 2, swords: 0 },
     reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
   }
 ];

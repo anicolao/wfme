@@ -32,6 +32,8 @@ export type CardInstance = {
 
 export type FateInstance = { id: string; definitionId: string };
 
+type PaidChronicleId = 'dwarven-smith' | 'uruk-hai-captain' | 'envoy-dale';
+
 export type MatchPlayer = {
   uid: string;
   hand: CardInstance[];
@@ -109,9 +111,15 @@ export type MatchState = {
   criticalControl: Record<'minas-tirith' | 'osgiliath' | 'edoras', string | null>;
   richesMithril: Record<'deep-fangorn' | 'entwash' | 'edoras', number>;
   damBreached: boolean;
+  queuedChroniclePayment: { actorUid: string; definitionId: PaidChronicleId } | null;
   queuedBattleDeployment: { actorUid: string; spaceId: string } | null;
   pendingBattleRewardChoices: Array<{ kind: 'standing' | 'place-scout' | 'fate-keep-one'; actorUid: string }>;
   pendingChoice: null | {
+    kind: 'chronicle-payment';
+    actorUid: string;
+    definitionId: PaidChronicleId;
+    options: readonly ('pay-chronicle-cost' | 'decline-chronicle-cost')[];
+  } | {
     kind: 'critical-defense';
     actorUid: string;
     locationId: 'minas-tirith' | 'osgiliath' | 'edoras';
@@ -403,6 +411,7 @@ function createMatch(state: GameState, seed: string): MatchState {
     criticalControl: { 'minas-tirith': null, osgiliath: null, edoras: null },
     richesMithril: { 'deep-fangorn': 0, entwash: 0, edoras: 0 },
     damBreached: false,
+    queuedChroniclePayment: null,
     queuedBattleDeployment: null,
     pendingBattleRewardChoices: [],
     pendingChoice: null,
@@ -667,7 +676,26 @@ function openBattleDeployment(match: MatchState, actorUid: string, spaceId: stri
   return true;
 }
 
+function openChroniclePayment(match: MatchState, actorUid: string, definitionId: PaidChronicleId): void {
+  const player = match.players[actorUid];
+  const effect = AGENT_CARD_DEFINITIONS.find((definition) => definition.id === definitionId)?.journeyEffect;
+  const costGold = effect?.kind === 'optional-pay-gold-mithril' || effect?.kind === 'optional-pay-gold-recruit'
+    ? effect.costGold
+    : effect?.kind === 'gain-gold-optional-pay-standing'
+      ? effect.costGold
+      : Number.POSITIVE_INFINITY;
+  const options: ('pay-chronicle-cost' | 'decline-chronicle-cost')[] = ['decline-chronicle-cost'];
+  if (player.resources.gold >= costGold) options.unshift('pay-chronicle-cost');
+  match.pendingChoice = { kind: 'chronicle-payment', actorUid, definitionId, options };
+}
+
 function finishAgentAction(match: MatchState, actorUid: string): void {
+  const queuedPayment = match.queuedChroniclePayment;
+  if (queuedPayment?.actorUid === actorUid) {
+    match.queuedChroniclePayment = null;
+    openChroniclePayment(match, actorUid, queuedPayment.definitionId);
+    return;
+  }
   const queued = match.queuedBattleDeployment;
   if (queued?.actorUid === actorUid) {
     match.queuedBattleDeployment = null;
@@ -971,6 +999,9 @@ function resolveAgentEffects(
       }
     }
   }
+  if (cardDefinition.journeyEffect?.kind === 'gain-gold-optional-pay-standing') {
+    player.resources.gold += cardDefinition.journeyEffect.gainGold;
+  }
   if (space.effect.kind === 'dwarven-caravans') {
     player.resources.provisions += space.effect.gainProvisions;
     gainStanding(match, player, 'dwarven');
@@ -1131,6 +1162,15 @@ function resolveAgentEffects(
     if (fate) player.fateHand.push(fate);
     const recruited = recruitCompanies(player, space.effect.repeatRecruitCompanies);
     resolution = `gaining 2 Mithril, drawing ${fate ? '1 Fate' : 'no Fate'}, and recruiting ${recruited} Companies`;
+  }
+  if (
+    cardDefinition.journeyEffect?.kind === 'optional-pay-gold-mithril' ||
+    cardDefinition.journeyEffect?.kind === 'optional-pay-gold-recruit' ||
+    cardDefinition.journeyEffect?.kind === 'gain-gold-optional-pay-standing'
+  ) {
+    const definitionId = cardDefinition.id as PaidChronicleId;
+    if (match.pendingChoice) match.queuedChroniclePayment = { actorUid, definitionId };
+    else openChroniclePayment(match, actorUid, definitionId);
   }
   if (cardDefinition.journeyEffect?.kind === 'optional-trash-self' && !match.pendingChoice) {
     match.pendingChoice = {
@@ -1386,6 +1426,33 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         state.match.activity.push(`${actor.displayName} declines to deploy a defending Company at ${BOARD_SPACE_DEFINITIONS.find((space) => space.id === pending.locationId)?.name}.`);
       }
       state.match.pendingChoice = null;
+      return null;
+    }
+    if (pending.kind === 'chronicle-payment') {
+      const effect = AGENT_CARD_DEFINITIONS.find((definition) => definition.id === pending.definitionId)?.journeyEffect;
+      state.match.pendingChoice = null;
+      if (choice === 'pay-chronicle-cost') {
+        const costGold = effect?.kind === 'optional-pay-gold-mithril' || effect?.kind === 'optional-pay-gold-recruit'
+          ? effect.costGold
+          : effect?.kind === 'gain-gold-optional-pay-standing'
+            ? effect.costGold
+            : Number.POSITIVE_INFINITY;
+        if (player.resources.gold < costGold) return 'illegal choice resolution';
+        player.resources.gold -= costGold;
+        if (effect?.kind === 'optional-pay-gold-mithril') {
+          player.resources.mithril += effect.gainMithril;
+          state.match.activity.push(`${actor.displayName} pays ${costGold} Gold to gain ${effect.gainMithril} Mithril from Dwarven Smith.`);
+        } else if (effect?.kind === 'optional-pay-gold-recruit') {
+          const recruited = recruitCompanies(player, effect.recruit);
+          state.match.activity.push(`${actor.displayName} pays ${costGold} Gold to recruit ${recruited} Companies with Uruk-hai Captain.`);
+        } else if (effect?.kind === 'gain-gold-optional-pay-standing') {
+          gainStanding(state.match, player, effect.faction);
+          state.match.activity.push(`${actor.displayName} pays ${costGold} Gold to gain 1 Dwarven standing from Envoy of Dale.`);
+        } else return 'illegal choice resolution';
+      } else {
+        state.match.activity.push(`${actor.displayName} declines the optional payment on ${cardName(pending.definitionId)}.`);
+      }
+      if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
       return null;
     }
     if (pending.kind === 'plot-discard') {
