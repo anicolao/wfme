@@ -424,6 +424,19 @@ export const BATTLE_CARD_DEFINITIONS: readonly BattleCardDefinition[] = [
       { drawFate: 1 }
     ],
     reviewedCapabilities: ['battle-resolution']
+  },
+  {
+    id: 'clash-morannon',
+    name: 'Clash at the Morannon',
+    age: 3,
+    standard: 'Star',
+    contestedLocationId: null,
+    rewards: [
+      { renown: 2, chooseFactionStanding: 1 },
+      { renown: 1, recruitCompanies: 2 },
+      { renown: 1 }
+    ],
+    reviewedCapabilities: ['battle-resolution']
   }
 ];
 

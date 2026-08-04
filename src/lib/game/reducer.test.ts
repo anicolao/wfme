@@ -2519,6 +2519,176 @@ describe('integrated Agent placement replay', () => {
     expect(reduceGame(stream)).toEqual(resolved);
   });
 
+  it('plays Clash at the Morannon with its exact first-rank reward and final Star trophy', () => {
+    expect(BATTLE_CARD_DEFINITIONS).toHaveLength(16);
+    expect(BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === 'clash-morannon')).toMatchObject({
+      age: 3,
+      standard: 'Star',
+      rewards: [
+        { renown: 2, chooseFactionStanding: 1 },
+        { renown: 1, recruitCompanies: 2 },
+        { renown: 1 }
+      ]
+    });
+    const stream = readyRoom('clash-morannon');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      sequences[uid] += 1;
+      stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+    };
+
+    for (let guard = 0; guard < 200; guard += 1) {
+      const state = reduceGame(stream);
+      if (state.match!.activeBattleId === 'clash-morannon') break;
+      const current = currentPlayerUid(state)!;
+      if (state.match!.turnMode === 'reveal') append(current, 'reveal/finished', {});
+      else append(current, 'turn/revealed', {});
+    }
+    let state = reduceGame(stream);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.round).toBe(16);
+    expect(state.match!.activeBattleId).toBe('clash-morannon');
+    const winner = currentPlayerUid(state)!;
+    const placement = state.match!.players[winner].hand.flatMap((card) =>
+      legalAgentSpaces(state, winner, card.id)
+        .filter((spaceId) => spaceId === 'minas-tirith' || spaceId === 'edoras')
+        .map((spaceId) => ({ card, spaceId }))
+    )[0];
+    expect(placement, 'Clash at the Morannon must be reached by a real Stronghold or Roads card').toBeDefined();
+    append(winner, 'agent/placed', { cardInstanceId: placement!.card.id, spaceId: placement!.spaceId });
+    state = reduceGame(stream);
+    if (state.match!.pendingChoice?.kind === 'place-scout') {
+      const emptyPost = OBSERVATION_POSTS.find((post) => !state.match!.boardScouts[post.id])!;
+      append(winner, 'scout/placed', { postId: emptyPost.id });
+      state = reduceGame(stream);
+    }
+    if (state.match!.pendingChoice?.kind === 'seek-allies') {
+      append(winner, 'choice/resolved', { choice: 'keep-card' });
+      state = reduceGame(stream);
+    }
+    expect(state.match!.pendingChoice?.kind).toBe('battle-deployment');
+    append(winner, 'choice/resolved', { choice: 'deploy:1' });
+    for (let guard = 0; guard < 10; guard += 1) {
+      state = reduceGame(stream);
+      if (state.match!.turnMode === 'battle') break;
+      const current = currentPlayerUid(state)!;
+      if (state.match!.turnMode === 'reveal') append(current, 'reveal/finished', {});
+      else append(current, 'turn/revealed', {});
+    }
+    const combat = reduceGame(stream);
+    expect(combat.diagnostics).toEqual([]);
+    expect(combat.match!.battleParticipantUids).toEqual([winner]);
+    const renownBefore = combat.match!.players[winner].renown;
+    const standingBefore = combat.match!.players[winner].standing.dwarven;
+    append(winner, 'battle/passed', {});
+    let awaiting = reduceGame(stream);
+    expect(awaiting.diagnostics).toEqual([]);
+    expect(awaiting.match!.players[winner].renown).toBe(renownBefore + 2);
+    expect(awaiting.match!.players[winner].wonBattleIds).toContain('clash-morannon');
+    expect(awaiting.match!.pendingChoice).toEqual({
+      kind: 'battle-standing',
+      actorUid: winner,
+      options: ['standing-shadow', 'standing-dwarven', 'standing-elven', 'standing-wild']
+    });
+    expect(awaiting.match!.round).toBe(16);
+    append(winner, 'choice/resolved', { choice: 'standing-dwarven' });
+    awaiting = reduceGame(stream);
+    expect(awaiting.diagnostics).toEqual([]);
+    expect(awaiting.match!.players[winner].standing.dwarven).toBe(standingBefore + 1);
+    expect(awaiting.match!.pendingBattleRewardChoices).toEqual([]);
+    expect(awaiting.match!.pendingChoice).toBeNull();
+    expect(awaiting.match!.round).toBe(17);
+    expect(reduceGame(stream)).toEqual(awaiting);
+  });
+
+  it('orders Clash standing authority and grants finite runner-up recruitment before Recall', () => {
+    const stream = readyRoom('clash-ranked-rewards');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      sequences[uid] += 1;
+      stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+    };
+    for (let guard = 0; guard < 200; guard += 1) {
+      const state = reduceGame(stream);
+      if (state.match!.activeBattleId === 'clash-morannon') break;
+      const current = currentPlayerUid(state)!;
+      if (state.match!.turnMode === 'reveal') append(current, 'reveal/finished', {});
+      else append(current, 'turn/revealed', {});
+    }
+
+    const battleSpaces = ['minas-tirith', 'hidden-paths', 'ranger-mustering', 'osgiliath', 'edoras'];
+    const used = new Set<string>();
+    const deployed = new Set<string>();
+    for (let guard = 0; guard < 80; guard += 1) {
+      const state = reduceGame(stream);
+      const match = state.match!;
+      if (match.turnMode === 'battle') break;
+      const current = currentPlayerUid(state)!;
+      const pending = match.pendingChoice;
+      if (pending?.kind === 'battle-deployment') {
+        append(current, 'choice/resolved', { choice: `deploy:${Math.max(1, pending.maximum)}` });
+        deployed.add(current);
+      } else if (pending?.kind === 'ranger-mustering-trash') append(current, 'choice/resolved', { choice: 'decline-trash' });
+      else if (pending?.kind === 'seek-allies') append(current, 'choice/resolved', { choice: 'keep-card' });
+      else if (pending?.kind === 'place-scout') {
+        const emptyPost = OBSERVATION_POSTS.find((post) => !match.boardScouts[post.id])!;
+        append(current, 'scout/placed', { postId: emptyPost.id });
+      } else if (pending?.kind === 'osgiliath') append(current, 'choice/resolved', { choice: 'pay-0-mithril' });
+      else if (match.turnMode === 'reveal') append(current, 'reveal/finished', {});
+      else if (deployed.size >= 2 || deployed.has(current)) append(current, 'turn/revealed', {});
+      else {
+        const placement = match.players[current].hand.flatMap((card) => legalAgentSpaces(state, current, card.id)
+          .filter((spaceId) => battleSpaces.includes(spaceId) && !used.has(spaceId))
+          .map((spaceId) => ({ card, spaceId })))[0];
+        expect(placement, `${current} must reach an unused Morannon Battle space`).toBeDefined();
+        used.add(placement!.spaceId);
+        append(current, 'agent/placed', { cardInstanceId: placement!.card.id, spaceId: placement!.spaceId });
+      }
+    }
+
+    const combat = reduceGame(stream);
+    expect(combat.diagnostics).toEqual([]);
+    expect(combat.match!.activeBattleId).toBe('clash-morannon');
+    expect(combat.match!.battleParticipantUids).toHaveLength(2);
+    const strengths = Object.fromEntries(combat.match!.battleParticipantUids.map((uid) => [uid, battleStrength(combat.match!, uid)]));
+    const [left, right] = combat.match!.battleParticipantUids;
+    expect(strengths[left]).not.toBe(strengths[right]);
+    const winner = strengths[left] > strengths[right] ? left : right;
+    const runner = strengths[left] < strengths[right] ? left : right;
+    const winnerRenownBefore = combat.match!.players[winner].renown;
+    const runnerRenownBefore = combat.match!.players[runner].renown;
+    const runnerGarrisonBefore = combat.match!.players[runner].companies.garrison;
+    const runnerSupplyBefore = combat.match!.players[runner].companies.supply;
+    while (reduceGame(stream).match!.activeBattleId) {
+      const active = reduceGame(stream);
+      append(currentPlayerUid(active)!, 'battle/passed', {});
+    }
+
+    let awaiting = reduceGame(stream);
+    expect(awaiting.diagnostics).toEqual([]);
+    expect(awaiting.match!.players[winner].renown).toBe(winnerRenownBefore + 2);
+    expect(awaiting.match!.players[runner].renown).toBe(runnerRenownBefore + 1);
+    expect(awaiting.match!.players[runner].companies.garrison).toBe(
+      runnerGarrisonBefore + Math.min(2, runnerSupplyBefore)
+    );
+    expect(awaiting.match!.pendingChoice).toMatchObject({ kind: 'battle-standing', actorUid: winner });
+    const unauthorized = awaiting.match!.playerOrder.find((uid) => uid !== winner)!;
+    const rejected = reduceGame([
+      ...stream,
+      createEvent('choice/resolved', unauthorized, sequences[unauthorized] + 1, { choice: 'standing-wild' }, timestamp)
+    ]);
+    expect(rejected.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(rejected.match!.pendingChoice).toEqual(awaiting.match!.pendingChoice);
+    append(winner, 'choice/resolved', { choice: 'standing-wild' });
+    awaiting = reduceGame(stream);
+    expect(awaiting.diagnostics).toEqual([]);
+    expect(awaiting.match!.pendingChoice).toBeNull();
+    expect(awaiting.match!.round).toBe(17);
+    expect(reduceGame(stream)).toEqual(awaiting);
+  });
+
   it('runs a three-player Battle from legal deployments through ranked rewards and cleanup', () => {
     const stream = readyRoom('battle-reinforce-4035');
     const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };

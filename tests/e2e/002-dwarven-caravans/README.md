@@ -4476,11 +4476,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip chooses Muster the Host Agent: Stronghold for Fangorn Moot
+## Pip chooses Armed Escort Agent: Council for Fangorn Moot
 
-![Phone: Pip chooses Muster the Host Agent: Stronghold for Fangorn Moot](./screenshots/342-choose-fangorn-draught-phone.png)
+![Phone: Pip chooses Armed Escort Agent: Council for Fangorn Moot](./screenshots/342-choose-fangorn-draught-phone.png)
 
-![Desktop: Pip chooses Muster the Host Agent: Stronghold for Fangorn Moot](./screenshots/342-choose-fangorn-draught-desktop.png)
+![Desktop: Pip chooses Armed Escort Agent: Council for Fangorn Moot](./screenshots/342-choose-fangorn-draught-desktop.png)
 
 **Verifications:**
 
@@ -4567,11 +4567,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip chooses Armed Escort Agent: Council for Fangorn Moot
+## Pip chooses Muster the Host Agent: Stronghold for Fangorn Moot
 
-![Phone: Pip chooses Armed Escort Agent: Council for Fangorn Moot](./screenshots/349-choose-fangorn-breach-phone.png)
+![Phone: Pip chooses Muster the Host Agent: Stronghold for Fangorn Moot](./screenshots/349-choose-fangorn-breach-phone.png)
 
-![Desktop: Pip chooses Armed Escort Agent: Council for Fangorn Moot](./screenshots/349-choose-fangorn-breach-desktop.png)
+![Desktop: Pip chooses Muster the Host Agent: Stronghold for Fangorn Moot](./screenshots/349-choose-fangorn-breach-desktop.png)
 
 **Verifications:**
 
