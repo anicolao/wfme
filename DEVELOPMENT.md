@@ -71,7 +71,7 @@ Rules permit authenticated append-only versioned events with honest actor attrib
 
 ## Hooks
 
-`bun install` runs the Husky setup. Both pre-commit and pre-push invoke the complete verifier through `nix develop`, matching the sibling projects' change contract. Use a feature branch and make the smallest coherent commit; do not bypass the hook with `--no-verify`.
+`bun install` runs the Husky setup. Pre-commit invokes the fast verifier through `nix develop`: patch hygiene, static and workflow checks, unit tests, Firestore rules, and the production build must all pass before a commit is created. Pre-push invokes the complete verifier and additionally requires the entire phone-and-desktop E2E suite. This keeps every gate mandatory while avoiding the same expensive E2E run both immediately before a commit and immediately before its push. Use a feature branch and make the smallest coherent commit; never bypass either hook with `--no-verify`.
 
 ## CI
 
