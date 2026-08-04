@@ -95,7 +95,18 @@
       ? '+2 Strength · +2 more while controlling the contested location'
       : definition.effect.kind === 'pay-mithril-renown'
       ? 'Pay 4 Mithril · gain 1 Renown'
+      : definition.effect.kind === 'alliance-renown'
+      ? 'Hold at least 2 Alliances · gain 1 Renown'
       : `+${definition.effect.amount} Strength`;
+  }
+
+  function endgameFatePlayable(definition: (typeof FATE_CARD_DEFINITIONS)[number]): boolean {
+    if (!localMatch || !game.match) return false;
+    if (definition.effect.kind === 'pay-mithril-renown') return localMatch.resources.mithril >= definition.effect.costMithril;
+    if (definition.effect.kind === 'alliance-renown') {
+      return Object.values(game.match.alliances).filter((uid) => uid === localUid).length >= definition.effect.requiredAlliances;
+    }
+    return false;
   }
 
 </script>
@@ -117,7 +128,7 @@
       <div><dt>Playable spaces</dt><dd>22 / 22</dd></div>
       <div><dt>Starting Agent boxes</dt><dd>5 / 7</dd></div>
       <div><dt>Chronicle cards</dt><dd>6 / 54</dd></div>
-      <div><dt>Fate effects</dt><dd>26 / 30</dd></div>
+      <div><dt>Fate effects</dt><dd>28 / 30</dd></div>
       <div><dt>Battle cards</dt><dd>{BATTLE_CARD_DEFINITIONS.length} / 16</dd></div>
       <div><dt>Commander powers</dt><dd>0 / 16</dd></div>
     </dl>
@@ -158,7 +169,7 @@
         {#each localMatch?.fateHand ?? [] as fate}
           {@const fateDefinition = FATE_CARD_DEFINITIONS.find((definition) => definition.id === fate.definitionId)}
           {#if fateDefinition?.timing === 'Endgame'}
-            <button type="button" data-testid={`play-fate-${fate.id}`} disabled={currentUid !== localUid || busy || localMatch!.resources.mithril < 4} onclick={() => onPlayFate(fate.id)}>
+            <button type="button" data-testid={`play-fate-${fate.id}`} disabled={currentUid !== localUid || busy || !endgameFatePlayable(fateDefinition)} onclick={() => onPlayFate(fate.id)}>
               Play {fateDefinition.name} · {fateEffectText(fateDefinition)}
             </button>
           {/if}

@@ -441,7 +441,7 @@ export const BATTLE_CARD_DEFINITIONS: readonly BattleCardDefinition[] = [
 ];
 
 export type FateCardDefinition = {
-  id: 'secret-ways' | 'chance-meeting' | 'gifts-tokens' | 'tidings-afar' | 'divided-counsel' | 'long-memory' | 'sudden-charge' | 'hold-line' | 'hidden-archers' | 'fell-sorcery' | 'reinforcements' | 'desperate-valor' | 'lore-beyond-price';
+  id: 'secret-ways' | 'chance-meeting' | 'gifts-tokens' | 'tidings-afar' | 'divided-counsel' | 'long-memory' | 'sudden-charge' | 'hold-line' | 'hidden-archers' | 'fell-sorcery' | 'reinforcements' | 'desperate-valor' | 'lore-beyond-price' | 'keeper-oaths';
   name: string;
   copies: 2;
   timing: 'Plot' | 'Combat' | 'Endgame';
@@ -458,7 +458,8 @@ export type FateCardDefinition = {
     | { kind: 'fell-sorcery'; costMithril: 1; strengthLoss: 3 }
     | { kind: 'reinforcements'; deployCompanies: 1; fallbackStrength: 2 }
     | { kind: 'desperate-valor'; returnCompanies: 1; strength: 5 }
-    | { kind: 'pay-mithril-renown'; costMithril: 4; renown: 1 };
+    | { kind: 'pay-mithril-renown'; costMithril: 4; renown: 1 }
+    | { kind: 'alliance-renown'; requiredAlliances: 2; renown: 1 };
   reviewedCapabilities: readonly ('plot-fate' | 'combat-fate' | 'endgame-fate')[];
 };
 
@@ -565,6 +566,14 @@ export const FATE_CARD_DEFINITIONS: readonly FateCardDefinition[] = [
     copies: 2,
     timing: 'Endgame',
     effect: { kind: 'pay-mithril-renown', costMithril: 4, renown: 1 },
+    reviewedCapabilities: ['endgame-fate']
+  },
+  {
+    id: 'keeper-oaths',
+    name: 'Keeper of Oaths',
+    copies: 2,
+    timing: 'Endgame',
+    effect: { kind: 'alliance-renown', requiredAlliances: 2, renown: 1 },
     reviewedCapabilities: ['endgame-fate']
   }
 ];

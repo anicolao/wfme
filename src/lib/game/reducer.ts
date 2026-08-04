@@ -381,6 +381,8 @@ function createMatch(state: GameState, seed: string): MatchState {
                 ? 'desperate-valor'
                 : index === 21 || index === 23
                   ? 'lore-beyond-price'
+                  : index === 24 || index === 26
+                    ? 'keeper-oaths'
                 : 'sealed-fate'
     })), `${seed}:fate-deck`),
     fateDiscard: [],
@@ -1916,14 +1918,21 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     const definition = card && FATE_CARD_DEFINITIONS.find((candidate) => candidate.id === card.definitionId);
     if (!card || !definition) return 'illegal Fate play';
     if (definition.timing === 'Endgame') {
-      if (state.match.turnMode !== 'endgame' || definition.effect.kind !== 'pay-mithril-renown') return 'illegal Fate play';
-      if (player.resources.mithril < definition.effect.costMithril) return 'illegal Fate play';
+      if (state.match.turnMode !== 'endgame') return 'illegal Fate play';
+      if (definition.effect.kind === 'pay-mithril-renown') {
+        if (player.resources.mithril < definition.effect.costMithril) return 'illegal Fate play';
+        player.resources.mithril -= definition.effect.costMithril;
+      } else if (definition.effect.kind === 'alliance-renown') {
+        const heldAlliances = Object.values(state.match.alliances).filter((uid) => uid === event.actorUid).length;
+        if (heldAlliances < definition.effect.requiredAlliances) return 'illegal Fate play';
+      } else return 'illegal Fate play';
       player.fateHand.splice(cardIndex, 1);
       state.match.fateDiscard.push(card);
-      player.resources.mithril -= definition.effect.costMithril;
       player.renown += definition.effect.renown;
       state.match.consecutiveEndgamePasses = 0;
-      state.match.activity.push(`${actor.displayName} plays ${definition.name}, pays ${definition.effect.costMithril} Mithril, and gains ${definition.effect.renown} Renown.`);
+      state.match.activity.push(definition.effect.kind === 'pay-mithril-renown'
+        ? `${actor.displayName} plays ${definition.name}, pays ${definition.effect.costMithril} Mithril, and gains ${definition.effect.renown} Renown.`
+        : `${actor.displayName} plays ${definition.name} while holding ${definition.effect.requiredAlliances} Alliances and gains ${definition.effect.renown} Renown.`);
       return null;
     }
     if (definition.timing === 'Plot') {
@@ -2011,7 +2020,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       return null;
     }
     if (state.match.turnMode !== 'battle' || !state.match.battleParticipantUids.includes(event.actorUid)) return 'illegal Fate play';
-    if (definition.effect.kind === 'place-scout' || definition.effect.kind === 'draw-discard' || definition.effect.kind === 'choose-resources' || definition.effect.kind === 'draw-top-deck' || definition.effect.kind === 'opponent-gold-or-reveal' || definition.effect.kind === 'cycle-chronicle' || definition.effect.kind === 'pay-mithril-renown') return 'illegal Fate play';
+    if (definition.effect.kind === 'place-scout' || definition.effect.kind === 'draw-discard' || definition.effect.kind === 'choose-resources' || definition.effect.kind === 'draw-top-deck' || definition.effect.kind === 'opponent-gold-or-reveal' || definition.effect.kind === 'cycle-chronicle' || definition.effect.kind === 'pay-mithril-renown' || definition.effect.kind === 'alliance-renown') return 'illegal Fate play';
     if (definition.effect.kind === 'desperate-valor' && (state.match.battleCompanies[event.actorUid] ?? 0) < definition.effect.returnCompanies) {
       return 'illegal Fate play';
     }

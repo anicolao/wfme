@@ -67,6 +67,8 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'divided-counsel')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'long-memory')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'fell-sorcery')).toHaveLength(2);
+    expect(first.match!.fateDeck.filter((card) => card.definitionId === 'lore-beyond-price')).toHaveLength(2);
+    expect(first.match!.fateDeck.filter((card) => card.definitionId === 'keeper-oaths')).toHaveLength(2);
     expect(first.match!.chronicleRow).toHaveLength(5);
     expect(first.match!.chronicleDeck).toHaveLength(1);
     const chronicleInstances = [...first.match!.chronicleRow, ...first.match!.chronicleDeck];
@@ -2824,6 +2826,96 @@ describe('integrated Agent placement replay', () => {
     state = reduceGame(stream);
     expect(state.phase).toBe('finished');
     expect(state.match!.finalResult!.winnerUids).toEqual([loreUid]);
+  });
+
+  it('plays Keeper of Oaths only after earning two real Alliances', () => {
+    const stream = readyRoom('keeper-4');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const append = (state: ReturnType<typeof reduceGame>, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      const uid = currentPlayerUid(state)!;
+      sequences[uid] += 1;
+      stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+    };
+    let state = reduceGame(stream);
+    const keeperUid = currentPlayerUid(state)!;
+    const hallCard = state.match!.players[keeperUid].hand.find((card) => legalAgentSpaces(state, keeperUid, card.id).includes('hall-fire'));
+    expect(hallCard).toBeDefined();
+    append(state, 'agent/placed', { cardInstanceId: hallCard!.id, spaceId: 'hall-fire' });
+    state = reduceGame(stream);
+    expect(state.match!.players[keeperUid].fateHand).toContainEqual(expect.objectContaining({ definitionId: 'keeper-oaths' }));
+
+    for (let guard = 0; guard < 500; guard += 1) {
+      state = reduceGame(stream);
+      const match = state.match!;
+      if (match.turnMode === 'endgame') break;
+      const current = currentPlayerUid(state)!;
+      const player = match.players[current];
+      const pending = match.pendingChoice;
+      if (pending?.kind === 'seek-allies') append(state, 'choice/resolved', { choice: 'keep-card' });
+      else if (pending?.kind === 'battle-deployment') append(state, 'choice/resolved', { choice: 'deploy:0' });
+      else if (match.turnMode === 'battle') append(state, 'battle/passed', {});
+      else if (match.turnMode === 'reveal') append(state, 'reveal/finished', {});
+      else if (current === keeperUid && Object.values(match.alliances).filter((uid) => uid === keeperUid).length < 2) {
+        const destinations = [
+          ...(player.standing.dwarven < 4 ? ['dwarven-caravans'] : []),
+          ...(player.standing.shadow < 4 ? ['tribute-shadow'] : [])
+        ];
+        const placement = destinations.flatMap((spaceId) => player.hand
+          .filter((card) => legalAgentSpaces(state, current, card.id).includes(spaceId))
+          .map((card) => ({ card, spaceId })))[0];
+        if (placement) append(state, 'agent/placed', { cardInstanceId: placement.card.id, spaceId: placement.spaceId });
+        else append(state, 'turn/revealed', {});
+      } else append(state, 'turn/revealed', {});
+    }
+
+    state = reduceGame(stream);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.turnMode).toBe('endgame');
+    expect(state.match!.alliances.dwarven).toBe(keeperUid);
+    expect(state.match!.alliances.shadow).toBe(keeperUid);
+    while (currentPlayerUid(state) !== keeperUid) {
+      append(state, 'endgame/passed', {});
+      state = reduceGame(stream);
+    }
+    const keeper = state.match!.players[keeperUid].fateHand.find((card) => card.definitionId === 'keeper-oaths');
+    expect(keeper).toBeDefined();
+    const renownBefore = state.match!.players[keeperUid].renown;
+    append(state, 'fate/played', { cardInstanceId: keeper!.id });
+    state = reduceGame(stream);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.players[keeperUid].renown).toBe(renownBefore + 1);
+    expect(state.match!.fateDiscard.at(-1)).toEqual(keeper);
+    expect(currentPlayerUid(state)).toBe(keeperUid);
+    expect(state.match!.consecutiveEndgamePasses).toBe(0);
+  });
+
+  it('rejects Keeper of Oaths at Endgame without two Alliances', () => {
+    const stream = readyRoom('keeper-4');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    let state = reduceGame(stream);
+    const keeperUid = currentPlayerUid(state)!;
+    const append = (type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      const uid = currentPlayerUid(state)!;
+      sequences[uid] += 1;
+      stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+      state = reduceGame(stream);
+    };
+    const hallCard = state.match!.players[keeperUid].hand.find((card) => legalAgentSpaces(state, keeperUid, card.id).includes('hall-fire'))!;
+    append('agent/placed', { cardInstanceId: hallCard.id, spaceId: 'hall-fire' });
+    for (let guard = 0; guard < 200 && state.match!.turnMode !== 'endgame'; guard += 1) {
+      append(state.match!.turnMode === 'reveal' ? 'reveal/finished' : 'turn/revealed', {});
+    }
+    while (currentPlayerUid(state) !== keeperUid) append('endgame/passed', {});
+    const keeper = state.match!.players[keeperUid].fateHand.find((card) => card.definitionId === 'keeper-oaths')!;
+    const renownBefore = state.match!.players[keeperUid].renown;
+    sequences[keeperUid] += 1;
+    const rejected = reduceGame([...stream, createEvent('fate/played', keeperUid, sequences[keeperUid], { cardInstanceId: keeper.id }, timestamp)]);
+    expect(rejected.diagnostics.at(-1)).toContain('illegal Fate play');
+    expect(rejected.match!.players[keeperUid].renown).toBe(renownBefore);
+    expect(rejected.match!.players[keeperUid].fateHand).toContainEqual(keeper);
+    expect(rejected.match!.fateDiscard).not.toContainEqual(keeper);
   });
 
   it('runs a three-player Battle from legal deployments through ranked rewards and cleanup', () => {
