@@ -6,14 +6,14 @@ import { TestStepHelper } from '../helpers/test-step-helper';
 test('a human buys from the public Chronicle Row, refills it, reshuffles, and plays the acquired card', async ({ browser, page }, testInfo) => {
   test.setTimeout(300_000);
   const steps = new TestStepHelper(testInfo);
-  const table = await startPlotTable(browser, page, testInfo, steps, 'chronicle-0', { phone: 'CHRPH', desktop: 'CHRDS' });
+  const table = await startPlotTable(browser, page, testInfo, steps, 'chronicle-proof-2', { phone: 'CHRPH', desktop: 'CHRDS' });
   const { seats, accepted, converged, currentSeat, row } = table;
 
   try {
     const buyer = await currentSeat();
     for (const observer of seats) {
       await expect(observer.page.getByTestId('chronicle-row').getByRole('button')).toHaveCount(5);
-      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 5');
+      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 13');
       await expect(observer.page.getByTestId('chronicle-row').getByRole('button', { name: /^Rider of Rohan/ }).first()).toBeDisabled();
     }
 
@@ -42,10 +42,10 @@ test('a human buys from the public Chronicle Row, refills it, reshuffles, and pl
         await expect(row(buyer, buyer.name)).toContainText('Discard1');
         await expect(buyer.page.locator('.reveal-total strong')).toHaveText(`${influenceBefore - 2} Influence`);
       } },
-      { spec: 'The Chronicle Row immediately refills to five from its ten-card deck', check: async () => {
+      { spec: 'The Chronicle Row immediately refills to five from its eighteen-card deck', check: async () => {
         for (const observer of seats) {
           await expect(observer.page.getByTestId('chronicle-row').getByRole('button')).toHaveCount(5);
-          await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 4');
+          await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 12');
           await expect(observer.page.getByTestId('activity-log')).toContainText(`${buyer.name} acquires Rider of Rohan from the Chronicle Row for 2 Influence and refills its place.`);
         }
       } },
@@ -57,7 +57,7 @@ test('a human buys from the public Chronicle Row, refills it, reshuffles, and pl
     }, [
       { spec: 'Immutable replay preserves the exact refill, Influence, and acquired discard count', check: async () => {
         await expect(buyer.page.getByTestId('chronicle-row').getByRole('button')).toHaveCount(5);
-        await expect(buyer.page.getByTestId('chronicle-market')).toContainText('deck 4');
+        await expect(buyer.page.getByTestId('chronicle-market')).toContainText('deck 12');
         await expect(buyer.page.locator('.reveal-total strong')).toHaveText(`${influenceBefore - 2} Influence`);
         await expect(row(buyer, buyer.name)).toContainText('Discard1');
       } },

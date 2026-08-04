@@ -49,10 +49,10 @@ test('Gifts and Tokens resolves a visible resource choice and resumes the Agent 
       { spec: 'The Fate card becomes public and opens its exact resource choice', check: async () => {
         for (const observer of seats) await expect(observer.page.getByTestId('fate-discard')).toContainText('1 cards');
         await expect(fateHolder.page.getByRole('heading', { name: 'Which gift will you take?' })).toBeVisible();
-        await expect(fateHolder.page.getByRole('button', { name: 'Gain 2 Gold' })).toBeEnabled();
+        await expect(fateHolder.page.getByTestId('pending-choice').getByRole('button', { name: 'Gain 2 Gold' })).toBeEnabled();
       } },
       { spec: 'The unaffordable paid option is absent rather than partially resolving', check: async () => {
-        await expect(fateHolder.page.getByRole('button', { name: /Pay 2 Gold · gain 1 Mithril/ })).toHaveCount(0);
+        await expect(fateHolder.page.getByTestId('pending-choice').getByRole('button', { name: /Pay 2 Gold · gain 1 Mithril/ })).toHaveCount(0);
       } },
       converged(accepted.value + 1)
     ]);
@@ -64,7 +64,7 @@ test('Gifts and Tokens resolves a visible resource choice and resumes the Agent 
       converged(accepted.value)
     ]);
     await steps.gesture(fateHolder.page, 'take-gold-gift', `${fateHolder.name} takes 2 Gold`, async () => {
-      await fateHolder.page.getByRole('button', { name: 'Gain 2 Gold' }).click(); accepted.value += 1;
+      await fateHolder.page.getByTestId('pending-choice').getByRole('button', { name: 'Gain 2 Gold' }).click(); accepted.value += 1;
     }, [
       { spec: 'Every observer sees the exact public resource result', check: async () => {
         for (const observer of seats) await expect(row(observer, fateHolder.name)).toContainText('Gold2');

@@ -323,15 +323,15 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip cycles one physical Bree-land Guide
+## Pip cycles one physical Steward's Messenger
 
-![Phone: Pip cycles one physical Bree-land Guide](./screenshots/025-cycle-bree-guide-phone.png)
+![Phone: Pip cycles one physical Steward's Messenger](./screenshots/025-cycle-bree-guide-phone.png)
 
-![Desktop: Pip cycles one physical Bree-land Guide](./screenshots/025-cycle-bree-guide-desktop.png)
+![Desktop: Pip cycles one physical Steward's Messenger](./screenshots/025-cycle-bree-guide-desktop.png)
 
 **Verifications:**
 
-- [x] Every browser sees five Row cards, the exact positional refill, and five cards in the deck
+- [x] Every browser sees five Row cards, the exact positional refill, and thirteen cards in the deck
 - [x] The selected physical instance left the Row and the same Agent turn resumed
 - [x] Every connected browser replays 17 accepted events with no diagnostics
 

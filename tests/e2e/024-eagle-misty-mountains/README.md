@@ -218,11 +218,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals five Influence
+## Rin Reveals five Influence
 
-![Phone: Mara Reveals five Influence](./screenshots/017-reveal-five-influence-phone.png)
+![Phone: Rin Reveals five Influence](./screenshots/017-reveal-five-influence-phone.png)
 
-![Desktop: Mara Reveals five Influence](./screenshots/017-reveal-five-influence-desktop.png)
+![Desktop: Rin Reveals five Influence](./screenshots/017-reveal-five-influence-desktop.png)
 
 **Verifications:**
 
@@ -232,11 +232,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara buys Eagle of the Misty Mountains
+## Rin buys Eagle of the Misty Mountains
 
-![Phone: Mara buys Eagle of the Misty Mountains](./screenshots/018-buy-eagle-phone.png)
+![Phone: Rin buys Eagle of the Misty Mountains](./screenshots/018-buy-eagle-phone.png)
 
-![Desktop: Mara buys Eagle of the Misty Mountains](./screenshots/018-buy-eagle-desktop.png)
+![Desktop: Rin buys Eagle of the Misty Mountains](./screenshots/018-buy-eagle-desktop.png)
 
 **Verifications:**
 
@@ -246,11 +246,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara reloads the acquired Eagle
+## Rin reloads the acquired Eagle
 
-![Phone: Mara reloads the acquired Eagle](./screenshots/019-reload-eagle-market-phone.png)
+![Phone: Rin reloads the acquired Eagle](./screenshots/019-reload-eagle-market-phone.png)
 
-![Desktop: Mara reloads the acquired Eagle](./screenshots/019-reload-eagle-market-desktop.png)
+![Desktop: Rin reloads the acquired Eagle](./screenshots/019-reload-eagle-market-desktop.png)
 
 **Verifications:**
 
@@ -259,11 +259,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes the Eagle purchase
+## Rin finishes the Eagle purchase
 
-![Phone: Mara finishes the Eagle purchase](./screenshots/020-finish-eagle-purchase-phone.png)
+![Phone: Rin finishes the Eagle purchase](./screenshots/020-finish-eagle-purchase-phone.png)
 
-![Desktop: Mara finishes the Eagle purchase](./screenshots/020-finish-eagle-purchase-desktop.png)
+![Desktop: Rin finishes the Eagle purchase](./screenshots/020-finish-eagle-purchase-desktop.png)
 
 **Verifications:**
 
@@ -272,11 +272,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals while the Eagle travels through the deck
+## Mara Reveals while the Eagle travels through the deck
 
-![Phone: Rin Reveals while the Eagle travels through the deck](./screenshots/021-reveal-1-phone.png)
+![Phone: Mara Reveals while the Eagle travels through the deck](./screenshots/021-reveal-1-phone.png)
 
-![Desktop: Rin Reveals while the Eagle travels through the deck](./screenshots/021-reveal-1-desktop.png)
+![Desktop: Mara Reveals while the Eagle travels through the deck](./screenshots/021-reveal-1-desktop.png)
 
 **Verifications:**
 
@@ -285,11 +285,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin finishes Reveal
+## Mara finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/022-finish-2-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/022-finish-2-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/022-finish-2-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/022-finish-2-desktop.png)
 
 **Verifications:**
 
@@ -324,11 +324,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals while the Eagle travels through the deck
+## Mara Reveals while the Eagle travels through the deck
 
-![Phone: Rin Reveals while the Eagle travels through the deck](./screenshots/025-reveal-5-phone.png)
+![Phone: Mara Reveals while the Eagle travels through the deck](./screenshots/025-reveal-5-phone.png)
 
-![Desktop: Rin Reveals while the Eagle travels through the deck](./screenshots/025-reveal-5-desktop.png)
+![Desktop: Mara Reveals while the Eagle travels through the deck](./screenshots/025-reveal-5-desktop.png)
 
 **Verifications:**
 
@@ -337,11 +337,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin finishes Reveal
+## Mara finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/026-finish-6-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/026-finish-6-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/026-finish-6-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/026-finish-6-desktop.png)
 
 **Verifications:**
 
@@ -376,11 +376,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals while the Eagle travels through the deck
+## Rin Reveals while the Eagle travels through the deck
 
-![Phone: Mara Reveals while the Eagle travels through the deck](./screenshots/029-reveal-9-phone.png)
+![Phone: Rin Reveals while the Eagle travels through the deck](./screenshots/029-reveal-9-phone.png)
 
-![Desktop: Mara Reveals while the Eagle travels through the deck](./screenshots/029-reveal-9-desktop.png)
+![Desktop: Rin Reveals while the Eagle travels through the deck](./screenshots/029-reveal-9-desktop.png)
 
 **Verifications:**
 
@@ -389,11 +389,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal
+## Rin finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/030-finish-10-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/030-finish-10-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/030-finish-10-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/030-finish-10-desktop.png)
 
 **Verifications:**
 
@@ -428,63 +428,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals while the Eagle travels through the deck
+## Rin selects Eagle of the Misty Mountains
 
-![Phone: Mara Reveals while the Eagle travels through the deck](./screenshots/033-reveal-13-phone.png)
+![Phone: Rin selects Eagle of the Misty Mountains](./screenshots/033-select-eagle-phone.png)
 
-![Desktop: Mara Reveals while the Eagle travels through the deck](./screenshots/033-reveal-13-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 26 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal
-
-![Phone: Mara finishes Reveal](./screenshots/034-finish-14-phone.png)
-
-![Desktop: Mara finishes Reveal](./screenshots/034-finish-14-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row closes and ordinary authority advances
-- [x] Every connected browser replays 27 accepted events with no diagnostics
-
----
-
-## Rin Reveals while the Eagle travels through the deck
-
-![Phone: Rin Reveals while the Eagle travels through the deck](./screenshots/035-reveal-15-phone.png)
-
-![Desktop: Rin Reveals while the Eagle travels through the deck](./screenshots/035-reveal-15-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 28 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/036-finish-16-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/036-finish-16-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row closes and ordinary authority advances
-- [x] Every connected browser replays 29 accepted events with no diagnostics
-
----
-
-## Mara selects Eagle of the Misty Mountains
-
-![Phone: Mara selects Eagle of the Misty Mountains](./screenshots/037-select-eagle-phone.png)
-
-![Desktop: Mara selects Eagle of the Misty Mountains](./screenshots/037-select-eagle-desktop.png)
+![Desktop: Rin selects Eagle of the Misty Mountains](./screenshots/033-select-eagle-desktop.png)
 
 **Verifications:**
 
@@ -492,43 +440,43 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara flies to the Battle at Minas Tirith
+## Rin flies to the Battle at Minas Tirith
 
-![Phone: Mara flies to the Battle at Minas Tirith](./screenshots/038-fly-to-minas-tirith-phone.png)
+![Phone: Rin flies to the Battle at Minas Tirith](./screenshots/034-fly-to-minas-tirith-phone.png)
 
-![Desktop: Mara flies to the Battle at Minas Tirith](./screenshots/038-fly-to-minas-tirith-desktop.png)
+![Desktop: Rin flies to the Battle at Minas Tirith](./screenshots/034-fly-to-minas-tirith-desktop.png)
 
 **Verifications:**
 
 - [x] Eagle and Minas Tirith each recruit one Company
 - [x] The two printed draws leave one additional private card after placement
 - [x] The ordered Battle deployment remains with the Eagle player
-- [x] Every connected browser replays 30 accepted events with no diagnostics
+- [x] Every connected browser replays 26 accepted events with no diagnostics
 
 ---
 
-## Mara reloads during Eagle deployment
+## Rin reloads during Eagle deployment
 
-![Phone: Mara reloads during Eagle deployment](./screenshots/039-reload-eagle-battle-phone.png)
+![Phone: Rin reloads during Eagle deployment](./screenshots/035-reload-eagle-battle-phone.png)
 
-![Desktop: Mara reloads during Eagle deployment](./screenshots/039-reload-eagle-battle-desktop.png)
+![Desktop: Rin reloads during Eagle deployment](./screenshots/035-reload-eagle-battle-desktop.png)
 
 **Verifications:**
 
 - [x] Both Journey and board rewards plus pending authority survive replay
-- [x] Every connected browser replays 30 accepted events with no diagnostics
+- [x] Every connected browser replays 26 accepted events with no diagnostics
 
 ---
 
-## Mara keeps the Eagle recruits in garrison
+## Rin keeps the Eagle recruits in garrison
 
-![Phone: Mara keeps the Eagle recruits in garrison](./screenshots/040-keep-eagle-recruits-phone.png)
+![Phone: Rin keeps the Eagle recruits in garrison](./screenshots/036-keep-eagle-recruits-phone.png)
 
-![Desktop: Mara keeps the Eagle recruits in garrison](./screenshots/040-keep-eagle-recruits-desktop.png)
+![Desktop: Rin keeps the Eagle recruits in garrison](./screenshots/036-keep-eagle-recruits-desktop.png)
 
 **Verifications:**
 
 - [x] The complete high-cost Chronicle turn resolves and authority passes
-- [x] Every connected browser replays 31 accepted events with no diagnostics
+- [x] Every connected browser replays 27 accepted events with no diagnostics
 
 ---

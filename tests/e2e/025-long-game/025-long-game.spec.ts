@@ -99,11 +99,11 @@ test('The Long Game rewards four five-cost Chronicle cards acquired through ordi
 
       if (actor === strategist && highCostBought < 4) {
         for (let purchase = 0; purchase < 6 && highCostBought < 4; purchase += 1) {
-          const high = await firstEnabled(strategist.page.getByTestId('chronicle-row').getByRole('button', { name: /^(Eagle of the Misty Mountains|Lady of the Golden Wood)/ }));
+          const high = await firstEnabled(strategist.page.getByTestId('chronicle-row').getByRole('button', { name: /^(Eagle of the Misty Mountains|Lady of the Golden Wood|Durin's Heir|Voice of Orthanc)/ }));
           const card = high ?? await firstEnabled(strategist.page.getByTestId('chronicle-row').getByRole('button'));
           if (!card) break;
           const name = (await card.textContent())?.split(' · ')[0].trim() ?? 'Chronicle card';
-          const isHigh = name === 'Eagle of the Misty Mountains' || name === 'Lady of the Golden Wood';
+          const isHigh = ['Eagle of the Misty Mountains', 'Lady of the Golden Wood', "Durin's Heir", 'Voice of Orthanc'].includes(name);
           const rowBefore = await strategist.page.getByTestId('chronicle-row').getByRole('button').count();
           const deckBefore = Number((await strategist.page.getByTestId('chronicle-market').textContent())?.match(/deck (\d+)/)?.[1] ?? '-1');
           const highCostOrdinal = highCostBought + (isHigh ? 1 : 0);
@@ -182,7 +182,7 @@ test('The Long Game rewards four five-cost Chronicle cards acquired through ordi
 
     steps.generateDocs(
       'Lady of the Golden Wood and The Long Game',
-      'Three isolated humans draw The Long Game privately, use ordinary Reveals to acquire all four physical five-cost Chronicle cards, draw and play Lady of the Golden Wood through her final Elven icons, Fate draw, and Scout choice, reach Endgame, gain exactly one Renown through the now-satisfied ownership condition, pass to final scoring, and reload the deterministic result.'
+      'Three isolated humans draw The Long Game privately, use ordinary Reveals to acquire four physical five-cost Chronicle cards, draw and play Lady of the Golden Wood through her final Elven icons, Fate draw, and Scout choice, reach Endgame, gain exactly one Renown through the now-satisfied ownership condition, pass to final scoring, and reload the deterministic result.'
     );
   } finally {
     await table.close();

@@ -632,6 +632,22 @@ function isBattleSpace(space: (typeof BOARD_SPACE_DEFINITIONS)[number]): boolean
   return 'battleSpace' in space.effect && space.effect.battleSpace === true;
 }
 
+function hasMandatoryResourceCost(space: (typeof BOARD_SPACE_DEFINITIONS)[number]): boolean {
+  return [
+    'white-council-seat',
+    'mirror-galadriel',
+    'pits-isengard',
+    'deep-roads',
+    'ranger-mustering',
+    'deep-fangorn',
+    'entwash',
+    'archives-rivendell',
+    'great-forge',
+    'secret-bargain',
+    'captain-host'
+  ].includes(space.effect.kind);
+}
+
 function canSummonEnts(match: MatchState, player: MatchPlayer): boolean {
   if (!player.entDraught || !match.activeBattleId) return false;
   const contested = BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === match.activeBattleId)?.contestedLocationId;
@@ -932,6 +948,27 @@ function resolveAgentEffects(
     for (let index = 0; index < cardDefinition.journeyEffect.drawFate; index += 1) {
       const fate = match.fateDeck.shift();
       if (fate) player.fateHand.push(fate);
+    }
+  }
+  if (cardDefinition.journeyEffect?.kind === 'council-seat-gold') {
+    player.resources.gold += player.councilSeat
+      ? cardDefinition.journeyEffect.withSeat
+      : cardDefinition.journeyEffect.withoutSeat;
+  }
+  if (cardDefinition.journeyEffect?.kind === 'paid-space-mithril' && hasMandatoryResourceCost(space)) {
+    player.resources.mithril += cardDefinition.journeyEffect.amount;
+  }
+  if (cardDefinition.journeyEffect?.kind === 'gain-mithril-recruit') {
+    player.resources.mithril += cardDefinition.journeyEffect.mithril;
+    recruitCompanies(player, cardDefinition.journeyEffect.recruit);
+  }
+  if (cardDefinition.journeyEffect?.kind === 'gain-gold-tax-richer') {
+    player.resources.gold += cardDefinition.journeyEffect.gold;
+    for (const opponentUid of match.playerOrder.filter((uid) => uid !== actorUid)) {
+      const opponent = match.players[opponentUid];
+      if (opponent.resources.gold > player.resources.gold) {
+        opponent.resources.gold = Math.max(0, opponent.resources.gold - cardDefinition.journeyEffect.opponentLoss);
+      }
     }
   }
   if (space.effect.kind === 'dwarven-caravans') {

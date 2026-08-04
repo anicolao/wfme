@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createEvent } from './events';
-import { BATTLE_CARD_DEFINITIONS, CHRONICLE_CARD_DEFINITIONS, OBSERVATION_POSTS } from './manifest';
+import { BATTLE_CARD_DEFINITIONS, CHRONICLE_CARD_DEFINITIONS, MUSTER_CARD_DEFINITIONS, OBSERVATION_POSTS } from './manifest';
 import { battleStrength, currentPlayerUid, legalAgentSpaces, reduceGame } from './reducer';
 
 function readyRoom(seed = 'road-2') {
@@ -71,9 +71,9 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'keeper-oaths')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'the-long-game')).toHaveLength(2);
     expect(first.match!.chronicleRow).toHaveLength(5);
-    expect(first.match!.chronicleDeck).toHaveLength(5);
+    expect(first.match!.chronicleDeck).toHaveLength(13);
     const chronicleInstances = [...first.match!.chronicleRow, ...first.match!.chronicleDeck];
-    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(10);
+    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(18);
     for (const definition of CHRONICLE_CARD_DEFINITIONS) {
       expect(chronicleInstances.filter((card) => card.definitionId === definition.id)).toHaveLength(2);
     }
@@ -588,10 +588,32 @@ describe('integrated Agent placement replay', () => {
     expect(state.match!.players[actor].renown).toBe(0);
   });
 
-  it('buys, refills, reshuffles, draws, and executes every card in the first Chronicle batch', () => {
+  it('buys, refills, reshuffles, draws, and executes every reviewed Chronicle card', () => {
     const reachAcquiredCard = (definitionId: (typeof CHRONICLE_CARD_DEFINITIONS)[number]['id']) => {
-      const completed = completedAgentRound('chronicle-all-30');
-      const stream = [...completed.events];
+      const definition = CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!;
+      let completed: ReturnType<typeof completedAgentRound> | null = null;
+      for (let candidate = 0; candidate < 500 && !completed; candidate += 1) {
+        try {
+          const attempt = completedAgentRound(`chronicle-${definitionId}-${candidate}`);
+          const attemptState = reduceGame(attempt.events);
+          if (attemptState.diagnostics.length > 0) continue;
+          const attemptActor = currentPlayerUid(attemptState)!;
+          const attemptSequence = Math.max(...attempt.events.filter((event) => event.actorUid === attemptActor).map((event) => event.clientSeq)) + 1;
+          const attemptTimestamp = Math.max(...attempt.events.map((event) => event.createdAtMillis)) + 1;
+          const revealedAttempt = reduceGame([
+            ...attempt.events,
+            createEvent('turn/revealed', attemptActor, attemptSequence, {}, attemptTimestamp)
+          ]);
+          if (
+            revealedAttempt.match!.chronicleRow.some((card) => card.definitionId === definitionId) &&
+            revealedAttempt.match!.players[attemptActor].revealInfluence >= definition.cost
+          ) completed = attempt;
+        } catch {
+          // Some seeds do not put the setup cards in the opening hands; keep looking.
+        }
+      }
+      expect(completed, `a deterministic ordinary setup must offer ${definition.name}`).not.toBeNull();
+      const stream = [...completed!.events];
       const sequences = Object.fromEntries(['host', 'guest-a', 'guest-b'].map((uid) => [uid,
         Math.max(...stream.filter((event) => event.actorUid === uid).map((event) => event.clientSeq))
       ]));
@@ -605,7 +627,6 @@ describe('integrated Agent placement replay', () => {
       append(actor, 'turn/revealed', {});
       state = reduceGame(stream);
       const offered = state.match!.chronicleRow.find((card) => card.definitionId === definitionId)!;
-      const definition = CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!;
       const influenceBefore = state.match!.players[actor].revealInfluence;
       const refill = state.match!.chronicleDeck[0];
       expect(influenceBefore).toBeGreaterThanOrEqual(definition.cost);
@@ -614,7 +635,7 @@ describe('integrated Agent placement replay', () => {
       expect(state.diagnostics).toEqual([]);
       expect(state.match!.players[actor].revealInfluence).toBe(influenceBefore - definition.cost);
       expect(state.match!.players[actor].discardPile).toContainEqual(offered);
-      expect(state.match!.chronicleDeck).toHaveLength(4);
+      expect(state.match!.chronicleDeck).toHaveLength(12);
       expect(state.match!.chronicleRow).toHaveLength(5);
       expect(state.match!.chronicleRow).toContainEqual(refill);
 
@@ -690,6 +711,72 @@ describe('integrated Agent placement replay', () => {
     afterLady = reduceGame(lady.stream);
     expect(afterLady.diagnostics).toEqual([]);
     expect(afterLady.match!.boardScouts[ladyPost.id]).toBe(lady.actor);
+
+    const steward = reachAcquiredCard('stewards-messenger');
+    const stewardGold = steward.before.match!.players[steward.actor].resources.gold;
+    steward.append(steward.actor, 'agent/placed', { cardInstanceId: steward.acquired.id, spaceId: 'hall-fire' });
+    const afterSteward = reduceGame(steward.stream);
+    expect(afterSteward.diagnostics).toEqual([]);
+    expect(afterSteward.match!.players[steward.actor].resources.gold).toBe(stewardGold + 1);
+
+    const delving = reachAcquiredCard('delving-expedition');
+    const delvingPlayer = delving.before.match!.players[delving.actor];
+    const delvingMithril = delvingPlayer.resources.mithril;
+    const delvingProvisions = delvingPlayer.resources.provisions;
+    const delvingRiches = delving.before.match!.richesMithril.entwash;
+    expect(delvingProvisions).toBeGreaterThanOrEqual(1);
+    delving.append(delving.actor, 'agent/placed', { cardInstanceId: delving.acquired.id, spaceId: 'entwash' });
+    const afterDelving = reduceGame(delving.stream);
+    expect(afterDelving.diagnostics).toEqual([]);
+    expect(afterDelving.match!.players[delving.actor].resources.mithril).toBe(delvingMithril + delvingRiches + 1);
+    expect(afterDelving.match!.players[delving.actor].resources.provisions).toBe(delvingProvisions - 1);
+    expect(afterDelving.match!.pendingChoice).toMatchObject({ kind: 'entwash', actorUid: delving.actor });
+
+    const durin = reachAcquiredCard('durins-heir');
+    const durinPlayer = durin.before.match!.players[durin.actor];
+    const durinMithril = durinPlayer.resources.mithril;
+    const durinGarrison = durinPlayer.companies.garrison;
+    const durinSupply = durinPlayer.companies.supply;
+    durin.append(durin.actor, 'agent/placed', { cardInstanceId: durin.acquired.id, spaceId: 'dwarven-caravans' });
+    const afterDurin = reduceGame(durin.stream);
+    expect(afterDurin.diagnostics).toEqual([]);
+    expect(afterDurin.match!.players[durin.actor].resources.mithril).toBe(durinMithril + 1);
+    expect(afterDurin.match!.players[durin.actor].companies.garrison).toBe(durinGarrison + Math.min(2, durinSupply));
+    expect(afterDurin.match!.players[durin.actor].companies.supply).toBe(durinSupply - Math.min(2, durinSupply));
+
+    const voice = reachAcquiredCard('voice-orthanc');
+    const voicePlayer = voice.before.match!.players[voice.actor];
+    const voiceGold = voicePlayer.resources.gold;
+    const opponentGold = Object.fromEntries(voice.before.match!.playerOrder
+      .filter((uid) => uid !== voice.actor)
+      .map((uid) => [uid, voice.before.match!.players[uid].resources.gold]));
+    voice.append(voice.actor, 'agent/placed', { cardInstanceId: voice.acquired.id, spaceId: 'tribute-shadow' });
+    const afterVoice = reduceGame(voice.stream);
+    expect(afterVoice.diagnostics).toEqual([]);
+    expect(afterVoice.match!.players[voice.actor].resources.gold).toBe(voiceGold + 4);
+    for (const [uid, gold] of Object.entries(opponentGold)) {
+      expect(afterVoice.match!.players[uid].resources.gold).toBe(gold > voiceGold + 2 ? gold - 1 : gold);
+    }
+
+    const economyMuster = {
+      'stewards-messenger': { influence: 2, swords: 0 },
+      'delving-expedition': { influence: 1, swords: 1 },
+      'durins-heir': { influence: 2, swords: 2 },
+      'voice-orthanc': { influence: 3, swords: 0 }
+    } as const;
+    for (const [definitionId, printed] of Object.entries(economyMuster)) {
+      expect(MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === definitionId)?.muster).toEqual(printed);
+      const mustered = reachAcquiredCard(definitionId as keyof typeof economyMuster);
+      const expected = mustered.before.match!.players[mustered.actor].hand.reduce((total, instance) => {
+        const box = MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === instance.definitionId)?.muster;
+        return { influence: total.influence + (box?.influence ?? 0), swords: total.swords + (box?.swords ?? 0) };
+      }, { influence: 0, swords: 0 });
+      mustered.append(mustered.actor, 'turn/revealed', {});
+      const afterMuster = reduceGame(mustered.stream);
+      expect(afterMuster.diagnostics).toEqual([]);
+      expect(afterMuster.match!.players[mustered.actor].revealInfluence).toBe(expected.influence);
+      expect(afterMuster.match!.players[mustered.actor].revealedSwords).toBe(expected.swords);
+    }
   });
 
   it('resolves the Seek Allies self-trash only after its faction space', () => {
@@ -1818,7 +1905,7 @@ describe('integrated Agent placement replay', () => {
     const rowBefore = [...state.match!.chronicleRow];
     const deckBefore = [...state.match!.chronicleDeck];
     const affordable = (definitionId: string) => CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!.cost <= 3;
-    expect(deckBefore).toHaveLength(5);
+    expect(deckBefore).toHaveLength(13);
     append(actor, 'fate/played', { cardInstanceId: fate.id });
     const awaitingChoice = reduceGame(stream);
     expect(awaitingChoice.match!.pendingChoice).toEqual({
@@ -3000,7 +3087,7 @@ describe('integrated Agent placement replay', () => {
 
     expect(state.diagnostics).toEqual([]);
     expect(state.match!.turnMode).toBe('endgame');
-    expect(highCostOwned()).toHaveLength(4);
+    expect(highCostOwned().length).toBeGreaterThanOrEqual(4);
     while (currentPlayerUid(state) !== longGameUid) append('endgame/passed', {});
     const longGame = state.match!.players[longGameUid].fateHand.find((card) => card.definitionId === 'the-long-game')!;
     const renownBefore = state.match!.players[longGameUid].renown;

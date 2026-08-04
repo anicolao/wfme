@@ -136,7 +136,7 @@
     <dl class="ledger" aria-label="Construction capability ledger">
       <div><dt>Playable spaces</dt><dd>22 / 22</dd></div>
       <div><dt>Starting Agent boxes</dt><dd>5 / 7</dd></div>
-      <div><dt>Chronicle cards</dt><dd>10 / 54</dd></div>
+      <div><dt>Chronicle cards</dt><dd>18 / 54</dd></div>
       <div><dt>Fate effects</dt><dd>30 / 30</dd></div>
       <div><dt>Battle cards</dt><dd>{BATTLE_CARD_DEFINITIONS.length} / 16</dd></div>
       <div><dt>Commander powers</dt><dd>0 / 16</dd></div>

@@ -36,6 +36,10 @@ export type AgentCardDefinition = StartingCardIdentity & {
     | { kind: 'gain-provisions'; amount: number }
     | { kind: 'draw-card-battle-recruit'; draw: 1; recruit: 1 }
     | { kind: 'draw-fate-place-scout'; drawFate: 1; placeScout: 1 }
+    | { kind: 'council-seat-gold'; withSeat: 2; withoutSeat: 1 }
+    | { kind: 'paid-space-mithril'; amount: 1 }
+    | { kind: 'gain-mithril-recruit'; mithril: 1; recruit: 2 }
+    | { kind: 'gain-gold-tax-richer'; gold: 2; opponentLoss: 1 }
     | { kind: 'optional-trash-self' }
     | { kind: 'place-scout'; amount: 1 };
   reviewedCapabilities: readonly ['agent-placement'];
@@ -127,6 +131,38 @@ export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
     placementIcons: ['Elven', 'Wild'],
     journeyEffect: { kind: 'draw-fate-place-scout', drawFate: 1, placeScout: 1 },
     reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'stewards-messenger',
+    name: "Steward's Messenger",
+    copies: 2,
+    placementIcons: ['Council', 'Stronghold'],
+    journeyEffect: { kind: 'council-seat-gold', withSeat: 2, withoutSeat: 1 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'delving-expedition',
+    name: 'Delving Expedition',
+    copies: 2,
+    placementIcons: ['Dwarven', 'Roads'],
+    journeyEffect: { kind: 'paid-space-mithril', amount: 1 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'durins-heir',
+    name: "Durin's Heir",
+    copies: 2,
+    placementIcons: ['Dwarven', 'Stronghold'],
+    journeyEffect: { kind: 'gain-mithril-recruit', mithril: 1, recruit: 2 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'voice-orthanc',
+    name: 'Voice of Orthanc',
+    copies: 2,
+    placementIcons: ['Shadow', 'Council'],
+    journeyEffect: { kind: 'gain-gold-tax-richer', gold: 2, opponentLoss: 1 },
+    reviewedCapabilities: ['agent-placement']
   }
 ];
 
@@ -167,7 +203,11 @@ export const MUSTER_CARD_DEFINITIONS: readonly MusterCardDefinition[] = [
   { id: 'bree-land-guide', name: 'Bree-land Guide', muster: { influence: 1, swords: 0 } },
   { id: 'captain-gondor', name: 'Captain of Gondor', muster: { influence: 1, swords: 2 } },
   { id: 'eagle-misty-mountains', name: 'Eagle of the Misty Mountains', muster: { influence: 2, swords: 2 } },
-  { id: 'lady-golden-wood', name: 'Lady of the Golden Wood', muster: { influence: 3, swords: 0 } }
+  { id: 'lady-golden-wood', name: 'Lady of the Golden Wood', muster: { influence: 3, swords: 0 } },
+  { id: 'stewards-messenger', name: "Steward's Messenger", muster: { influence: 2, swords: 0 } },
+  { id: 'delving-expedition', name: 'Delving Expedition', muster: { influence: 1, swords: 1 } },
+  { id: 'durins-heir', name: "Durin's Heir", muster: { influence: 2, swords: 2 } },
+  { id: 'voice-orthanc', name: 'Voice of Orthanc', muster: { influence: 3, swords: 0 } }
 ];
 
 export type ReserveCardId = 'muster-host';
@@ -186,7 +226,16 @@ export const RESERVE_CARD_DEFINITIONS: readonly ReserveCardDefinition[] = [
   }
 ];
 
-export type ChronicleCardId = 'rider-rohan' | 'bree-land-guide' | 'captain-gondor' | 'eagle-misty-mountains' | 'lady-golden-wood';
+export type ChronicleCardId =
+  | 'rider-rohan'
+  | 'bree-land-guide'
+  | 'captain-gondor'
+  | 'eagle-misty-mountains'
+  | 'lady-golden-wood'
+  | 'stewards-messenger'
+  | 'delving-expedition'
+  | 'durins-heir'
+  | 'voice-orthanc';
 
 export type ChronicleCardDefinition = {
   id: ChronicleCardId;
@@ -199,7 +248,7 @@ export type ChronicleCardDefinition = {
   reviewedCapabilities: readonly ['chronicle-market', 'agent-placement', 'reveal'];
 };
 
-/** The first executable Chronicle batch. Every printed box is live. */
+/** Every listed Chronicle card has both printed boxes executable. */
 export const CHRONICLE_CARD_DEFINITIONS: readonly ChronicleCardDefinition[] = [
   {
     id: 'rider-rohan', name: 'Rider of Rohan', copies: 2, cost: 2,
@@ -228,6 +277,30 @@ export const CHRONICLE_CARD_DEFINITIONS: readonly ChronicleCardDefinition[] = [
   {
     id: 'lady-golden-wood', name: 'Lady of the Golden Wood', copies: 2, cost: 5,
     placementIcons: ['Elven', 'Wild'], journeyText: 'Draw 1 Fate; place 1 Scout',
+    muster: { influence: 3, swords: 0 },
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'stewards-messenger', name: "Steward's Messenger", copies: 2, cost: 3,
+    placementIcons: ['Council', 'Stronghold'], journeyText: 'Gain 2 Gold with a Council seat; otherwise gain 1 Gold',
+    muster: { influence: 2, swords: 0 },
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'delving-expedition', name: 'Delving Expedition', copies: 2, cost: 3,
+    placementIcons: ['Dwarven', 'Roads'], journeyText: 'Gain 1 Mithril if this space cost at least 1 resource',
+    muster: { influence: 1, swords: 1 },
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'durins-heir', name: "Durin's Heir", copies: 2, cost: 5,
+    placementIcons: ['Dwarven', 'Stronghold'], journeyText: 'Gain 1 Mithril; recruit 2 Companies',
+    muster: { influence: 2, swords: 2 },
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'voice-orthanc', name: 'Voice of Orthanc', copies: 2, cost: 5,
+    placementIcons: ['Shadow', 'Council'], journeyText: 'Gain 2 Gold; each opponent with more Gold than you loses 1 Gold',
     muster: { influence: 3, swords: 0 },
     reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
   }

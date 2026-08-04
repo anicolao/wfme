@@ -241,7 +241,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] The exact physical card enters the buyer’s discard and costs 2 Influence
-- [x] The Chronicle Row immediately refills to five from its ten-card deck
+- [x] The Chronicle Row immediately refills to five from its eighteen-card deck
 - [x] Every connected browser replays 12 accepted events with no diagnostics
 
 ---
@@ -272,11 +272,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals while the acquired Rider waits for reshuffle
+## Mara Reveals while the acquired Rider waits for reshuffle
 
-![Phone: Pip Reveals while the acquired Rider waits for reshuffle](./screenshots/021-cycle-1-reveal-phone.png)
+![Phone: Mara Reveals while the acquired Rider waits for reshuffle](./screenshots/021-cycle-1-reveal-phone.png)
 
-![Desktop: Pip Reveals while the acquired Rider waits for reshuffle](./screenshots/021-cycle-1-reveal-desktop.png)
+![Desktop: Mara Reveals while the acquired Rider waits for reshuffle](./screenshots/021-cycle-1-reveal-desktop.png)
 
 **Verifications:**
 
@@ -285,11 +285,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes that Reveal
+## Mara finishes that Reveal
 
-![Phone: Pip finishes that Reveal](./screenshots/022-cycle-1-finish-phone.png)
+![Phone: Mara finishes that Reveal](./screenshots/022-cycle-1-finish-phone.png)
 
-![Desktop: Pip finishes that Reveal](./screenshots/022-cycle-1-finish-desktop.png)
+![Desktop: Mara finishes that Reveal](./screenshots/022-cycle-1-finish-desktop.png)
 
 **Verifications:**
 
@@ -298,11 +298,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals while the acquired Rider waits for reshuffle
+## Pip Reveals while the acquired Rider waits for reshuffle
 
-![Phone: Mara Reveals while the acquired Rider waits for reshuffle](./screenshots/023-cycle-2-reveal-phone.png)
+![Phone: Pip Reveals while the acquired Rider waits for reshuffle](./screenshots/023-cycle-2-reveal-phone.png)
 
-![Desktop: Mara Reveals while the acquired Rider waits for reshuffle](./screenshots/023-cycle-2-reveal-desktop.png)
+![Desktop: Pip Reveals while the acquired Rider waits for reshuffle](./screenshots/023-cycle-2-reveal-desktop.png)
 
 **Verifications:**
 
@@ -311,11 +311,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes that Reveal
+## Pip finishes that Reveal
 
-![Phone: Mara finishes that Reveal](./screenshots/024-cycle-2-finish-phone.png)
+![Phone: Pip finishes that Reveal](./screenshots/024-cycle-2-finish-phone.png)
 
-![Desktop: Mara finishes that Reveal](./screenshots/024-cycle-2-finish-desktop.png)
+![Desktop: Pip finishes that Reveal](./screenshots/024-cycle-2-finish-desktop.png)
 
 **Verifications:**
 
@@ -324,11 +324,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals while the acquired Rider waits for reshuffle
+## Mara Reveals while the acquired Rider waits for reshuffle
 
-![Phone: Pip Reveals while the acquired Rider waits for reshuffle](./screenshots/025-cycle-3-reveal-phone.png)
+![Phone: Mara Reveals while the acquired Rider waits for reshuffle](./screenshots/025-cycle-3-reveal-phone.png)
 
-![Desktop: Pip Reveals while the acquired Rider waits for reshuffle](./screenshots/025-cycle-3-reveal-desktop.png)
+![Desktop: Mara Reveals while the acquired Rider waits for reshuffle](./screenshots/025-cycle-3-reveal-desktop.png)
 
 **Verifications:**
 
@@ -337,11 +337,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes that Reveal
+## Mara finishes that Reveal
 
-![Phone: Pip finishes that Reveal](./screenshots/026-cycle-3-finish-phone.png)
+![Phone: Mara finishes that Reveal](./screenshots/026-cycle-3-finish-phone.png)
 
-![Desktop: Pip finishes that Reveal](./screenshots/026-cycle-3-finish-desktop.png)
+![Desktop: Mara finishes that Reveal](./screenshots/026-cycle-3-finish-desktop.png)
 
 **Verifications:**
 
@@ -350,11 +350,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals while the acquired Rider waits for reshuffle
+## Pip Reveals while the acquired Rider waits for reshuffle
 
-![Phone: Mara Reveals while the acquired Rider waits for reshuffle](./screenshots/027-cycle-4-reveal-phone.png)
+![Phone: Pip Reveals while the acquired Rider waits for reshuffle](./screenshots/027-cycle-4-reveal-phone.png)
 
-![Desktop: Mara Reveals while the acquired Rider waits for reshuffle](./screenshots/027-cycle-4-reveal-desktop.png)
+![Desktop: Pip Reveals while the acquired Rider waits for reshuffle](./screenshots/027-cycle-4-reveal-desktop.png)
 
 **Verifications:**
 
@@ -363,11 +363,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes that Reveal
+## Pip finishes that Reveal
 
-![Phone: Mara finishes that Reveal](./screenshots/028-cycle-4-finish-phone.png)
+![Phone: Pip finishes that Reveal](./screenshots/028-cycle-4-finish-phone.png)
 
-![Desktop: Mara finishes that Reveal](./screenshots/028-cycle-4-finish-desktop.png)
+![Desktop: Pip finishes that Reveal](./screenshots/028-cycle-4-finish-desktop.png)
 
 **Verifications:**
 
@@ -402,11 +402,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals before the Chronicle buyer in Round 3
+## Pip Reveals before the Chronicle buyer in Round 3
 
-![Phone: Mara Reveals before the Chronicle buyer in Round 3](./screenshots/031-round-three-1-reveal-phone.png)
+![Phone: Pip Reveals before the Chronicle buyer in Round 3](./screenshots/031-round-three-1-reveal-phone.png)
 
-![Desktop: Mara Reveals before the Chronicle buyer in Round 3](./screenshots/031-round-three-1-reveal-desktop.png)
+![Desktop: Pip Reveals before the Chronicle buyer in Round 3](./screenshots/031-round-three-1-reveal-desktop.png)
 
 **Verifications:**
 
@@ -415,11 +415,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes before the Chronicle buyer
+## Pip finishes before the Chronicle buyer
 
-![Phone: Mara finishes before the Chronicle buyer](./screenshots/032-round-three-1-finish-phone.png)
+![Phone: Pip finishes before the Chronicle buyer](./screenshots/032-round-three-1-finish-phone.png)
 
-![Desktop: Mara finishes before the Chronicle buyer](./screenshots/032-round-three-1-finish-desktop.png)
+![Desktop: Pip finishes before the Chronicle buyer](./screenshots/032-round-three-1-finish-desktop.png)
 
 **Verifications:**
 
