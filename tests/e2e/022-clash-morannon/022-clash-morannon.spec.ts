@@ -215,16 +215,54 @@ test('Clash at the Morannon resolves the final Battle rewards before Recall', as
       { spec: 'Exactly one Dwarven standing resolves publicly for the Battle winner', check: async () => {
         for (const observer of seats) await expect(row(observer, winner.name).getByText('Dwarven', { exact: true }).locator('..')).toContainText(String(winnerStandingBefore + 1));
       } },
-      { spec: 'The complete sixteen-card Battle sequence advances only after its last ordered reward', check: async () => {
+      { spec: 'The complete sixteen-card Battle sequence opens Endgame only after its last ordered reward', check: async () => {
         for (const observer of seats) {
-          await expect(observer.page.getByText('Round 17 · Agent turns')).toBeVisible();
+          await expect(observer.page.getByText('Round 16 · Endgame')).toBeVisible();
+          await expect(observer.page.getByTestId('endgame-window')).toContainText('Battle deck exhausted');
           await expect(observer.page.getByText('16 / 16')).toBeVisible();
         }
       } },
       converged(accepted.value + 1)
     ]);
 
-    steps.generateDocs('Clash at the Morannon as the sixteenth Battle', 'Three isolated humans exhaust fifteen Battles through ordinary Reveal turns, deploy two finite forces through real cards and board destinations, resolve Combat ranking, receive the exact first-rank Renown and standing choice plus the second-rank Renown and finite recruitment, reload the persisted winner authority, choose standing by click, and finish Recall only after every final-Battle reward resolves.');
+    for (let pass = 0; pass < 3; pass += 1) {
+      const actor = await currentSeat();
+      await steps.gesture(actor.page, `endgame-pass-${pass + 1}`, `${actor.name} passes Endgame`, async () => {
+        await actor.page.getByTestId('pass-endgame').click(); accepted.value += 1;
+      }, [
+        { spec: pass < 2 ? 'Endgame authority advances clockwise after a real human pass' : 'Three consecutive passes apply final scoring in every client', check: async () => {
+          if (pass < 2) {
+            await expect(actor.page.locator('footer')).not.toContainText(`Current actor ${actor.name}`);
+            for (const observer of seats) await expect(observer.page.getByTestId('endgame-window')).toBeVisible();
+          } else {
+            for (const observer of seats) {
+              await expect(observer.page.getByTestId('final-result')).toContainText('Battle deck exhausted');
+              await expect(observer.page.getByTestId('final-result')).toContainText(winner.name);
+              await expect(observer.page.getByTestId('final-result').getByRole('listitem')).toHaveCount(3);
+              await expect(observer.page.locator('footer')).toContainText('Final result recorded');
+            }
+          }
+        } },
+        converged(accepted.value + 1)
+      ]);
+    }
+
+    await steps.gesture(winner.page, 'reload-final-result', `${winner.name} reloads the finished match`, async () => {
+      await reloadGameClient(winner.page);
+    }, [
+      { spec: 'The immutable room history reproduces the same winner and complete tiebreak ledger', check: async () => {
+        await expect(winner.page.getByRole('heading', { name: 'Victory in Middle-earth' })).toBeVisible();
+        await expect(winner.page.getByTestId('final-result')).toContainText(winner.name);
+        await expect(winner.page.getByTestId('final-result')).toContainText('Renown');
+        await expect(winner.page.getByTestId('final-result')).toContainText('Mithril');
+        await expect(winner.page.getByTestId('final-result')).toContainText('Gold');
+        await expect(winner.page.getByTestId('final-result')).toContainText('Provisions');
+        await expect(winner.page.getByTestId('final-result')).toContainText('standing');
+      } },
+      converged(accepted.value)
+    ]);
+
+    steps.generateDocs('Clash at the Morannon through final scoring', 'Three isolated humans exhaust fifteen Battles through ordinary Reveal turns, deploy two finite forces through real cards and board destinations, resolve Combat ranking, receive the exact first-rank and second-rank rewards, reload persisted winner authority, enter Endgame only after the final ordered choice, pass clockwise with real gestures, agree on the deterministic winner and full tiebreak ledger, and reload the finished match from its immutable event history.');
   } finally {
     await table.close();
   }

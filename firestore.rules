@@ -29,7 +29,7 @@ service cloud.firestore {
           'game/created', 'player/joined', 'player/commander-selected',
           'player/ready', 'match/started', 'agent/placed', 'choice/resolved',
           'turn/revealed', 'card/acquired', 'reveal/finished', 'scout/placed',
-          'battle/passed', 'fate/played'
+          'battle/passed', 'fate/played', 'endgame/passed'
         ];
     }
 

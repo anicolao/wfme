@@ -905,10 +905,10 @@ describe('integrated Agent placement replay', () => {
   });
 
   it('pays for a Council seat, adds Reveal Influence, and resolves a repeat Fate visit', () => {
-    const stream = readyRoom('council-economy');
-    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let stream = readyRoom('council-economy');
+    let sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
     let timestamp = 11;
-    const target = reduceGame(stream).match!.playerOrder[0];
+    let target = reduceGame(stream).match!.playerOrder[0];
     const append = (state: ReturnType<typeof reduceGame>, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
       const current = currentPlayerUid(state)!;
       sequences[current] += 1;
@@ -1155,6 +1155,10 @@ describe('integrated Agent placement replay', () => {
     expect(afterSecondCaptain.match!.players[secondCaptainUid].resources.gold)
       .toBe(beforeSecondCaptain!.match!.players[secondCaptainUid].resources.gold - 6);
 
+    stream = readyRoom('faction-strongholds');
+    sequences = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    timestamp = 11;
+    target = reduceGame(stream).match!.playerOrder[0];
     let beforePits: ReturnType<typeof reduceGame> | null = null;
     for (let step = 0; step < 1200; step += 1) {
       const state = reduceGame(stream);
@@ -1162,7 +1166,9 @@ describe('integrated Agent placement replay', () => {
       const match = state.match!;
       const player = match.players[current];
       const pending = match.pendingChoice;
-      if (pending?.kind === 'gather-intelligence') append(state, 'choice/resolved', { choice: 'decline-intelligence' });
+      if (match.turnMode === 'endgame') break;
+      if (pending?.kind === 'battle-deployment') append(state, 'choice/resolved', { choice: 'deploy:0' });
+      else if (pending?.kind === 'gather-intelligence') append(state, 'choice/resolved', { choice: 'decline-intelligence' });
       else if (pending?.kind === 'seek-allies') append(state, 'choice/resolved', { choice: 'keep-card' });
       else if (pending?.kind === 'muster-free-peoples') append(state, 'choice/resolved', { choice: 'decline' });
       else if (pending?.kind === 'place-scout') {
@@ -1180,14 +1186,20 @@ describe('integrated Agent placement replay', () => {
           append(state, 'agent/placed', { cardInstanceId: factionCard.id, spaceId: 'pits-isengard' });
           break;
         }
-        if (councilCard && !match.boardAgents['white-council-seat'] && player.resources.gold >= 5 && player.availableAgents > 0) {
+        if (roadCard && match.richesMithril.edoras >= 4 && !match.boardAgents.edoras && player.availableAgents > 0) {
+          append(state, 'agent/placed', { cardInstanceId: roadCard.id, spaceId: 'edoras' });
+        } else if (councilCard && !match.boardAgents['white-council-seat'] && player.resources.gold >= 5 && player.availableAgents > 0) {
           append(state, 'agent/placed', { cardInstanceId: councilCard.id, spaceId: 'white-council-seat' });
         } else if (roadCard && !match.boardAgents['take-war-effort'] && player.availableAgents > 0) {
           append(state, 'agent/placed', { cardInstanceId: roadCard.id, spaceId: 'take-war-effort' });
         } else append(state, 'turn/revealed', {});
       }
     }
-    expect(beforePits, 'repeat Council visits must fund Pits of Isengard').not.toBeNull();
+    const pitsFailure = reduceGame(stream);
+    expect(
+      beforePits,
+      `the real economy must fund Pits of Isengard before Endgame (round ${pitsFailure.match!.round}, ${pitsFailure.match!.turnMode}, resources ${JSON.stringify(pitsFailure.match!.players[target].resources)})`
+    ).not.toBeNull();
     let afterPits = reduceGame(stream);
     if (afterPits.match!.pendingChoice?.kind === 'gather-intelligence') {
       append(afterPits, 'choice/resolved', { choice: 'decline-intelligence' });
@@ -1210,7 +1222,8 @@ describe('integrated Agent placement replay', () => {
         const match = state.match!;
         const player = match.players[current];
         const pending = match.pendingChoice;
-        if (pending?.kind === 'gather-intelligence') append(state, 'choice/resolved', { choice: 'decline-intelligence' });
+        if (pending?.kind === 'battle-deployment') append(state, 'choice/resolved', { choice: 'deploy:0' });
+        else if (pending?.kind === 'gather-intelligence') append(state, 'choice/resolved', { choice: 'decline-intelligence' });
         else if (pending?.kind === 'seek-allies') append(state, 'choice/resolved', { choice: 'keep-card' });
         else if (pending?.kind === 'ranger-mustering-trash') append(state, 'choice/resolved', { choice: 'decline-trash' });
         else if (pending?.kind === 'muster-free-peoples') append(state, 'choice/resolved', { choice: 'decline' });
@@ -1224,7 +1237,9 @@ describe('integrated Agent placement replay', () => {
             append(state, 'agent/placed', { cardInstanceId: factionCard.id, spaceId });
             return state;
           }
-          if (spaceId === 'deep-roads' && councilCard && !match.boardAgents['white-council-seat'] && player.resources.gold >= 5 && player.availableAgents > 0) {
+          if (spaceId === 'deep-roads' && roadCard && match.richesMithril.edoras >= 5 && !match.boardAgents.edoras && player.availableAgents > 0) {
+            append(state, 'agent/placed', { cardInstanceId: roadCard.id, spaceId: 'edoras' });
+          } else if (spaceId === 'deep-roads' && councilCard && !match.boardAgents['white-council-seat'] && player.resources.gold >= 5 && player.availableAgents > 0) {
             append(state, 'agent/placed', { cardInstanceId: councilCard.id, spaceId: 'white-council-seat' });
           } else if (spaceId === 'deep-roads' && roadCard && !match.boardAgents['take-war-effort'] && player.availableAgents > 0) {
             append(state, 'agent/placed', { cardInstanceId: roadCard.id, spaceId: 'take-war-effort' });
@@ -2598,7 +2613,9 @@ describe('integrated Agent placement replay', () => {
     expect(awaiting.match!.players[winner].standing.dwarven).toBe(standingBefore + 1);
     expect(awaiting.match!.pendingBattleRewardChoices).toEqual([]);
     expect(awaiting.match!.pendingChoice).toBeNull();
-    expect(awaiting.match!.round).toBe(17);
+    expect(awaiting.match!.round).toBe(16);
+    expect(awaiting.match!.turnMode).toBe('endgame');
+    expect(awaiting.match!.endgameTrigger).toBe('battle-deck');
     expect(reduceGame(stream)).toEqual(awaiting);
   });
 
@@ -2685,8 +2702,71 @@ describe('integrated Agent placement replay', () => {
     awaiting = reduceGame(stream);
     expect(awaiting.diagnostics).toEqual([]);
     expect(awaiting.match!.pendingChoice).toBeNull();
-    expect(awaiting.match!.round).toBe(17);
+    expect(awaiting.match!.round).toBe(16);
+    expect(awaiting.match!.turnMode).toBe('endgame');
     expect(reduceGame(stream)).toEqual(awaiting);
+  });
+
+  it('exhausts the Battle deck into ordered Endgame passes and a shared deterministic result', () => {
+    const stream = readyRoom('endgame-shared-victory');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      sequences[uid] += 1;
+      stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+    };
+
+    for (let guard = 0; guard < 220; guard += 1) {
+      const state = reduceGame(stream);
+      if (state.match!.turnMode === 'endgame') break;
+      const current = currentPlayerUid(state)!;
+      if (state.match!.turnMode === 'reveal') append(current, 'reveal/finished', {});
+      else append(current, 'turn/revealed', {});
+    }
+
+    let state = reduceGame(stream);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.phase).toBe('playing');
+    expect(state.match!.round).toBe(16);
+    expect(state.match!.battleHistory).toHaveLength(0);
+    expect(state.match!.battleDiscard).toHaveLength(16);
+    expect(state.match!.turnMode).toBe('endgame');
+    expect(state.match!.endgameTrigger).toBe('battle-deck');
+    expect(state.match!.finalResult).toBeNull();
+
+    const first = currentPlayerUid(state)!;
+    const unauthorized = state.match!.playerOrder.find((uid) => uid !== first)!;
+    const rejected = reduceGame([
+      ...stream,
+      createEvent('endgame/passed', unauthorized, sequences[unauthorized] + 1, {}, timestamp)
+    ]);
+    expect(rejected.diagnostics.at(-1)).toContain('illegal Endgame pass');
+    expect(rejected.match!.consecutiveEndgamePasses).toBe(0);
+
+    for (let pass = 0; pass < 3; pass += 1) {
+      state = reduceGame(stream);
+      const actor = currentPlayerUid(state)!;
+      append(actor, 'endgame/passed', {});
+      state = reduceGame(stream);
+      expect(state.diagnostics).toEqual([]);
+      expect(state.match!.consecutiveEndgamePasses).toBe(pass + 1);
+      expect(state.phase).toBe(pass < 2 ? 'playing' : 'finished');
+    }
+
+    expect(state.match!.finalResult).toEqual({
+      trigger: 'battle-deck',
+      winnerUids: state.match!.playerOrder,
+      standings: state.match!.playerOrder.map((uid) => ({
+        uid,
+        rank: 1,
+        renown: 0,
+        mithril: 0,
+        gold: 0,
+        provisions: 1,
+        totalStanding: 0
+      }))
+    });
+    expect(reduceGame(stream)).toEqual(state);
   });
 
   it('runs a three-player Battle from legal deployments through ranked rewards and cleanup', () => {

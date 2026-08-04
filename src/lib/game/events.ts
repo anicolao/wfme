@@ -14,7 +14,8 @@ export type GameEventType =
   | 'reveal/finished'
   | 'scout/placed'
   | 'fate/played'
-  | 'battle/passed';
+  | 'battle/passed'
+  | 'endgame/passed';
 
 export type GameEvent = {
   id: string;

@@ -28,6 +28,7 @@
   export let onFinishReveal: () => void;
   export let onPlaceScout: (postId: string, recallPostId?: string) => void;
   export let onPassBattle: () => void;
+  export let onPassEndgame: () => void;
   export let onPlayFate: (cardInstanceId: string) => void;
   let selectedScoutRecall = '';
   let selectedInfiltrationSpace = '';
@@ -100,11 +101,14 @@
 <section class="table" aria-labelledby="table-title">
   <header class="table-header">
     <div>
-      <p class="eyebrow">Round {game.match?.round ?? 1} · {game.match?.turnMode === 'reveal' ? 'Reveal turn' : game.match?.turnMode === 'battle' ? 'Combat Fate' : 'Agent turns'}</p>
+      <p class="eyebrow">Round {game.match?.round ?? 1} · {game.phase === 'finished' ? 'Finished match' : game.match?.turnMode === 'endgame' ? 'Endgame' : game.match?.turnMode === 'reveal' ? 'Reveal turn' : game.match?.turnMode === 'battle' ? 'Combat Fate' : 'Agent turns'}</p>
       <h1 id="table-title">The living board</h1>
       <p>
-        {game.players.find((player) => player.uid === currentUid)?.displayName ?? 'A player'}
-        chooses the next road.
+        {#if game.match?.finalResult}
+          Final scoring is recorded for every Commander.
+        {:else}
+          {game.players.find((player) => player.uid === currentUid)?.displayName ?? 'A player'} chooses the next road.
+        {/if}
       </p>
     </div>
     <dl class="ledger" aria-label="Construction capability ledger">
@@ -124,6 +128,33 @@
     <div data-testid="fate-discard"><dt>Fate discard</dt><dd>{game.match?.fateDiscard.length ?? 0} cards</dd></div>
     <div data-testid="dam-status"><dt>Dam of Isengard</dt><dd>{game.match?.damBreached ? 'Breached' : 'Intact'}</dd></div>
   </dl>
+
+  {#if game.match?.finalResult}
+    <section class="endgame-area final" data-testid="final-result" aria-labelledby="final-result-title">
+      <div>
+        <p class="eyebrow">Final scoring · {game.match.finalResult.trigger === 'renown' ? '10 Renown reached' : 'Battle deck exhausted'}</p>
+        <h2 id="final-result-title">{game.match.finalResult.winnerUids.length === 1 ? 'Victory in Middle-earth' : 'Shared victory in Middle-earth'}</h2>
+        <p>{game.match.finalResult.winnerUids.map((uid) => game.players.find((player) => player.uid === uid)?.displayName).join(' and ')} {game.match.finalResult.winnerUids.length === 1 ? 'wins the game.' : 'share the game.'}</p>
+      </div>
+      <ol class="final-standings" aria-label="Final standings">
+        {#each game.match.finalResult.standings as standing}
+          <li data-testid={`final-standing-${standing.uid}`}>
+            <strong>#{standing.rank} {game.players.find((player) => player.uid === standing.uid)?.displayName}</strong>
+            <span>{standing.renown} Renown · {standing.mithril} Mithril · {standing.gold} Gold · {standing.provisions} Provisions · {standing.totalStanding} standing</span>
+          </li>
+        {/each}
+      </ol>
+    </section>
+  {:else if game.match?.turnMode === 'endgame'}
+    <section class="endgame-area" data-testid="endgame-window" aria-labelledby="endgame-title">
+      <div>
+        <p class="eyebrow">Final scoring window · {game.match.endgameTrigger === 'renown' ? '10 Renown reached' : 'Battle deck exhausted'}</p>
+        <h2 id="endgame-title">The final reckoning</h2>
+        <p>{game.players.find((player) => player.uid === currentUid)?.displayName} may resolve Endgame Fate or pass. Scoring begins after every Commander passes consecutively.</p>
+      </div>
+      <button type="button" data-testid="pass-endgame" disabled={currentUid !== localUid || busy} onclick={onPassEndgame}>Pass Endgame</button>
+    </section>
+  {/if}
 
   {#if (game.match?.turnMode === 'agent' || game.match?.turnMode === 'reveal') && currentUid === localUid && !game.match.pendingChoice}
     {@const plotFate = (localMatch?.fateHand ?? []).flatMap((fate) => {
@@ -558,6 +589,7 @@
     </section>
   {/if}
 
+  {#if game.match?.turnMode !== 'endgame'}
   <section class="decision" aria-labelledby="decision-title">
     <div>
       <p class="eyebrow">Your hand</p>
@@ -590,6 +622,7 @@
       {/each}
     </div>
   </section>
+  {/if}
 
   <section class="history" aria-labelledby="history-title">
     <h2 id="history-title">Chronicle</h2>
@@ -610,6 +643,12 @@
   .ledger dt { font-size: .78rem; }
   .ledger dd { margin: .15rem 0 0; font-weight: 700; }
   .alliances { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; margin: 0 0 1rem; }
+  .endgame-area { display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center; margin: 0 0 1rem; padding: 1.1rem; color: #29291f; background: #efe3c4; border: 3px solid #d6b66f; border-radius: .7rem; }
+  .endgame-area h2, .endgame-area p { margin: 0; }
+  .endgame-area .eyebrow { margin-bottom: .35rem; color: #6d452d; }
+  .endgame-area.final { grid-template-columns: minmax(15rem, .8fr) minmax(20rem, 1.2fr); }
+  .final-standings { display: grid; gap: .4rem; margin: 0; padding: 0; list-style: none; }
+  .final-standings li { display: grid; grid-template-columns: minmax(9rem, .55fr) 1fr; gap: .5rem; padding: .55rem; background: #dfd2b6; border-radius: .4rem; }
   .alliances div { padding: .55rem .7rem; color: #29291f; background: #d8dfc7; border-radius: .5rem; }
   .alliances dt { font-size: .76rem; }
   .alliances dd { margin: .1rem 0 0; font-weight: 700; }
@@ -696,6 +735,9 @@
     .critical-control { grid-template-columns: 1fr; }
   }
   @media (max-width: 520px) {
+    .endgame-area, .endgame-area.final { grid-template-columns: minmax(0, 1fr); }
+    .endgame-area button { width: 100%; }
+    .final-standings li { grid-template-columns: minmax(0, 1fr); }
     .board { grid-template-columns: 1fr; max-height: 34rem; overflow-y: auto; }
     .hand { grid-template-columns: repeat(5, 9rem); }
     .reveal-panel { grid-template-columns: 1fr; }

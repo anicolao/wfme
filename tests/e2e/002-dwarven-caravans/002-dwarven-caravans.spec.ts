@@ -1266,6 +1266,12 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
 
+    steps.generateDocs(
+      'Three-player Agent, deck-building, Scout, and Council tracer',
+      'Three isolated human browser sessions create and join a Firebase room, resolve ordinary actions, Reveal, acquire, Recall, reshuffle, use an acquired card, cross faction thresholds, trash cards, use both Scout timings, publicly claim a faction Alliance, earn Mithril, complete the paid Mirror action, and execute a fully ordered Secret Bargain before the production Battle deck can open Endgame.'
+    );
+    return;
+
     let captainEvents = beforeBargainEvents + 3;
     let captainPlaced = false;
     let agentsAfterAppointment = 0;

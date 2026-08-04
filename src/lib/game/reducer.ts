@@ -64,13 +64,29 @@ export type AgentOccupation = {
   agentNumber: number;
 };
 
+export type FinalStanding = {
+  uid: string;
+  rank: number;
+  renown: number;
+  mithril: number;
+  gold: number;
+  provisions: number;
+  totalStanding: number;
+};
+
+export type FinalResult = {
+  trigger: 'renown' | 'battle-deck';
+  winnerUids: string[];
+  standings: FinalStanding[];
+};
+
 export type MatchState = {
   seed: string;
   round: number;
   playerOrder: string[];
   currentPlayerIndex: number;
   firstPlayerIndex: number;
-  turnMode: 'agent' | 'reveal' | 'battle';
+  turnMode: 'agent' | 'reveal' | 'battle' | 'endgame';
   players: Record<string, MatchPlayer>;
   boardAgents: Record<string, AgentOccupation[]>;
   boardScouts: Record<string, string>;
@@ -86,6 +102,9 @@ export type MatchState = {
   battleParticipantUids: string[];
   battleBonusStrength: Record<string, number>;
   consecutiveBattlePasses: number;
+  consecutiveEndgamePasses: number;
+  endgameTrigger: 'renown' | 'battle-deck' | null;
+  finalResult: FinalResult | null;
   battleHistory: Array<{ battleId: string; winnerUid: string | null; strengths: Record<string, number> }>;
   criticalControl: Record<'minas-tirith' | 'osgiliath' | 'edoras', string | null>;
   richesMithril: Record<'deep-fangorn' | 'entwash' | 'edoras', number>;
@@ -243,7 +262,7 @@ export type MatchState = {
 export type GameState = {
   roomCode: string | null;
   hostUid: string | null;
-  phase: 'lobby' | 'playing';
+  phase: 'lobby' | 'playing' | 'finished';
   players: LobbyPlayer[];
   match: MatchState | null;
   diagnostics: string[];
@@ -373,6 +392,9 @@ function createMatch(state: GameState, seed: string): MatchState {
     battleParticipantUids: [],
     battleBonusStrength: {},
     consecutiveBattlePasses: 0,
+    consecutiveEndgamePasses: 0,
+    endgameTrigger: null,
+    finalResult: null,
     battleHistory: [],
     criticalControl: { 'minas-tirith': null, osgiliath: null, edoras: null },
     richesMithril: { 'deep-fangorn': 0, entwash: 0, edoras: 0 },
@@ -496,6 +518,18 @@ function drawOneCard(match: MatchState, uid: string, reason: string): CardInstan
 }
 
 function recallAndBeginNextRound(match: MatchState): void {
+  if (Object.values(match.players).some((player) => player.renown >= 10) || match.battleDeck.length === 0) {
+    match.turnMode = 'endgame';
+    match.currentPlayerIndex = match.firstPlayerIndex;
+    match.consecutiveEndgamePasses = 0;
+    match.endgameTrigger = Object.values(match.players).some((player) => player.renown >= 10) ? 'renown' : 'battle-deck';
+    match.activity.push(
+      match.endgameTrigger === 'renown'
+        ? 'Endgame begins because a Commander has reached 10 Renown.'
+        : 'Endgame begins because the final Battle has resolved.'
+    );
+    return;
+  }
   if (!(match.boardAgents['deep-fangorn']?.length > 0)) match.richesMithril['deep-fangorn'] += 1;
   if (!(match.boardAgents.entwash?.length > 0)) match.richesMithril.entwash += 1;
   if (!(match.boardAgents.edoras?.length > 0)) {
@@ -532,6 +566,54 @@ function recallAndBeginNextRound(match: MatchState): void {
     match.activity.push(`The controller of ${BOARD_SPACE_DEFINITIONS.find((space) => space.id === nextBattle?.contestedLocationId)?.name} may deploy 1 defending Company from supply.`);
   }
   match.activity.push(`Recall completes. Round ${match.round} begins.`);
+}
+
+function finalStanding(match: MatchState, uid: string): FinalStanding {
+  const player = match.players[uid];
+  return {
+    uid,
+    rank: 0,
+    renown: player.renown,
+    mithril: player.resources.mithril,
+    gold: player.resources.gold,
+    provisions: player.resources.provisions,
+    totalStanding: Object.values(player.standing).reduce((total, amount) => total + amount, 0)
+  };
+}
+
+function sameFinalScore(left: FinalStanding, right: FinalStanding): boolean {
+  return left.renown === right.renown
+    && left.mithril === right.mithril
+    && left.gold === right.gold
+    && left.provisions === right.provisions
+    && left.totalStanding === right.totalStanding;
+}
+
+function finishEndgame(match: MatchState): void {
+  const standings = match.playerOrder.map((uid) => finalStanding(match, uid)).sort((left, right) =>
+    right.renown - left.renown
+    || right.mithril - left.mithril
+    || right.gold - left.gold
+    || right.provisions - left.provisions
+    || right.totalStanding - left.totalStanding
+    || match.playerOrder.indexOf(left.uid) - match.playerOrder.indexOf(right.uid)
+  );
+  for (let index = 0; index < standings.length; index += 1) {
+    standings[index].rank = index > 0 && sameFinalScore(standings[index], standings[index - 1])
+      ? standings[index - 1].rank
+      : index + 1;
+  }
+  const winnerUids = standings.filter((standing) => standing.rank === 1).map((standing) => standing.uid);
+  match.finalResult = {
+    trigger: match.endgameTrigger ?? 'battle-deck',
+    winnerUids,
+    standings
+  };
+  match.activity.push(
+    winnerUids.length === 1
+      ? 'Final scoring names one victorious Commander.'
+      : `${winnerUids.length} Commanders share victory after every tiebreak.`
+  );
 }
 
 function recruitCompanies(player: MatchPlayer, amount: number): number {
@@ -1794,6 +1876,25 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       const currentIndex = participants.indexOf(event.actorUid);
       const nextUid = participants[(currentIndex + 1) % participants.length];
       state.match.currentPlayerIndex = state.match.playerOrder.indexOf(nextUid);
+    }
+    return null;
+  }
+
+  if (event.type === 'endgame/passed') {
+    if (
+      state.phase !== 'playing' ||
+      !state.match ||
+      state.match.turnMode !== 'endgame' ||
+      state.match.pendingChoice ||
+      currentPlayerUid(state) !== event.actorUid
+    ) return 'illegal Endgame pass';
+    state.match.consecutiveEndgamePasses += 1;
+    state.match.activity.push(`${actor.displayName} passes in Endgame.`);
+    if (state.match.consecutiveEndgamePasses >= state.match.playerOrder.length) {
+      finishEndgame(state.match);
+      state.phase = 'finished';
+    } else {
+      state.match.currentPlayerIndex = (state.match.currentPlayerIndex + 1) % state.match.playerOrder.length;
     }
     return null;
   }

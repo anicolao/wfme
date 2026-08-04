@@ -1,6 +1,6 @@
-# Test: Clash at the Morannon as the sixteenth Battle
+# Test: Clash at the Morannon through final scoring
 
-Three isolated humans exhaust fifteen Battles through ordinary Reveal turns, deploy two finite forces through real cards and board destinations, resolve Combat ranking, receive the exact first-rank Renown and standing choice plus the second-rank Renown and finite recruitment, reload the persisted winner authority, choose standing by click, and finish Recall only after every final-Battle reward resolves.
+Three isolated humans exhaust fifteen Battles through ordinary Reveal turns, deploy two finite forces through real cards and board destinations, resolve Combat ranking, receive the exact first-rank and second-rank rewards, reload persisted winner authority, enter Endgame only after the final ordered choice, pass clockwise with real gestures, agree on the deterministic winner and full tiebreak ledger, and reload the finished match from its immutable event history.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -1616,7 +1616,59 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] Exactly one Dwarven standing resolves publicly for the Battle winner
-- [x] The complete sixteen-card Battle sequence advances only after its last ordered reward
+- [x] The complete sixteen-card Battle sequence opens Endgame only after its last ordered reward
 - [x] Every connected browser replays 115 accepted events with no diagnostics
+
+---
+
+## Mara passes Endgame
+
+![Phone: Mara passes Endgame](./screenshots/125-endgame-pass-1-phone.png)
+
+![Desktop: Mara passes Endgame](./screenshots/125-endgame-pass-1-desktop.png)
+
+**Verifications:**
+
+- [x] Endgame authority advances clockwise after a real human pass
+- [x] Every connected browser replays 116 accepted events with no diagnostics
+
+---
+
+## Pip passes Endgame
+
+![Phone: Pip passes Endgame](./screenshots/126-endgame-pass-2-phone.png)
+
+![Desktop: Pip passes Endgame](./screenshots/126-endgame-pass-2-desktop.png)
+
+**Verifications:**
+
+- [x] Endgame authority advances clockwise after a real human pass
+- [x] Every connected browser replays 117 accepted events with no diagnostics
+
+---
+
+## Rin passes Endgame
+
+![Phone: Rin passes Endgame](./screenshots/127-endgame-pass-3-phone.png)
+
+![Desktop: Rin passes Endgame](./screenshots/127-endgame-pass-3-desktop.png)
+
+**Verifications:**
+
+- [x] Three consecutive passes apply final scoring in every client
+- [x] Every connected browser replays 118 accepted events with no diagnostics
+
+---
+
+## Mara reloads the finished match
+
+![Phone: Mara reloads the finished match](./screenshots/128-reload-final-result-phone.png)
+
+![Desktop: Mara reloads the finished match](./screenshots/128-reload-final-result-desktop.png)
+
+**Verifications:**
+
+- [x] The immutable room history reproduces the same winner and complete tiebreak ledger
+- [x] Every connected browser replays 118 accepted events with no diagnostics
 
 ---

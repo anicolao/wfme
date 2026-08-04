@@ -231,6 +231,16 @@
     }
   }
 
+  async function passEndgame() {
+    busy = true;
+    try {
+      await append('endgame/passed', {});
+      message = 'Endgame pass committed to the shared Chronicle.';
+    } finally {
+      busy = false;
+    }
+  }
+
   async function playFate(cardInstanceId: string) {
     busy = true;
     try {
@@ -277,7 +287,7 @@
     {backendStatus === 'connecting' ? 'Connecting to Firebase…' : backendStatus === 'syncing' ? 'Synchronizing game…' : backendStatus === 'ready' ? 'Live Firebase ready' : 'Backend unavailable'}
   </div>
 
-  {#if game.phase === 'playing'}
+  {#if game.phase === 'playing' || game.phase === 'finished'}
     <RealmBoard
       {game}
       {busy}
@@ -291,6 +301,7 @@
       onFinishReveal={finishReveal}
       onPlaceScout={placeScout}
       onPassBattle={passBattle}
+      onPassEndgame={passEndgame}
       onPlayFate={playFate}
     />
   {:else}
@@ -373,11 +384,11 @@
     </section>
   {/if}
 
-  {#if game.phase === 'playing'}
+  {#if game.phase === 'playing' || game.phase === 'finished'}
     <p class="message board-message" role="status">{message}</p>
   {/if}
   <footer>
-    Room {roomCode || '—'} · {currentUid ? `Current actor ${game.players.find((player) => player.uid === currentUid)?.displayName}` : 'Lobby'} · Schema 2
+    Room {roomCode || '—'} · {game.phase === 'finished' ? 'Final result recorded' : currentUid ? `Current actor ${game.players.find((player) => player.uid === currentUid)?.displayName}` : 'Lobby'} · Schema 2
     <span data-testid="replay-health" title={game.diagnostics.join(' | ')}> · {game.eventCount} accepted events · {game.diagnostics.length} replay diagnostics</span>
   </footer>
 </main>
