@@ -331,7 +331,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 **Verifications:**
 
-- [x] Every browser sees five Row cards, the same positional refill, and one card in the deck
+- [x] Every browser sees five Row cards, the same positional refill, and three cards in the deck
 - [x] The selected physical instance left the Row and the same Agent turn resumed
 - [x] Every connected browser replays 17 accepted events with no diagnostics
 

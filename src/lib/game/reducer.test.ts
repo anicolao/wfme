@@ -19,8 +19,8 @@ function readyRoom(seed = 'road-2') {
   return events;
 }
 
-function completedAgentRound() {
-  const setup = readyRoom();
+function completedAgentRound(seed = 'road-2') {
+  const setup = readyRoom(seed);
   const started = reduceGame(setup);
   const [roadActor, dwarfActor, shadowActor] = started.match!.playerOrder;
   const road = started.match!.players[roadActor].hand.find((card) => card.definitionId === 'the-open-road')!;
@@ -70,9 +70,9 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'lore-beyond-price')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'keeper-oaths')).toHaveLength(2);
     expect(first.match!.chronicleRow).toHaveLength(5);
-    expect(first.match!.chronicleDeck).toHaveLength(1);
+    expect(first.match!.chronicleDeck).toHaveLength(3);
     const chronicleInstances = [...first.match!.chronicleRow, ...first.match!.chronicleDeck];
-    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(6);
+    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(8);
     for (const definition of CHRONICLE_CARD_DEFINITIONS) {
       expect(chronicleInstances.filter((card) => card.definitionId === definition.id)).toHaveLength(2);
     }
@@ -589,7 +589,7 @@ describe('integrated Agent placement replay', () => {
 
   it('buys, refills, reshuffles, draws, and executes every card in the first Chronicle batch', () => {
     const reachAcquiredCard = (definitionId: (typeof CHRONICLE_CARD_DEFINITIONS)[number]['id']) => {
-      const completed = completedAgentRound();
+      const completed = completedAgentRound('chronicle-five-13');
       const stream = [...completed.events];
       const sequences = Object.fromEntries(['host', 'guest-a', 'guest-b'].map((uid) => [uid,
         Math.max(...stream.filter((event) => event.actorUid === uid).map((event) => event.clientSeq))
@@ -613,7 +613,7 @@ describe('integrated Agent placement replay', () => {
       expect(state.diagnostics).toEqual([]);
       expect(state.match!.players[actor].revealInfluence).toBe(influenceBefore - definition.cost);
       expect(state.match!.players[actor].discardPile).toContainEqual(offered);
-      expect(state.match!.chronicleDeck).toEqual([]);
+      expect(state.match!.chronicleDeck).toHaveLength(2);
       expect(state.match!.chronicleRow).toHaveLength(5);
       expect(state.match!.chronicleRow).toContainEqual(refill);
 
@@ -623,15 +623,20 @@ describe('integrated Agent placement replay', () => {
       stream.pop();
 
       append(actor, 'reveal/finished', {});
-      for (let guard = 0; guard < 20; guard += 1) {
+      for (let guard = 0; guard < 80; guard += 1) {
         state = reduceGame(stream);
-        if (state.match!.round >= 3 && currentPlayerUid(state) === actor && state.match!.turnMode === 'agent') break;
+        if (
+          state.match!.round >= 3 &&
+          currentPlayerUid(state) === actor &&
+          state.match!.turnMode === 'agent' &&
+          state.match!.players[actor].hand.some((card) => card.id === offered.id)
+        ) break;
         const current = currentPlayerUid(state)!;
         append(current, state.match!.turnMode === 'reveal' ? 'reveal/finished' : 'turn/revealed', {});
       }
       state = reduceGame(stream);
       expect(state.diagnostics).toEqual([]);
-      expect(state.match!.round).toBe(3);
+      expect(state.match!.round).toBeGreaterThanOrEqual(3);
       const acquired = state.match!.players[actor].hand.find((card) => card.id === offered.id)!;
       expect(acquired).toEqual(offered);
       return { stream, append, actor, acquired, before: state };
@@ -661,6 +666,16 @@ describe('integrated Agent placement replay', () => {
     expect(afterCaptain.diagnostics).toEqual([]);
     expect(afterCaptain.match!.players[captain.actor].companies.garrison).toBe(captainGarrison + 2);
     expect(afterCaptain.match!.players[captain.actor].fateHand).toHaveLength(captainFate + 1);
+
+    const eagle = reachAcquiredCard('eagle-misty-mountains');
+    const eaglePlayer = eagle.before.match!.players[eagle.actor];
+    const eagleGarrison = eaglePlayer.companies.garrison;
+    const eagleHand = eaglePlayer.hand.length;
+    eagle.append(eagle.actor, 'agent/placed', { cardInstanceId: eagle.acquired.id, spaceId: 'minas-tirith' });
+    const afterEagle = reduceGame(eagle.stream);
+    expect(afterEagle.diagnostics).toEqual([]);
+    expect(afterEagle.match!.players[eagle.actor].companies.garrison).toBe(eagleGarrison + 2);
+    expect(afterEagle.match!.players[eagle.actor].hand).toHaveLength(eagleHand + 1);
   });
 
   it('resolves the Seek Allies self-trash only after its faction space', () => {
@@ -1788,19 +1803,20 @@ describe('integrated Agent placement replay', () => {
     const fate = state.match!.players[actor].fateHand.find((card) => card.definitionId === 'long-memory')!;
     const rowBefore = [...state.match!.chronicleRow];
     const deckBefore = [...state.match!.chronicleDeck];
-    expect(deckBefore).toHaveLength(1);
+    const affordable = (definitionId: string) => CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!.cost <= 3;
+    expect(deckBefore).toHaveLength(3);
     append(actor, 'fate/played', { cardInstanceId: fate.id });
     const awaitingChoice = reduceGame(stream);
     expect(awaitingChoice.match!.pendingChoice).toEqual({
       kind: 'long-memory',
       actorUid: actor,
-      cardInstanceIds: rowBefore.filter((card) => card.definitionId !== 'captain-gondor').map((card) => card.id),
+      cardInstanceIds: rowBefore.filter((card) => affordable(card.definitionId)).map((card) => card.id),
       resumeTurn: 'agent',
-      options: rowBefore.filter((card) => card.definitionId !== 'captain-gondor').map((card) => `chronicle:${card.id}`)
+      options: rowBefore.filter((card) => affordable(card.definitionId)).map((card) => `chronicle:${card.id}`)
     });
     expect(awaitingChoice.match!.fateDiscard.at(-1)).toEqual(fate);
 
-    const expensive = rowBefore.find((card) => card.definitionId === 'captain-gondor')!;
+    const expensive = rowBefore.find((card) => !affordable(card.definitionId))!;
     const rejected = reduceGame([
       ...stream,
       createEvent('choice/resolved', actor, sequences[actor] + 1, { choice: `chronicle:${expensive.id}` }, timestamp)
@@ -1824,7 +1840,7 @@ describe('integrated Agent placement replay', () => {
     expect(resumed.diagnostics).toEqual([]);
     expect(resumed.match!.pendingChoice).toBeNull();
     expect(resumed.match!.chronicleRow[0]).toEqual(deckBefore[0]);
-    expect(resumed.match!.chronicleDeck).toEqual([cycled]);
+    expect(resumed.match!.chronicleDeck).toEqual([...deckBefore.slice(1), cycled]);
     expect(resumed.match!.chronicleRow).toHaveLength(5);
     expect(new Set([...resumed.match!.chronicleRow, ...resumed.match!.chronicleDeck].map((card) => card.id))).toEqual(
       new Set([...rowBefore, ...deckBefore].map((card) => card.id))

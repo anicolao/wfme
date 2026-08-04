@@ -78,10 +78,10 @@ test('Long Memory cycles an affordable physical Chronicle card and resumes the A
     await steps.gesture(fateHolder.page, 'cycle-bree-guide', `${fateHolder.name} cycles one physical Bree-land Guide`, async () => {
       await fateHolder.page.getByRole('button', { name: 'Cycle Bree-land Guide · 2 Influence' }).first().click(); accepted.value += 1;
     }, [
-      { spec: 'Every browser sees five Row cards, the same positional refill, and one card in the deck', check: async () => {
+      { spec: 'Every browser sees five Row cards, the same positional refill, and three cards in the deck', check: async () => {
         for (const observer of seats) {
           await expect(observer.page.getByTestId('chronicle-row').getByRole('button')).toHaveCount(5);
-          await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 1');
+          await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 3');
           await expect(observer.page.getByTestId('chronicle-row').getByText('Captain of Gondor · 4 Influence')).toHaveCount(2);
           await expect(observer.page.getByTestId('chronicle-row').getByText('Bree-land Guide · 2 Influence')).toHaveCount(1);
         }

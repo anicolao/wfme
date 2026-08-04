@@ -924,6 +924,10 @@ function resolveAgentEffects(
   if (cardDefinition.journeyEffect?.kind === 'gain-provisions') {
     player.resources.provisions += cardDefinition.journeyEffect.amount;
   }
+  if (cardDefinition.journeyEffect?.kind === 'draw-card-battle-recruit') {
+    for (let index = 0; index < cardDefinition.journeyEffect.draw; index += 1) drawOneCard(match, player.uid, cardDefinition.name);
+    if (isBattleSpace(space)) recruitCompanies(player, cardDefinition.journeyEffect.recruit);
+  }
   if (space.effect.kind === 'dwarven-caravans') {
     player.resources.provisions += space.effect.gainProvisions;
     gainStanding(match, player, 'dwarven');
