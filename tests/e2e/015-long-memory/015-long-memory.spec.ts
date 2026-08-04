@@ -6,7 +6,7 @@ import { TestStepHelper } from '../helpers/test-step-helper';
 test('Long Memory cycles an affordable physical Chronicle card and resumes the Agent turn', async ({ browser, page }, testInfo) => {
   test.setTimeout(300_000);
   const steps = new TestStepHelper(testInfo);
-  const table = await startPlotTable(browser, page, testInfo, steps, 'memory-7', { phone: 'MEMPH', desktop: 'MEMDS' });
+  const table = await startPlotTable(browser, page, testInfo, steps, 'memory-17', { phone: 'MEMPH', desktop: 'MEMDS' });
   const { seats, accepted, converged, currentSeat, row } = table;
 
   try {
@@ -50,6 +50,8 @@ test('Long Memory cycles an affordable physical Chronicle card and resumes the A
     const cycledName = affordableText.split(' · ')[0].trim();
     const cycledCost = Number(affordableText.match(/· (\d+) Influence/)?.[1] ?? '-1');
     const cycleButtonName = `Cycle ${cycledName} · ${cycledCost} Influence`;
+    const expensiveCard = initialMarket.filter({ hasText: /· [456] Influence/ }).first();
+    const expensiveName = ((await expensiveCard.textContent()) ?? '').split(' · ')[0].trim();
     expect(cycledName).not.toBe('');
     expect(cycledCost).toBeGreaterThanOrEqual(2);
     expect(cycledCost).toBeLessThanOrEqual(3);
@@ -69,7 +71,8 @@ test('Long Memory cycles an affordable physical Chronicle card and resumes the A
         }
         await expect(fateHolder.page.getByRole('heading', { name: 'Which Chronicle card will you cycle?' })).toBeVisible();
         await expect(fateHolder.page.getByRole('button', { name: cycleButtonName }).first()).toBeEnabled();
-        await expect(fateHolder.page.getByRole('button', { name: /Cycle Captain of Gondor/ })).toHaveCount(0);
+        expect(expensiveName).not.toBe('');
+        await expect(fateHolder.page.getByRole('button', { name: new RegExp(`^Cycle ${expensiveName}`) })).toHaveCount(0);
       } },
       { spec: 'Observers see the public choice but cannot make it for the actor', check: async () => {
         for (const observer of seats.filter((seat) => seat !== fateHolder)) {
@@ -90,11 +93,11 @@ test('Long Memory cycles an affordable physical Chronicle card and resumes the A
     await steps.gesture(fateHolder.page, 'cycle-bree-guide', `${fateHolder.name} cycles one physical ${cycledName}`, async () => {
       await fateHolder.page.getByRole('button', { name: cycleButtonName }).first().click(); accepted.value += 1;
     }, [
-      { spec: 'Every browser sees five Row cards, the exact positional refill, and thirteen cards in the deck', check: async () => {
+      { spec: 'Every browser sees five Row cards, the exact positional refill, and twenty-five cards in the deck', check: async () => {
         for (const observer of seats) {
           const observerMarket = observer.page.getByTestId('chronicle-row').getByRole('button');
           await expect(observerMarket).toHaveCount(5);
-          await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 19');
+          await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 25');
           for (let position = 0; position < initialInstanceIds.length; position += 1) {
             if (position === cycledPosition) await expect(observerMarket.nth(position)).not.toHaveAttribute('data-card-instance-id', cycledInstanceId!);
             else await expect(observerMarket.nth(position)).toHaveAttribute('data-card-instance-id', initialInstanceIds[position]!);

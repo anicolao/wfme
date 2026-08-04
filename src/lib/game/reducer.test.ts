@@ -71,9 +71,9 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'keeper-oaths')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'the-long-game')).toHaveLength(2);
     expect(first.match!.chronicleRow).toHaveLength(5);
-    expect(first.match!.chronicleDeck).toHaveLength(19);
+    expect(first.match!.chronicleDeck).toHaveLength(25);
     const chronicleInstances = [...first.match!.chronicleRow, ...first.match!.chronicleDeck];
-    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(24);
+    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(30);
     for (const definition of CHRONICLE_CARD_DEFINITIONS) {
       expect(chronicleInstances.filter((card) => card.definitionId === definition.id)).toHaveLength(2);
     }
@@ -591,24 +591,50 @@ describe('integrated Agent placement replay', () => {
   it('buys, refills, reshuffles, draws, and executes every reviewed Chronicle card', () => {
     const reachAcquiredCard = (definitionId: (typeof CHRONICLE_CARD_DEFINITIONS)[number]['id'], minimumGold = 0) => {
       const definition = CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!;
-      let completed: ReturnType<typeof completedAgentRound> | null = null;
-      for (let candidate = 0; candidate < 500 && !completed; candidate += 1) {
+      let completed: { events: ReturnType<typeof readyRoom> } | null = null;
+      for (let candidate = 0; candidate < 5_000 && !completed; candidate += 1) {
         try {
-          const attempt = completedAgentRound(`chronicle-${definitionId}-${candidate}`);
-          const attemptState = reduceGame(attempt.events);
+          const seed = `chronicle-${definitionId}-${candidate}`;
+          const attempt = definition.cost > 5
+            ? { events: readyRoom(seed) }
+            : completedAgentRound(seed);
+          const attemptEvents = [...attempt.events];
+          let attemptState = reduceGame(attemptEvents);
           if (attemptState.diagnostics.length > 0) continue;
           const attemptActor = currentPlayerUid(attemptState)!;
-          const attemptSequence = Math.max(...attempt.events.filter((event) => event.actorUid === attemptActor).map((event) => event.clientSeq)) + 1;
-          const attemptTimestamp = Math.max(...attempt.events.map((event) => event.createdAtMillis)) + 1;
+          const attemptSequences = Object.fromEntries(['host', 'guest-a', 'guest-b'].map((uid) => [uid,
+            Math.max(...attemptEvents.filter((event) => event.actorUid === uid).map((event) => event.clientSeq))
+          ]));
+          let attemptTimestamp = Math.max(...attemptEvents.map((event) => event.createdAtMillis)) + 1;
+          const appendAttempt = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+            attemptSequences[uid] += 1;
+            attemptEvents.push(createEvent(type, uid, attemptSequences[uid], payload, attemptTimestamp++));
+          };
+          if (definition.cost > 5) {
+            const councilCard = attemptState.match!.players[attemptActor].hand.find((card) => card.definitionId === 'armed-escort');
+            if (!councilCard) continue;
+            appendAttempt(attemptActor, 'agent/placed', { cardInstanceId: councilCard.id, spaceId: 'hall-fire' });
+            attemptState = reduceGame(attemptEvents);
+            if (attemptState.diagnostics.length > 0) continue;
+            while (currentPlayerUid(attemptState) !== attemptActor) {
+              const current = currentPlayerUid(attemptState)!;
+              appendAttempt(current, 'turn/revealed', {});
+              appendAttempt(current, 'reveal/finished', {});
+              attemptState = reduceGame(attemptEvents);
+            }
+          }
           const revealedAttempt = reduceGame([
-            ...attempt.events,
-            createEvent('turn/revealed', attemptActor, attemptSequence, {}, attemptTimestamp)
+            ...attemptEvents,
+            createEvent('turn/revealed', attemptActor, attemptSequences[attemptActor] + 1, {}, attemptTimestamp)
           ]);
           if (
             revealedAttempt.match!.chronicleRow.some((card) => card.definitionId === definitionId) &&
             revealedAttempt.match!.players[attemptActor].revealInfluence >= definition.cost &&
-            revealedAttempt.match!.players[attemptActor].resources.gold >= minimumGold
-          ) completed = attempt;
+            revealedAttempt.match!.players[attemptActor].resources.gold >= minimumGold &&
+            (definition.cost <= 5 || revealedAttempt.match!.players[attemptActor].fateHand.some((card) =>
+              card.definitionId === 'chance-meeting'
+            ))
+          ) completed = { ...attempt, events: attemptEvents };
         } catch {
           // Some seeds do not put the setup cards in the opening hands; keep looking.
         }
@@ -636,7 +662,7 @@ describe('integrated Agent placement replay', () => {
       expect(state.diagnostics).toEqual([]);
       expect(state.match!.players[actor].revealInfluence).toBe(influenceBefore - definition.cost);
       expect(state.match!.players[actor].discardPile).toContainEqual(offered);
-      expect(state.match!.chronicleDeck).toHaveLength(18);
+      expect(state.match!.chronicleDeck).toHaveLength(24);
       expect(state.match!.chronicleRow).toHaveLength(5);
       expect(state.match!.chronicleRow).toContainEqual(refill);
 
@@ -817,6 +843,77 @@ describe('integrated Agent placement replay', () => {
     expect(afterEnvoy.match!.players[envoy.actor].resources.gold).toBe(envoyGold);
     expect(afterEnvoy.match!.players[envoy.actor].standing.dwarven).toBe(Math.min(6, envoyStanding + 2));
 
+    const ranger = reachAcquiredCard('ranger-north');
+    const rangerHand = ranger.before.match!.players[ranger.actor].hand.length;
+    ranger.append(ranger.actor, 'agent/placed', { cardInstanceId: ranger.acquired.id, spaceId: 'take-war-effort' });
+    let afterRanger = reduceGame(ranger.stream);
+    expect(afterRanger.diagnostics).toEqual([]);
+    expect(afterRanger.match!.pendingChoice).toMatchObject({
+      kind: 'chronicle-card-choice', actorUid: ranger.actor, definitionId: 'ranger-north'
+    });
+    const rangerPending = afterRanger.match!.pendingChoice;
+    if (rangerPending?.kind !== 'chronicle-card-choice') throw new Error('Ranger discard choice is required');
+    const rangerPendingHand = afterRanger.match!.players[ranger.actor].hand.length;
+    expect(rangerPendingHand).toBeGreaterThanOrEqual(rangerHand);
+    const rangerDiscardId = rangerPending.cardInstanceIds[0];
+    ranger.append(ranger.actor, 'choice/resolved', { choice: `discard-card:${rangerDiscardId}` });
+    afterRanger = reduceGame(ranger.stream);
+    expect(afterRanger.diagnostics).toEqual([]);
+    expect(afterRanger.match!.players[ranger.actor].hand).toHaveLength(rangerPendingHand - 1);
+    expect(afterRanger.match!.players[ranger.actor].discardPile).toContainEqual(
+      expect.objectContaining({ id: rangerDiscardId })
+    );
+
+    const lore = reachAcquiredCard('lore-imladris');
+    const loreHand = lore.before.match!.players[lore.actor].hand.length;
+    const loreTrash = lore.before.match!.players[lore.actor].trashPile.length;
+    lore.append(lore.actor, 'agent/placed', { cardInstanceId: lore.acquired.id, spaceId: 'hidden-counsel' });
+    let afterLore = reduceGame(lore.stream);
+    expect(afterLore.diagnostics).toEqual([]);
+    expect(afterLore.match!.pendingChoice).toMatchObject({
+      kind: 'chronicle-card-choice', actorUid: lore.actor, definitionId: 'lore-imladris'
+    });
+    const lorePending = afterLore.match!.pendingChoice;
+    if (lorePending?.kind !== 'chronicle-card-choice') throw new Error('Lore trash choice is required');
+    const lorePendingHand = afterLore.match!.players[lore.actor].hand.length;
+    expect(lorePendingHand).toBeGreaterThanOrEqual(loreHand - 1);
+    const loreTrashId = lorePending.cardInstanceIds[0];
+    lore.append(lore.actor, 'choice/resolved', { choice: `trash-card:${loreTrashId}` });
+    afterLore = reduceGame(lore.stream);
+    expect(afterLore.diagnostics).toEqual([]);
+    expect(afterLore.match!.players[lore.actor].hand).toHaveLength(lorePendingHand - 1);
+    expect(afterLore.match!.players[lore.actor].trashPile).toHaveLength(loreTrash + 1);
+
+    const pilgrim = reachAcquiredCard('grey-pilgrim');
+    const pilgrimTrash = pilgrim.before.match!.players[pilgrim.actor].trashPile.length;
+    const chanceMeeting = pilgrim.before.match!.players[pilgrim.actor].fateHand.find((card) => card.definitionId === 'chance-meeting');
+    expect(chanceMeeting).toBeDefined();
+    pilgrim.append(pilgrim.actor, 'fate/played', { cardInstanceId: chanceMeeting!.id });
+    const pilgrimDiscardChoice = reduceGame(pilgrim.stream).match!.pendingChoice;
+    expect(pilgrimDiscardChoice).toMatchObject({ kind: 'plot-discard', actorUid: pilgrim.actor });
+    const discardOption = pilgrimDiscardChoice!.options.find((option) => option !== `discard:${pilgrim.acquired.id}`)!;
+    pilgrim.append(pilgrim.actor, 'choice/resolved', { choice: discardOption });
+    pilgrim.append(pilgrim.actor, 'agent/placed', { cardInstanceId: pilgrim.acquired.id, spaceId: 'hall-fire' });
+    let afterPilgrim = reduceGame(pilgrim.stream);
+    expect(afterPilgrim.diagnostics).toEqual([]);
+    expect(afterPilgrim.match!.pendingChoice).toMatchObject({
+      kind: 'chronicle-card-choice', actorUid: pilgrim.actor, definitionId: 'grey-pilgrim'
+    });
+    const pilgrimPending = afterPilgrim.match!.pendingChoice;
+    if (pilgrimPending?.kind !== 'chronicle-card-choice') throw new Error('Pilgrim trash choice is required');
+    const pilgrimPendingHand = afterPilgrim.match!.players[pilgrim.actor].hand.length;
+    const pilgrimPendingDiscard = afterPilgrim.match!.players[pilgrim.actor].discardPile.length;
+    const pilgrimDiscardId = pilgrimPending.cardInstanceIds.find((id) =>
+      afterPilgrim.match!.players[pilgrim.actor].discardPile.some((candidate) => candidate.id === id)
+    );
+    expect(pilgrimDiscardId).toBeDefined();
+    pilgrim.append(pilgrim.actor, 'choice/resolved', { choice: `trash-card:${pilgrimDiscardId}` });
+    afterPilgrim = reduceGame(pilgrim.stream);
+    expect(afterPilgrim.diagnostics).toEqual([]);
+    expect(afterPilgrim.match!.players[pilgrim.actor].hand).toHaveLength(pilgrimPendingHand);
+    expect(afterPilgrim.match!.players[pilgrim.actor].discardPile).toHaveLength(pilgrimPendingDiscard - 1);
+    expect(afterPilgrim.match!.players[pilgrim.actor].trashPile).toHaveLength(pilgrimTrash + 1);
+
     const economyMuster = {
       'stewards-messenger': { influence: 2, swords: 0 },
       'delving-expedition': { influence: 1, swords: 1 },
@@ -824,7 +921,10 @@ describe('integrated Agent placement replay', () => {
       'voice-orthanc': { influence: 3, swords: 0 },
       'dwarven-smith': { influence: 2, swords: 0 },
       'uruk-hai-captain': { influence: 0, swords: 3 },
-      'envoy-dale': { influence: 2, swords: 0 }
+      'envoy-dale': { influence: 2, swords: 0 },
+      'ranger-north': { influence: 1, swords: 1 },
+      'lore-imladris': { influence: 2, swords: 0 },
+      'grey-pilgrim': { influence: 4, swords: 1 }
     } as const;
     for (const [definitionId, printed] of Object.entries(economyMuster)) {
       expect(MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === definitionId)?.muster).toEqual(printed);
@@ -1944,7 +2044,24 @@ describe('integrated Agent placement replay', () => {
   });
 
   it('cycles one affordable exact Chronicle instance with Long Memory and resumes the interrupted turn', () => {
-    const stream = readyRoom('memory-7');
+    let stream = readyRoom('memory-0');
+    for (let candidate = 0; candidate < 500; candidate += 1) {
+      const attempt = readyRoom(`memory-${candidate}`);
+      const state = reduceGame(attempt);
+      const actor = currentPlayerUid(state)!;
+      const rowCosts = state.match!.chronicleRow.map((instance) =>
+        CHRONICLE_CARD_DEFINITIONS.find((definition) => definition.id === instance.definitionId)!.cost
+      );
+      if (
+        state.match!.players[actor].hand.some((card) => card.definitionId === 'armed-escort') &&
+        state.match!.fateDeck[0]?.definitionId === 'long-memory' &&
+        rowCosts.some((cost) => cost <= 3) &&
+        rowCosts.some((cost) => cost > 3)
+      ) {
+        stream = attempt;
+        break;
+      }
+    }
     const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
     let timestamp = 11;
     const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
@@ -1967,7 +2084,7 @@ describe('integrated Agent placement replay', () => {
     const rowBefore = [...state.match!.chronicleRow];
     const deckBefore = [...state.match!.chronicleDeck];
     const affordable = (definitionId: string) => CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!.cost <= 3;
-    expect(deckBefore).toHaveLength(19);
+    expect(deckBefore).toHaveLength(25);
     append(actor, 'fate/played', { cardInstanceId: fate.id });
     const awaitingChoice = reduceGame(stream);
     expect(awaitingChoice.match!.pendingChoice).toEqual({

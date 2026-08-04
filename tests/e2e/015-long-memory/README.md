@@ -244,11 +244,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals
+## Mara Reveals
 
-![Phone: Rin Reveals](./screenshots/019-other-reveal-1-phone.png)
+![Phone: Mara Reveals](./screenshots/019-other-reveal-1-phone.png)
 
-![Desktop: Rin Reveals](./screenshots/019-other-reveal-1-desktop.png)
+![Desktop: Mara Reveals](./screenshots/019-other-reveal-1-desktop.png)
 
 **Verifications:**
 
@@ -257,11 +257,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin finishes Reveal
+## Mara finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/020-other-finish-1-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/020-other-finish-1-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/020-other-finish-1-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/020-other-finish-1-desktop.png)
 
 **Verifications:**
 
@@ -270,11 +270,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals
+## Rin Reveals
 
-![Phone: Mara Reveals](./screenshots/021-other-reveal-2-phone.png)
+![Phone: Rin Reveals](./screenshots/021-other-reveal-2-phone.png)
 
-![Desktop: Mara Reveals](./screenshots/021-other-reveal-2-desktop.png)
+![Desktop: Rin Reveals](./screenshots/021-other-reveal-2-desktop.png)
 
 **Verifications:**
 
@@ -283,11 +283,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal
+## Rin finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/022-other-finish-2-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/022-other-finish-2-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/022-other-finish-2-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/022-other-finish-2-desktop.png)
 
 **Verifications:**
 
@@ -331,7 +331,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 **Verifications:**
 
-- [x] Every browser sees five Row cards, the exact positional refill, and thirteen cards in the deck
+- [x] Every browser sees five Row cards, the exact positional refill, and twenty-five cards in the deck
 - [x] The selected physical instance left the Row and the same Agent turn resumed
 - [x] Every connected browser replays 17 accepted events with no diagnostics
 

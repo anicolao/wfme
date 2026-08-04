@@ -33,6 +33,7 @@ export type CardInstance = {
 export type FateInstance = { id: string; definitionId: string };
 
 type PaidChronicleId = 'dwarven-smith' | 'uruk-hai-captain' | 'envoy-dale';
+type HandcraftChronicleId = 'ranger-north' | 'lore-imladris' | 'grey-pilgrim';
 
 export type MatchPlayer = {
   uid: string;
@@ -112,6 +113,11 @@ export type MatchState = {
   richesMithril: Record<'deep-fangorn' | 'entwash' | 'edoras', number>;
   damBreached: boolean;
   queuedChroniclePayment: { actorUid: string; definitionId: PaidChronicleId } | null;
+  queuedChronicleCardChoice: {
+    actorUid: string;
+    definitionId: HandcraftChronicleId;
+    cardInstanceIds: string[];
+  } | null;
   queuedBattleDeployment: { actorUid: string; spaceId: string } | null;
   pendingBattleRewardChoices: Array<{ kind: 'standing' | 'place-scout' | 'fate-keep-one'; actorUid: string }>;
   pendingChoice: null | {
@@ -119,6 +125,12 @@ export type MatchState = {
     actorUid: string;
     definitionId: PaidChronicleId;
     options: readonly ('pay-chronicle-cost' | 'decline-chronicle-cost')[];
+  } | {
+    kind: 'chronicle-card-choice';
+    actorUid: string;
+    definitionId: HandcraftChronicleId;
+    cardInstanceIds: readonly string[];
+    options: readonly string[];
   } | {
     kind: 'critical-defense';
     actorUid: string;
@@ -412,6 +424,7 @@ function createMatch(state: GameState, seed: string): MatchState {
     richesMithril: { 'deep-fangorn': 0, entwash: 0, edoras: 0 },
     damBreached: false,
     queuedChroniclePayment: null,
+    queuedChronicleCardChoice: null,
     queuedBattleDeployment: null,
     pendingBattleRewardChoices: [],
     pendingChoice: null,
@@ -689,7 +702,31 @@ function openChroniclePayment(match: MatchState, actorUid: string, definitionId:
   match.pendingChoice = { kind: 'chronicle-payment', actorUid, definitionId, options };
 }
 
+function openChronicleCardChoice(
+  match: MatchState,
+  actorUid: string,
+  definitionId: HandcraftChronicleId,
+  eligibleIds: readonly string[]
+): boolean {
+  const player = match.players[actorUid];
+  const cards = definitionId === 'grey-pilgrim'
+    ? [...player.hand, ...player.discardPile]
+    : player.hand;
+  const cardInstanceIds = eligibleIds.filter((id) => cards.some((card) => card.id === id));
+  if (definitionId === 'ranger-north' && cardInstanceIds.length === 0) return false;
+  const options = definitionId === 'ranger-north'
+    ? cardInstanceIds.map((id) => `discard-card:${id}`)
+    : [...cardInstanceIds.map((id) => `trash-card:${id}`), 'decline-trash'];
+  match.pendingChoice = { kind: 'chronicle-card-choice', actorUid, definitionId, cardInstanceIds, options };
+  return true;
+}
+
 function finishAgentAction(match: MatchState, actorUid: string): void {
+  const queuedCardChoice = match.queuedChronicleCardChoice;
+  if (queuedCardChoice?.actorUid === actorUid) {
+    match.queuedChronicleCardChoice = null;
+    if (openChronicleCardChoice(match, actorUid, queuedCardChoice.definitionId, queuedCardChoice.cardInstanceIds)) return;
+  }
   const queuedPayment = match.queuedChroniclePayment;
   if (queuedPayment?.actorUid === actorUid) {
     match.queuedChroniclePayment = null;
@@ -1001,6 +1038,22 @@ function resolveAgentEffects(
   }
   if (cardDefinition.journeyEffect?.kind === 'gain-gold-optional-pay-standing') {
     player.resources.gold += cardDefinition.journeyEffect.gainGold;
+  }
+  if (
+    cardDefinition.journeyEffect?.kind === 'draw-discard-card' ||
+    cardDefinition.journeyEffect?.kind === 'draw-optional-trash'
+  ) {
+    for (let index = 0; index < cardDefinition.journeyEffect.draw; index += 1) {
+      drawOneCard(match, player.uid, cardDefinition.name);
+    }
+    const eligible = cardDefinition.journeyEffect.kind === 'draw-optional-trash' && cardDefinition.journeyEffect.includeDiscard
+      ? [...player.hand, ...player.discardPile]
+      : player.hand;
+    match.queuedChronicleCardChoice = {
+      actorUid,
+      definitionId: cardDefinition.id as HandcraftChronicleId,
+      cardInstanceIds: eligible.map((candidate) => candidate.id)
+    };
   }
   if (space.effect.kind === 'dwarven-caravans') {
     player.resources.provisions += space.effect.gainProvisions;
@@ -1453,6 +1506,34 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         state.match.activity.push(`${actor.displayName} declines the optional payment on ${cardName(pending.definitionId)}.`);
       }
       if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
+      return null;
+    }
+    if (pending.kind === 'chronicle-card-choice') {
+      if (choice.startsWith('discard-card:')) {
+        if (pending.definitionId !== 'ranger-north') return 'illegal choice resolution';
+        const cardId = choice.slice('discard-card:'.length);
+        const cardIndex = player.hand.findIndex((candidate) => candidate.id === cardId);
+        if (!pending.cardInstanceIds.includes(cardId) || cardIndex < 0) return 'illegal choice resolution';
+        const [discarded] = player.hand.splice(cardIndex, 1);
+        player.discardPile.push(discarded);
+        state.match.activity.push(`${actor.displayName} discards one private card to complete Ranger of the North.`);
+      } else if (choice.startsWith('trash-card:')) {
+        if (pending.definitionId === 'ranger-north') return 'illegal choice resolution';
+        const cardId = choice.slice('trash-card:'.length);
+        if (!pending.cardInstanceIds.includes(cardId)) return 'illegal choice resolution';
+        const handIndex = player.hand.findIndex((candidate) => candidate.id === cardId);
+        const discardIndex = player.discardPile.findIndex((candidate) => candidate.id === cardId);
+        if (handIndex < 0 && discardIndex < 0) return 'illegal choice resolution';
+        const [trashed] = handIndex >= 0
+          ? player.hand.splice(handIndex, 1)
+          : player.discardPile.splice(discardIndex, 1);
+        player.trashPile.push(trashed);
+        state.match.activity.push(`${actor.displayName} trashes one private card with ${cardName(pending.definitionId)}.`);
+      } else {
+        state.match.activity.push(`${actor.displayName} keeps every card offered by ${cardName(pending.definitionId)}.`);
+      }
+      state.match.pendingChoice = null;
+      finishAgentAction(state.match, event.actorUid);
       return null;
     }
     if (pending.kind === 'plot-discard') {

@@ -43,6 +43,8 @@ export type AgentCardDefinition = StartingCardIdentity & {
     | { kind: 'optional-pay-gold-mithril'; costGold: 1; gainMithril: 1 }
     | { kind: 'optional-pay-gold-recruit'; costGold: 1; recruit: 3 }
     | { kind: 'gain-gold-optional-pay-standing'; gainGold: 2; costGold: 2; faction: 'dwarven' }
+    | { kind: 'draw-discard-card'; draw: 1 }
+    | { kind: 'draw-optional-trash'; draw: 1; includeDiscard: boolean }
     | { kind: 'optional-trash-self' }
     | { kind: 'place-scout'; amount: 1 };
   reviewedCapabilities: readonly ['agent-placement'];
@@ -190,6 +192,30 @@ export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
     placementIcons: ['Dwarven', 'Council'],
     journeyEffect: { kind: 'gain-gold-optional-pay-standing', gainGold: 2, costGold: 2, faction: 'dwarven' },
     reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'ranger-north',
+    name: 'Ranger of the North',
+    copies: 2,
+    placementIcons: ['Wild', 'Roads'],
+    journeyEffect: { kind: 'draw-discard-card', draw: 1 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'lore-imladris',
+    name: 'Lore of Imladris',
+    copies: 2,
+    placementIcons: ['Elven'],
+    journeyEffect: { kind: 'draw-optional-trash', draw: 1, includeDiscard: false },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'grey-pilgrim',
+    name: 'The Grey Pilgrim',
+    copies: 2,
+    placementIcons: ['Elven', 'Wild', 'Council', 'Roads'],
+    journeyEffect: { kind: 'draw-optional-trash', draw: 1, includeDiscard: true },
+    reviewedCapabilities: ['agent-placement']
   }
 ];
 
@@ -237,7 +263,10 @@ export const MUSTER_CARD_DEFINITIONS: readonly MusterCardDefinition[] = [
   { id: 'voice-orthanc', name: 'Voice of Orthanc', muster: { influence: 3, swords: 0 } },
   { id: 'dwarven-smith', name: 'Dwarven Smith', muster: { influence: 2, swords: 0 } },
   { id: 'uruk-hai-captain', name: 'Uruk-hai Captain', muster: { influence: 0, swords: 3 } },
-  { id: 'envoy-dale', name: 'Envoy of Dale', muster: { influence: 2, swords: 0 } }
+  { id: 'envoy-dale', name: 'Envoy of Dale', muster: { influence: 2, swords: 0 } },
+  { id: 'ranger-north', name: 'Ranger of the North', muster: { influence: 1, swords: 1 } },
+  { id: 'lore-imladris', name: 'Lore of Imladris', muster: { influence: 2, swords: 0 } },
+  { id: 'grey-pilgrim', name: 'The Grey Pilgrim', muster: { influence: 4, swords: 1 } }
 ];
 
 export type ReserveCardId = 'muster-host';
@@ -268,7 +297,10 @@ export type ChronicleCardId =
   | 'voice-orthanc'
   | 'dwarven-smith'
   | 'uruk-hai-captain'
-  | 'envoy-dale';
+  | 'envoy-dale'
+  | 'ranger-north'
+  | 'lore-imladris'
+  | 'grey-pilgrim';
 
 export type ChronicleCardDefinition = {
   id: ChronicleCardId;
@@ -353,6 +385,24 @@ export const CHRONICLE_CARD_DEFINITIONS: readonly ChronicleCardDefinition[] = [
     id: 'envoy-dale', name: 'Envoy of Dale', copies: 2, cost: 4,
     placementIcons: ['Dwarven', 'Council'], journeyText: 'Gain 2 Gold; you may pay 2 Gold to gain 1 Dwarven standing',
     muster: { influence: 2, swords: 0 },
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'ranger-north', name: 'Ranger of the North', copies: 2, cost: 3,
+    placementIcons: ['Wild', 'Roads'], journeyText: 'Draw 1 card, then discard 1 card',
+    muster: { influence: 1, swords: 1 },
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'lore-imladris', name: 'Lore of Imladris', copies: 2, cost: 3,
+    placementIcons: ['Elven'], journeyText: 'Draw 1 card, then you may trash a card from your hand',
+    muster: { influence: 2, swords: 0 },
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'grey-pilgrim', name: 'The Grey Pilgrim', copies: 2, cost: 6,
+    placementIcons: ['Elven', 'Wild', 'Council', 'Roads'], journeyText: 'Draw 1 card, then you may trash a card from your hand or discard pile',
+    muster: { influence: 4, swords: 1 },
     reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
   }
 ];
