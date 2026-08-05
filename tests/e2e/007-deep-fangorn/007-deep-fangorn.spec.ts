@@ -19,7 +19,7 @@ test('Ent-draught breaches the Dam and summons reward-doubling Ents', async ({ b
   const converged = (count: number): Verification => ({
     spec: `Every connected browser replays ${count} accepted events with no diagnostics`,
     check: async () => {
-      for (const seat of seats) await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 60_000 });
+      for (const seat of seats) await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 2_000 });
     }
   });
   const currentSeat = async () => {
@@ -46,7 +46,7 @@ test('Ent-draught breaches the Dam and summons reward-doubling Ents', async ({ b
     }, [{ spec: 'The invitation code is visible', check: async () => await expect(page.getByLabel(/Room code/)).toHaveValue(code) }]);
     await steps.gesture(page, 'create-room', 'Mara creates the shared room', async () => {
       await page.getByRole('button', { name: 'Create game' }).click(); accepted += 1;
-    }, [{ spec: 'The room is live in Firebase', check: async () => await expect(page.getByTestId('room-code')).toHaveText(code, { timeout: 60_000 }) }]);
+    }, [{ spec: 'The room is live in Firebase', check: async () => await expect(page.getByTestId('room-code')).toHaveText(code, { timeout: 2_000 }) }]);
     for (const [index, seat] of seats.slice(1).entries()) {
       await steps.gesture(seat.page, `guest-${index + 1}-name`, `${seat.name} enters a table name`, async () => {
         await seat.page.getByLabel('Display name').fill(seat.name);
@@ -168,7 +168,8 @@ test('Ent-draught breaches the Dam and summons reward-doubling Ents', async ({ b
         }, [{ spec: 'The Scout network returns to its ordinary state', check: async () => await expect(actor.page.getByTestId('scout-network')).toContainText('Scouts watch the roads.') }, converged(accepted + 1)]);
         continue;
       }
-      if (await actor.page.getByTestId('pass-battle').isEnabled().catch(() => false)) { combatReady = true; break; }
+      const passBattle = actor.page.getByTestId('pass-battle');
+      if (await passBattle.count() > 0 && await passBattle.isEnabled()) { combatReady = true; break; }
       if (await actor.page.getByRole('button', { name: 'Finish Reveal' }).isVisible().catch(() => false)) {
         await steps.gesture(actor.page, `finish-reveal-${guard}`, `${actor.name} finishes Reveal`, async () => {
           await actor.page.getByRole('button', { name: 'Finish Reveal' }).click(); accepted += 1;

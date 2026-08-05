@@ -32,7 +32,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
     spec: `Every connected replay has accepted exactly ${count} events with no diagnostics`,
     check: async () => {
       for (const seat of connectedSeats) {
-        await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 60_000 });
+        await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 2_000 });
       }
     }
   });
@@ -59,7 +59,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
     await steps.gesture(page, 'create-room', 'Mara creates the shared room',
       () => page.getByRole('button', { name: 'Create game' }).click(),
       [
-        { spec: 'The requested invitation code is displayed', check: async () => await expect(page.getByTestId('room-code')).toHaveText(requestedRoomCode, { timeout: 60_000 }) },
+        { spec: 'The requested invitation code is displayed', check: async () => await expect(page.getByTestId('room-code')).toHaveText(requestedRoomCode, { timeout: 2_000 }) },
         convergedLobby(1),
         convergedEvents(1, seats.slice(0, 1))
       ]
@@ -643,7 +643,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
     await steps.gesture(actor!.page, 'place-old-south-road-scout', `${actor!.name} places a Scout on the Old South Road`,
-      () => actor!.page.getByTestId('post-old-south-road').click({ timeout: 30_000 }),
+      () => actor!.page.getByTestId('post-old-south-road').click({ timeout: 2_000 }),
       [
         { spec: 'Every client sees the named Scout on the selected observation post', check: async () => {
           for (const seat of seats) await expect(seat.page.getByTestId('post-old-south-road')).toContainText(`Scout · ${actor!.name}`);

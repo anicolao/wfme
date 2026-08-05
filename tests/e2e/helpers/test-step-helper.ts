@@ -27,7 +27,7 @@ export class TestStepHelper {
     for (const verification of verifications) await verification.check();
     const index = String(this.steps.length).padStart(3, '0');
     const safeId = id.replaceAll('_', '-');
-    await expect(page).toHaveScreenshot(`${index}-${safeId}-${this.testInfo.project.name}`, { timeout: 30_000 });
+    await expect(page).toHaveScreenshot(`${index}-${safeId}-${this.testInfo.project.name}`, { timeout: 2_000 });
     this.steps.push({ id: `${index}-${safeId}`, description, specs: verifications.map(({ spec }) => spec) });
   }
 

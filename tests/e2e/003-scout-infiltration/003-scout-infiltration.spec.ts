@@ -23,7 +23,7 @@ test('a Scout infiltrates a space blocked by another human', async ({ browser, p
     spec: `All three immutable replays accept exactly ${count} events with no diagnostics`,
     check: async () => {
       for (const seat of seats) {
-        await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 60_000 });
+        await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 2_000 });
       }
     }
   });
@@ -47,7 +47,7 @@ test('a Scout infiltrates a space blocked by another human', async ({ browser, p
     await steps.gesture(page, 'create-room', 'Mara creates the shared room',
       () => page.getByRole('button', { name: 'Create game' }).click(),
       [{ spec: 'The live room opens with one public seat', check: async () => {
-        await expect(page.getByTestId('room-code')).toHaveText(requestedRoomCode, { timeout: 60_000 });
+        await expect(page.getByTestId('room-code')).toHaveText(requestedRoomCode, { timeout: 2_000 });
         await expect(page.locator('.player-list article')).toHaveCount(1);
       } }]
     );

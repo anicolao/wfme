@@ -19,7 +19,7 @@ test('three humans execute every final printed board destination', async ({ brow
   const converged = (count: number, observers = seats): Verification => ({
     spec: `Every connected browser replays ${count} accepted events with no diagnostics`,
     check: async () => {
-      for (const seat of observers) await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 60_000 });
+      for (const seat of observers) await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 2_000 });
     }
   });
   const currentSeat = async () => {
@@ -63,7 +63,7 @@ test('three humans execute every final printed board destination', async ({ brow
     ]);
     await steps.gesture(page, 'create-room', 'Mara creates the Firebase room', async () => {
       await page.getByRole('button', { name: 'Create game' }).click(); accepted += 1;
-    }, [{ spec: 'The requested room opens', check: async () => await expect(page.getByTestId('room-code')).toHaveText(code, { timeout: 60_000 }) }, converged(accepted + 1, seats.slice(0, 1))]);
+    }, [{ spec: 'The requested room opens', check: async () => await expect(page.getByTestId('room-code')).toHaveText(code, { timeout: 2_000 }) }, converged(accepted + 1, seats.slice(0, 1))]);
     for (const [index, seat] of seats.slice(1).entries()) {
       await steps.gesture(seat.page, `guest-${index + 1}-name`, `${seat.name} enters a table name`, () => seat.page.getByLabel('Display name').fill(seat.name), [
         { spec: 'The isolated browser retains the name', check: async () => await expect(seat.page.getByLabel('Display name')).toHaveValue(seat.name) }
@@ -165,7 +165,8 @@ test('three humans execute every final printed board destination', async ({ brow
         }, [{ spec: 'The Scout is placed before any queued Battle deployment', check: async () => await expect(actor.page.getByTestId('scout-network')).toContainText('Scouts watch the roads.') }, converged(accepted + 1)]);
         continue;
       }
-      if (await actor.page.getByTestId('pass-battle').isEnabled().catch(() => false)) {
+      const passBattle = actor.page.getByTestId('pass-battle');
+      if (await passBattle.count() > 0 && await passBattle.isEnabled()) {
         await steps.gesture(actor.page, `pass-battle-${guard}`, `${actor.name} passes Combat Fate`, async () => {
           await actor.page.getByTestId('pass-battle').click(); accepted += 1;
         }, [{ spec: 'The real Battle pass is accepted without replay diagnostics', check: async () => await expect(actor.page.getByTestId('replay-health')).toContainText('0 replay diagnostics') }, converged(accepted + 1)]);

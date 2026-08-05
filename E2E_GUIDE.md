@@ -20,6 +20,15 @@ Playwright assertions; never add sleeps, arbitrary polling, or screenshot-only
 proof. Keep the fixed locale, timezone, viewport, rendering flags, and test
 data from `playwright.config.ts`.
 
+Every browser action and observable-condition wait has a hard maximum of
+**2,000 ms**, including screenshot stabilization. Overall scenario, emulator
+preflight, and web-server startup limits may be longer because they bound a
+process rather than wait for a game event. Never catch an actionability timeout
+to use absence as control flow: first use an immediate existence probe such as
+`locator.count()`, then inspect the existing control. `verify:static` enforces
+this policy and rejects arbitrary sleeps, longer explicit waits, and caught
+`isEnabled()`/`isDisabled()` probes.
+
 ## What counts as passing
 
 - every player action is a real Playwright click, tap, fill, key, or navigation gesture against a visible control;

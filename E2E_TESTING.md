@@ -24,7 +24,7 @@ Every scenario fixes:
 - browser engine, fonts, device scale, rendering flags, and viewport;
 - network allowlist and service-worker behavior.
 
-External requests are blocked. Tests use Playwright locator auto-waiting and observable state; they never use sleeps. Retries are zero so flakes remain visible.
+External requests are blocked. Tests use Playwright locator auto-waiting and observable state; they never use sleeps. Every browser action, assertion, navigation, and screenshot wait is capped at 2,000 ms. Longer limits are reserved for whole scenarios and process startup, which are not game-event waits. An optional control is discovered with an immediate locator count before its enabled state is read; tests never catch an actionability timeout as a branching mechanism. The static gate enforces these constraints. Retries are zero so flakes remain visible.
 
 ## Context topology
 

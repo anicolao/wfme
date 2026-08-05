@@ -15,7 +15,8 @@ export default defineConfig({
     deviceScaleFactor: 1,
     timezoneId: 'America/Toronto',
     locale: 'en-CA',
-    actionTimeout: 10_000,
+    actionTimeout: 2_000,
+    navigationTimeout: 2_000,
     launchOptions: {
       args: [
         '--font-render-hinting=none',
@@ -57,5 +58,5 @@ export default defineConfig({
     }
   },
   timeout: 600_000,
-  expect: { timeout: 10_000, toHaveScreenshot: { maxDiffPixels: 0 } }
+  expect: { timeout: 2_000, toHaveScreenshot: { maxDiffPixels: 0 } }
 });

@@ -19,7 +19,7 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
   const converged = (expected: number, observers = seats): Verification => ({
     spec: `Every connected browser replays ${expected} accepted events with no diagnostics`,
     check: async () => {
-      for (const seat of observers) await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${expected} accepted events · 0 replay diagnostics`, { timeout: 60_000 });
+      for (const seat of observers) await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${expected} accepted events · 0 replay diagnostics`, { timeout: 2_000 });
     }
   });
   const currentSeat = async () => {
@@ -42,7 +42,7 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
     ]);
     await steps.gesture(page, 'create-room', 'Mara creates the live room', async () => {
       await page.getByRole('button', { name: 'Create game' }).click(); accepted += 1;
-    }, [{ spec: 'The host sees the requested live room', check: async () => await expect(page.getByTestId('room-code')).toHaveText(code, { timeout: 60_000 }) }, converged(1, seats.slice(0, 1))]);
+    }, [{ spec: 'The host sees the requested live room', check: async () => await expect(page.getByTestId('room-code')).toHaveText(code, { timeout: 2_000 }) }, converged(1, seats.slice(0, 1))]);
 
     for (const [index, seat] of seats.slice(1).entries()) {
       await steps.gesture(seat.page, `guest-${index + 1}-name`, `${seat.name} enters a name`, () => seat.page.getByLabel('Display name').fill(seat.name), [
@@ -342,7 +342,10 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
     for (const { round, next } of unopposedSchedule) {
       if (round === 3) {
         let defenseActor: Seat | undefined;
-        for (const seat of seats) if (await seat.page.getByRole('button', { name: 'Decline defense' }).isEnabled().catch(() => false)) defenseActor = seat;
+        for (const seat of seats) {
+          const declineDefense = seat.page.getByRole('button', { name: 'Decline defense' });
+          if (await declineDefense.count() > 0 && await declineDefense.isEnabled()) defenseActor = seat;
+        }
         if (defenseActor) await steps.gesture(defenseActor.page, 'decline-aglarond-defense', `${defenseActor.name} declines the optional Aglarond defense`, async () => {
           await defenseActor!.page.getByRole('button', { name: 'Decline defense' }).click(); accepted += 1;
         }, [{ spec: 'Round three opens for ordinary Agent turns', check: async () => await expect(defenseActor!.page.getByText('Round 3 · Agent turns')).toBeVisible() }, converged(accepted + 1)]);
@@ -554,7 +557,10 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
       } }, converged(accepted + 1)]);
     }
     let helmDefenseActor: Seat | undefined;
-    for (const seat of seats) if (await seat.page.getByRole('button', { name: 'Decline defense' }).isEnabled().catch(() => false)) helmDefenseActor = seat;
+    for (const seat of seats) {
+      const declineDefense = seat.page.getByRole('button', { name: 'Decline defense' });
+      if (await declineDefense.count() > 0 && await declineDefense.isEnabled()) helmDefenseActor = seat;
+    }
     if (helmDefenseActor) await steps.gesture(helmDefenseActor.page, 'decline-helms-defense', `${helmDefenseActor.name} declines the optional Helm's Deep defense`, async () => {
       await helmDefenseActor!.page.getByRole('button', { name: 'Decline defense' }).click(); accepted += 1;
     }, [{ spec: 'Round ten opens for ordinary Agent turns', check: async () => await expect(helmDefenseActor!.page.getByText('Round 10 · Agent turns')).toBeVisible() }, converged(accepted + 1)]);

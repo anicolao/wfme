@@ -23,7 +23,7 @@ test('Hall of Fire grants private Fate and temporary Reveal Influence', async ({
     spec: `All three immutable replays accept exactly ${count} events with no diagnostics`,
     check: async () => {
       for (const seat of connectedSeats) {
-        await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 60_000 });
+        await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 2_000 });
       }
     }
   });
@@ -59,7 +59,7 @@ test('Hall of Fire grants private Fate and temporary Reveal Influence', async ({
     await steps.gesture(page, 'create-room', 'Mara creates the shared room',
       () => page.getByRole('button', { name: 'Create game' }).click(),
       [
-        { spec: 'The live room opens with the requested invitation', check: async () => await expect(page.getByTestId('room-code')).toHaveText(roomCode, { timeout: 60_000 }) },
+        { spec: 'The live room opens with the requested invitation', check: async () => await expect(page.getByTestId('room-code')).toHaveText(roomCode, { timeout: 2_000 }) },
         convergedEvents(1, seats.slice(0, 1))
       ]
     );

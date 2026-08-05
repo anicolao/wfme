@@ -18,7 +18,7 @@ test('Hidden Counsel draws private Fate on the shared Elven track', async ({ bro
   const converged = (count: number, connected = seats): Verification => ({
     spec: `Every connected immutable replay accepts ${count} events with no diagnostics`,
     check: async () => {
-      for (const seat of connected) await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 60_000 });
+      for (const seat of connected) await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 2_000 });
     }
   });
 
@@ -37,7 +37,7 @@ test('Hidden Counsel draws private Fate on the shared Elven track', async ({ bro
       [{ spec: 'The exact invitation is visible', check: async () => await expect(page.getByLabel(/Room code/)).toHaveValue(roomCode) }]);
     await steps.gesture(page, 'create-room', 'Mara creates the room',
       () => page.getByRole('button', { name: 'Create game' }).click(),
-      [{ spec: 'The requested room opens', check: async () => await expect(page.getByTestId('room-code')).toHaveText(roomCode, { timeout: 60_000 }) }, converged(1, seats.slice(0, 1))]);
+      [{ spec: 'The requested room opens', check: async () => await expect(page.getByTestId('room-code')).toHaveText(roomCode, { timeout: 2_000 }) }, converged(1, seats.slice(0, 1))]);
 
     for (const [index, seat] of seats.slice(1).entries()) {
       await steps.gesture(seat.page, `guest-${index + 1}-name`, `${seat.name} enters a table name`,
