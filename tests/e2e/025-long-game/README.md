@@ -256,11 +256,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip acquires Rider of Rohan
+## Pip acquires Lore of Imladris
 
-![Phone: Pip acquires Rider of Rohan](./screenshots/020-acquire-2-phone.png)
+![Phone: Pip acquires Lore of Imladris](./screenshots/020-acquire-2-phone.png)
 
-![Desktop: Pip acquires Rider of Rohan](./screenshots/020-acquire-2-desktop.png)
+![Desktop: Pip acquires Lore of Imladris](./screenshots/020-acquire-2-desktop.png)
 
 **Verifications:**
 
@@ -270,11 +270,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip acquires Goblin Informer
+## Pip acquires Rider of Rohan
 
-![Phone: Pip acquires Goblin Informer](./screenshots/021-acquire-3-phone.png)
+![Phone: Pip acquires Rider of Rohan](./screenshots/021-acquire-3-phone.png)
 
-![Desktop: Pip acquires Goblin Informer](./screenshots/021-acquire-3-desktop.png)
+![Desktop: Pip acquires Rider of Rohan](./screenshots/021-acquire-3-desktop.png)
 
 **Verifications:**
 
@@ -310,11 +310,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara acquires Lore of Imladris
+## Mara acquires Dwarven Smith
 
-![Phone: Mara acquires Lore of Imladris](./screenshots/024-acquire-6-phone.png)
+![Phone: Mara acquires Dwarven Smith](./screenshots/024-acquire-6-phone.png)
 
-![Desktop: Mara acquires Lore of Imladris](./screenshots/024-acquire-6-desktop.png)
+![Desktop: Mara acquires Dwarven Smith](./screenshots/024-acquire-6-desktop.png)
 
 **Verifications:**
 
@@ -350,11 +350,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin acquires Voice of Orthanc
+## Rin acquires Durin's Heir
 
-![Phone: Rin acquires Voice of Orthanc](./screenshots/027-acquire-9-phone.png)
+![Phone: Rin acquires Durin's Heir](./screenshots/027-acquire-9-phone.png)
 
-![Desktop: Rin acquires Voice of Orthanc](./screenshots/027-acquire-9-desktop.png)
+![Desktop: Rin acquires Durin's Heir](./screenshots/027-acquire-9-desktop.png)
 
 **Verifications:**
 
@@ -390,11 +390,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip acquires Delving Expedition
+## Pip acquires Messenger Moth
 
-![Phone: Pip acquires Delving Expedition](./screenshots/030-acquire-12-phone.png)
+![Phone: Pip acquires Messenger Moth](./screenshots/030-acquire-12-phone.png)
 
-![Desktop: Pip acquires Delving Expedition](./screenshots/030-acquire-12-desktop.png)
+![Desktop: Pip acquires Messenger Moth](./screenshots/030-acquire-12-desktop.png)
 
 **Verifications:**
 
@@ -430,11 +430,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara acquires Dwarven Smith
+## Mara acquires Captain of Gondor
 
-![Phone: Mara acquires Dwarven Smith](./screenshots/033-acquire-15-phone.png)
+![Phone: Mara acquires Captain of Gondor](./screenshots/033-acquire-15-phone.png)
 
-![Desktop: Mara acquires Dwarven Smith](./screenshots/033-acquire-15-desktop.png)
+![Desktop: Mara acquires Captain of Gondor](./screenshots/033-acquire-15-desktop.png)
 
 **Verifications:**
 
@@ -470,11 +470,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin acquires Eagle of the Misty Mountains
+## Rin acquires Voice of Orthanc
 
-![Phone: Rin acquires Eagle of the Misty Mountains](./screenshots/036-acquire-18-phone.png)
+![Phone: Rin acquires Voice of Orthanc](./screenshots/036-acquire-18-phone.png)
 
-![Desktop: Rin acquires Eagle of the Misty Mountains](./screenshots/036-acquire-18-desktop.png)
+![Desktop: Rin acquires Voice of Orthanc](./screenshots/036-acquire-18-desktop.png)
 
 **Verifications:**
 
@@ -510,11 +510,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara acquires Ranger of the North
+## Mara acquires Delving Expedition
 
-![Phone: Mara acquires Ranger of the North](./screenshots/039-acquire-21-phone.png)
+![Phone: Mara acquires Delving Expedition](./screenshots/039-acquire-21-phone.png)
 
-![Desktop: Mara acquires Ranger of the North](./screenshots/039-acquire-21-desktop.png)
+![Desktop: Mara acquires Delving Expedition](./screenshots/039-acquire-21-desktop.png)
 
 **Verifications:**
 
@@ -524,11 +524,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara acquires Goblin Informer
+## Mara acquires Orcish Muster
 
-![Phone: Mara acquires Goblin Informer](./screenshots/040-acquire-22-phone.png)
+![Phone: Mara acquires Orcish Muster](./screenshots/040-acquire-22-phone.png)
 
-![Desktop: Mara acquires Goblin Informer](./screenshots/040-acquire-22-desktop.png)
+![Desktop: Mara acquires Orcish Muster](./screenshots/040-acquire-22-desktop.png)
 
 **Verifications:**
 
@@ -564,11 +564,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin acquires Durin's Heir
+## Rin acquires Lady of the Golden Wood
 
-![Phone: Rin acquires Durin's Heir](./screenshots/043-acquire-25-phone.png)
+![Phone: Rin acquires Lady of the Golden Wood](./screenshots/043-acquire-25-phone.png)
 
-![Desktop: Rin acquires Durin's Heir](./screenshots/043-acquire-25-desktop.png)
+![Desktop: Rin acquires Lady of the Golden Wood](./screenshots/043-acquire-25-desktop.png)
 
 **Verifications:**
 
@@ -604,11 +604,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip acquires Captain of Gondor
+## Pip acquires Orcish Muster
 
-![Phone: Pip acquires Captain of Gondor](./screenshots/046-acquire-28-phone.png)
+![Phone: Pip acquires Orcish Muster](./screenshots/046-acquire-28-phone.png)
 
-![Desktop: Pip acquires Captain of Gondor](./screenshots/046-acquire-28-desktop.png)
+![Desktop: Pip acquires Orcish Muster](./screenshots/046-acquire-28-desktop.png)
 
 **Verifications:**
 
@@ -618,56 +618,56 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
+## Pip acquires Envoy of Dale
+
+![Phone: Pip acquires Envoy of Dale](./screenshots/047-acquire-29-phone.png)
+
+![Desktop: Pip acquires Envoy of Dale](./screenshots/047-acquire-29-desktop.png)
+
+**Verifications:**
+
+- [x] The Row immediately refills after the legal purchase
+- [x] Another legal purchase cycles the shared market toward the ownership condition
+- [x] Every connected browser replays 40 accepted events with no diagnostics
+
+---
+
 ## Pip finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/047-finish-29-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/048-finish-30-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/047-finish-29-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/048-finish-30-desktop.png)
 
 **Verifications:**
 
 - [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 40 accepted events with no diagnostics
+- [x] Every connected browser replays 41 accepted events with no diagnostics
 
 ---
 
 ## Rin Reveals the remaining hand
 
-![Phone: Rin Reveals the remaining hand](./screenshots/048-reveal-30-phone.png)
+![Phone: Rin Reveals the remaining hand](./screenshots/049-reveal-31-phone.png)
 
-![Desktop: Rin Reveals the remaining hand](./screenshots/048-reveal-30-desktop.png)
+![Desktop: Rin Reveals the remaining hand](./screenshots/049-reveal-31-desktop.png)
 
 **Verifications:**
 
 - [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 41 accepted events with no diagnostics
-
----
-
-## Rin acquires Envoy of Dale
-
-![Phone: Rin acquires Envoy of Dale](./screenshots/049-acquire-31-phone.png)
-
-![Desktop: Rin acquires Envoy of Dale](./screenshots/049-acquire-31-desktop.png)
-
-**Verifications:**
-
-- [x] The Row immediately refills after the legal purchase
-- [x] Another legal purchase cycles the shared market toward the ownership condition
 - [x] Every connected browser replays 42 accepted events with no diagnostics
 
 ---
 
-## Rin acquires Lore of Imladris
+## Rin acquires Voice of Orthanc
 
-![Phone: Rin acquires Lore of Imladris](./screenshots/050-acquire-32-phone.png)
+![Phone: Rin acquires Voice of Orthanc](./screenshots/050-acquire-32-phone.png)
 
-![Desktop: Rin acquires Lore of Imladris](./screenshots/050-acquire-32-desktop.png)
+![Desktop: Rin acquires Voice of Orthanc](./screenshots/050-acquire-32-desktop.png)
 
 **Verifications:**
 
 - [x] The Row immediately refills after the legal purchase
-- [x] Another legal purchase cycles the shared market toward the ownership condition
+- [x] The public log records five-cost card 4 of four
 - [x] Every connected browser replays 43 accepted events with no diagnostics
 
 ---
@@ -698,119 +698,115 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip acquires Steward's Messenger
-
-![Phone: Pip acquires Steward's Messenger](./screenshots/053-acquire-35-phone.png)
-
-![Desktop: Pip acquires Steward's Messenger](./screenshots/053-acquire-35-desktop.png)
-
-**Verifications:**
-
-- [x] The Row immediately refills after the legal purchase
-- [x] Another legal purchase cycles the shared market toward the ownership condition
-- [x] Every connected browser replays 46 accepted events with no diagnostics
-
----
-
 ## Pip finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/054-finish-36-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/053-finish-35-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/054-finish-36-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/053-finish-35-desktop.png)
 
 **Verifications:**
 
 - [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 47 accepted events with no diagnostics
+- [x] Every connected browser replays 46 accepted events with no diagnostics
 
 ---
 
 ## Mara Reveals the remaining hand
 
-![Phone: Mara Reveals the remaining hand](./screenshots/055-reveal-37-phone.png)
+![Phone: Mara Reveals the remaining hand](./screenshots/054-reveal-36-phone.png)
 
-![Desktop: Mara Reveals the remaining hand](./screenshots/055-reveal-37-desktop.png)
+![Desktop: Mara Reveals the remaining hand](./screenshots/054-reveal-36-desktop.png)
 
 **Verifications:**
 
 - [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 48 accepted events with no diagnostics
-
----
-
-## Mara acquires Dwarven Smith
-
-![Phone: Mara acquires Dwarven Smith](./screenshots/056-acquire-38-phone.png)
-
-![Desktop: Mara acquires Dwarven Smith](./screenshots/056-acquire-38-desktop.png)
-
-**Verifications:**
-
-- [x] The Row immediately refills after the legal purchase
-- [x] Another legal purchase cycles the shared market toward the ownership condition
-- [x] Every connected browser replays 49 accepted events with no diagnostics
-
----
-
-## Mara acquires Uruk-hai Captain
-
-![Phone: Mara acquires Uruk-hai Captain](./screenshots/057-acquire-39-phone.png)
-
-![Desktop: Mara acquires Uruk-hai Captain](./screenshots/057-acquire-39-desktop.png)
-
-**Verifications:**
-
-- [x] The Row immediately refills after the legal purchase
-- [x] Another legal purchase cycles the shared market toward the ownership condition
-- [x] Every connected browser replays 50 accepted events with no diagnostics
+- [x] Every connected browser replays 47 accepted events with no diagnostics
 
 ---
 
 ## Mara finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/058-finish-40-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/055-finish-37-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/058-finish-40-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/055-finish-37-desktop.png)
 
 **Verifications:**
 
 - [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 51 accepted events with no diagnostics
+- [x] Every connected browser replays 48 accepted events with no diagnostics
 
 ---
 
 ## Pip Reveals the remaining hand
 
-![Phone: Pip Reveals the remaining hand](./screenshots/059-reveal-41-phone.png)
+![Phone: Pip Reveals the remaining hand](./screenshots/056-reveal-38-phone.png)
 
-![Desktop: Pip Reveals the remaining hand](./screenshots/059-reveal-41-desktop.png)
+![Desktop: Pip Reveals the remaining hand](./screenshots/056-reveal-38-desktop.png)
 
 **Verifications:**
 
 - [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 52 accepted events with no diagnostics
-
----
-
-## Pip acquires Rider of Rohan
-
-![Phone: Pip acquires Rider of Rohan](./screenshots/060-acquire-42-phone.png)
-
-![Desktop: Pip acquires Rider of Rohan](./screenshots/060-acquire-42-desktop.png)
-
-**Verifications:**
-
-- [x] The Row immediately refills after the legal purchase
-- [x] Another legal purchase cycles the shared market toward the ownership condition
-- [x] Every connected browser replays 53 accepted events with no diagnostics
+- [x] Every connected browser replays 49 accepted events with no diagnostics
 
 ---
 
 ## Pip finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/061-finish-43-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/057-finish-39-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/061-finish-43-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/057-finish-39-desktop.png)
+
+**Verifications:**
+
+- [x] The Reveal closes and ordinary authority advances
+- [x] Every connected browser replays 50 accepted events with no diagnostics
+
+---
+
+## Mara Reveals the remaining hand
+
+![Phone: Mara Reveals the remaining hand](./screenshots/058-reveal-40-phone.png)
+
+![Desktop: Mara Reveals the remaining hand](./screenshots/058-reveal-40-desktop.png)
+
+**Verifications:**
+
+- [x] A real public Muster row replaces the private hand
+- [x] Every connected browser replays 51 accepted events with no diagnostics
+
+---
+
+## Mara finishes Reveal
+
+![Phone: Mara finishes Reveal](./screenshots/059-finish-41-phone.png)
+
+![Desktop: Mara finishes Reveal](./screenshots/059-finish-41-desktop.png)
+
+**Verifications:**
+
+- [x] The Reveal closes and ordinary authority advances
+- [x] Every connected browser replays 52 accepted events with no diagnostics
+
+---
+
+## Rin Reveals the remaining hand
+
+![Phone: Rin Reveals the remaining hand](./screenshots/060-reveal-42-phone.png)
+
+![Desktop: Rin Reveals the remaining hand](./screenshots/060-reveal-42-desktop.png)
+
+**Verifications:**
+
+- [x] A real public Muster row replaces the private hand
+- [x] Every connected browser replays 53 accepted events with no diagnostics
+
+---
+
+## Rin finishes Reveal
+
+![Phone: Rin finishes Reveal](./screenshots/061-finish-43-phone.png)
+
+![Desktop: Rin finishes Reveal](./screenshots/061-finish-43-desktop.png)
 
 **Verifications:**
 
@@ -832,65 +828,76 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara acquires Orcish Muster
-
-![Phone: Mara acquires Orcish Muster](./screenshots/063-acquire-45-phone.png)
-
-![Desktop: Mara acquires Orcish Muster](./screenshots/063-acquire-45-desktop.png)
-
-**Verifications:**
-
-- [x] The Row immediately refills after the legal purchase
-- [x] Another legal purchase cycles the shared market toward the ownership condition
-- [x] Every connected browser replays 56 accepted events with no diagnostics
-
----
-
 ## Mara finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/064-finish-46-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/063-finish-45-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/064-finish-46-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/063-finish-45-desktop.png)
 
 **Verifications:**
 
 - [x] The Reveal closes and ordinary authority advances
+- [x] Every connected browser replays 56 accepted events with no diagnostics
+
+---
+
+## Rin selects Lady of the Golden Wood
+
+![Phone: Rin selects Lady of the Golden Wood](./screenshots/064-select-lady-46-phone.png)
+
+![Desktop: Rin selects Lady of the Golden Wood](./screenshots/064-select-lady-46-desktop.png)
+
+**Verifications:**
+
+- [x] Her final Elven and Wild icons enable matching destinations
+
+---
+
+## Rin sends the Lady to Hidden Counsel
+
+![Phone: Rin sends the Lady to Hidden Counsel](./screenshots/065-play-lady-47-phone.png)
+
+![Desktop: Rin sends the Lady to Hidden Counsel](./screenshots/065-play-lady-47-desktop.png)
+
+**Verifications:**
+
+- [x] Lady and Hidden Counsel each draw one private Fate card
+- [x] Her ordered Scout placement remains with the strategist
 - [x] Every connected browser replays 57 accepted events with no diagnostics
 
 ---
 
-## Rin Reveals the remaining hand
+## Rin places the Lady's Scout
 
-![Phone: Rin Reveals the remaining hand](./screenshots/065-reveal-47-phone.png)
+![Phone: Rin places the Lady's Scout](./screenshots/066-place-lady-scout-48-phone.png)
 
-![Desktop: Rin Reveals the remaining hand](./screenshots/065-reveal-47-desktop.png)
+![Desktop: Rin places the Lady's Scout](./screenshots/066-place-lady-scout-48-desktop.png)
 
 **Verifications:**
 
-- [x] A real public Muster row replaces the private hand
+- [x] Every browser sees the finite Scout on the chosen post
 - [x] Every connected browser replays 58 accepted events with no diagnostics
 
 ---
 
-## Rin acquires Uruk-hai Captain
+## Pip Reveals the remaining hand
 
-![Phone: Rin acquires Uruk-hai Captain](./screenshots/066-acquire-48-phone.png)
+![Phone: Pip Reveals the remaining hand](./screenshots/067-reveal-49-phone.png)
 
-![Desktop: Rin acquires Uruk-hai Captain](./screenshots/066-acquire-48-desktop.png)
+![Desktop: Pip Reveals the remaining hand](./screenshots/067-reveal-49-desktop.png)
 
 **Verifications:**
 
-- [x] The Row immediately refills after the legal purchase
-- [x] Another legal purchase cycles the shared market toward the ownership condition
+- [x] A real public Muster row replaces the private hand
 - [x] Every connected browser replays 59 accepted events with no diagnostics
 
 ---
 
-## Rin finishes Reveal
+## Pip finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/067-finish-49-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/068-finish-50-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/067-finish-49-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/068-finish-50-desktop.png)
 
 **Verifications:**
 
@@ -899,11 +906,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals the remaining hand
+## Rin Reveals the remaining hand
 
-![Phone: Mara Reveals the remaining hand](./screenshots/068-reveal-50-phone.png)
+![Phone: Rin Reveals the remaining hand](./screenshots/069-reveal-51-phone.png)
 
-![Desktop: Mara Reveals the remaining hand](./screenshots/068-reveal-50-desktop.png)
+![Desktop: Rin Reveals the remaining hand](./screenshots/069-reveal-51-desktop.png)
 
 **Verifications:**
 
@@ -912,30 +919,16 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara acquires The Grey Pilgrim
+## Rin finishes Reveal
 
-![Phone: Mara acquires The Grey Pilgrim](./screenshots/069-acquire-51-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/070-finish-52-phone.png)
 
-![Desktop: Mara acquires The Grey Pilgrim](./screenshots/069-acquire-51-desktop.png)
-
-**Verifications:**
-
-- [x] The Row immediately refills after the legal purchase
-- [x] Another legal purchase cycles the shared market toward the ownership condition
-- [x] Every connected browser replays 62 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal
-
-![Phone: Mara finishes Reveal](./screenshots/070-finish-52-phone.png)
-
-![Desktop: Mara finishes Reveal](./screenshots/070-finish-52-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/070-finish-52-desktop.png)
 
 **Verifications:**
 
 - [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 63 accepted events with no diagnostics
+- [x] Every connected browser replays 62 accepted events with no diagnostics
 
 ---
 
@@ -948,29 +941,41 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 64 accepted events with no diagnostics
-
----
-
-## Rin acquires Lady of the Golden Wood
-
-![Phone: Rin acquires Lady of the Golden Wood](./screenshots/072-acquire-54-phone.png)
-
-![Desktop: Rin acquires Lady of the Golden Wood](./screenshots/072-acquire-54-desktop.png)
-
-**Verifications:**
-
-- [x] The Row immediately refills after the legal purchase
-- [x] The public log records five-cost card 4 of four
-- [x] Every connected browser replays 65 accepted events with no diagnostics
+- [x] Every connected browser replays 63 accepted events with no diagnostics
 
 ---
 
 ## Rin finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/073-finish-55-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/072-finish-54-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/073-finish-55-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/072-finish-54-desktop.png)
+
+**Verifications:**
+
+- [x] The Reveal closes and ordinary authority advances
+- [x] Every connected browser replays 64 accepted events with no diagnostics
+
+---
+
+## Pip Reveals the remaining hand
+
+![Phone: Pip Reveals the remaining hand](./screenshots/073-reveal-55-phone.png)
+
+![Desktop: Pip Reveals the remaining hand](./screenshots/073-reveal-55-desktop.png)
+
+**Verifications:**
+
+- [x] A real public Muster row replaces the private hand
+- [x] Every connected browser replays 65 accepted events with no diagnostics
+
+---
+
+## Pip finishes Reveal
+
+![Phone: Pip finishes Reveal](./screenshots/074-finish-56-phone.png)
+
+![Desktop: Pip finishes Reveal](./screenshots/074-finish-56-desktop.png)
 
 **Verifications:**
 
@@ -979,11 +984,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals the remaining hand
+## Mara Reveals the remaining hand
 
-![Phone: Pip Reveals the remaining hand](./screenshots/074-reveal-56-phone.png)
+![Phone: Mara Reveals the remaining hand](./screenshots/075-reveal-57-phone.png)
 
-![Desktop: Pip Reveals the remaining hand](./screenshots/074-reveal-56-desktop.png)
+![Desktop: Mara Reveals the remaining hand](./screenshots/075-reveal-57-desktop.png)
 
 **Verifications:**
 
@@ -992,11 +997,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal
+## Mara finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/075-finish-57-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/076-finish-58-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/075-finish-57-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/076-finish-58-desktop.png)
 
 **Verifications:**
 
@@ -1005,11 +1010,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals the remaining hand
+## Pip Reveals the remaining hand
 
-![Phone: Rin Reveals the remaining hand](./screenshots/076-reveal-58-phone.png)
+![Phone: Pip Reveals the remaining hand](./screenshots/077-reveal-59-phone.png)
 
-![Desktop: Rin Reveals the remaining hand](./screenshots/076-reveal-58-desktop.png)
+![Desktop: Pip Reveals the remaining hand](./screenshots/077-reveal-59-desktop.png)
 
 **Verifications:**
 
@@ -1018,11 +1023,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin finishes Reveal
+## Pip finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/077-finish-59-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/078-finish-60-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/077-finish-59-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/078-finish-60-desktop.png)
 
 **Verifications:**
 
@@ -1031,11 +1036,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals the remaining hand
+## Mara Reveals the remaining hand
 
-![Phone: Pip Reveals the remaining hand](./screenshots/078-reveal-60-phone.png)
+![Phone: Mara Reveals the remaining hand](./screenshots/079-reveal-61-phone.png)
 
-![Desktop: Pip Reveals the remaining hand](./screenshots/078-reveal-60-desktop.png)
+![Desktop: Mara Reveals the remaining hand](./screenshots/079-reveal-61-desktop.png)
 
 **Verifications:**
 
@@ -1044,11 +1049,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal
+## Mara finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/079-finish-61-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/080-finish-62-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/079-finish-61-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/080-finish-62-desktop.png)
 
 **Verifications:**
 
@@ -1057,11 +1062,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals the remaining hand
+## Rin Reveals the remaining hand
 
-![Phone: Mara Reveals the remaining hand](./screenshots/080-reveal-62-phone.png)
+![Phone: Rin Reveals the remaining hand](./screenshots/081-reveal-63-phone.png)
 
-![Desktop: Mara Reveals the remaining hand](./screenshots/080-reveal-62-desktop.png)
+![Desktop: Rin Reveals the remaining hand](./screenshots/081-reveal-63-desktop.png)
 
 **Verifications:**
 
@@ -1070,11 +1075,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal
+## Rin finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/081-finish-63-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/082-finish-64-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/081-finish-63-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/082-finish-64-desktop.png)
 
 **Verifications:**
 
@@ -1083,11 +1088,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals the remaining hand
+## Mara Reveals the remaining hand
 
-![Phone: Pip Reveals the remaining hand](./screenshots/082-reveal-64-phone.png)
+![Phone: Mara Reveals the remaining hand](./screenshots/083-reveal-65-phone.png)
 
-![Desktop: Pip Reveals the remaining hand](./screenshots/082-reveal-64-desktop.png)
+![Desktop: Mara Reveals the remaining hand](./screenshots/083-reveal-65-desktop.png)
 
 **Verifications:**
 
@@ -1096,11 +1101,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal
+## Mara finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/083-finish-65-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/084-finish-66-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/083-finish-65-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/084-finish-66-desktop.png)
 
 **Verifications:**
 
@@ -1109,11 +1114,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals the remaining hand
+## Rin Reveals the remaining hand
 
-![Phone: Mara Reveals the remaining hand](./screenshots/084-reveal-66-phone.png)
+![Phone: Rin Reveals the remaining hand](./screenshots/085-reveal-67-phone.png)
 
-![Desktop: Mara Reveals the remaining hand](./screenshots/084-reveal-66-desktop.png)
+![Desktop: Rin Reveals the remaining hand](./screenshots/085-reveal-67-desktop.png)
 
 **Verifications:**
 
@@ -1122,11 +1127,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal
+## Rin finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/085-finish-67-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/086-finish-68-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/085-finish-67-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/086-finish-68-desktop.png)
 
 **Verifications:**
 
@@ -1135,11 +1140,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals the remaining hand
+## Pip Reveals the remaining hand
 
-![Phone: Rin Reveals the remaining hand](./screenshots/086-reveal-68-phone.png)
+![Phone: Pip Reveals the remaining hand](./screenshots/087-reveal-69-phone.png)
 
-![Desktop: Rin Reveals the remaining hand](./screenshots/086-reveal-68-desktop.png)
+![Desktop: Pip Reveals the remaining hand](./screenshots/087-reveal-69-desktop.png)
 
 **Verifications:**
 
@@ -1148,11 +1153,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin finishes Reveal
+## Pip finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/087-finish-69-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/088-finish-70-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/087-finish-69-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/088-finish-70-desktop.png)
 
 **Verifications:**
 
@@ -1161,11 +1166,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals the remaining hand
+## Rin Reveals the remaining hand
 
-![Phone: Mara Reveals the remaining hand](./screenshots/088-reveal-70-phone.png)
+![Phone: Rin Reveals the remaining hand](./screenshots/089-reveal-71-phone.png)
 
-![Desktop: Mara Reveals the remaining hand](./screenshots/088-reveal-70-desktop.png)
+![Desktop: Rin Reveals the remaining hand](./screenshots/089-reveal-71-desktop.png)
 
 **Verifications:**
 
@@ -1174,11 +1179,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal
+## Rin finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/089-finish-71-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/090-finish-72-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/089-finish-71-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/090-finish-72-desktop.png)
 
 **Verifications:**
 
@@ -1187,11 +1192,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals the remaining hand
+## Pip Reveals the remaining hand
 
-![Phone: Rin Reveals the remaining hand](./screenshots/090-reveal-72-phone.png)
+![Phone: Pip Reveals the remaining hand](./screenshots/091-reveal-73-phone.png)
 
-![Desktop: Rin Reveals the remaining hand](./screenshots/090-reveal-72-desktop.png)
+![Desktop: Pip Reveals the remaining hand](./screenshots/091-reveal-73-desktop.png)
 
 **Verifications:**
 
@@ -1200,11 +1205,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin finishes Reveal
+## Pip finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/091-finish-73-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/092-finish-74-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/091-finish-73-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/092-finish-74-desktop.png)
 
 **Verifications:**
 
@@ -1213,11 +1218,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals the remaining hand
+## Mara Reveals the remaining hand
 
-![Phone: Pip Reveals the remaining hand](./screenshots/092-reveal-74-phone.png)
+![Phone: Mara Reveals the remaining hand](./screenshots/093-reveal-75-phone.png)
 
-![Desktop: Pip Reveals the remaining hand](./screenshots/092-reveal-74-desktop.png)
+![Desktop: Mara Reveals the remaining hand](./screenshots/093-reveal-75-desktop.png)
 
 **Verifications:**
 
@@ -1226,11 +1231,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal
+## Mara finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/093-finish-75-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/094-finish-76-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/093-finish-75-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/094-finish-76-desktop.png)
 
 **Verifications:**
 
@@ -1239,11 +1244,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals the remaining hand
+## Pip Reveals the remaining hand
 
-![Phone: Rin Reveals the remaining hand](./screenshots/094-reveal-76-phone.png)
+![Phone: Pip Reveals the remaining hand](./screenshots/095-reveal-77-phone.png)
 
-![Desktop: Rin Reveals the remaining hand](./screenshots/094-reveal-76-desktop.png)
+![Desktop: Pip Reveals the remaining hand](./screenshots/095-reveal-77-desktop.png)
 
 **Verifications:**
 
@@ -1252,11 +1257,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin finishes Reveal
+## Pip finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/095-finish-77-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/096-finish-78-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/095-finish-77-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/096-finish-78-desktop.png)
 
 **Verifications:**
 
@@ -1265,11 +1270,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals the remaining hand
+## Mara Reveals the remaining hand
 
-![Phone: Pip Reveals the remaining hand](./screenshots/096-reveal-78-phone.png)
+![Phone: Mara Reveals the remaining hand](./screenshots/097-reveal-79-phone.png)
 
-![Desktop: Pip Reveals the remaining hand](./screenshots/096-reveal-78-desktop.png)
+![Desktop: Mara Reveals the remaining hand](./screenshots/097-reveal-79-desktop.png)
 
 **Verifications:**
 
@@ -1278,11 +1283,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal
+## Mara finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/097-finish-79-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/098-finish-80-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/097-finish-79-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/098-finish-80-desktop.png)
 
 **Verifications:**
 
@@ -1291,11 +1296,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals the remaining hand
+## Rin Reveals the remaining hand
 
-![Phone: Mara Reveals the remaining hand](./screenshots/098-reveal-80-phone.png)
+![Phone: Rin Reveals the remaining hand](./screenshots/099-reveal-81-phone.png)
 
-![Desktop: Mara Reveals the remaining hand](./screenshots/098-reveal-80-desktop.png)
+![Desktop: Rin Reveals the remaining hand](./screenshots/099-reveal-81-desktop.png)
 
 **Verifications:**
 
@@ -1304,11 +1309,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal
+## Rin finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/099-finish-81-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/100-finish-82-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/099-finish-81-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/100-finish-82-desktop.png)
 
 **Verifications:**
 
@@ -1317,11 +1322,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals the remaining hand
+## Mara Reveals the remaining hand
 
-![Phone: Pip Reveals the remaining hand](./screenshots/100-reveal-82-phone.png)
+![Phone: Mara Reveals the remaining hand](./screenshots/101-reveal-83-phone.png)
 
-![Desktop: Pip Reveals the remaining hand](./screenshots/100-reveal-82-desktop.png)
+![Desktop: Mara Reveals the remaining hand](./screenshots/101-reveal-83-desktop.png)
 
 **Verifications:**
 
@@ -1330,11 +1335,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal
+## Mara finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/101-finish-83-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/102-finish-84-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/101-finish-83-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/102-finish-84-desktop.png)
 
 **Verifications:**
 
@@ -1343,11 +1348,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals the remaining hand
+## Rin Reveals the remaining hand
 
-![Phone: Mara Reveals the remaining hand](./screenshots/102-reveal-84-phone.png)
+![Phone: Rin Reveals the remaining hand](./screenshots/103-reveal-85-phone.png)
 
-![Desktop: Mara Reveals the remaining hand](./screenshots/102-reveal-84-desktop.png)
+![Desktop: Rin Reveals the remaining hand](./screenshots/103-reveal-85-desktop.png)
 
 **Verifications:**
 
@@ -1356,11 +1361,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal
+## Rin finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/103-finish-85-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/104-finish-86-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/103-finish-85-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/104-finish-86-desktop.png)
 
 **Verifications:**
 
@@ -1369,41 +1374,28 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin selects Lady of the Golden Wood
+## Pip Reveals the remaining hand
 
-![Phone: Rin selects Lady of the Golden Wood](./screenshots/104-select-lady-86-phone.png)
+![Phone: Pip Reveals the remaining hand](./screenshots/105-reveal-87-phone.png)
 
-![Desktop: Rin selects Lady of the Golden Wood](./screenshots/104-select-lady-86-desktop.png)
-
-**Verifications:**
-
-- [x] Her final Elven and Wild icons enable matching destinations
-
----
-
-## Rin sends the Lady to Hidden Counsel
-
-![Phone: Rin sends the Lady to Hidden Counsel](./screenshots/105-play-lady-87-phone.png)
-
-![Desktop: Rin sends the Lady to Hidden Counsel](./screenshots/105-play-lady-87-desktop.png)
+![Desktop: Pip Reveals the remaining hand](./screenshots/105-reveal-87-desktop.png)
 
 **Verifications:**
 
-- [x] Lady and Hidden Counsel each draw one private Fate card
-- [x] Her ordered Scout placement remains with the strategist
+- [x] A real public Muster row replaces the private hand
 - [x] Every connected browser replays 97 accepted events with no diagnostics
 
 ---
 
-## Rin places the Lady's Scout
+## Pip finishes Reveal
 
-![Phone: Rin places the Lady's Scout](./screenshots/106-place-lady-scout-88-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/106-finish-88-phone.png)
 
-![Desktop: Rin places the Lady's Scout](./screenshots/106-place-lady-scout-88-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/106-finish-88-desktop.png)
 
 **Verifications:**
 
-- [x] Every browser sees the finite Scout on the chosen post
+- [x] The Reveal closes and ordinary authority advances
 - [x] Every connected browser replays 98 accepted events with no diagnostics
 
 ---
@@ -1434,11 +1426,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals the remaining hand
+## Pip Reveals the remaining hand
 
-![Phone: Mara Reveals the remaining hand](./screenshots/109-reveal-91-phone.png)
+![Phone: Pip Reveals the remaining hand](./screenshots/109-reveal-91-phone.png)
 
-![Desktop: Mara Reveals the remaining hand](./screenshots/109-reveal-91-desktop.png)
+![Desktop: Pip Reveals the remaining hand](./screenshots/109-reveal-91-desktop.png)
 
 **Verifications:**
 
@@ -1447,11 +1439,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal
+## Pip finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/110-finish-92-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/110-finish-92-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/110-finish-92-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/110-finish-92-desktop.png)
 
 **Verifications:**
 
@@ -1460,11 +1452,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals the remaining hand
+## Mara Reveals the remaining hand
 
-![Phone: Rin Reveals the remaining hand](./screenshots/111-reveal-93-phone.png)
+![Phone: Mara Reveals the remaining hand](./screenshots/111-reveal-93-phone.png)
 
-![Desktop: Rin Reveals the remaining hand](./screenshots/111-reveal-93-desktop.png)
+![Desktop: Mara Reveals the remaining hand](./screenshots/111-reveal-93-desktop.png)
 
 **Verifications:**
 
@@ -1473,11 +1465,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin finishes Reveal
+## Mara finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/112-finish-94-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/112-finish-94-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/112-finish-94-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/112-finish-94-desktop.png)
 
 **Verifications:**
 
@@ -1512,11 +1504,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals the remaining hand
+## Mara Reveals the remaining hand
 
-![Phone: Rin Reveals the remaining hand](./screenshots/115-reveal-97-phone.png)
+![Phone: Mara Reveals the remaining hand](./screenshots/115-reveal-97-phone.png)
 
-![Desktop: Rin Reveals the remaining hand](./screenshots/115-reveal-97-desktop.png)
+![Desktop: Mara Reveals the remaining hand](./screenshots/115-reveal-97-desktop.png)
 
 **Verifications:**
 
@@ -1525,11 +1517,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin finishes Reveal
+## Mara finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/116-finish-98-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/116-finish-98-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/116-finish-98-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/116-finish-98-desktop.png)
 
 **Verifications:**
 
@@ -1538,11 +1530,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals the remaining hand
+## Rin Reveals the remaining hand
 
-![Phone: Pip Reveals the remaining hand](./screenshots/117-reveal-99-phone.png)
+![Phone: Rin Reveals the remaining hand](./screenshots/117-reveal-99-phone.png)
 
-![Desktop: Pip Reveals the remaining hand](./screenshots/117-reveal-99-desktop.png)
+![Desktop: Rin Reveals the remaining hand](./screenshots/117-reveal-99-desktop.png)
 
 **Verifications:**
 
@@ -1551,11 +1543,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal
+## Rin finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/118-finish-100-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/118-finish-100-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/118-finish-100-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/118-finish-100-desktop.png)
 
 **Verifications:**
 
@@ -1590,11 +1582,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals the remaining hand
+## Rin Reveals the remaining hand
 
-![Phone: Pip Reveals the remaining hand](./screenshots/121-reveal-103-phone.png)
+![Phone: Rin Reveals the remaining hand](./screenshots/121-reveal-103-phone.png)
 
-![Desktop: Pip Reveals the remaining hand](./screenshots/121-reveal-103-desktop.png)
+![Desktop: Rin Reveals the remaining hand](./screenshots/121-reveal-103-desktop.png)
 
 **Verifications:**
 
@@ -1603,11 +1595,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal
+## Rin finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/122-finish-104-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/122-finish-104-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/122-finish-104-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/122-finish-104-desktop.png)
 
 **Verifications:**
 
@@ -1616,11 +1608,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals the remaining hand
+## Pip Reveals the remaining hand
 
-![Phone: Mara Reveals the remaining hand](./screenshots/123-reveal-105-phone.png)
+![Phone: Pip Reveals the remaining hand](./screenshots/123-reveal-105-phone.png)
 
-![Desktop: Mara Reveals the remaining hand](./screenshots/123-reveal-105-desktop.png)
+![Desktop: Pip Reveals the remaining hand](./screenshots/123-reveal-105-desktop.png)
 
 **Verifications:**
 
@@ -1629,11 +1621,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal
+## Pip finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/124-finish-106-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/124-finish-106-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/124-finish-106-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/124-finish-106-desktop.png)
 
 **Verifications:**
 
@@ -1668,11 +1660,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals the remaining hand
+## Pip Reveals the remaining hand
 
-![Phone: Mara Reveals the remaining hand](./screenshots/127-reveal-109-phone.png)
+![Phone: Pip Reveals the remaining hand](./screenshots/127-reveal-109-phone.png)
 
-![Desktop: Mara Reveals the remaining hand](./screenshots/127-reveal-109-desktop.png)
+![Desktop: Pip Reveals the remaining hand](./screenshots/127-reveal-109-desktop.png)
 
 **Verifications:**
 
@@ -1681,11 +1673,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal
+## Pip finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/128-finish-110-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/128-finish-110-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/128-finish-110-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/128-finish-110-desktop.png)
 
 **Verifications:**
 
@@ -1694,11 +1686,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals the remaining hand
+## Mara Reveals the remaining hand
 
-![Phone: Rin Reveals the remaining hand](./screenshots/129-reveal-111-phone.png)
+![Phone: Mara Reveals the remaining hand](./screenshots/129-reveal-111-phone.png)
 
-![Desktop: Rin Reveals the remaining hand](./screenshots/129-reveal-111-desktop.png)
+![Desktop: Mara Reveals the remaining hand](./screenshots/129-reveal-111-desktop.png)
 
 **Verifications:**
 
@@ -1707,11 +1699,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin finishes Reveal
+## Mara finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/130-finish-112-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/130-finish-112-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/130-finish-112-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/130-finish-112-desktop.png)
 
 **Verifications:**
 
@@ -1720,171 +1712,67 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals the remaining hand
-
-![Phone: Pip Reveals the remaining hand](./screenshots/131-reveal-113-phone.png)
-
-![Desktop: Pip Reveals the remaining hand](./screenshots/131-reveal-113-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 123 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal
-
-![Phone: Pip finishes Reveal](./screenshots/132-finish-114-phone.png)
-
-![Desktop: Pip finishes Reveal](./screenshots/132-finish-114-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 124 accepted events with no diagnostics
-
----
-
-## Rin Reveals the remaining hand
-
-![Phone: Rin Reveals the remaining hand](./screenshots/133-reveal-115-phone.png)
-
-![Desktop: Rin Reveals the remaining hand](./screenshots/133-reveal-115-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 125 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/134-finish-116-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/134-finish-116-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 126 accepted events with no diagnostics
-
----
-
-## Pip Reveals the remaining hand
-
-![Phone: Pip Reveals the remaining hand](./screenshots/135-reveal-117-phone.png)
-
-![Desktop: Pip Reveals the remaining hand](./screenshots/135-reveal-117-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 127 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal
-
-![Phone: Pip finishes Reveal](./screenshots/136-finish-118-phone.png)
-
-![Desktop: Pip finishes Reveal](./screenshots/136-finish-118-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 128 accepted events with no diagnostics
-
----
-
-## Mara Reveals the remaining hand
-
-![Phone: Mara Reveals the remaining hand](./screenshots/137-reveal-119-phone.png)
-
-![Desktop: Mara Reveals the remaining hand](./screenshots/137-reveal-119-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 129 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal
-
-![Phone: Mara finishes Reveal](./screenshots/138-finish-120-phone.png)
-
-![Desktop: Mara finishes Reveal](./screenshots/138-finish-120-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 130 accepted events with no diagnostics
-
----
-
 ## Rin plays The Long Game
 
-![Phone: Rin plays The Long Game](./screenshots/139-play-long-game-phone.png)
+![Phone: Rin plays The Long Game](./screenshots/131-play-long-game-phone.png)
 
-![Desktop: Rin plays The Long Game](./screenshots/139-play-long-game-desktop.png)
+![Desktop: Rin plays The Long Game](./screenshots/131-play-long-game-desktop.png)
 
 **Verifications:**
 
 - [x] Four owned five-cost cards grant exactly one Renown and retain authority
-- [x] Every connected browser replays 131 accepted events with no diagnostics
+- [x] Every connected browser replays 123 accepted events with no diagnostics
 
 ---
 
 ## Rin passes final scoring
 
-![Phone: Rin passes final scoring](./screenshots/140-final-pass-1-phone.png)
+![Phone: Rin passes final scoring](./screenshots/132-final-pass-1-phone.png)
 
-![Desktop: Rin passes final scoring](./screenshots/140-final-pass-1-desktop.png)
+![Desktop: Rin passes final scoring](./screenshots/132-final-pass-1-desktop.png)
 
 **Verifications:**
 
 - [x] Endgame authority advances after the pass
-- [x] Every connected browser replays 132 accepted events with no diagnostics
+- [x] Every connected browser replays 124 accepted events with no diagnostics
 
 ---
 
 ## Pip passes final scoring
 
-![Phone: Pip passes final scoring](./screenshots/141-final-pass-2-phone.png)
+![Phone: Pip passes final scoring](./screenshots/133-final-pass-2-phone.png)
 
-![Desktop: Pip passes final scoring](./screenshots/141-final-pass-2-desktop.png)
+![Desktop: Pip passes final scoring](./screenshots/133-final-pass-2-desktop.png)
 
 **Verifications:**
 
 - [x] Endgame authority advances after the pass
-- [x] Every connected browser replays 133 accepted events with no diagnostics
+- [x] Every connected browser replays 125 accepted events with no diagnostics
 
 ---
 
 ## Mara passes final scoring
 
-![Phone: Mara passes final scoring](./screenshots/142-final-pass-3-phone.png)
+![Phone: Mara passes final scoring](./screenshots/134-final-pass-3-phone.png)
 
-![Desktop: Mara passes final scoring](./screenshots/142-final-pass-3-desktop.png)
+![Desktop: Mara passes final scoring](./screenshots/134-final-pass-3-desktop.png)
 
 **Verifications:**
 
 - [x] Three consecutive passes record the final result
-- [x] Every connected browser replays 134 accepted events with no diagnostics
+- [x] Every connected browser replays 126 accepted events with no diagnostics
 
 ---
 
 ## Rin reloads the finished Long Game
 
-![Phone: Rin reloads the finished Long Game](./screenshots/143-reload-long-game-result-phone.png)
+![Phone: Rin reloads the finished Long Game](./screenshots/135-reload-long-game-result-phone.png)
 
-![Desktop: Rin reloads the finished Long Game](./screenshots/143-reload-long-game-result-desktop.png)
+![Desktop: Rin reloads the finished Long Game](./screenshots/135-reload-long-game-result-desktop.png)
 
 **Verifications:**
 
 - [x] Replay reproduces the Chronicle-backed final result
-- [x] Every connected browser replays 134 accepted events with no diagnostics
+- [x] Every connected browser replays 126 accepted events with no diagnostics
 
 ---

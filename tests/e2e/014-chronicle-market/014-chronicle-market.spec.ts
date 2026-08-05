@@ -6,7 +6,7 @@ import { TestStepHelper } from '../helpers/test-step-helper';
 test('a human buys from the public Chronicle Row, refills it, reshuffles, and plays the acquired card', async ({ browser, page }, testInfo) => {
   test.setTimeout(300_000);
   const steps = new TestStepHelper(testInfo);
-  const table = await startPlotTable(browser, page, testInfo, steps, 'chronicle-proof-2', { phone: 'CHRPH', desktop: 'CHRDS' });
+  const table = await startPlotTable(browser, page, testInfo, steps, 'chronicle-proof-6', { phone: 'CHRPH', desktop: 'CHRDS' });
   const { seats, accepted, converged, currentSeat, row } = table;
 
   try {

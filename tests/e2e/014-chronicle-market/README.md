@@ -218,11 +218,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals for the Chronicle market
+## Mara Reveals for the Chronicle market
 
-![Phone: Rin Reveals for the Chronicle market](./screenshots/017-reveal-for-market-phone.png)
+![Phone: Mara Reveals for the Chronicle market](./screenshots/017-reveal-for-market-phone.png)
 
-![Desktop: Rin Reveals for the Chronicle market](./screenshots/017-reveal-for-market-desktop.png)
+![Desktop: Mara Reveals for the Chronicle market](./screenshots/017-reveal-for-market-desktop.png)
 
 **Verifications:**
 
@@ -232,11 +232,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin buys Rider of Rohan
+## Mara buys Rider of Rohan
 
-![Phone: Rin buys Rider of Rohan](./screenshots/018-buy-rider-phone.png)
+![Phone: Mara buys Rider of Rohan](./screenshots/018-buy-rider-phone.png)
 
-![Desktop: Rin buys Rider of Rohan](./screenshots/018-buy-rider-desktop.png)
+![Desktop: Mara buys Rider of Rohan](./screenshots/018-buy-rider-desktop.png)
 
 **Verifications:**
 
@@ -246,11 +246,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin reloads after the market refill
+## Mara reloads after the market refill
 
-![Phone: Rin reloads after the market refill](./screenshots/019-reload-acquired-market-phone.png)
+![Phone: Mara reloads after the market refill](./screenshots/019-reload-acquired-market-phone.png)
 
-![Desktop: Rin reloads after the market refill](./screenshots/019-reload-acquired-market-desktop.png)
+![Desktop: Mara reloads after the market refill](./screenshots/019-reload-acquired-market-desktop.png)
 
 **Verifications:**
 
@@ -259,11 +259,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin finishes the acquisition Reveal
+## Mara finishes the acquisition Reveal
 
-![Phone: Rin finishes the acquisition Reveal](./screenshots/020-finish-buying-phone.png)
+![Phone: Mara finishes the acquisition Reveal](./screenshots/020-finish-buying-phone.png)
 
-![Desktop: Rin finishes the acquisition Reveal](./screenshots/020-finish-buying-desktop.png)
+![Desktop: Mara finishes the acquisition Reveal](./screenshots/020-finish-buying-desktop.png)
 
 **Verifications:**
 
@@ -272,11 +272,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals while the acquired Rider waits for reshuffle
+## Pip Reveals while the acquired Rider waits for reshuffle
 
-![Phone: Mara Reveals while the acquired Rider waits for reshuffle](./screenshots/021-cycle-1-reveal-phone.png)
+![Phone: Pip Reveals while the acquired Rider waits for reshuffle](./screenshots/021-cycle-1-reveal-phone.png)
 
-![Desktop: Mara Reveals while the acquired Rider waits for reshuffle](./screenshots/021-cycle-1-reveal-desktop.png)
+![Desktop: Pip Reveals while the acquired Rider waits for reshuffle](./screenshots/021-cycle-1-reveal-desktop.png)
 
 **Verifications:**
 
@@ -285,11 +285,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes that Reveal
+## Pip finishes that Reveal
 
-![Phone: Mara finishes that Reveal](./screenshots/022-cycle-1-finish-phone.png)
+![Phone: Pip finishes that Reveal](./screenshots/022-cycle-1-finish-phone.png)
 
-![Desktop: Mara finishes that Reveal](./screenshots/022-cycle-1-finish-desktop.png)
+![Desktop: Pip finishes that Reveal](./screenshots/022-cycle-1-finish-desktop.png)
 
 **Verifications:**
 
@@ -298,11 +298,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals while the acquired Rider waits for reshuffle
+## Rin Reveals while the acquired Rider waits for reshuffle
 
-![Phone: Pip Reveals while the acquired Rider waits for reshuffle](./screenshots/023-cycle-2-reveal-phone.png)
+![Phone: Rin Reveals while the acquired Rider waits for reshuffle](./screenshots/023-cycle-2-reveal-phone.png)
 
-![Desktop: Pip Reveals while the acquired Rider waits for reshuffle](./screenshots/023-cycle-2-reveal-desktop.png)
+![Desktop: Rin Reveals while the acquired Rider waits for reshuffle](./screenshots/023-cycle-2-reveal-desktop.png)
 
 **Verifications:**
 
@@ -311,11 +311,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes that Reveal
+## Rin finishes that Reveal
 
-![Phone: Pip finishes that Reveal](./screenshots/024-cycle-2-finish-phone.png)
+![Phone: Rin finishes that Reveal](./screenshots/024-cycle-2-finish-phone.png)
 
-![Desktop: Pip finishes that Reveal](./screenshots/024-cycle-2-finish-desktop.png)
+![Desktop: Rin finishes that Reveal](./screenshots/024-cycle-2-finish-desktop.png)
 
 **Verifications:**
 
@@ -324,11 +324,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals while the acquired Rider waits for reshuffle
+## Pip Reveals while the acquired Rider waits for reshuffle
 
-![Phone: Mara Reveals while the acquired Rider waits for reshuffle](./screenshots/025-cycle-3-reveal-phone.png)
+![Phone: Pip Reveals while the acquired Rider waits for reshuffle](./screenshots/025-cycle-3-reveal-phone.png)
 
-![Desktop: Mara Reveals while the acquired Rider waits for reshuffle](./screenshots/025-cycle-3-reveal-desktop.png)
+![Desktop: Pip Reveals while the acquired Rider waits for reshuffle](./screenshots/025-cycle-3-reveal-desktop.png)
 
 **Verifications:**
 
@@ -337,11 +337,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes that Reveal
+## Pip finishes that Reveal
 
-![Phone: Mara finishes that Reveal](./screenshots/026-cycle-3-finish-phone.png)
+![Phone: Pip finishes that Reveal](./screenshots/026-cycle-3-finish-phone.png)
 
-![Desktop: Mara finishes that Reveal](./screenshots/026-cycle-3-finish-desktop.png)
+![Desktop: Pip finishes that Reveal](./screenshots/026-cycle-3-finish-desktop.png)
 
 **Verifications:**
 
@@ -350,11 +350,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals while the acquired Rider waits for reshuffle
+## Rin Reveals while the acquired Rider waits for reshuffle
 
-![Phone: Pip Reveals while the acquired Rider waits for reshuffle](./screenshots/027-cycle-4-reveal-phone.png)
+![Phone: Rin Reveals while the acquired Rider waits for reshuffle](./screenshots/027-cycle-4-reveal-phone.png)
 
-![Desktop: Pip Reveals while the acquired Rider waits for reshuffle](./screenshots/027-cycle-4-reveal-desktop.png)
+![Desktop: Rin Reveals while the acquired Rider waits for reshuffle](./screenshots/027-cycle-4-reveal-desktop.png)
 
 **Verifications:**
 
@@ -363,11 +363,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes that Reveal
+## Rin finishes that Reveal
 
-![Phone: Pip finishes that Reveal](./screenshots/028-cycle-4-finish-phone.png)
+![Phone: Rin finishes that Reveal](./screenshots/028-cycle-4-finish-phone.png)
 
-![Desktop: Pip finishes that Reveal](./screenshots/028-cycle-4-finish-desktop.png)
+![Desktop: Rin finishes that Reveal](./screenshots/028-cycle-4-finish-desktop.png)
 
 **Verifications:**
 
@@ -376,11 +376,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals while the acquired Rider waits for reshuffle
+## Mara Reveals while the acquired Rider waits for reshuffle
 
-![Phone: Rin Reveals while the acquired Rider waits for reshuffle](./screenshots/029-cycle-5-reveal-phone.png)
+![Phone: Mara Reveals while the acquired Rider waits for reshuffle](./screenshots/029-cycle-5-reveal-phone.png)
 
-![Desktop: Rin Reveals while the acquired Rider waits for reshuffle](./screenshots/029-cycle-5-reveal-desktop.png)
+![Desktop: Mara Reveals while the acquired Rider waits for reshuffle](./screenshots/029-cycle-5-reveal-desktop.png)
 
 **Verifications:**
 
@@ -389,11 +389,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin finishes that Reveal
+## Mara finishes that Reveal
 
-![Phone: Rin finishes that Reveal](./screenshots/030-cycle-5-finish-phone.png)
+![Phone: Mara finishes that Reveal](./screenshots/030-cycle-5-finish-phone.png)
 
-![Desktop: Rin finishes that Reveal](./screenshots/030-cycle-5-finish-desktop.png)
+![Desktop: Mara finishes that Reveal](./screenshots/030-cycle-5-finish-desktop.png)
 
 **Verifications:**
 
@@ -402,11 +402,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals before the Chronicle buyer in Round 3
+## Rin Reveals before the Chronicle buyer in Round 3
 
-![Phone: Pip Reveals before the Chronicle buyer in Round 3](./screenshots/031-round-three-1-reveal-phone.png)
+![Phone: Rin Reveals before the Chronicle buyer in Round 3](./screenshots/031-round-three-1-reveal-phone.png)
 
-![Desktop: Pip Reveals before the Chronicle buyer in Round 3](./screenshots/031-round-three-1-reveal-desktop.png)
+![Desktop: Rin Reveals before the Chronicle buyer in Round 3](./screenshots/031-round-three-1-reveal-desktop.png)
 
 **Verifications:**
 
@@ -415,11 +415,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes before the Chronicle buyer
+## Rin finishes before the Chronicle buyer
 
-![Phone: Pip finishes before the Chronicle buyer](./screenshots/032-round-three-1-finish-phone.png)
+![Phone: Rin finishes before the Chronicle buyer](./screenshots/032-round-three-1-finish-phone.png)
 
-![Desktop: Pip finishes before the Chronicle buyer](./screenshots/032-round-three-1-finish-desktop.png)
+![Desktop: Rin finishes before the Chronicle buyer](./screenshots/032-round-three-1-finish-desktop.png)
 
 **Verifications:**
 
@@ -428,11 +428,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin selects the acquired Rider of Rohan
+## Mara selects the acquired Rider of Rohan
 
-![Phone: Rin selects the acquired Rider of Rohan](./screenshots/033-select-acquired-rider-phone.png)
+![Phone: Mara selects the acquired Rider of Rohan](./screenshots/033-select-acquired-rider-phone.png)
 
-![Desktop: Rin selects the acquired Rider of Rohan](./screenshots/033-select-acquired-rider-desktop.png)
+![Desktop: Mara selects the acquired Rider of Rohan](./screenshots/033-select-acquired-rider-desktop.png)
 
 **Verifications:**
 
@@ -440,11 +440,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin rides to Minas Tirith
+## Mara rides to Minas Tirith
 
-![Phone: Rin rides to Minas Tirith](./screenshots/034-ride-to-minas-tirith-phone.png)
+![Phone: Mara rides to Minas Tirith](./screenshots/034-ride-to-minas-tirith-phone.png)
 
-![Desktop: Rin rides to Minas Tirith](./screenshots/034-ride-to-minas-tirith-desktop.png)
+![Desktop: Mara rides to Minas Tirith](./screenshots/034-ride-to-minas-tirith-desktop.png)
 
 **Verifications:**
 
@@ -454,11 +454,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin reloads during the Rider deployment
+## Mara reloads during the Rider deployment
 
-![Phone: Rin reloads during the Rider deployment](./screenshots/035-reload-rider-deployment-phone.png)
+![Phone: Mara reloads during the Rider deployment](./screenshots/035-reload-rider-deployment-phone.png)
 
-![Desktop: Rin reloads during the Rider deployment](./screenshots/035-reload-rider-deployment-desktop.png)
+![Desktop: Mara reloads during the Rider deployment](./screenshots/035-reload-rider-deployment-desktop.png)
 
 **Verifications:**
 
@@ -467,11 +467,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin keeps the recruited Companies in garrison
+## Mara keeps the recruited Companies in garrison
 
-![Phone: Rin keeps the recruited Companies in garrison](./screenshots/036-decline-rider-deployment-phone.png)
+![Phone: Mara keeps the recruited Companies in garrison](./screenshots/036-decline-rider-deployment-phone.png)
 
-![Desktop: Rin keeps the recruited Companies in garrison](./screenshots/036-decline-rider-deployment-desktop.png)
+![Desktop: Mara keeps the recruited Companies in garrison](./screenshots/036-decline-rider-deployment-desktop.png)
 
 **Verifications:**
 

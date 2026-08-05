@@ -9,7 +9,7 @@ type TargetName = (typeof TARGETS)[number];
 test('Whispered Rumor and Goblin Informer execute both Scout-linked boxes', async ({ browser, page }, testInfo) => {
   test.setTimeout(900_000);
   const steps = new TestStepHelper(testInfo);
-  const table = await startPlotTable(browser, page, testInfo, steps, 'chronicle-scout-rumors-64', { phone: 'RUMRP', desktop: 'RUMRD' });
+  const table = await startPlotTable(browser, page, testInfo, steps, 'chronicle-scout-rumors-25', { phone: 'RUMRP', desktop: 'RUMRD' });
   const { seats, accepted, converged, currentSeat, row } = table;
   const acquired = new Set<TargetName>();
   let rumorPlacements = 0;
@@ -186,7 +186,7 @@ test('Whispered Rumor and Goblin Informer execute both Scout-linked boxes', asyn
         if (rumorPlacements === 0 && hasRumor) { await placeRumor(buyer); continue; }
         if (!rumorMuster && hasRumor && hasScout && hasRoad) { await gatherBeforeRumor(buyer); continue; }
         if (rumorMuster && rumorPlacements < 2 && hasRumor) { await placeRumor(buyer); continue; }
-        if (!goblinMuster && hasGoblin && hasScout) {
+        if (rumorMuster && !goblinMuster && hasGoblin && hasScout) {
           await reveal(buyer);
           await expect(buyer.page.getByRole('heading', { name: 'Recall a Scout with Goblin Informer?' })).toBeVisible();
           for (const observer of seats.filter((seat) => seat !== buyer)) {

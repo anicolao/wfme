@@ -323,11 +323,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip cycles one physical Orcish Muster
+## Pip cycles one physical Goblin Informer
 
-![Phone: Pip cycles one physical Orcish Muster](./screenshots/025-cycle-bree-guide-phone.png)
+![Phone: Pip cycles one physical Goblin Informer](./screenshots/025-cycle-bree-guide-phone.png)
 
-![Desktop: Pip cycles one physical Orcish Muster](./screenshots/025-cycle-bree-guide-desktop.png)
+![Desktop: Pip cycles one physical Goblin Informer](./screenshots/025-cycle-bree-guide-desktop.png)
 
 **Verifications:**
 
