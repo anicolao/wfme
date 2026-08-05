@@ -323,11 +323,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip cycles one physical Goblin Informer
+## Pip cycles one physical Dwarven Smith
 
-![Phone: Pip cycles one physical Goblin Informer](./screenshots/025-cycle-bree-guide-phone.png)
+![Phone: Pip cycles one physical Dwarven Smith](./screenshots/025-cycle-bree-guide-phone.png)
 
-![Desktop: Pip cycles one physical Goblin Informer](./screenshots/025-cycle-bree-guide-desktop.png)
+![Desktop: Pip cycles one physical Dwarven Smith](./screenshots/025-cycle-bree-guide-desktop.png)
 
 **Verifications:**
 

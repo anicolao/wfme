@@ -413,11 +413,193 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
+## Rin Reveals the real remaining hand
+
+![Phone: Rin Reveals the real remaining hand](./screenshots/032-reveal-16-phone.png)
+
+![Desktop: Rin Reveals the real remaining hand](./screenshots/032-reveal-16-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row replaces only the acting human’s private hand
+- [x] Every connected browser replays 26 accepted events with no diagnostics
+
+---
+
+## Rin finishes Reveal
+
+![Phone: Rin finishes Reveal](./screenshots/033-finish-17-phone.png)
+
+![Desktop: Rin finishes Reveal](./screenshots/033-finish-17-desktop.png)
+
+**Verifications:**
+
+- [x] The Muster row closes and canonical authority advances
+- [x] Every connected browser replays 27 accepted events with no diagnostics
+
+---
+
+## Pip Reveals the real remaining hand
+
+![Phone: Pip Reveals the real remaining hand](./screenshots/034-reveal-18-phone.png)
+
+![Desktop: Pip Reveals the real remaining hand](./screenshots/034-reveal-18-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row replaces only the acting human’s private hand
+- [x] Every connected browser replays 28 accepted events with no diagnostics
+
+---
+
+## Pip finishes Reveal
+
+![Phone: Pip finishes Reveal](./screenshots/035-finish-19-phone.png)
+
+![Desktop: Pip finishes Reveal](./screenshots/035-finish-19-desktop.png)
+
+**Verifications:**
+
+- [x] The Muster row closes and canonical authority advances
+- [x] Every connected browser replays 29 accepted events with no diagnostics
+
+---
+
+## Rin Reveals the real remaining hand
+
+![Phone: Rin Reveals the real remaining hand](./screenshots/036-reveal-20-phone.png)
+
+![Desktop: Rin Reveals the real remaining hand](./screenshots/036-reveal-20-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row replaces only the acting human’s private hand
+- [x] Every connected browser replays 30 accepted events with no diagnostics
+
+---
+
+## Rin finishes Reveal
+
+![Phone: Rin finishes Reveal](./screenshots/037-finish-21-phone.png)
+
+![Desktop: Rin finishes Reveal](./screenshots/037-finish-21-desktop.png)
+
+**Verifications:**
+
+- [x] The Muster row closes and canonical authority advances
+- [x] Every connected browser replays 31 accepted events with no diagnostics
+
+---
+
+## Pip Reveals the real remaining hand
+
+![Phone: Pip Reveals the real remaining hand](./screenshots/038-reveal-22-phone.png)
+
+![Desktop: Pip Reveals the real remaining hand](./screenshots/038-reveal-22-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row replaces only the acting human’s private hand
+- [x] Every connected browser replays 32 accepted events with no diagnostics
+
+---
+
+## Pip finishes Reveal
+
+![Phone: Pip finishes Reveal](./screenshots/039-finish-23-phone.png)
+
+![Desktop: Pip finishes Reveal](./screenshots/039-finish-23-desktop.png)
+
+**Verifications:**
+
+- [x] The Muster row closes and canonical authority advances
+- [x] Every connected browser replays 33 accepted events with no diagnostics
+
+---
+
+## Mara Reveals the real remaining hand
+
+![Phone: Mara Reveals the real remaining hand](./screenshots/040-reveal-24-phone.png)
+
+![Desktop: Mara Reveals the real remaining hand](./screenshots/040-reveal-24-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row replaces only the acting human’s private hand
+- [x] Every connected browser replays 34 accepted events with no diagnostics
+
+---
+
+## Mara finishes Reveal
+
+![Phone: Mara finishes Reveal](./screenshots/041-finish-25-phone.png)
+
+![Desktop: Mara finishes Reveal](./screenshots/041-finish-25-desktop.png)
+
+**Verifications:**
+
+- [x] The Muster row closes and canonical authority advances
+- [x] Every connected browser replays 35 accepted events with no diagnostics
+
+---
+
+## Pip Reveals the real remaining hand
+
+![Phone: Pip Reveals the real remaining hand](./screenshots/042-reveal-26-phone.png)
+
+![Desktop: Pip Reveals the real remaining hand](./screenshots/042-reveal-26-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row replaces only the acting human’s private hand
+- [x] Every connected browser replays 36 accepted events with no diagnostics
+
+---
+
+## Pip finishes Reveal
+
+![Phone: Pip finishes Reveal](./screenshots/043-finish-27-phone.png)
+
+![Desktop: Pip finishes Reveal](./screenshots/043-finish-27-desktop.png)
+
+**Verifications:**
+
+- [x] The Muster row closes and canonical authority advances
+- [x] Every connected browser replays 37 accepted events with no diagnostics
+
+---
+
+## Mara Reveals the real remaining hand
+
+![Phone: Mara Reveals the real remaining hand](./screenshots/044-reveal-28-phone.png)
+
+![Desktop: Mara Reveals the real remaining hand](./screenshots/044-reveal-28-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row replaces only the acting human’s private hand
+- [x] Every connected browser replays 38 accepted events with no diagnostics
+
+---
+
+## Mara finishes Reveal
+
+![Phone: Mara finishes Reveal](./screenshots/045-finish-29-phone.png)
+
+![Desktop: Mara finishes Reveal](./screenshots/045-finish-29-desktop.png)
+
+**Verifications:**
+
+- [x] The Muster row closes and canonical authority advances
+- [x] Every connected browser replays 39 accepted events with no diagnostics
+
+---
+
 ## Rin selects Ranger of the North
 
-![Phone: Rin selects Ranger of the North](./screenshots/032-select-16-phone.png)
+![Phone: Rin selects Ranger of the North](./screenshots/046-select-30-phone.png)
 
-![Desktop: Rin selects Ranger of the North](./screenshots/032-select-16-desktop.png)
+![Desktop: Rin selects Ranger of the North](./screenshots/046-select-30-desktop.png)
 
 **Verifications:**
 
@@ -427,39 +609,39 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Rin plays Ranger of the North
 
-![Phone: Rin plays Ranger of the North](./screenshots/033-place-17-phone.png)
+![Phone: Rin plays Ranger of the North](./screenshots/047-place-31-phone.png)
 
-![Desktop: Rin plays Ranger of the North](./screenshots/033-place-17-desktop.png)
+![Desktop: Rin plays Ranger of the North](./screenshots/047-place-31-desktop.png)
 
 **Verifications:**
 
 - [x] Both private draws finish before the mandatory Ranger discard blocks turn advancement
-- [x] Every connected browser replays 26 accepted events with no diagnostics
+- [x] Every connected browser replays 40 accepted events with no diagnostics
 
 ---
 
-## Rin discards The Open Road for Ranger of the North
+## Rin discards Rallying Words for Ranger of the North
 
-![Phone: Rin discards The Open Road for Ranger of the North](./screenshots/034-discard-18-phone.png)
+![Phone: Rin discards Rallying Words for Ranger of the North](./screenshots/048-discard-32-phone.png)
 
-![Desktop: Rin discards The Open Road for Ranger of the North](./screenshots/034-discard-18-desktop.png)
+![Desktop: Rin discards Rallying Words for Ranger of the North](./screenshots/048-discard-32-desktop.png)
 
 **Verifications:**
 
 - [x] Exactly one eligible private hand card enters discard and canonical authority advances
-- [x] Every connected browser replays 27 accepted events with no diagnostics
+- [x] Every connected browser replays 41 accepted events with no diagnostics
 
 ---
 
 ## Rin reloads the Ranger outcome
 
-![Phone: Rin reloads the Ranger outcome](./screenshots/035-reload-ranger-phone.png)
+![Phone: Rin reloads the Ranger outcome](./screenshots/049-reload-ranger-phone.png)
 
-![Desktop: Rin reloads the Ranger outcome](./screenshots/035-reload-ranger-desktop.png)
+![Desktop: Rin reloads the Ranger outcome](./screenshots/049-reload-ranger-desktop.png)
 
 **Verifications:**
 
 - [x] Replay preserves the destination and private discard without publishing its identity
-- [x] Every connected browser replays 27 accepted events with no diagnostics
+- [x] Every connected browser replays 41 accepted events with no diagnostics
 
 ---

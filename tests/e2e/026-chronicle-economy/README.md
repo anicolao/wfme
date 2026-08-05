@@ -231,169 +231,169 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara acquires Delving Expedition
+## Mara acquires Voice of Orthanc
 
-![Phone: Mara acquires Delving Expedition](./screenshots/018-acquire-2-phone.png)
+![Phone: Mara acquires Voice of Orthanc](./screenshots/018-acquire-2-phone.png)
 
-![Desktop: Mara acquires Delving Expedition](./screenshots/018-acquire-2-desktop.png)
+![Desktop: Mara acquires Voice of Orthanc](./screenshots/018-acquire-2-desktop.png)
 
 **Verifications:**
 
-- [x] Delving Expedition enters the real discard pile as an exact physical card
+- [x] Voice of Orthanc enters the real discard pile as an exact physical card
 - [x] The public Row refills immediately when its deck has cards
 - [x] Every connected browser replays 12 accepted events with no diagnostics
 
 ---
 
-## Mara acquires Rider of Rohan
+## Mara finishes Reveal
 
-![Phone: Mara acquires Rider of Rohan](./screenshots/019-acquire-3-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/019-finish-3-phone.png)
 
-![Desktop: Mara acquires Rider of Rohan](./screenshots/019-acquire-3-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/019-finish-3-desktop.png)
 
 **Verifications:**
 
-- [x] An affordable card cycles the physical market toward the remaining batch
-- [x] The public Row refills immediately when its deck has cards
+- [x] The Muster row closes and canonical authority advances
 - [x] Every connected browser replays 13 accepted events with no diagnostics
 
 ---
 
-## Mara finishes Reveal
+## Rin Reveals the real remaining hand
 
-![Phone: Mara finishes Reveal](./screenshots/020-finish-4-phone.png)
+![Phone: Rin Reveals the real remaining hand](./screenshots/020-reveal-4-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/020-finish-4-desktop.png)
+![Desktop: Rin Reveals the real remaining hand](./screenshots/020-reveal-4-desktop.png)
 
 **Verifications:**
 
-- [x] The Muster row closes and canonical authority advances
+- [x] The public Muster row replaces only the acting human’s private hand
 - [x] Every connected browser replays 14 accepted events with no diagnostics
 
 ---
 
-## Rin Reveals the real remaining hand
+## Rin finishes Reveal
 
-![Phone: Rin Reveals the real remaining hand](./screenshots/021-reveal-5-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/021-finish-5-phone.png)
 
-![Desktop: Rin Reveals the real remaining hand](./screenshots/021-reveal-5-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/021-finish-5-desktop.png)
 
 **Verifications:**
 
-- [x] The public Muster row replaces only the acting human’s private hand
+- [x] The Muster row closes and canonical authority advances
 - [x] Every connected browser replays 15 accepted events with no diagnostics
 
 ---
 
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/022-finish-6-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/022-finish-6-desktop.png)
-
-**Verifications:**
-
-- [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 16 accepted events with no diagnostics
-
----
-
 ## Pip Reveals the real remaining hand
 
-![Phone: Pip Reveals the real remaining hand](./screenshots/023-reveal-7-phone.png)
+![Phone: Pip Reveals the real remaining hand](./screenshots/022-reveal-6-phone.png)
 
-![Desktop: Pip Reveals the real remaining hand](./screenshots/023-reveal-7-desktop.png)
+![Desktop: Pip Reveals the real remaining hand](./screenshots/022-reveal-6-desktop.png)
 
 **Verifications:**
 
 - [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 17 accepted events with no diagnostics
+- [x] Every connected browser replays 16 accepted events with no diagnostics
 
 ---
 
 ## Pip finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/024-finish-8-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/023-finish-7-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/024-finish-8-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/023-finish-7-desktop.png)
 
 **Verifications:**
 
 - [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 18 accepted events with no diagnostics
+- [x] Every connected browser replays 17 accepted events with no diagnostics
 
 ---
 
 ## Rin Reveals the real remaining hand
 
-![Phone: Rin Reveals the real remaining hand](./screenshots/025-reveal-9-phone.png)
+![Phone: Rin Reveals the real remaining hand](./screenshots/024-reveal-8-phone.png)
 
-![Desktop: Rin Reveals the real remaining hand](./screenshots/025-reveal-9-desktop.png)
+![Desktop: Rin Reveals the real remaining hand](./screenshots/024-reveal-8-desktop.png)
 
 **Verifications:**
 
 - [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 19 accepted events with no diagnostics
+- [x] Every connected browser replays 18 accepted events with no diagnostics
 
 ---
 
 ## Rin finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/026-finish-10-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/025-finish-9-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/026-finish-10-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/025-finish-9-desktop.png)
 
 **Verifications:**
 
 - [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 20 accepted events with no diagnostics
+- [x] Every connected browser replays 19 accepted events with no diagnostics
 
 ---
 
 ## Pip Reveals the real remaining hand
 
-![Phone: Pip Reveals the real remaining hand](./screenshots/027-reveal-11-phone.png)
+![Phone: Pip Reveals the real remaining hand](./screenshots/026-reveal-10-phone.png)
 
-![Desktop: Pip Reveals the real remaining hand](./screenshots/027-reveal-11-desktop.png)
+![Desktop: Pip Reveals the real remaining hand](./screenshots/026-reveal-10-desktop.png)
 
 **Verifications:**
 
 - [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 21 accepted events with no diagnostics
+- [x] Every connected browser replays 20 accepted events with no diagnostics
 
 ---
 
 ## Pip finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/028-finish-12-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/027-finish-11-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/028-finish-12-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/027-finish-11-desktop.png)
 
 **Verifications:**
 
 - [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 22 accepted events with no diagnostics
+- [x] Every connected browser replays 21 accepted events with no diagnostics
 
 ---
 
 ## Mara Reveals the real remaining hand
 
-![Phone: Mara Reveals the real remaining hand](./screenshots/029-reveal-13-phone.png)
+![Phone: Mara Reveals the real remaining hand](./screenshots/028-reveal-12-phone.png)
 
-![Desktop: Mara Reveals the real remaining hand](./screenshots/029-reveal-13-desktop.png)
+![Desktop: Mara Reveals the real remaining hand](./screenshots/028-reveal-12-desktop.png)
 
 **Verifications:**
 
 - [x] The public Muster row replaces only the acting human’s private hand
+- [x] Every connected browser replays 22 accepted events with no diagnostics
+
+---
+
+## Mara acquires Rider of Rohan
+
+![Phone: Mara acquires Rider of Rohan](./screenshots/029-acquire-13-phone.png)
+
+![Desktop: Mara acquires Rider of Rohan](./screenshots/029-acquire-13-desktop.png)
+
+**Verifications:**
+
+- [x] An affordable card cycles the physical market toward the remaining batch
+- [x] The public Row refills immediately when its deck has cards
 - [x] Every connected browser replays 23 accepted events with no diagnostics
 
 ---
 
-## Mara acquires Envoy of Dale
+## Mara acquires Whispered Rumor
 
-![Phone: Mara acquires Envoy of Dale](./screenshots/030-acquire-14-phone.png)
+![Phone: Mara acquires Whispered Rumor](./screenshots/030-acquire-14-phone.png)
 
-![Desktop: Mara acquires Envoy of Dale](./screenshots/030-acquire-14-desktop.png)
+![Desktop: Mara acquires Whispered Rumor](./screenshots/030-acquire-14-desktop.png)
 
 **Verifications:**
 
@@ -455,15 +455,15 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara acquires Goblin Informer
+## Mara acquires Durin's Heir
 
-![Phone: Mara acquires Goblin Informer](./screenshots/035-acquire-19-phone.png)
+![Phone: Mara acquires Durin's Heir](./screenshots/035-acquire-19-phone.png)
 
-![Desktop: Mara acquires Goblin Informer](./screenshots/035-acquire-19-desktop.png)
+![Desktop: Mara acquires Durin's Heir](./screenshots/035-acquire-19-desktop.png)
 
 **Verifications:**
 
-- [x] An affordable card cycles the physical market toward the remaining batch
+- [x] Durin's Heir enters the real discard pile as an exact physical card
 - [x] The public Row refills immediately when its deck has cards
 - [x] Every connected browser replays 29 accepted events with no diagnostics
 
@@ -521,15 +521,15 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara acquires Durin's Heir
+## Mara acquires Ranger of the North
 
-![Phone: Mara acquires Durin's Heir](./screenshots/040-acquire-24-phone.png)
+![Phone: Mara acquires Ranger of the North](./screenshots/040-acquire-24-phone.png)
 
-![Desktop: Mara acquires Durin's Heir](./screenshots/040-acquire-24-desktop.png)
+![Desktop: Mara acquires Ranger of the North](./screenshots/040-acquire-24-desktop.png)
 
 **Verifications:**
 
-- [x] Durin's Heir enters the real discard pile as an exact physical card
+- [x] An affordable card cycles the physical market toward the remaining batch
 - [x] The public Row refills immediately when its deck has cards
 - [x] Every connected browser replays 34 accepted events with no diagnostics
 
@@ -652,11 +652,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara selects Delving Expedition
+## Mara selects Voice of Orthanc
 
-![Phone: Mara selects Delving Expedition](./screenshots/050-select-34-phone.png)
+![Phone: Mara selects Voice of Orthanc](./screenshots/050-select-34-phone.png)
 
-![Desktop: Mara selects Delving Expedition](./screenshots/050-select-34-desktop.png)
+![Desktop: Mara selects Voice of Orthanc](./screenshots/050-select-34-desktop.png)
 
 **Verifications:**
 
@@ -664,117 +664,117 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara plays Delving Expedition at its real destination
+## Mara plays Voice of Orthanc at its real destination
 
-![Phone: Mara plays Delving Expedition at its real destination](./screenshots/051-place-35-phone.png)
+![Phone: Mara plays Voice of Orthanc at its real destination](./screenshots/051-place-35-phone.png)
 
-![Desktop: Mara plays Delving Expedition at its real destination](./screenshots/051-place-35-desktop.png)
+![Desktop: Mara plays Voice of Orthanc at its real destination](./screenshots/051-place-35-desktop.png)
 
 **Verifications:**
 
-- [x] Delving Expedition resolves its Journey box and the chosen board space as one authoritative turn
+- [x] Voice of Orthanc resolves its Journey box and the chosen board space as one authoritative turn
 - [x] Every connected browser replays 44 accepted events with no diagnostics
-
----
-
-## Mara takes Mithril at Entwash
-
-![Phone: Mara takes Mithril at Entwash](./screenshots/052-delving-riches-36-phone.png)
-
-![Desktop: Mara takes Mithril at Entwash](./screenshots/052-delving-riches-36-desktop.png)
-
-**Verifications:**
-
-- [x] The paid-space Journey bonus remains and Entwash adds its chosen two Mithril
-- [x] Every connected browser replays 45 accepted events with no diagnostics
-
----
-
-## Mara keeps the expedition out of Battle
-
-![Phone: Mara keeps the expedition out of Battle](./screenshots/053-delving-deploy-37-phone.png)
-
-![Desktop: Mara keeps the expedition out of Battle](./screenshots/053-delving-deploy-37-desktop.png)
-
-**Verifications:**
-
-- [x] The ordered Battle decision closes before turn authority advances
-- [x] Every connected browser replays 46 accepted events with no diagnostics
 
 ---
 
 ## Mara Reveals the real remaining hand
 
-![Phone: Mara Reveals the real remaining hand](./screenshots/054-reveal-38-phone.png)
+![Phone: Mara Reveals the real remaining hand](./screenshots/052-reveal-36-phone.png)
 
-![Desktop: Mara Reveals the real remaining hand](./screenshots/054-reveal-38-desktop.png)
+![Desktop: Mara Reveals the real remaining hand](./screenshots/052-reveal-36-desktop.png)
 
 **Verifications:**
 
 - [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 47 accepted events with no diagnostics
+- [x] Every connected browser replays 45 accepted events with no diagnostics
 
 ---
 
-## Mara acquires Bree-land Guide
+## Mara acquires Ranger of the North
 
-![Phone: Mara acquires Bree-land Guide](./screenshots/055-acquire-39-phone.png)
+![Phone: Mara acquires Ranger of the North](./screenshots/053-acquire-37-phone.png)
 
-![Desktop: Mara acquires Bree-land Guide](./screenshots/055-acquire-39-desktop.png)
+![Desktop: Mara acquires Ranger of the North](./screenshots/053-acquire-37-desktop.png)
 
 **Verifications:**
 
 - [x] An affordable card cycles the physical market toward the remaining batch
 - [x] The public Row refills immediately when its deck has cards
-- [x] Every connected browser replays 48 accepted events with no diagnostics
-
----
-
-## Mara acquires Envoy of Dale
-
-![Phone: Mara acquires Envoy of Dale](./screenshots/056-acquire-40-phone.png)
-
-![Desktop: Mara acquires Envoy of Dale](./screenshots/056-acquire-40-desktop.png)
-
-**Verifications:**
-
-- [x] An affordable card cycles the physical market toward the remaining batch
-- [x] The public Row refills immediately when its deck has cards
-- [x] Every connected browser replays 49 accepted events with no diagnostics
+- [x] Every connected browser replays 46 accepted events with no diagnostics
 
 ---
 
 ## Mara finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/057-finish-41-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/054-finish-38-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/057-finish-41-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/054-finish-38-desktop.png)
 
 **Verifications:**
 
 - [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 50 accepted events with no diagnostics
+- [x] Every connected browser replays 47 accepted events with no diagnostics
 
 ---
 
 ## Pip Reveals the real remaining hand
 
-![Phone: Pip Reveals the real remaining hand](./screenshots/058-reveal-42-phone.png)
+![Phone: Pip Reveals the real remaining hand](./screenshots/055-reveal-39-phone.png)
 
-![Desktop: Pip Reveals the real remaining hand](./screenshots/058-reveal-42-desktop.png)
+![Desktop: Pip Reveals the real remaining hand](./screenshots/055-reveal-39-desktop.png)
 
 **Verifications:**
 
 - [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 51 accepted events with no diagnostics
+- [x] Every connected browser replays 48 accepted events with no diagnostics
 
 ---
 
 ## Pip finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/059-finish-43-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/056-finish-40-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/059-finish-43-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/056-finish-40-desktop.png)
+
+**Verifications:**
+
+- [x] The Muster row closes and canonical authority advances
+- [x] Every connected browser replays 49 accepted events with no diagnostics
+
+---
+
+## Mara Reveals the real remaining hand
+
+![Phone: Mara Reveals the real remaining hand](./screenshots/057-reveal-41-phone.png)
+
+![Desktop: Mara Reveals the real remaining hand](./screenshots/057-reveal-41-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row replaces only the acting human’s private hand
+- [x] Every connected browser replays 50 accepted events with no diagnostics
+
+---
+
+## Mara acquires Steward's Messenger
+
+![Phone: Mara acquires Steward's Messenger](./screenshots/058-acquire-42-phone.png)
+
+![Desktop: Mara acquires Steward's Messenger](./screenshots/058-acquire-42-desktop.png)
+
+**Verifications:**
+
+- [x] Steward's Messenger enters the real discard pile as an exact physical card
+- [x] The public Row refills immediately when its deck has cards
+- [x] Every connected browser replays 51 accepted events with no diagnostics
+
+---
+
+## Mara finishes Reveal
+
+![Phone: Mara finishes Reveal](./screenshots/059-finish-43-phone.png)
+
+![Desktop: Mara finishes Reveal](./screenshots/059-finish-43-desktop.png)
 
 **Verifications:**
 
@@ -783,11 +783,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals the real remaining hand
+## Rin Reveals the real remaining hand
 
-![Phone: Mara Reveals the real remaining hand](./screenshots/060-reveal-44-phone.png)
+![Phone: Rin Reveals the real remaining hand](./screenshots/060-reveal-44-phone.png)
 
-![Desktop: Mara Reveals the real remaining hand](./screenshots/060-reveal-44-desktop.png)
+![Desktop: Rin Reveals the real remaining hand](./screenshots/060-reveal-44-desktop.png)
 
 **Verifications:**
 
@@ -796,38 +796,49 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara acquires Voice of Orthanc
+## Rin finishes Reveal
 
-![Phone: Mara acquires Voice of Orthanc](./screenshots/061-acquire-45-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/061-finish-45-phone.png)
 
-![Desktop: Mara acquires Voice of Orthanc](./screenshots/061-acquire-45-desktop.png)
-
-**Verifications:**
-
-- [x] Voice of Orthanc enters the real discard pile as an exact physical card
-- [x] The public Row refills immediately when its deck has cards
-- [x] Every connected browser replays 54 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal
-
-![Phone: Mara finishes Reveal](./screenshots/062-finish-46-phone.png)
-
-![Desktop: Mara finishes Reveal](./screenshots/062-finish-46-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/061-finish-45-desktop.png)
 
 **Verifications:**
 
 - [x] The Muster row closes and canonical authority advances
+- [x] Every connected browser replays 54 accepted events with no diagnostics
+
+---
+
+## Mara selects Durin's Heir
+
+![Phone: Mara selects Durin's Heir](./screenshots/062-select-46-phone.png)
+
+![Desktop: Mara selects Durin's Heir](./screenshots/062-select-46-desktop.png)
+
+**Verifications:**
+
+- [x] Only destinations matching the card’s final printed placement icons become actionable
+
+---
+
+## Mara plays Durin's Heir at its real destination
+
+![Phone: Mara plays Durin's Heir at its real destination](./screenshots/063-place-47-phone.png)
+
+![Desktop: Mara plays Durin's Heir at its real destination](./screenshots/063-place-47-desktop.png)
+
+**Verifications:**
+
+- [x] Durin's Heir resolves its Journey box and the chosen board space as one authoritative turn
 - [x] Every connected browser replays 55 accepted events with no diagnostics
 
 ---
 
 ## Rin Reveals the real remaining hand
 
-![Phone: Rin Reveals the real remaining hand](./screenshots/063-reveal-47-phone.png)
+![Phone: Rin Reveals the real remaining hand](./screenshots/064-reveal-48-phone.png)
 
-![Desktop: Rin Reveals the real remaining hand](./screenshots/063-reveal-47-desktop.png)
+![Desktop: Rin Reveals the real remaining hand](./screenshots/064-reveal-48-desktop.png)
 
 **Verifications:**
 
@@ -838,9 +849,9 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Rin finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/064-finish-48-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/065-finish-49-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/064-finish-48-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/065-finish-49-desktop.png)
 
 **Verifications:**
 
@@ -849,75 +860,64 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara selects Durin's Heir
-
-![Phone: Mara selects Durin's Heir](./screenshots/065-select-49-phone.png)
-
-![Desktop: Mara selects Durin's Heir](./screenshots/065-select-49-desktop.png)
-
-**Verifications:**
-
-- [x] Only destinations matching the card’s final printed placement icons become actionable
-
----
-
-## Mara plays Durin's Heir at its real destination
-
-![Phone: Mara plays Durin's Heir at its real destination](./screenshots/066-place-50-phone.png)
-
-![Desktop: Mara plays Durin's Heir at its real destination](./screenshots/066-place-50-desktop.png)
-
-**Verifications:**
-
-- [x] Durin's Heir resolves its Journey box and the chosen board space as one authoritative turn
-- [x] Every connected browser replays 58 accepted events with no diagnostics
-
----
-
-## Rin Reveals the real remaining hand
-
-![Phone: Rin Reveals the real remaining hand](./screenshots/067-reveal-51-phone.png)
-
-![Desktop: Rin Reveals the real remaining hand](./screenshots/067-reveal-51-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 59 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/068-finish-52-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/068-finish-52-desktop.png)
-
-**Verifications:**
-
-- [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 60 accepted events with no diagnostics
-
----
-
 ## Pip Reveals the real remaining hand
 
-![Phone: Pip Reveals the real remaining hand](./screenshots/069-reveal-53-phone.png)
+![Phone: Pip Reveals the real remaining hand](./screenshots/066-reveal-50-phone.png)
 
-![Desktop: Pip Reveals the real remaining hand](./screenshots/069-reveal-53-desktop.png)
+![Desktop: Pip Reveals the real remaining hand](./screenshots/066-reveal-50-desktop.png)
 
 **Verifications:**
 
 - [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 61 accepted events with no diagnostics
+- [x] Every connected browser replays 58 accepted events with no diagnostics
 
 ---
 
 ## Pip finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/070-finish-54-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/067-finish-51-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/070-finish-54-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/067-finish-51-desktop.png)
+
+**Verifications:**
+
+- [x] The Muster row closes and canonical authority advances
+- [x] Every connected browser replays 59 accepted events with no diagnostics
+
+---
+
+## Mara Reveals the real remaining hand
+
+![Phone: Mara Reveals the real remaining hand](./screenshots/068-reveal-52-phone.png)
+
+![Desktop: Mara Reveals the real remaining hand](./screenshots/068-reveal-52-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row replaces only the acting human’s private hand
+- [x] Every connected browser replays 60 accepted events with no diagnostics
+
+---
+
+## Mara acquires Bree-land Guide
+
+![Phone: Mara acquires Bree-land Guide](./screenshots/069-acquire-53-phone.png)
+
+![Desktop: Mara acquires Bree-land Guide](./screenshots/069-acquire-53-desktop.png)
+
+**Verifications:**
+
+- [x] An affordable card cycles the physical market toward the remaining batch
+- [x] The public Row refills immediately when its deck has cards
+- [x] Every connected browser replays 61 accepted events with no diagnostics
+
+---
+
+## Mara finishes Reveal
+
+![Phone: Mara finishes Reveal](./screenshots/070-finish-54-phone.png)
+
+![Desktop: Mara finishes Reveal](./screenshots/070-finish-54-desktop.png)
 
 **Verifications:**
 
@@ -926,11 +926,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals the real remaining hand
+## Rin Reveals the real remaining hand
 
-![Phone: Mara Reveals the real remaining hand](./screenshots/071-reveal-55-phone.png)
+![Phone: Rin Reveals the real remaining hand](./screenshots/071-reveal-55-phone.png)
 
-![Desktop: Mara Reveals the real remaining hand](./screenshots/071-reveal-55-desktop.png)
+![Desktop: Rin Reveals the real remaining hand](./screenshots/071-reveal-55-desktop.png)
 
 **Verifications:**
 
@@ -939,11 +939,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal
+## Rin finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/072-finish-56-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/072-finish-56-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/072-finish-56-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/072-finish-56-desktop.png)
 
 **Verifications:**
 
@@ -952,11 +952,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals the real remaining hand
+## Pip Reveals the real remaining hand
 
-![Phone: Rin Reveals the real remaining hand](./screenshots/073-reveal-57-phone.png)
+![Phone: Pip Reveals the real remaining hand](./screenshots/073-reveal-57-phone.png)
 
-![Desktop: Rin Reveals the real remaining hand](./screenshots/073-reveal-57-desktop.png)
+![Desktop: Pip Reveals the real remaining hand](./screenshots/073-reveal-57-desktop.png)
 
 **Verifications:**
 
@@ -965,11 +965,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin finishes Reveal
+## Pip finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/074-finish-58-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/074-finish-58-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/074-finish-58-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/074-finish-58-desktop.png)
 
 **Verifications:**
 
@@ -978,11 +978,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals the real remaining hand
+## Mara Reveals the real remaining hand
 
-![Phone: Pip Reveals the real remaining hand](./screenshots/075-reveal-59-phone.png)
+![Phone: Mara Reveals the real remaining hand](./screenshots/075-reveal-59-phone.png)
 
-![Desktop: Pip Reveals the real remaining hand](./screenshots/075-reveal-59-desktop.png)
+![Desktop: Mara Reveals the real remaining hand](./screenshots/075-reveal-59-desktop.png)
 
 **Verifications:**
 
@@ -991,65 +991,65 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal
+## Mara acquires Elven Foresight
 
-![Phone: Pip finishes Reveal](./screenshots/076-finish-60-phone.png)
+![Phone: Mara acquires Elven Foresight](./screenshots/076-acquire-60-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/076-finish-60-desktop.png)
+![Desktop: Mara acquires Elven Foresight](./screenshots/076-acquire-60-desktop.png)
 
 **Verifications:**
 
-- [x] The Muster row closes and canonical authority advances
+- [x] An affordable card cycles the physical market toward the remaining batch
+- [x] The public Row refills immediately when its deck has cards
 - [x] Every connected browser replays 68 accepted events with no diagnostics
 
 ---
 
-## Mara Reveals the real remaining hand
+## Mara acquires Delving Expedition
 
-![Phone: Mara Reveals the real remaining hand](./screenshots/077-reveal-61-phone.png)
+![Phone: Mara acquires Delving Expedition](./screenshots/077-acquire-61-phone.png)
 
-![Desktop: Mara Reveals the real remaining hand](./screenshots/077-reveal-61-desktop.png)
+![Desktop: Mara acquires Delving Expedition](./screenshots/077-acquire-61-desktop.png)
 
 **Verifications:**
 
-- [x] The public Muster row replaces only the acting human’s private hand
+- [x] Delving Expedition enters the real discard pile as an exact physical card
+- [x] The public Row refills immediately when its deck has cards
 - [x] Every connected browser replays 69 accepted events with no diagnostics
-
----
-
-## Mara acquires Dwarven Smith
-
-![Phone: Mara acquires Dwarven Smith](./screenshots/078-acquire-62-phone.png)
-
-![Desktop: Mara acquires Dwarven Smith](./screenshots/078-acquire-62-desktop.png)
-
-**Verifications:**
-
-- [x] An affordable card cycles the physical market toward the remaining batch
-- [x] The public Row refills immediately when its deck has cards
-- [x] Every connected browser replays 70 accepted events with no diagnostics
-
----
-
-## Mara acquires Messenger Moth
-
-![Phone: Mara acquires Messenger Moth](./screenshots/079-acquire-63-phone.png)
-
-![Desktop: Mara acquires Messenger Moth](./screenshots/079-acquire-63-desktop.png)
-
-**Verifications:**
-
-- [x] An affordable card cycles the physical market toward the remaining batch
-- [x] The public Row refills immediately when its deck has cards
-- [x] Every connected browser replays 71 accepted events with no diagnostics
 
 ---
 
 ## Mara finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/080-finish-64-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/078-finish-62-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/080-finish-64-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/078-finish-62-desktop.png)
+
+**Verifications:**
+
+- [x] The Muster row closes and canonical authority advances
+- [x] Every connected browser replays 70 accepted events with no diagnostics
+
+---
+
+## Pip Reveals the real remaining hand
+
+![Phone: Pip Reveals the real remaining hand](./screenshots/079-reveal-63-phone.png)
+
+![Desktop: Pip Reveals the real remaining hand](./screenshots/079-reveal-63-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row replaces only the acting human’s private hand
+- [x] Every connected browser replays 71 accepted events with no diagnostics
+
+---
+
+## Pip finishes Reveal
+
+![Phone: Pip finishes Reveal](./screenshots/080-finish-64-phone.png)
+
+![Desktop: Pip finishes Reveal](./screenshots/080-finish-64-desktop.png)
 
 **Verifications:**
 
@@ -1058,11 +1058,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals the real remaining hand
+## Mara Reveals the real remaining hand
 
-![Phone: Pip Reveals the real remaining hand](./screenshots/081-reveal-65-phone.png)
+![Phone: Mara Reveals the real remaining hand](./screenshots/081-reveal-65-phone.png)
 
-![Desktop: Pip Reveals the real remaining hand](./screenshots/081-reveal-65-desktop.png)
+![Desktop: Mara Reveals the real remaining hand](./screenshots/081-reveal-65-desktop.png)
 
 **Verifications:**
 
@@ -1071,11 +1071,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal
+## Mara finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/082-finish-66-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/082-finish-66-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/082-finish-66-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/082-finish-66-desktop.png)
 
 **Verifications:**
 
@@ -1084,11 +1084,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals the real remaining hand
+## Rin Reveals the real remaining hand
 
-![Phone: Mara Reveals the real remaining hand](./screenshots/083-reveal-67-phone.png)
+![Phone: Rin Reveals the real remaining hand](./screenshots/083-reveal-67-phone.png)
 
-![Desktop: Mara Reveals the real remaining hand](./screenshots/083-reveal-67-desktop.png)
+![Desktop: Rin Reveals the real remaining hand](./screenshots/083-reveal-67-desktop.png)
 
 **Verifications:**
 
@@ -1097,30 +1097,28 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara acquires Steward's Messenger
+## Rin finishes Reveal
 
-![Phone: Mara acquires Steward's Messenger](./screenshots/084-acquire-68-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/084-finish-68-phone.png)
 
-![Desktop: Mara acquires Steward's Messenger](./screenshots/084-acquire-68-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/084-finish-68-desktop.png)
 
 **Verifications:**
 
-- [x] Steward's Messenger enters the real discard pile as an exact physical card
-- [x] The public Row refills immediately when its deck has cards
+- [x] The Muster row closes and canonical authority advances
 - [x] Every connected browser replays 76 accepted events with no diagnostics
 
 ---
 
-## Mara acquires Ranger of the North
+## Mara Reveals the real remaining hand
 
-![Phone: Mara acquires Ranger of the North](./screenshots/085-acquire-69-phone.png)
+![Phone: Mara Reveals the real remaining hand](./screenshots/085-reveal-69-phone.png)
 
-![Desktop: Mara acquires Ranger of the North](./screenshots/085-acquire-69-desktop.png)
+![Desktop: Mara Reveals the real remaining hand](./screenshots/085-reveal-69-desktop.png)
 
 **Verifications:**
 
-- [x] An affordable card cycles the physical market toward the remaining batch
-- [x] The public Row refills immediately when its deck has cards
+- [x] The public Muster row replaces only the acting human’s private hand
 - [x] Every connected browser replays 77 accepted events with no diagnostics
 
 ---
@@ -1164,11 +1162,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals the real remaining hand
+## Pip Reveals the real remaining hand
 
-![Phone: Mara Reveals the real remaining hand](./screenshots/089-reveal-73-phone.png)
+![Phone: Pip Reveals the real remaining hand](./screenshots/089-reveal-73-phone.png)
 
-![Desktop: Mara Reveals the real remaining hand](./screenshots/089-reveal-73-desktop.png)
+![Desktop: Pip Reveals the real remaining hand](./screenshots/089-reveal-73-desktop.png)
 
 **Verifications:**
 
@@ -1177,11 +1175,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal
+## Pip finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/090-finish-74-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/090-finish-74-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/090-finish-74-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/090-finish-74-desktop.png)
 
 **Verifications:**
 
@@ -1242,192 +1240,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals the real remaining hand
-
-![Phone: Rin Reveals the real remaining hand](./screenshots/095-reveal-79-phone.png)
-
-![Desktop: Rin Reveals the real remaining hand](./screenshots/095-reveal-79-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 87 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/096-finish-80-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/096-finish-80-desktop.png)
-
-**Verifications:**
-
-- [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 88 accepted events with no diagnostics
-
----
-
-## Pip Reveals the real remaining hand
-
-![Phone: Pip Reveals the real remaining hand](./screenshots/097-reveal-81-phone.png)
-
-![Desktop: Pip Reveals the real remaining hand](./screenshots/097-reveal-81-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 89 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal
-
-![Phone: Pip finishes Reveal](./screenshots/098-finish-82-phone.png)
-
-![Desktop: Pip finishes Reveal](./screenshots/098-finish-82-desktop.png)
-
-**Verifications:**
-
-- [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 90 accepted events with no diagnostics
-
----
-
-## Mara selects Voice of Orthanc
-
-![Phone: Mara selects Voice of Orthanc](./screenshots/099-select-83-phone.png)
-
-![Desktop: Mara selects Voice of Orthanc](./screenshots/099-select-83-desktop.png)
-
-**Verifications:**
-
-- [x] Only destinations matching the card’s final printed placement icons become actionable
-
----
-
-## Mara plays Voice of Orthanc at its real destination
-
-![Phone: Mara plays Voice of Orthanc at its real destination](./screenshots/100-place-84-phone.png)
-
-![Desktop: Mara plays Voice of Orthanc at its real destination](./screenshots/100-place-84-desktop.png)
-
-**Verifications:**
-
-- [x] Voice of Orthanc resolves its Journey box and the chosen board space as one authoritative turn
-- [x] Every connected browser replays 91 accepted events with no diagnostics
-
----
-
-## Mara Reveals the real remaining hand
-
-![Phone: Mara Reveals the real remaining hand](./screenshots/101-reveal-85-phone.png)
-
-![Desktop: Mara Reveals the real remaining hand](./screenshots/101-reveal-85-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 92 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal
-
-![Phone: Mara finishes Reveal](./screenshots/102-finish-86-phone.png)
-
-![Desktop: Mara finishes Reveal](./screenshots/102-finish-86-desktop.png)
-
-**Verifications:**
-
-- [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 93 accepted events with no diagnostics
-
----
-
-## Pip Reveals the real remaining hand
-
-![Phone: Pip Reveals the real remaining hand](./screenshots/103-reveal-87-phone.png)
-
-![Desktop: Pip Reveals the real remaining hand](./screenshots/103-reveal-87-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 94 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal
-
-![Phone: Pip finishes Reveal](./screenshots/104-finish-88-phone.png)
-
-![Desktop: Pip finishes Reveal](./screenshots/104-finish-88-desktop.png)
-
-**Verifications:**
-
-- [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 95 accepted events with no diagnostics
-
----
-
-## Mara Reveals the real remaining hand
-
-![Phone: Mara Reveals the real remaining hand](./screenshots/105-reveal-89-phone.png)
-
-![Desktop: Mara Reveals the real remaining hand](./screenshots/105-reveal-89-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 96 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal
-
-![Phone: Mara finishes Reveal](./screenshots/106-finish-90-phone.png)
-
-![Desktop: Mara finishes Reveal](./screenshots/106-finish-90-desktop.png)
-
-**Verifications:**
-
-- [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 97 accepted events with no diagnostics
-
----
-
-## Rin Reveals the real remaining hand
-
-![Phone: Rin Reveals the real remaining hand](./screenshots/107-reveal-91-phone.png)
-
-![Desktop: Rin Reveals the real remaining hand](./screenshots/107-reveal-91-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 98 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/108-finish-92-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/108-finish-92-desktop.png)
-
-**Verifications:**
-
-- [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 99 accepted events with no diagnostics
-
----
-
 ## Mara selects Steward's Messenger
 
-![Phone: Mara selects Steward's Messenger](./screenshots/109-select-93-phone.png)
+![Phone: Mara selects Steward's Messenger](./screenshots/095-select-79-phone.png)
 
-![Desktop: Mara selects Steward's Messenger](./screenshots/109-select-93-desktop.png)
+![Desktop: Mara selects Steward's Messenger](./screenshots/095-select-79-desktop.png)
 
 **Verifications:**
 
@@ -1437,26 +1254,77 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Mara plays Steward's Messenger at its real destination
 
-![Phone: Mara plays Steward's Messenger at its real destination](./screenshots/110-place-94-phone.png)
+![Phone: Mara plays Steward's Messenger at its real destination](./screenshots/096-place-80-phone.png)
 
-![Desktop: Mara plays Steward's Messenger at its real destination](./screenshots/110-place-94-desktop.png)
+![Desktop: Mara plays Steward's Messenger at its real destination](./screenshots/096-place-80-desktop.png)
 
 **Verifications:**
 
 - [x] Steward's Messenger resolves its Journey box and the chosen board space as one authoritative turn
-- [x] Every connected browser replays 100 accepted events with no diagnostics
+- [x] Every connected browser replays 87 accepted events with no diagnostics
+
+---
+
+## Mara selects Delving Expedition
+
+![Phone: Mara selects Delving Expedition](./screenshots/097-select-81-phone.png)
+
+![Desktop: Mara selects Delving Expedition](./screenshots/097-select-81-desktop.png)
+
+**Verifications:**
+
+- [x] Only destinations matching the card’s final printed placement icons become actionable
+
+---
+
+## Mara plays Delving Expedition at its real destination
+
+![Phone: Mara plays Delving Expedition at its real destination](./screenshots/098-place-82-phone.png)
+
+![Desktop: Mara plays Delving Expedition at its real destination](./screenshots/098-place-82-desktop.png)
+
+**Verifications:**
+
+- [x] Delving Expedition resolves its Journey box and the chosen board space as one authoritative turn
+- [x] Every connected browser replays 88 accepted events with no diagnostics
+
+---
+
+## Mara takes Mithril at Entwash
+
+![Phone: Mara takes Mithril at Entwash](./screenshots/099-delving-riches-83-phone.png)
+
+![Desktop: Mara takes Mithril at Entwash](./screenshots/099-delving-riches-83-desktop.png)
+
+**Verifications:**
+
+- [x] The paid-space Journey bonus remains and Entwash adds its chosen two Mithril
+- [x] Every connected browser replays 89 accepted events with no diagnostics
+
+---
+
+## Mara keeps the expedition out of Battle
+
+![Phone: Mara keeps the expedition out of Battle](./screenshots/100-delving-deploy-84-phone.png)
+
+![Desktop: Mara keeps the expedition out of Battle](./screenshots/100-delving-deploy-84-desktop.png)
+
+**Verifications:**
+
+- [x] The ordered Battle decision closes before turn authority advances
+- [x] Every connected browser replays 90 accepted events with no diagnostics
 
 ---
 
 ## Mara reloads the completed economy batch
 
-![Phone: Mara reloads the completed economy batch](./screenshots/111-reload-economy-batch-phone.png)
+![Phone: Mara reloads the completed economy batch](./screenshots/101-reload-economy-batch-phone.png)
 
-![Desktop: Mara reloads the completed economy batch](./screenshots/111-reload-economy-batch-desktop.png)
+![Desktop: Mara reloads the completed economy batch](./screenshots/101-reload-economy-batch-desktop.png)
 
 **Verifications:**
 
 - [x] Replay preserves all four Journey outcomes and the shared event history
-- [x] Every connected browser replays 100 accepted events with no diagnostics
+- [x] Every connected browser replays 90 accepted events with no diagnostics
 
 ---

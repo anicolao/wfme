@@ -426,29 +426,28 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals the real remaining hand
+## Mara selects Goblin Informer
 
-![Phone: Mara Reveals the real remaining hand](./screenshots/033-reveal-17-phone.png)
+![Phone: Mara selects Goblin Informer](./screenshots/033-select-goblin-17-phone.png)
 
-![Desktop: Mara Reveals the real remaining hand](./screenshots/033-reveal-17-desktop.png)
+![Desktop: Mara selects Goblin Informer](./screenshots/033-select-goblin-17-desktop.png)
 
 **Verifications:**
 
-- [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 27 accepted events with no diagnostics
+- [x] Its final Shadow icon enables Tribute to the Shadow
 
 ---
 
-## Mara finishes Reveal
+## Mara plays Goblin Informer at Tribute to the Shadow
 
-![Phone: Mara finishes Reveal](./screenshots/034-finish-18-phone.png)
+![Phone: Mara plays Goblin Informer at Tribute to the Shadow](./screenshots/034-play-goblin-18-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/034-finish-18-desktop.png)
+![Desktop: Mara plays Goblin Informer at Tribute to the Shadow](./screenshots/034-play-goblin-18-desktop.png)
 
 **Verifications:**
 
-- [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 28 accepted events with no diagnostics
+- [x] Goblin Informer adds exactly one Gold on top of Tribute’s two Gold
+- [x] Every connected browser replays 27 accepted events with no diagnostics
 
 ---
 
@@ -461,7 +460,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 29 accepted events with no diagnostics
+- [x] Every connected browser replays 28 accepted events with no diagnostics
 
 ---
 
@@ -474,92 +473,41 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] The Muster row closes and canonical authority advances
+- [x] Every connected browser replays 29 accepted events with no diagnostics
+
+---
+
+## Mara Reveals the real remaining hand
+
+![Phone: Mara Reveals the real remaining hand](./screenshots/037-reveal-21-phone.png)
+
+![Desktop: Mara Reveals the real remaining hand](./screenshots/037-reveal-21-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row replaces only the acting human’s private hand
 - [x] Every connected browser replays 30 accepted events with no diagnostics
 
 ---
 
-## Mara selects Goblin Informer
+## Mara finishes Reveal
 
-![Phone: Mara selects Goblin Informer](./screenshots/037-select-goblin-21-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/038-finish-22-phone.png)
 
-![Desktop: Mara selects Goblin Informer](./screenshots/037-select-goblin-21-desktop.png)
-
-**Verifications:**
-
-- [x] Its final Shadow icon enables Tribute to the Shadow
-
----
-
-## Mara plays Goblin Informer at Tribute to the Shadow
-
-![Phone: Mara plays Goblin Informer at Tribute to the Shadow](./screenshots/038-play-goblin-22-phone.png)
-
-![Desktop: Mara plays Goblin Informer at Tribute to the Shadow](./screenshots/038-play-goblin-22-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/038-finish-22-desktop.png)
 
 **Verifications:**
 
-- [x] Goblin Informer adds exactly one Gold on top of Tribute’s two Gold
+- [x] The Muster row closes and canonical authority advances
 - [x] Every connected browser replays 31 accepted events with no diagnostics
-
----
-
-## Pip Reveals the real remaining hand
-
-![Phone: Pip Reveals the real remaining hand](./screenshots/039-reveal-23-phone.png)
-
-![Desktop: Pip Reveals the real remaining hand](./screenshots/039-reveal-23-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 32 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal
-
-![Phone: Pip finishes Reveal](./screenshots/040-finish-24-phone.png)
-
-![Desktop: Pip finishes Reveal](./screenshots/040-finish-24-desktop.png)
-
-**Verifications:**
-
-- [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 33 accepted events with no diagnostics
-
----
-
-## Rin Reveals the real remaining hand
-
-![Phone: Rin Reveals the real remaining hand](./screenshots/041-reveal-25-phone.png)
-
-![Desktop: Rin Reveals the real remaining hand](./screenshots/041-reveal-25-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 34 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/042-finish-26-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/042-finish-26-desktop.png)
-
-**Verifications:**
-
-- [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 35 accepted events with no diagnostics
 
 ---
 
 ## Mara selects Whispered Rumor
 
-![Phone: Mara selects Whispered Rumor](./screenshots/043-select-rumor-27-phone.png)
+![Phone: Mara selects Whispered Rumor](./screenshots/039-select-rumor-23-phone.png)
 
-![Desktop: Mara selects Whispered Rumor](./screenshots/043-select-rumor-27-desktop.png)
+![Desktop: Mara selects Whispered Rumor](./screenshots/039-select-rumor-23-desktop.png)
 
 **Verifications:**
 
@@ -569,26 +517,78 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Mara plays Whispered Rumor at Hidden Counsel
 
-![Phone: Mara plays Whispered Rumor at Hidden Counsel](./screenshots/044-play-rumor-28-phone.png)
+![Phone: Mara plays Whispered Rumor at Hidden Counsel](./screenshots/040-play-rumor-24-phone.png)
 
-![Desktop: Mara plays Whispered Rumor at Hidden Counsel](./screenshots/044-play-rumor-28-desktop.png)
+![Desktop: Mara plays Whispered Rumor at Hidden Counsel](./screenshots/040-play-rumor-24-desktop.png)
 
 **Verifications:**
 
 - [x] The Elven destination resolves before the exact Journey Scout placement
-- [x] Every connected browser replays 36 accepted events with no diagnostics
+- [x] Every connected browser replays 32 accepted events with no diagnostics
 
 ---
 
 ## Mara places Whispered Rumor's Scout
 
-![Phone: Mara places Whispered Rumor's Scout](./screenshots/045-place-rumor-scout-29-phone.png)
+![Phone: Mara places Whispered Rumor's Scout](./screenshots/041-place-rumor-scout-25-phone.png)
 
-![Desktop: Mara places Whispered Rumor's Scout](./screenshots/045-place-rumor-scout-29-desktop.png)
+![Desktop: Mara places Whispered Rumor's Scout](./screenshots/041-place-rumor-scout-25-desktop.png)
 
 **Verifications:**
 
 - [x] Every browser sees the same finite Scout on the chosen observation post
+- [x] Every connected browser replays 33 accepted events with no diagnostics
+
+---
+
+## Pip Reveals the real remaining hand
+
+![Phone: Pip Reveals the real remaining hand](./screenshots/042-reveal-26-phone.png)
+
+![Desktop: Pip Reveals the real remaining hand](./screenshots/042-reveal-26-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row replaces only the acting human’s private hand
+- [x] Every connected browser replays 34 accepted events with no diagnostics
+
+---
+
+## Pip finishes Reveal
+
+![Phone: Pip finishes Reveal](./screenshots/043-finish-27-phone.png)
+
+![Desktop: Pip finishes Reveal](./screenshots/043-finish-27-desktop.png)
+
+**Verifications:**
+
+- [x] The Muster row closes and canonical authority advances
+- [x] Every connected browser replays 35 accepted events with no diagnostics
+
+---
+
+## Rin Reveals the real remaining hand
+
+![Phone: Rin Reveals the real remaining hand](./screenshots/044-reveal-28-phone.png)
+
+![Desktop: Rin Reveals the real remaining hand](./screenshots/044-reveal-28-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row replaces only the acting human’s private hand
+- [x] Every connected browser replays 36 accepted events with no diagnostics
+
+---
+
+## Rin finishes Reveal
+
+![Phone: Rin finishes Reveal](./screenshots/045-finish-29-phone.png)
+
+![Desktop: Rin finishes Reveal](./screenshots/045-finish-29-desktop.png)
+
+**Verifications:**
+
+- [x] The Muster row closes and canonical authority advances
 - [x] Every connected browser replays 37 accepted events with no diagnostics
 
 ---
@@ -684,67 +684,67 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara leaves Scouts in place for an earlier Goblin Reveal
-
-![Phone: Mara leaves Scouts in place for an earlier Goblin Reveal](./screenshots/053-decline-37-phone.png)
-
-![Desktop: Mara leaves Scouts in place for an earlier Goblin Reveal](./screenshots/053-decline-37-desktop.png)
-
-**Verifications:**
-
-- [x] The optional Muster recall closes without moving a Scout or adding a sword
-- [x] Every connected browser replays 45 accepted events with no diagnostics
-
----
-
 ## Mara finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/054-finish-38-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/053-finish-37-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/054-finish-38-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/053-finish-37-desktop.png)
 
 **Verifications:**
 
 - [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 46 accepted events with no diagnostics
+- [x] Every connected browser replays 45 accepted events with no diagnostics
 
 ---
 
 ## Rin Reveals the real remaining hand
 
-![Phone: Rin Reveals the real remaining hand](./screenshots/055-reveal-39-phone.png)
+![Phone: Rin Reveals the real remaining hand](./screenshots/054-reveal-38-phone.png)
 
-![Desktop: Rin Reveals the real remaining hand](./screenshots/055-reveal-39-desktop.png)
+![Desktop: Rin Reveals the real remaining hand](./screenshots/054-reveal-38-desktop.png)
 
 **Verifications:**
 
 - [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 47 accepted events with no diagnostics
+- [x] Every connected browser replays 46 accepted events with no diagnostics
 
 ---
 
 ## Rin finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/056-finish-40-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/055-finish-39-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/056-finish-40-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/055-finish-39-desktop.png)
 
 **Verifications:**
 
 - [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 48 accepted events with no diagnostics
+- [x] Every connected browser replays 47 accepted events with no diagnostics
 
 ---
 
 ## Mara Reveals the real remaining hand
 
-![Phone: Mara Reveals the real remaining hand](./screenshots/057-reveal-41-phone.png)
+![Phone: Mara Reveals the real remaining hand](./screenshots/056-reveal-40-phone.png)
 
-![Desktop: Mara Reveals the real remaining hand](./screenshots/057-reveal-41-desktop.png)
+![Desktop: Mara Reveals the real remaining hand](./screenshots/056-reveal-40-desktop.png)
 
 **Verifications:**
 
 - [x] The public Muster row replaces only the acting human’s private hand
+- [x] Every connected browser replays 48 accepted events with no diagnostics
+
+---
+
+## Mara leaves Scouts in place for an earlier Goblin Reveal
+
+![Phone: Mara leaves Scouts in place for an earlier Goblin Reveal](./screenshots/057-decline-41-phone.png)
+
+![Desktop: Mara leaves Scouts in place for an earlier Goblin Reveal](./screenshots/057-decline-41-desktop.png)
+
+**Verifications:**
+
+- [x] The optional Muster recall closes without moving a Scout or adding a sword
 - [x] Every connected browser replays 49 accepted events with no diagnostics
 
 ---

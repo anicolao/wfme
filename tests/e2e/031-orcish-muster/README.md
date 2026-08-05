@@ -595,11 +595,63 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
+## Pip Reveals the real remaining hand
+
+![Phone: Pip Reveals the real remaining hand](./screenshots/046-reveal-30-phone.png)
+
+![Desktop: Pip Reveals the real remaining hand](./screenshots/046-reveal-30-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row replaces only the acting human’s private hand
+- [x] Every connected browser replays 40 accepted events with no diagnostics
+
+---
+
+## Pip finishes Reveal
+
+![Phone: Pip finishes Reveal](./screenshots/047-finish-31-phone.png)
+
+![Desktop: Pip finishes Reveal](./screenshots/047-finish-31-desktop.png)
+
+**Verifications:**
+
+- [x] The Muster row closes and canonical authority advances
+- [x] Every connected browser replays 41 accepted events with no diagnostics
+
+---
+
+## Mara Reveals the real remaining hand
+
+![Phone: Mara Reveals the real remaining hand](./screenshots/048-reveal-32-phone.png)
+
+![Desktop: Mara Reveals the real remaining hand](./screenshots/048-reveal-32-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row replaces only the acting human’s private hand
+- [x] Every connected browser replays 42 accepted events with no diagnostics
+
+---
+
+## Mara finishes Reveal
+
+![Phone: Mara finishes Reveal](./screenshots/049-finish-33-phone.png)
+
+![Desktop: Mara finishes Reveal](./screenshots/049-finish-33-desktop.png)
+
+**Verifications:**
+
+- [x] The Muster row closes and canonical authority advances
+- [x] Every connected browser replays 43 accepted events with no diagnostics
+
+---
+
 ## Pip selects Orcish Muster
 
-![Phone: Pip selects Orcish Muster](./screenshots/046-select-30-phone.png)
+![Phone: Pip selects Orcish Muster](./screenshots/050-select-34-phone.png)
 
-![Desktop: Pip selects Orcish Muster](./screenshots/046-select-30-desktop.png)
+![Desktop: Pip selects Orcish Muster](./screenshots/050-select-34-desktop.png)
 
 **Verifications:**
 
@@ -609,39 +661,39 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Pip plays Orcish Muster at Tribute to the Shadow
 
-![Phone: Pip plays Orcish Muster at Tribute to the Shadow](./screenshots/047-place-31-phone.png)
+![Phone: Pip plays Orcish Muster at Tribute to the Shadow](./screenshots/051-place-35-phone.png)
 
-![Desktop: Pip plays Orcish Muster at Tribute to the Shadow](./screenshots/047-place-31-desktop.png)
+![Desktop: Pip plays Orcish Muster at Tribute to the Shadow](./screenshots/051-place-35-desktop.png)
 
 **Verifications:**
 
 - [x] Two finite Companies recruit and the destination resolves before the mandatory standing loss
-- [x] Every connected browser replays 40 accepted events with no diagnostics
+- [x] Every connected browser replays 44 accepted events with no diagnostics
 
 ---
 
 ## Pip pays Orcish Muster's standing price
 
-![Phone: Pip pays Orcish Muster's standing price](./screenshots/048-lose-standing-32-phone.png)
+![Phone: Pip pays Orcish Muster's standing price](./screenshots/052-lose-standing-36-phone.png)
 
-![Desktop: Pip pays Orcish Muster's standing price](./screenshots/048-lose-standing-32-desktop.png)
+![Desktop: Pip pays Orcish Muster's standing price](./screenshots/052-lose-standing-36-desktop.png)
 
 **Verifications:**
 
 - [x] Exactly the standing gained at Tribute is lost and the Agent turn advances
-- [x] Every connected browser replays 41 accepted events with no diagnostics
+- [x] Every connected browser replays 45 accepted events with no diagnostics
 
 ---
 
 ## Pip reloads the Orcish Muster outcome
 
-![Phone: Pip reloads the Orcish Muster outcome](./screenshots/049-reload-orcish-muster-phone.png)
+![Phone: Pip reloads the Orcish Muster outcome](./screenshots/053-reload-orcish-muster-phone.png)
 
-![Desktop: Pip reloads the Orcish Muster outcome](./screenshots/049-reload-orcish-muster-desktop.png)
+![Desktop: Pip reloads the Orcish Muster outcome](./screenshots/053-reload-orcish-muster-desktop.png)
 
 **Verifications:**
 
 - [x] Replay preserves the recruitment, standing loss, destination, and turn authority
-- [x] Every connected browser replays 41 accepted events with no diagnostics
+- [x] Every connected browser replays 45 accepted events with no diagnostics
 
 ---

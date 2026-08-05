@@ -6,7 +6,7 @@ import { TestStepHelper } from '../helpers/test-step-helper';
 test('Orcish Muster is acquired, Revealed, and played with its standing price', async ({ browser, page }, testInfo) => {
   test.setTimeout(900_000);
   const steps = new TestStepHelper(testInfo);
-  const table = await startPlotTable(browser, page, testInfo, steps, 'chronicle-orcish-muster-9', { phone: 'ORCMP', desktop: 'ORCMD' });
+  const table = await startPlotTable(browser, page, testInfo, steps, 'chronicle-orcish-muster-58', { phone: 'ORCMP', desktop: 'ORCMD' });
   const { seats, accepted, converged, currentSeat, row } = table;
   let acquired = false;
   let mustered = false;
