@@ -71,9 +71,9 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'keeper-oaths')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'the-long-game')).toHaveLength(2);
     expect(first.match!.chronicleRow).toHaveLength(5);
-    expect(first.match!.chronicleDeck).toHaveLength(29);
+    expect(first.match!.chronicleDeck).toHaveLength(31);
     const chronicleInstances = [...first.match!.chronicleRow, ...first.match!.chronicleDeck];
-    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(34);
+    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(36);
     for (const definition of CHRONICLE_CARD_DEFINITIONS) {
       expect(chronicleInstances.filter((card) => card.definitionId === definition.id)).toHaveLength(2);
     }
@@ -666,7 +666,7 @@ describe('integrated Agent placement replay', () => {
       expect(state.diagnostics).toEqual([]);
       expect(state.match!.players[actor].revealInfluence).toBe(influenceBefore - definition.cost);
       expect(state.match!.players[actor].discardPile).toContainEqual(offered);
-      expect(state.match!.chronicleDeck).toHaveLength(28);
+      expect(state.match!.chronicleDeck).toHaveLength(30);
       expect(state.match!.chronicleRow).toHaveLength(5);
       expect(state.match!.chronicleRow).toContainEqual(refill);
 
@@ -948,6 +948,30 @@ describe('integrated Agent placement replay', () => {
     expect(afterInformer.diagnostics).toEqual([]);
     expect(afterInformer.match!.players[informer.actor].resources.gold).toBe(informerGold + 3);
 
+    const orcish = reachAcquiredCard('orcish-muster');
+    const orcishPlayer = orcish.before.match!.players[orcish.actor];
+    const orcishGarrison = orcishPlayer.companies.garrison;
+    const orcishSupply = orcishPlayer.companies.supply;
+    const orcishShadow = orcishPlayer.standing.shadow;
+    orcish.append(orcish.actor, 'agent/placed', { cardInstanceId: orcish.acquired.id, spaceId: 'tribute-shadow' });
+    let afterOrcish = reduceGame(orcish.stream);
+    expect(afterOrcish.diagnostics).toEqual([]);
+    expect(afterOrcish.match!.players[orcish.actor].companies.garrison).toBe(orcishGarrison + Math.min(2, orcishSupply));
+    expect(afterOrcish.match!.pendingChoice).toMatchObject({
+      kind: 'chronicle-standing-loss', actorUid: orcish.actor
+    });
+    const orcishBeforeIllegal = afterOrcish.match!.players[orcish.actor];
+    orcish.append(orcish.actor, 'choice/resolved', { choice: 'lose-standing-not-a-faction' });
+    const rejectedOrcish = reduceGame(orcish.stream);
+    expect(rejectedOrcish.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(rejectedOrcish.match!.players[orcish.actor].standing).toEqual(orcishBeforeIllegal.standing);
+    orcish.stream.pop();
+    orcish.append(orcish.actor, 'choice/resolved', { choice: 'lose-standing-shadow' });
+    afterOrcish = reduceGame(orcish.stream);
+    expect(afterOrcish.diagnostics).toEqual([]);
+    expect(afterOrcish.match!.players[orcish.actor].standing.shadow).toBe(orcishShadow);
+    expect(afterOrcish.match!.pendingChoice).toBeNull();
+
     const informerMuster = reachAcquiredCard('goblin-informer', 0, true);
     const informerScout = reduceGame(informerMuster.stream);
     expect(informerScout.match!.boardScouts['old-south-road']).toBe(informerMuster.actor);
@@ -970,13 +994,17 @@ describe('integrated Agent placement replay', () => {
 
     const rumorMuster = reachAcquiredCard('whispered-rumor', 0, true);
     const rumorBeforeRecall = reduceGame(rumorMuster.stream);
+    const connectedRoadSpaces = ['take-war-effort', 'osgiliath', 'edoras'];
     const recallCard = rumorBeforeRecall.match!.players[rumorMuster.actor].hand.find((card) =>
-      card.id !== rumorMuster.acquired.id && legalAgentSpaces(rumorBeforeRecall, rumorMuster.actor, card.id).includes('take-war-effort')
+      card.id !== rumorMuster.acquired.id && legalAgentSpaces(rumorBeforeRecall, rumorMuster.actor, card.id)
+        .some((spaceId) => connectedRoadSpaces.includes(spaceId))
     );
-    expect(recallCard, 'the deterministic Rumor proof must retain a Roads card').toBeDefined();
+    expect(recallCard, 'the deterministic Rumor proof must retain a card connected to its Scout').toBeDefined();
+    const recallSpace = legalAgentSpaces(rumorBeforeRecall, rumorMuster.actor, recallCard!.id)
+      .find((spaceId) => connectedRoadSpaces.includes(spaceId))!;
     rumorMuster.append(rumorMuster.actor, 'agent/placed', {
       cardInstanceId: recallCard!.id,
-      spaceId: 'take-war-effort'
+      spaceId: recallSpace
     });
     const rumorGather = reduceGame(rumorMuster.stream);
     expect(rumorGather.match!.pendingChoice).toMatchObject({
@@ -986,6 +1014,17 @@ describe('integrated Agent placement replay', () => {
     });
     rumorMuster.append(rumorMuster.actor, 'choice/resolved', { choice: 'recall:old-south-road' });
     let rumorRecalled = reduceGame(rumorMuster.stream);
+    while (rumorRecalled.match!.pendingChoice?.actorUid === rumorMuster.actor) {
+      const pending = rumorRecalled.match!.pendingChoice;
+      const continuation = pending.kind === 'osgiliath'
+        ? 'pay-0-mithril'
+        : pending.kind === 'battle-deployment'
+          ? 'deploy:0'
+          : null;
+      if (!continuation) break;
+      rumorMuster.append(rumorMuster.actor, 'choice/resolved', { choice: continuation });
+      rumorRecalled = reduceGame(rumorMuster.stream);
+    }
     while (currentPlayerUid(rumorRecalled) !== rumorMuster.actor) {
       const current = currentPlayerUid(rumorRecalled)!;
       rumorMuster.append(current, 'turn/revealed', {});
@@ -1013,7 +1052,8 @@ describe('integrated Agent placement replay', () => {
       'lore-imladris': { influence: 2, swords: 0 },
       'grey-pilgrim': { influence: 4, swords: 1 },
       'whispered-rumor': { influence: 1, swords: 0 },
-      'goblin-informer': { influence: 0, swords: 1 }
+      'goblin-informer': { influence: 0, swords: 1 },
+      'orcish-muster': { influence: 0, swords: 2 }
     } as const;
     for (const [definitionId, printed] of Object.entries(economyMuster)) {
       expect(MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === definitionId)?.muster).toEqual(printed);
@@ -2173,7 +2213,7 @@ describe('integrated Agent placement replay', () => {
     const rowBefore = [...state.match!.chronicleRow];
     const deckBefore = [...state.match!.chronicleDeck];
     const affordable = (definitionId: string) => CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!.cost <= 3;
-    expect(deckBefore).toHaveLength(29);
+    expect(deckBefore).toHaveLength(31);
     append(actor, 'fate/played', { cardInstanceId: fate.id });
     const awaitingChoice = reduceGame(stream);
     expect(awaitingChoice.match!.pendingChoice).toEqual({

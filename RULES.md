@@ -141,7 +141,7 @@ Influence is not a token and cannot be saved. Unspent Influence disappears when 
 
 The four factions are Shadow Hosts, Dwarven Holds, Elven Realms, and Wild Kindreds. Each has a standing track from 0 to 6.
 
-Whenever you gain standing, move your marker up one. Whenever you lose it, move down one, never below 0 or above 6.
+Whenever you gain standing, move your marker up one. Whenever you lose it, move down one, never below 0 or above 6. Resolve threshold Renown and Alliance ownership immediately after either movement. If an Alliance holder loses standing and more than one opponent is now tied above the holder, transfer to the earliest of those tied opponents in player order.
 
 ### Standing 2: respect
 

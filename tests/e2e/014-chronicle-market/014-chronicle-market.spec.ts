@@ -13,7 +13,7 @@ test('a human buys from the public Chronicle Row, refills it, reshuffles, and pl
     const buyer = await currentSeat();
     for (const observer of seats) {
       await expect(observer.page.getByTestId('chronicle-row').getByRole('button')).toHaveCount(5);
-      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 29');
+      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 31');
       await expect(observer.page.getByTestId('chronicle-row').getByRole('button', { name: /^Rider of Rohan/ }).first()).toBeDisabled();
     }
 

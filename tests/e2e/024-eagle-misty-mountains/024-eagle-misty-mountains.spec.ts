@@ -54,7 +54,7 @@ test('Eagle of the Misty Mountains is acquired, drawn, and played at a Battle', 
     const buyer = await currentSeat();
     for (const observer of seats) {
       await expect(observer.page.getByTestId('chronicle-row').getByRole('button')).toHaveCount(5);
-      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 29');
+      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 31');
     }
 
     let eagle: Locator | null = null;

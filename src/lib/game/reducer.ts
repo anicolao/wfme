@@ -34,6 +34,7 @@ export type FateInstance = { id: string; definitionId: string };
 
 type PaidChronicleId = 'dwarven-smith' | 'uruk-hai-captain' | 'envoy-dale';
 type HandcraftChronicleId = 'ranger-north' | 'lore-imladris' | 'grey-pilgrim';
+type FactionId = 'shadow' | 'dwarven' | 'elven' | 'wild';
 
 export type MatchPlayer = {
   uid: string;
@@ -119,6 +120,7 @@ export type MatchState = {
     definitionId: HandcraftChronicleId;
     cardInstanceIds: string[];
   } | null;
+  queuedChronicleStandingLoss: { actorUid: string } | null;
   queuedBattleDeployment: { actorUid: string; spaceId: string } | null;
   pendingBattleRewardChoices: Array<{ kind: 'standing' | 'place-scout' | 'fate-keep-one'; actorUid: string }>;
   pendingChoice: null | {
@@ -139,6 +141,10 @@ export type MatchState = {
     remainingCardInstanceIds: readonly string[];
     postIds: readonly string[];
     options: readonly string[];
+  } | {
+    kind: 'chronicle-standing-loss';
+    actorUid: string;
+    options: readonly `lose-standing-${FactionId}`[];
   } | {
     kind: 'critical-defense';
     actorUid: string;
@@ -434,6 +440,7 @@ function createMatch(state: GameState, seed: string): MatchState {
     damBreached: false,
     queuedChroniclePayment: null,
     queuedChronicleCardChoice: null,
+    queuedChronicleStandingLoss: null,
     queuedBattleDeployment: null,
     pendingBattleRewardChoices: [],
     pendingChoice: null,
@@ -753,6 +760,20 @@ function openGoblinMusterChoice(
   return true;
 }
 
+function openChronicleStandingLoss(match: MatchState, actorUid: string): boolean {
+  const player = match.players[actorUid];
+  const factions: readonly FactionId[] = ['shadow', 'dwarven', 'elven', 'wild'];
+  const options = factions
+    .filter((faction) => player.standing[faction] > 0)
+    .map((faction) => `lose-standing-${faction}` as const);
+  if (options.length === 0) {
+    match.activity.push(`${cardName('orcish-muster')} cannot reduce standing already at zero.`);
+    return false;
+  }
+  match.pendingChoice = { kind: 'chronicle-standing-loss', actorUid, options };
+  return true;
+}
+
 function finishAgentAction(match: MatchState, actorUid: string): void {
   const queuedCardChoice = match.queuedChronicleCardChoice;
   if (queuedCardChoice?.actorUid === actorUid) {
@@ -764,6 +785,11 @@ function finishAgentAction(match: MatchState, actorUid: string): void {
     match.queuedChroniclePayment = null;
     openChroniclePayment(match, actorUid, queuedPayment.definitionId);
     return;
+  }
+  const queuedStandingLoss = match.queuedChronicleStandingLoss;
+  if (queuedStandingLoss?.actorUid === actorUid) {
+    match.queuedChronicleStandingLoss = null;
+    if (openChronicleStandingLoss(match, actorUid)) return;
   }
   const queued = match.queuedBattleDeployment;
   if (queued?.actorUid === actorUid) {
@@ -1005,6 +1031,23 @@ function gainStanding(
   }
 }
 
+function loseStanding(match: MatchState, player: MatchPlayer, faction: FactionId): void {
+  const before = player.standing[faction];
+  const after = Math.max(0, before - 1);
+  player.standing[faction] = after;
+  if (before >= 2 && after < 2) player.renown -= 1;
+
+  const holder = match.alliances[faction];
+  if (holder !== player.uid) return;
+  const successor = match.playerOrder
+    .filter((uid) => uid !== player.uid && match.players[uid].standing[faction] > after)
+    .sort((left, right) => match.players[right].standing[faction] - match.players[left].standing[faction])[0];
+  if (!successor) return;
+  player.renown -= 1;
+  match.alliances[faction] = successor;
+  match.players[successor].renown += 1;
+}
+
 function beginSecretBargainRecall(match: MatchState, actorUid: string): void {
   const spaceIds = Object.entries(match.boardAgents)
     .filter(([spaceId, occupations]) =>
@@ -1073,6 +1116,9 @@ function resolveAgentEffects(
   }
   if (cardDefinition.journeyEffect?.kind === 'gain-gold-optional-pay-standing') {
     player.resources.gold += cardDefinition.journeyEffect.gainGold;
+  }
+  if (cardDefinition.journeyEffect?.kind === 'recruit-lose-standing') {
+    recruitCompanies(player, cardDefinition.journeyEffect.recruit);
   }
   if (
     cardDefinition.journeyEffect?.kind === 'draw-discard-card' ||
@@ -1259,6 +1305,10 @@ function resolveAgentEffects(
     const definitionId = cardDefinition.id as PaidChronicleId;
     if (match.pendingChoice) match.queuedChroniclePayment = { actorUid, definitionId };
     else openChroniclePayment(match, actorUid, definitionId);
+  }
+  if (cardDefinition.journeyEffect?.kind === 'recruit-lose-standing') {
+    if (match.pendingChoice) match.queuedChronicleStandingLoss = { actorUid };
+    else openChronicleStandingLoss(match, actorUid);
   }
   if (cardDefinition.journeyEffect?.kind === 'optional-trash-self' && !match.pendingChoice) {
     match.pendingChoice = {
@@ -1569,6 +1619,19 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         state.match.activity.push(`${actor.displayName} keeps every card offered by ${cardName(pending.definitionId)}.`);
       }
       state.match.pendingChoice = null;
+      finishAgentAction(state.match, event.actorUid);
+      return null;
+    }
+    if (pending.kind === 'chronicle-standing-loss') {
+      const faction = choice.slice('lose-standing-'.length) as FactionId;
+      if (!(['shadow', 'dwarven', 'elven', 'wild'] as const).includes(faction)) {
+        return 'illegal choice resolution';
+      }
+      const before = player.standing[faction];
+      if (before < 1) return 'illegal choice resolution';
+      loseStanding(state.match, player, faction);
+      state.match.pendingChoice = null;
+      state.match.activity.push(`${actor.displayName} loses 1 ${faction} standing to complete Orcish Muster.`);
       finishAgentAction(state.match, event.actorUid);
       return null;
     }
