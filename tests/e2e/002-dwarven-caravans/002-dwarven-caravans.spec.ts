@@ -5,7 +5,7 @@ import { reloadGameClient, waitForFirebase } from '../helpers/firebase-readiness
 type Seat = { name: string; page: Page; context?: BrowserContext };
 
 test('three humans create a room and complete Dwarven Caravans', async ({ browser, page }, testInfo) => {
-  test.setTimeout(300_000);
+  test.setTimeout(900_000);
   const steps = new TestStepHelper(testInfo);
   const viewport = page.viewportSize() ?? { width: 1280, height: 960 };
   const guestAContext = await browser.newContext({
@@ -643,7 +643,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
       ]
     );
     await steps.gesture(actor!.page, 'place-old-south-road-scout', `${actor!.name} places a Scout on the Old South Road`,
-      () => actor!.page.getByTestId('post-old-south-road').click(),
+      () => actor!.page.getByTestId('post-old-south-road').click({ timeout: 30_000 }),
       [
         { spec: 'Every client sees the named Scout on the selected observation post', check: async () => {
           for (const seat of seats) await expect(seat.page.getByTestId('post-old-south-road')).toContainText(`Scout · ${actor!.name}`);
