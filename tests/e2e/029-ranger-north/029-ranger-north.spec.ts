@@ -6,7 +6,7 @@ import { TestStepHelper } from '../helpers/test-step-helper';
 test('Ranger of the North is acquired, drawn, and completes its mandatory private discard', async ({ browser, page }, testInfo) => {
   test.setTimeout(600_000);
   const steps = new TestStepHelper(testInfo);
-  const table = await startPlotTable(browser, page, testInfo, steps, 'chronicle-ranger-north-14', { phone: 'RANGP', desktop: 'RANGD' });
+  const table = await startPlotTable(browser, page, testInfo, steps, 'chronicle-ranger-north-2', { phone: 'RANGP', desktop: 'RANGD' });
   const { seats, accepted, converged, currentSeat, row } = table;
   let acquired = false;
   let played = false;

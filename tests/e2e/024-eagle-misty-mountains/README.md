@@ -231,233 +231,207 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara acquires Rider of Rohan to cycle the physical market
-
-![Phone: Mara acquires Rider of Rohan to cycle the physical market](./screenshots/018-cycle-market-2-phone.png)
-
-![Desktop: Mara acquires Rider of Rohan to cycle the physical market](./screenshots/018-cycle-market-2-desktop.png)
-
-**Verifications:**
-
-- [x] The legal purchase refills the same public Row position
-- [x] Every connected browser replays 12 accepted events with no diagnostics
-
----
-
-## Mara acquires Dwarven Smith to cycle the physical market
-
-![Phone: Mara acquires Dwarven Smith to cycle the physical market](./screenshots/019-cycle-market-3-phone.png)
-
-![Desktop: Mara acquires Dwarven Smith to cycle the physical market](./screenshots/019-cycle-market-3-desktop.png)
-
-**Verifications:**
-
-- [x] The legal purchase refills the same public Row position
-- [x] Every connected browser replays 13 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal
-
-![Phone: Mara finishes Reveal](./screenshots/020-finish-4-phone.png)
-
-![Desktop: Mara finishes Reveal](./screenshots/020-finish-4-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row closes and ordinary authority advances
-- [x] Every connected browser replays 14 accepted events with no diagnostics
-
----
-
-## Rin Reveals while the Eagle travels through the deck
-
-![Phone: Rin Reveals while the Eagle travels through the deck](./screenshots/021-reveal-5-phone.png)
-
-![Desktop: Rin Reveals while the Eagle travels through the deck](./screenshots/021-reveal-5-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 15 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/022-finish-6-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/022-finish-6-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row closes and ordinary authority advances
-- [x] Every connected browser replays 16 accepted events with no diagnostics
-
----
-
-## Pip Reveals while the Eagle travels through the deck
-
-![Phone: Pip Reveals while the Eagle travels through the deck](./screenshots/023-reveal-7-phone.png)
-
-![Desktop: Pip Reveals while the Eagle travels through the deck](./screenshots/023-reveal-7-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 17 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal
-
-![Phone: Pip finishes Reveal](./screenshots/024-finish-8-phone.png)
-
-![Desktop: Pip finishes Reveal](./screenshots/024-finish-8-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row closes and ordinary authority advances
-- [x] Every connected browser replays 18 accepted events with no diagnostics
-
----
-
-## Rin Reveals while the Eagle travels through the deck
-
-![Phone: Rin Reveals while the Eagle travels through the deck](./screenshots/025-reveal-9-phone.png)
-
-![Desktop: Rin Reveals while the Eagle travels through the deck](./screenshots/025-reveal-9-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 19 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/026-finish-10-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/026-finish-10-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row closes and ordinary authority advances
-- [x] Every connected browser replays 20 accepted events with no diagnostics
-
----
-
-## Pip Reveals while the Eagle travels through the deck
-
-![Phone: Pip Reveals while the Eagle travels through the deck](./screenshots/027-reveal-11-phone.png)
-
-![Desktop: Pip Reveals while the Eagle travels through the deck](./screenshots/027-reveal-11-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 21 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal
-
-![Phone: Pip finishes Reveal](./screenshots/028-finish-12-phone.png)
-
-![Desktop: Pip finishes Reveal](./screenshots/028-finish-12-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row closes and ordinary authority advances
-- [x] Every connected browser replays 22 accepted events with no diagnostics
-
----
-
-## Mara Reveals while the Eagle travels through the deck
-
-![Phone: Mara Reveals while the Eagle travels through the deck](./screenshots/029-reveal-13-phone.png)
-
-![Desktop: Mara Reveals while the Eagle travels through the deck](./screenshots/029-reveal-13-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 23 accepted events with no diagnostics
-
----
-
 ## Mara buys Eagle of the Misty Mountains
 
-![Phone: Mara buys Eagle of the Misty Mountains](./screenshots/030-buy-eagle-phone.png)
+![Phone: Mara buys Eagle of the Misty Mountains](./screenshots/018-buy-eagle-phone.png)
 
-![Desktop: Mara buys Eagle of the Misty Mountains](./screenshots/030-buy-eagle-desktop.png)
+![Desktop: Mara buys Eagle of the Misty Mountains](./screenshots/018-buy-eagle-desktop.png)
 
 **Verifications:**
 
 - [x] The five-cost physical card enters discard and consumes exactly five Influence
 - [x] Every browser sees the immediate positional refill and exact physical deck decrement
-- [x] Every connected browser replays 24 accepted events with no diagnostics
+- [x] Every connected browser replays 12 accepted events with no diagnostics
 
 ---
 
 ## Mara reloads the acquired Eagle
 
-![Phone: Mara reloads the acquired Eagle](./screenshots/031-reload-eagle-market-phone.png)
+![Phone: Mara reloads the acquired Eagle](./screenshots/019-reload-eagle-market-phone.png)
 
-![Desktop: Mara reloads the acquired Eagle](./screenshots/031-reload-eagle-market-desktop.png)
+![Desktop: Mara reloads the acquired Eagle](./screenshots/019-reload-eagle-market-desktop.png)
 
 **Verifications:**
 
 - [x] Replay preserves the spent Influence, acquired discard, and exact refill
-- [x] Every connected browser replays 24 accepted events with no diagnostics
+- [x] Every connected browser replays 12 accepted events with no diagnostics
 
 ---
 
 ## Mara finishes the Eagle purchase
 
-![Phone: Mara finishes the Eagle purchase](./screenshots/032-finish-eagle-purchase-phone.png)
+![Phone: Mara finishes the Eagle purchase](./screenshots/020-finish-eagle-purchase-phone.png)
 
-![Desktop: Mara finishes the Eagle purchase](./screenshots/032-finish-eagle-purchase-desktop.png)
+![Desktop: Mara finishes the Eagle purchase](./screenshots/020-finish-eagle-purchase-desktop.png)
 
 **Verifications:**
 
 - [x] The acquired card joins the discarded Muster hand before Recall
-- [x] Every connected browser replays 25 accepted events with no diagnostics
+- [x] Every connected browser replays 13 accepted events with no diagnostics
+
+---
+
+## Rin Reveals while the Eagle travels through the deck
+
+![Phone: Rin Reveals while the Eagle travels through the deck](./screenshots/021-reveal-2-phone.png)
+
+![Desktop: Rin Reveals while the Eagle travels through the deck](./screenshots/021-reveal-2-desktop.png)
+
+**Verifications:**
+
+- [x] The acting human exposes a real Muster row
+- [x] Every connected browser replays 14 accepted events with no diagnostics
+
+---
+
+## Rin finishes Reveal
+
+![Phone: Rin finishes Reveal](./screenshots/022-finish-3-phone.png)
+
+![Desktop: Rin finishes Reveal](./screenshots/022-finish-3-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row closes and ordinary authority advances
+- [x] Every connected browser replays 15 accepted events with no diagnostics
 
 ---
 
 ## Pip Reveals while the Eagle travels through the deck
 
-![Phone: Pip Reveals while the Eagle travels through the deck](./screenshots/033-reveal-14-phone.png)
+![Phone: Pip Reveals while the Eagle travels through the deck](./screenshots/023-reveal-4-phone.png)
 
-![Desktop: Pip Reveals while the Eagle travels through the deck](./screenshots/033-reveal-14-desktop.png)
+![Desktop: Pip Reveals while the Eagle travels through the deck](./screenshots/023-reveal-4-desktop.png)
 
 **Verifications:**
 
 - [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 26 accepted events with no diagnostics
+- [x] Every connected browser replays 16 accepted events with no diagnostics
 
 ---
 
 ## Pip finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/034-finish-15-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/024-finish-5-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/034-finish-15-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/024-finish-5-desktop.png)
 
 **Verifications:**
 
 - [x] The public Muster row closes and ordinary authority advances
-- [x] Every connected browser replays 27 accepted events with no diagnostics
+- [x] Every connected browser replays 17 accepted events with no diagnostics
+
+---
+
+## Rin Reveals while the Eagle travels through the deck
+
+![Phone: Rin Reveals while the Eagle travels through the deck](./screenshots/025-reveal-6-phone.png)
+
+![Desktop: Rin Reveals while the Eagle travels through the deck](./screenshots/025-reveal-6-desktop.png)
+
+**Verifications:**
+
+- [x] The acting human exposes a real Muster row
+- [x] Every connected browser replays 18 accepted events with no diagnostics
+
+---
+
+## Rin finishes Reveal
+
+![Phone: Rin finishes Reveal](./screenshots/026-finish-7-phone.png)
+
+![Desktop: Rin finishes Reveal](./screenshots/026-finish-7-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row closes and ordinary authority advances
+- [x] Every connected browser replays 19 accepted events with no diagnostics
+
+---
+
+## Pip Reveals while the Eagle travels through the deck
+
+![Phone: Pip Reveals while the Eagle travels through the deck](./screenshots/027-reveal-8-phone.png)
+
+![Desktop: Pip Reveals while the Eagle travels through the deck](./screenshots/027-reveal-8-desktop.png)
+
+**Verifications:**
+
+- [x] The acting human exposes a real Muster row
+- [x] Every connected browser replays 20 accepted events with no diagnostics
+
+---
+
+## Pip finishes Reveal
+
+![Phone: Pip finishes Reveal](./screenshots/028-finish-9-phone.png)
+
+![Desktop: Pip finishes Reveal](./screenshots/028-finish-9-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row closes and ordinary authority advances
+- [x] Every connected browser replays 21 accepted events with no diagnostics
+
+---
+
+## Mara Reveals while the Eagle travels through the deck
+
+![Phone: Mara Reveals while the Eagle travels through the deck](./screenshots/029-reveal-10-phone.png)
+
+![Desktop: Mara Reveals while the Eagle travels through the deck](./screenshots/029-reveal-10-desktop.png)
+
+**Verifications:**
+
+- [x] The acting human exposes a real Muster row
+- [x] Every connected browser replays 22 accepted events with no diagnostics
+
+---
+
+## Mara finishes Reveal
+
+![Phone: Mara finishes Reveal](./screenshots/030-finish-11-phone.png)
+
+![Desktop: Mara finishes Reveal](./screenshots/030-finish-11-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row closes and ordinary authority advances
+- [x] Every connected browser replays 23 accepted events with no diagnostics
+
+---
+
+## Pip Reveals while the Eagle travels through the deck
+
+![Phone: Pip Reveals while the Eagle travels through the deck](./screenshots/031-reveal-12-phone.png)
+
+![Desktop: Pip Reveals while the Eagle travels through the deck](./screenshots/031-reveal-12-desktop.png)
+
+**Verifications:**
+
+- [x] The acting human exposes a real Muster row
+- [x] Every connected browser replays 24 accepted events with no diagnostics
+
+---
+
+## Pip finishes Reveal
+
+![Phone: Pip finishes Reveal](./screenshots/032-finish-13-phone.png)
+
+![Desktop: Pip finishes Reveal](./screenshots/032-finish-13-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row closes and ordinary authority advances
+- [x] Every connected browser replays 25 accepted events with no diagnostics
 
 ---
 
 ## Mara selects Eagle of the Misty Mountains
 
-![Phone: Mara selects Eagle of the Misty Mountains](./screenshots/035-select-eagle-phone.png)
+![Phone: Mara selects Eagle of the Misty Mountains](./screenshots/033-select-eagle-phone.png)
 
-![Desktop: Mara selects Eagle of the Misty Mountains](./screenshots/035-select-eagle-desktop.png)
+![Desktop: Mara selects Eagle of the Misty Mountains](./screenshots/033-select-eagle-desktop.png)
 
 **Verifications:**
 
@@ -467,41 +441,41 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Mara flies to the Battle at Minas Tirith
 
-![Phone: Mara flies to the Battle at Minas Tirith](./screenshots/036-fly-to-minas-tirith-phone.png)
+![Phone: Mara flies to the Battle at Minas Tirith](./screenshots/034-fly-to-minas-tirith-phone.png)
 
-![Desktop: Mara flies to the Battle at Minas Tirith](./screenshots/036-fly-to-minas-tirith-desktop.png)
+![Desktop: Mara flies to the Battle at Minas Tirith](./screenshots/034-fly-to-minas-tirith-desktop.png)
 
 **Verifications:**
 
 - [x] Eagle and Minas Tirith each recruit one Company
 - [x] The two printed draws leave one additional private card after placement
 - [x] The ordered Battle deployment remains with the Eagle player
-- [x] Every connected browser replays 28 accepted events with no diagnostics
+- [x] Every connected browser replays 26 accepted events with no diagnostics
 
 ---
 
 ## Mara reloads during Eagle deployment
 
-![Phone: Mara reloads during Eagle deployment](./screenshots/037-reload-eagle-battle-phone.png)
+![Phone: Mara reloads during Eagle deployment](./screenshots/035-reload-eagle-battle-phone.png)
 
-![Desktop: Mara reloads during Eagle deployment](./screenshots/037-reload-eagle-battle-desktop.png)
+![Desktop: Mara reloads during Eagle deployment](./screenshots/035-reload-eagle-battle-desktop.png)
 
 **Verifications:**
 
 - [x] Both Journey and board rewards plus pending authority survive replay
-- [x] Every connected browser replays 28 accepted events with no diagnostics
+- [x] Every connected browser replays 26 accepted events with no diagnostics
 
 ---
 
 ## Mara keeps the Eagle recruits in garrison
 
-![Phone: Mara keeps the Eagle recruits in garrison](./screenshots/038-keep-eagle-recruits-phone.png)
+![Phone: Mara keeps the Eagle recruits in garrison](./screenshots/036-keep-eagle-recruits-phone.png)
 
-![Desktop: Mara keeps the Eagle recruits in garrison](./screenshots/038-keep-eagle-recruits-desktop.png)
+![Desktop: Mara keeps the Eagle recruits in garrison](./screenshots/036-keep-eagle-recruits-desktop.png)
 
 **Verifications:**
 
 - [x] The complete high-cost Chronicle turn resolves and authority passes
-- [x] Every connected browser replays 29 accepted events with no diagnostics
+- [x] Every connected browser replays 27 accepted events with no diagnostics
 
 ---

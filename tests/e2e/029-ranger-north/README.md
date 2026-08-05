@@ -218,11 +218,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals the real remaining hand
+## Rin Reveals the real remaining hand
 
-![Phone: Pip Reveals the real remaining hand](./screenshots/017-reveal-1-phone.png)
+![Phone: Rin Reveals the real remaining hand](./screenshots/017-reveal-1-phone.png)
 
-![Desktop: Pip Reveals the real remaining hand](./screenshots/017-reveal-1-desktop.png)
+![Desktop: Rin Reveals the real remaining hand](./screenshots/017-reveal-1-desktop.png)
 
 **Verifications:**
 
@@ -231,11 +231,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip acquires Ranger of the North
+## Rin acquires Ranger of the North
 
-![Phone: Pip acquires Ranger of the North](./screenshots/018-acquire-2-phone.png)
+![Phone: Rin acquires Ranger of the North](./screenshots/018-acquire-2-phone.png)
 
-![Desktop: Pip acquires Ranger of the North](./screenshots/018-acquire-2-desktop.png)
+![Desktop: Rin acquires Ranger of the North](./screenshots/018-acquire-2-desktop.png)
 
 **Verifications:**
 
@@ -244,11 +244,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal
+## Rin finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/019-finish-3-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/019-finish-3-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/019-finish-3-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/019-finish-3-desktop.png)
 
 **Verifications:**
 
@@ -257,11 +257,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals the real remaining hand
+## Pip Reveals the real remaining hand
 
-![Phone: Rin Reveals the real remaining hand](./screenshots/020-reveal-4-phone.png)
+![Phone: Pip Reveals the real remaining hand](./screenshots/020-reveal-4-phone.png)
 
-![Desktop: Rin Reveals the real remaining hand](./screenshots/020-reveal-4-desktop.png)
+![Desktop: Pip Reveals the real remaining hand](./screenshots/020-reveal-4-desktop.png)
 
 **Verifications:**
 
@@ -270,11 +270,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin finishes Reveal
+## Pip finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/021-finish-5-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/021-finish-5-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/021-finish-5-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/021-finish-5-desktop.png)
 
 **Verifications:**
 
@@ -309,11 +309,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals the real remaining hand
+## Pip Reveals the real remaining hand
 
-![Phone: Rin Reveals the real remaining hand](./screenshots/024-reveal-8-phone.png)
+![Phone: Pip Reveals the real remaining hand](./screenshots/024-reveal-8-phone.png)
 
-![Desktop: Rin Reveals the real remaining hand](./screenshots/024-reveal-8-desktop.png)
+![Desktop: Pip Reveals the real remaining hand](./screenshots/024-reveal-8-desktop.png)
 
 **Verifications:**
 
@@ -322,11 +322,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin finishes Reveal
+## Pip finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/025-finish-9-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/025-finish-9-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/025-finish-9-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/025-finish-9-desktop.png)
 
 **Verifications:**
 
@@ -361,11 +361,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals the real remaining hand
+## Rin Reveals the real remaining hand
 
-![Phone: Pip Reveals the real remaining hand](./screenshots/028-reveal-12-phone.png)
+![Phone: Rin Reveals the real remaining hand](./screenshots/028-reveal-12-phone.png)
 
-![Desktop: Pip Reveals the real remaining hand](./screenshots/028-reveal-12-desktop.png)
+![Desktop: Rin Reveals the real remaining hand](./screenshots/028-reveal-12-desktop.png)
 
 **Verifications:**
 
@@ -374,11 +374,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal
+## Rin finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/029-finish-13-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/029-finish-13-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/029-finish-13-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/029-finish-13-desktop.png)
 
 **Verifications:**
 
@@ -413,63 +413,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals the real remaining hand
+## Rin selects Ranger of the North
 
-![Phone: Pip Reveals the real remaining hand](./screenshots/032-reveal-16-phone.png)
+![Phone: Rin selects Ranger of the North](./screenshots/032-select-16-phone.png)
 
-![Desktop: Pip Reveals the real remaining hand](./screenshots/032-reveal-16-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 26 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal
-
-![Phone: Pip finishes Reveal](./screenshots/033-finish-17-phone.png)
-
-![Desktop: Pip finishes Reveal](./screenshots/033-finish-17-desktop.png)
-
-**Verifications:**
-
-- [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 27 accepted events with no diagnostics
-
----
-
-## Rin Reveals the real remaining hand
-
-![Phone: Rin Reveals the real remaining hand](./screenshots/034-reveal-18-phone.png)
-
-![Desktop: Rin Reveals the real remaining hand](./screenshots/034-reveal-18-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 28 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/035-finish-19-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/035-finish-19-desktop.png)
-
-**Verifications:**
-
-- [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 29 accepted events with no diagnostics
-
----
-
-## Pip selects Ranger of the North
-
-![Phone: Pip selects Ranger of the North](./screenshots/036-select-20-phone.png)
-
-![Desktop: Pip selects Ranger of the North](./screenshots/036-select-20-desktop.png)
+![Desktop: Rin selects Ranger of the North](./screenshots/032-select-16-desktop.png)
 
 **Verifications:**
 
@@ -477,41 +425,41 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip plays Ranger of the North
+## Rin plays Ranger of the North
 
-![Phone: Pip plays Ranger of the North](./screenshots/037-place-21-phone.png)
+![Phone: Rin plays Ranger of the North](./screenshots/033-place-17-phone.png)
 
-![Desktop: Pip plays Ranger of the North](./screenshots/037-place-21-desktop.png)
+![Desktop: Rin plays Ranger of the North](./screenshots/033-place-17-desktop.png)
 
 **Verifications:**
 
 - [x] Both private draws finish before the mandatory Ranger discard blocks turn advancement
-- [x] Every connected browser replays 30 accepted events with no diagnostics
+- [x] Every connected browser replays 26 accepted events with no diagnostics
 
 ---
 
-## Pip discards Armed Escort for Ranger of the North
+## Rin discards The Open Road for Ranger of the North
 
-![Phone: Pip discards Armed Escort for Ranger of the North](./screenshots/038-discard-22-phone.png)
+![Phone: Rin discards The Open Road for Ranger of the North](./screenshots/034-discard-18-phone.png)
 
-![Desktop: Pip discards Armed Escort for Ranger of the North](./screenshots/038-discard-22-desktop.png)
+![Desktop: Rin discards The Open Road for Ranger of the North](./screenshots/034-discard-18-desktop.png)
 
 **Verifications:**
 
 - [x] Exactly one eligible private hand card enters discard and canonical authority advances
-- [x] Every connected browser replays 31 accepted events with no diagnostics
+- [x] Every connected browser replays 27 accepted events with no diagnostics
 
 ---
 
-## Pip reloads the Ranger outcome
+## Rin reloads the Ranger outcome
 
-![Phone: Pip reloads the Ranger outcome](./screenshots/039-reload-ranger-phone.png)
+![Phone: Rin reloads the Ranger outcome](./screenshots/035-reload-ranger-phone.png)
 
-![Desktop: Pip reloads the Ranger outcome](./screenshots/039-reload-ranger-desktop.png)
+![Desktop: Rin reloads the Ranger outcome](./screenshots/035-reload-ranger-desktop.png)
 
 **Verifications:**
 
 - [x] Replay preserves the destination and private discard without publishing its identity
-- [x] Every connected browser replays 31 accepted events with no diagnostics
+- [x] Every connected browser replays 27 accepted events with no diagnostics
 
 ---
