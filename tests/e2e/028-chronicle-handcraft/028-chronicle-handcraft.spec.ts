@@ -9,7 +9,7 @@ type TargetName = (typeof TARGETS)[number];
 test('Grey Pilgrim and Lore of Imladris are acquired, drawn, and resolved by their owner', async ({ browser, page }, testInfo) => {
   test.setTimeout(900_000);
   const steps = new TestStepHelper(testInfo);
-  const table = await startPlotTable(browser, page, testInfo, steps, 'chronicle-grey-pilgrim-77', { phone: 'HANDP', desktop: 'HANDD' });
+  const table = await startPlotTable(browser, page, testInfo, steps, 'handcraft-37', { phone: 'HANDP', desktop: 'HANDD' });
   const { seats, accepted, converged, currentSeat, row } = table;
   const acquired = new Set<TargetName>();
   const played = new Set<TargetName>();
@@ -25,12 +25,13 @@ test('Grey Pilgrim and Lore of Imladris are acquired, drawn, and resolved by the
     }
     return null;
   };
-  const cheapestEnabled = async (locator: Locator) => {
+  const cheapestEnabledNonTarget = async (locator: Locator) => {
     const candidates: Array<{ locator: Locator; cost: number }> = [];
     for (let index = 0; index < await locator.count(); index += 1) {
       const candidate = locator.nth(index);
       if (!await candidate.isEnabled()) continue;
       const text = await candidate.textContent() ?? '';
+      if (TARGETS.some((name) => text.startsWith(name))) continue;
       candidates.push({ locator: candidate, cost: Number(text.match(/· (\d+) Influence/)?.[1] ?? '99') });
     }
     return candidates.sort((left, right) => left.cost - right.cost)[0]?.locator ?? null;
@@ -178,6 +179,7 @@ test('Grey Pilgrim and Lore of Imladris are acquired, drawn, and resolved by the
     ]);
 
     for (let guard = 0; guard < 260 && played.size < TARGETS.length; guard += 1) {
+      if (await page.getByTestId('endgame-window').isVisible().catch(() => false)) break;
       const actor = await currentSeat();
       if (actor === buyer) {
         let visibleTarget: TargetName | undefined;
@@ -192,26 +194,29 @@ test('Grey Pilgrim and Lore of Imladris are acquired, drawn, and resolved by the
       }
 
       await reveal(actor);
-      if (actor === buyer && acquired.size < TARGETS.length) {
+      if (acquired.size < TARGETS.length) {
         for (let purchase = 0; purchase < 12; purchase += 1) {
           let card: Locator | null = null;
           let target: TargetName | undefined;
-          for (const name of TARGETS) {
-            if (acquired.has(name)) continue;
-            const candidate = await firstEnabled(buyer.page.getByTestId('chronicle-row').getByRole('button', { name: new RegExp(`^${name}`) }));
-            if (candidate) { card = candidate; target = name; break; }
+          if (actor === buyer) {
+            for (const name of TARGETS) {
+              if (acquired.has(name)) continue;
+              const candidate = await firstEnabled(buyer.page.getByTestId('chronicle-row').getByRole('button', { name: new RegExp(`^${name}`) }));
+              if (candidate) { card = candidate; target = name; break; }
+            }
+          } else {
+            card = await cheapestEnabledNonTarget(actor.page.getByTestId('chronicle-row').getByRole('button'));
           }
-          card ??= await cheapestEnabled(buyer.page.getByTestId('chronicle-row').getByRole('button'));
           if (!card) break;
           const name = (await card.textContent())?.split(' · ')[0].trim() ?? 'Chronicle card';
-          const deckBefore = Number((await buyer.page.getByTestId('chronicle-market').textContent())?.match(/deck (\d+)/)?.[1] ?? '-1');
+          const deckBefore = Number((await actor.page.getByTestId('chronicle-market').textContent())?.match(/deck (\d+)/)?.[1] ?? '-1');
           gestureNumber += 1;
-          await steps.gesture(buyer.page, `acquire-${gestureNumber}`, `${buyer.name} acquires ${name}`, async () => {
+          await steps.gesture(actor.page, `acquire-${gestureNumber}`, `${actor.name} acquires ${name}`, async () => {
             await card!.click(); accepted.value += 1;
             if (target) acquired.add(target);
           }, [
-            { spec: target ? `${target} enters the real discard pile as an exact physical card` : 'An affordable card cycles the physical market toward the remaining batch', check: async () => await expect(buyer.page.getByTestId('activity-log')).toContainText(`${buyer.name} acquires ${name}`) },
-            { spec: 'The public Row refills immediately while its deck has cards', check: async () => await expect(buyer.page.getByTestId('chronicle-market')).toContainText(`deck ${Math.max(0, deckBefore - 1)}`) },
+            { spec: target ? `${target} enters the owner’s real discard pile as an exact physical card` : 'Another human legally buys a non-target card to cycle the shared market', check: async () => await expect(actor.page.getByTestId('activity-log')).toContainText(`${actor.name} acquires ${name}`) },
+            { spec: 'The public Row refills immediately while its deck has cards', check: async () => await expect(actor.page.getByTestId('chronicle-market')).toContainText(`deck ${Math.max(0, deckBefore - 1)}`) },
             converged(accepted.value + 1)
           ]);
         }

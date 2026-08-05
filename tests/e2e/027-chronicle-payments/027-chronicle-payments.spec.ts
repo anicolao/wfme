@@ -35,6 +35,17 @@ test('three paid-choice Chronicle cards are acquired, drawn, and resolved by the
     }
     return candidates.sort((left, right) => left.cost - right.cost)[0]?.locator ?? null;
   };
+  const cheapestEnabledNonTarget = async (locator: Locator) => {
+    const candidates: Array<{ locator: Locator; cost: number }> = [];
+    for (let index = 0; index < await locator.count(); index += 1) {
+      const candidate = locator.nth(index);
+      if (!await candidate.isEnabled()) continue;
+      const text = await candidate.textContent() ?? '';
+      if (TARGETS.some((name) => text.startsWith(name))) continue;
+      candidates.push({ locator: candidate, cost: Number(text.match(/· (\d+) Influence/)?.[1] ?? '99') });
+    }
+    return candidates.sort((left, right) => left.cost - right.cost)[0]?.locator ?? null;
+  };
   const targetButton = (seat: PlotSeat, name: TargetName) => seat.page.getByTestId('private-hand').getByRole('button', {
     name: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`)
   }).first();
@@ -124,6 +135,7 @@ test('three paid-choice Chronicle cards are acquired, drawn, and resolved by the
     }
 
     for (let guard = 0; guard < 220 && played.size < TARGETS.length; guard += 1) {
+      if (await page.getByTestId('endgame-window').isVisible().catch(() => false)) break;
       const actor = await currentSeat();
       if (actor === buyer) {
         let visibleTarget: TargetName | undefined;
@@ -142,26 +154,30 @@ test('three paid-choice Chronicle cards are acquired, drawn, and resolved by the
       }
 
       await reveal(actor);
-      if (actor === buyer && acquired.size < TARGETS.length) {
+      if (acquired.size < TARGETS.length) {
         for (let purchase = 0; purchase < 10; purchase += 1) {
           let card: Locator | null = null;
           let target: TargetName | undefined;
-          for (const name of TARGETS) {
-            if (acquired.has(name)) continue;
-            const candidate = await firstEnabled(buyer.page.getByTestId('chronicle-row').getByRole('button', { name: new RegExp(`^${name}`) }));
-            if (candidate) { card = candidate; target = name; break; }
+          if (actor === buyer) {
+            for (const name of TARGETS) {
+              if (acquired.has(name)) continue;
+              const candidate = await firstEnabled(buyer.page.getByTestId('chronicle-row').getByRole('button', { name: new RegExp(`^${name}`) }));
+              if (candidate) { card = candidate; target = name; break; }
+            }
+            card ??= await cheapestEnabled(buyer.page.getByTestId('chronicle-row').getByRole('button'));
+          } else {
+            card = await cheapestEnabledNonTarget(actor.page.getByTestId('chronicle-row').getByRole('button'));
           }
-          card ??= await cheapestEnabled(buyer.page.getByTestId('chronicle-row').getByRole('button'));
           if (!card) break;
           const name = (await card.textContent())?.split(' · ')[0].trim() ?? 'Chronicle card';
-          const deckBefore = Number((await buyer.page.getByTestId('chronicle-market').textContent())?.match(/deck (\d+)/)?.[1] ?? '-1');
+          const deckBefore = Number((await actor.page.getByTestId('chronicle-market').textContent())?.match(/deck (\d+)/)?.[1] ?? '-1');
           gestureNumber += 1;
-          await steps.gesture(buyer.page, `acquire-${gestureNumber}`, `${buyer.name} acquires ${name}`, async () => {
+          await steps.gesture(actor.page, `acquire-${gestureNumber}`, `${actor.name} acquires ${name}`, async () => {
             await card!.click(); accepted.value += 1;
             if (target) acquired.add(target);
           }, [
-            { spec: target ? `${target} enters the real discard pile as an exact physical card` : 'An affordable card cycles the physical market toward the remaining batch', check: async () => await expect(buyer.page.getByTestId('activity-log')).toContainText(`${buyer.name} acquires ${name}`) },
-            { spec: 'The public Row refills immediately while its deck has cards', check: async () => await expect(buyer.page.getByTestId('chronicle-market')).toContainText(`deck ${Math.max(0, deckBefore - 1)}`) },
+            { spec: target ? `${target} enters the real discard pile as an exact physical card` : 'Another human legally buys a non-target card to cycle the shared market', check: async () => await expect(actor.page.getByTestId('activity-log')).toContainText(`${actor.name} acquires ${name}`) },
+            { spec: 'The public Row refills immediately while its deck has cards', check: async () => await expect(actor.page.getByTestId('chronicle-market')).toContainText(`deck ${Math.max(0, deckBefore - 1)}`) },
             converged(accepted.value + 1)
           ]);
         }

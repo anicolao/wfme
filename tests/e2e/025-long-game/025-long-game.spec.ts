@@ -23,6 +23,18 @@ test('The Long Game rewards four five-cost Chronicle cards acquired through ordi
     }
     return null;
   };
+  const highCostNames = ['Eagle of the Misty Mountains', 'Lady of the Golden Wood', "Durin's Heir", 'Voice of Orthanc'] as const;
+  const cheapestEnabledNonHigh = async (locator: Locator) => {
+    const candidates: Array<{ locator: Locator; cost: number }> = [];
+    for (let index = 0; index < await locator.count(); index += 1) {
+      const candidate = locator.nth(index);
+      if (!await candidate.isEnabled()) continue;
+      const text = await candidate.textContent() ?? '';
+      if (highCostNames.some((name) => text.startsWith(name))) continue;
+      candidates.push({ locator: candidate, cost: Number(text.match(/· (\d+) Influence/)?.[1] ?? '99') });
+    }
+    return candidates.sort((left, right) => left.cost - right.cost)[0]?.locator ?? null;
+  };
 
   try {
     const strategist = await currentSeat();
@@ -98,27 +110,31 @@ test('The Long Game rewards four five-cost Chronicle cards acquired through ordi
         ]);
       }
 
-      if (actor === strategist && highCostBought < 4) {
-        for (let purchase = 0; purchase < 6 && highCostBought < 4; purchase += 1) {
-          const neededLady = ladyBought
-            ? null
-            : await firstEnabled(strategist.page.getByTestId('chronicle-row').getByRole('button', { name: /^Lady of the Golden Wood/ }));
-          const high = neededLady ?? await firstEnabled(strategist.page.getByTestId('chronicle-row').getByRole('button', { name: /^(Eagle of the Misty Mountains|Lady of the Golden Wood|Durin's Heir|Voice of Orthanc)/ }));
-          const card = high ?? await firstEnabled(strategist.page.getByTestId('chronicle-row').getByRole('button'));
+      if (highCostBought < 4 || !ladyBought) {
+        for (let purchase = 0; purchase < 12 && (highCostBought < 4 || !ladyBought); purchase += 1) {
+          const neededLady = actor === strategist && !ladyBought
+            ? await firstEnabled(strategist.page.getByTestId('chronicle-row').getByRole('button', { name: /^Lady of the Golden Wood/ }))
+            : null;
+          const high = actor === strategist
+            ? neededLady ?? (highCostBought < (ladyBought ? 4 : 3)
+              ? await firstEnabled(strategist.page.getByTestId('chronicle-row').getByRole('button', { name: /^(Eagle of the Misty Mountains|Lady of the Golden Wood|Durin's Heir|Voice of Orthanc)/ }))
+              : null)
+            : null;
+          const card = high ?? await cheapestEnabledNonHigh(actor.page.getByTestId('chronicle-row').getByRole('button'));
           if (!card) break;
           const name = (await card.textContent())?.split(' · ')[0].trim() ?? 'Chronicle card';
-          const isHigh = ['Eagle of the Misty Mountains', 'Lady of the Golden Wood', "Durin's Heir", 'Voice of Orthanc'].includes(name);
-          const rowBefore = await strategist.page.getByTestId('chronicle-row').getByRole('button').count();
-          const deckBefore = Number((await strategist.page.getByTestId('chronicle-market').textContent())?.match(/deck (\d+)/)?.[1] ?? '-1');
+          const isHigh = highCostNames.includes(name as (typeof highCostNames)[number]);
+          const rowBefore = await actor.page.getByTestId('chronicle-row').getByRole('button').count();
+          const deckBefore = Number((await actor.page.getByTestId('chronicle-market').textContent())?.match(/deck (\d+)/)?.[1] ?? '-1');
           const highCostOrdinal = highCostBought + (isHigh ? 1 : 0);
           gestureNumber += 1;
-          await steps.gesture(strategist.page, `acquire-${gestureNumber}`, `${strategist.name} acquires ${name}`, async () => {
+          await steps.gesture(actor.page, `acquire-${gestureNumber}`, `${actor.name} acquires ${name}`, async () => {
             await card.click(); accepted.value += 1;
-            if (isHigh) highCostBought += 1;
-            if (name === 'Lady of the Golden Wood') ladyBought = true;
+            if (actor === strategist && isHigh) highCostBought += 1;
+            if (actor === strategist && name === 'Lady of the Golden Wood') ladyBought = true;
           }, [
-            { spec: deckBefore > 0 ? 'The Row immediately refills after the legal purchase' : 'The exhausted physical deck leaves one fewer Row card', check: async () => await expect(strategist.page.getByTestId('chronicle-row').getByRole('button')).toHaveCount(deckBefore > 0 ? rowBefore : rowBefore - 1) },
-            { spec: isHigh ? `The public log records five-cost card ${highCostOrdinal} of four` : 'The affordable card cycles the market toward the ownership condition', check: async () => await expect(strategist.page.getByTestId('activity-log')).toContainText(`${strategist.name} acquires ${name}`) },
+            { spec: deckBefore > 0 ? 'The Row immediately refills after the legal purchase' : 'The exhausted physical deck leaves one fewer Row card', check: async () => await expect(actor.page.getByTestId('chronicle-row').getByRole('button')).toHaveCount(deckBefore > 0 ? rowBefore : rowBefore - 1) },
+            { spec: actor === strategist && isHigh ? `The public log records five-cost card ${highCostOrdinal} of four` : 'Another legal purchase cycles the shared market toward the ownership condition', check: async () => await expect(actor.page.getByTestId('activity-log')).toContainText(`${actor.name} acquires ${name}`) },
             converged(accepted.value + 1)
           ]);
         }
