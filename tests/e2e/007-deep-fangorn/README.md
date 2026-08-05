@@ -1,6 +1,6 @@
-# Test: Deep Fangorn, Entwash, and the Ents
+# Test: Deep Fangorn and the Ents
 
-Three isolated humans earn Wild respect, obtain persistent Ent-draught, see an intact Dam prevent a protected summon, take accumulated Riches, breach the Dam through a later Moot, summon two Ents into an active Battle, receive the ranked reward twice, clean up, then pay for Entwash, collect its Riches, summon one Ent, and replay both results after reload.
+Three isolated humans earn Wild respect, obtain persistent Ent-draught, see an intact Dam prevent a protected summon, take accumulated Riches, breach the Dam through a later Moot, summon two Ents into a selected Battle, receive the ranked reward twice, clean up into the next round, and replay the persisted result.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -184,11 +184,23 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
+## Mara chooses the published Ent journey seed
+
+![Phone: Mara chooses the published Ent journey seed](./screenshots/015-ent-seed-phone.png)
+
+![Desktop: Mara chooses the published Ent journey seed](./screenshots/015-ent-seed-desktop.png)
+
+**Verifications:**
+
+- [x] The deterministic setup seed is visible
+
+---
+
 ## Mara starts the deterministic match
 
-![Phone: Mara starts the deterministic match](./screenshots/015-start-match-phone.png)
+![Phone: Mara starts the deterministic match](./screenshots/016-start-match-phone.png)
 
-![Desktop: Mara starts the deterministic match](./screenshots/015-start-match-desktop.png)
+![Desktop: Mara starts the deterministic match](./screenshots/016-start-match-desktop.png)
 
 **Verifications:**
 
@@ -198,11 +210,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara chooses a card for ranger-mustering
+## Pip chooses a card for ranger-mustering
 
-![Phone: Mara chooses a card for ranger-mustering](./screenshots/016-choose-ranger-mustering-0-phone.png)
+![Phone: Pip chooses a card for ranger-mustering](./screenshots/017-choose-ranger-mustering-0-phone.png)
 
-![Desktop: Mara chooses a card for ranger-mustering](./screenshots/016-choose-ranger-mustering-0-desktop.png)
+![Desktop: Pip chooses a card for ranger-mustering](./screenshots/017-choose-ranger-mustering-0-desktop.png)
 
 **Verifications:**
 
@@ -210,11 +222,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara visits ranger-mustering
+## Pip visits ranger-mustering
 
-![Phone: Mara visits ranger-mustering](./screenshots/017-visit-ranger-mustering-0-phone.png)
+![Phone: Pip visits ranger-mustering](./screenshots/018-visit-ranger-mustering-0-phone.png)
 
-![Desktop: Mara visits ranger-mustering](./screenshots/017-visit-ranger-mustering-0-desktop.png)
+![Desktop: Pip visits ranger-mustering](./screenshots/018-visit-ranger-mustering-0-desktop.png)
 
 **Verifications:**
 
@@ -223,11 +235,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara keeps every Ranger card
+## Pip keeps every Ranger card
 
-![Phone: Mara keeps every Ranger card](./screenshots/018-keep-ranger-1-phone.png)
+![Phone: Pip keeps every Ranger card](./screenshots/019-keep-ranger-1-phone.png)
 
-![Desktop: Mara keeps every Ranger card](./screenshots/018-keep-ranger-1-desktop.png)
+![Desktop: Pip keeps every Ranger card](./screenshots/019-keep-ranger-1-desktop.png)
 
 **Verifications:**
 
@@ -236,11 +248,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara keeps Seek Allies
+## Pip keeps Seek Allies
 
-![Phone: Mara keeps Seek Allies](./screenshots/019-keep-seek-2-phone.png)
+![Phone: Pip keeps Seek Allies](./screenshots/020-keep-seek-2-phone.png)
 
-![Desktop: Mara keeps Seek Allies](./screenshots/019-keep-seek-2-desktop.png)
+![Desktop: Pip keeps Seek Allies](./screenshots/020-keep-seek-2-desktop.png)
 
 **Verifications:**
 
@@ -249,11 +261,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara leaves Companies in garrison
+## Pip leaves Companies in garrison
 
-![Phone: Mara leaves Companies in garrison](./screenshots/020-deploy-zero-3-phone.png)
+![Phone: Pip leaves Companies in garrison](./screenshots/021-deploy-zero-3-phone.png)
 
-![Desktop: Mara leaves Companies in garrison](./screenshots/020-deploy-zero-3-desktop.png)
+![Desktop: Pip leaves Companies in garrison](./screenshots/021-deploy-zero-3-desktop.png)
 
 **Verifications:**
 
@@ -262,11 +274,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals
+## Rin Reveals
 
-![Phone: Pip Reveals](./screenshots/021-reveal-other-4-phone.png)
+![Phone: Rin Reveals](./screenshots/022-reveal-other-4-phone.png)
 
-![Desktop: Pip Reveals](./screenshots/021-reveal-other-4-desktop.png)
+![Desktop: Rin Reveals](./screenshots/022-reveal-other-4-desktop.png)
 
 **Verifications:**
 
@@ -275,11 +287,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal
+## Rin finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/022-finish-reveal-5-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/023-finish-reveal-5-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/022-finish-reveal-5-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/023-finish-reveal-5-desktop.png)
 
 **Verifications:**
 
@@ -288,11 +300,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals
+## Mara Reveals
 
-![Phone: Rin Reveals](./screenshots/023-reveal-other-6-phone.png)
+![Phone: Mara Reveals](./screenshots/024-reveal-other-6-phone.png)
 
-![Desktop: Rin Reveals](./screenshots/023-reveal-other-6-desktop.png)
+![Desktop: Mara Reveals](./screenshots/024-reveal-other-6-desktop.png)
 
 **Verifications:**
 
@@ -301,11 +313,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin finishes Reveal
+## Mara finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/024-finish-reveal-7-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/025-finish-reveal-7-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/024-finish-reveal-7-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/025-finish-reveal-7-desktop.png)
 
 **Verifications:**
 
@@ -314,62 +326,50 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara chooses a card for hidden-paths
+## Pip Reveals while waiting for the next Ent opportunity
 
-![Phone: Mara chooses a card for hidden-paths](./screenshots/025-choose-hidden-paths-8-phone.png)
+![Phone: Pip Reveals while waiting for the next Ent opportunity](./screenshots/026-reveal-target-8-phone.png)
 
-![Desktop: Mara chooses a card for hidden-paths](./screenshots/025-choose-hidden-paths-8-desktop.png)
-
-**Verifications:**
-
-- [x] The intended complete destination becomes enabled
-
----
-
-## Mara visits hidden-paths
-
-![Phone: Mara visits hidden-paths](./screenshots/026-visit-hidden-paths-8-phone.png)
-
-![Desktop: Mara visits hidden-paths](./screenshots/026-visit-hidden-paths-8-desktop.png)
-
-**Verifications:**
-
-- [x] All observers see the synchronized Agent occupation
-- [x] Every connected browser replays 19 accepted events with no diagnostics
-
----
-
-## Mara leaves Companies in garrison
-
-![Phone: Mara leaves Companies in garrison](./screenshots/027-deploy-zero-9-phone.png)
-
-![Desktop: Mara leaves Companies in garrison](./screenshots/027-deploy-zero-9-desktop.png)
-
-**Verifications:**
-
-- [x] No Company enters the Battle
-- [x] Every connected browser replays 20 accepted events with no diagnostics
-
----
-
-## Mara Reveals while waiting for the next Ent opportunity
-
-![Phone: Mara Reveals while waiting for the next Ent opportunity](./screenshots/028-reveal-target-10-phone.png)
-
-![Desktop: Mara Reveals while waiting for the next Ent opportunity](./screenshots/028-reveal-target-10-desktop.png)
+![Desktop: Pip Reveals while waiting for the next Ent opportunity](./screenshots/026-reveal-target-8-desktop.png)
 
 **Verifications:**
 
 - [x] The target uses the ordinary Reveal control
+- [x] Every connected browser replays 19 accepted events with no diagnostics
+
+---
+
+## Pip finishes Reveal
+
+![Phone: Pip finishes Reveal](./screenshots/027-finish-reveal-9-phone.png)
+
+![Desktop: Pip finishes Reveal](./screenshots/027-finish-reveal-9-desktop.png)
+
+**Verifications:**
+
+- [x] Authority advances through the ordinary phase sequence
+- [x] Every connected browser replays 20 accepted events with no diagnostics
+
+---
+
+## Rin Reveals
+
+![Phone: Rin Reveals](./screenshots/028-reveal-other-10-phone.png)
+
+![Desktop: Rin Reveals](./screenshots/028-reveal-other-10-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row names the acting human
 - [x] Every connected browser replays 21 accepted events with no diagnostics
 
 ---
 
-## Mara finishes Reveal
+## Rin finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/029-finish-reveal-11-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/029-finish-reveal-11-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/029-finish-reveal-11-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/029-finish-reveal-11-desktop.png)
 
 **Verifications:**
 
@@ -378,11 +378,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals
+## Mara Reveals
 
-![Phone: Pip Reveals](./screenshots/030-reveal-other-12-phone.png)
+![Phone: Mara Reveals](./screenshots/030-reveal-other-12-phone.png)
 
-![Desktop: Pip Reveals](./screenshots/030-reveal-other-12-desktop.png)
+![Desktop: Mara Reveals](./screenshots/030-reveal-other-12-desktop.png)
 
 **Verifications:**
 
@@ -391,11 +391,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal
+## Mara finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/031-finish-reveal-13-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/031-finish-reveal-13-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/031-finish-reveal-13-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/031-finish-reveal-13-desktop.png)
 
 **Verifications:**
 
@@ -404,37 +404,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals
+## Pip chooses a card for hidden-paths
 
-![Phone: Rin Reveals](./screenshots/032-reveal-other-14-phone.png)
+![Phone: Pip chooses a card for hidden-paths](./screenshots/032-choose-hidden-paths-14-phone.png)
 
-![Desktop: Rin Reveals](./screenshots/032-reveal-other-14-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row names the acting human
-- [x] Every connected browser replays 25 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/033-finish-reveal-15-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/033-finish-reveal-15-desktop.png)
-
-**Verifications:**
-
-- [x] Authority advances through the ordinary phase sequence
-- [x] Every connected browser replays 26 accepted events with no diagnostics
-
----
-
-## Mara chooses a card for fangorn-moot
-
-![Phone: Mara chooses a card for fangorn-moot](./screenshots/034-choose-fangorn-moot-16-phone.png)
-
-![Desktop: Mara chooses a card for fangorn-moot](./screenshots/034-choose-fangorn-moot-16-desktop.png)
+![Desktop: Pip chooses a card for hidden-paths](./screenshots/032-choose-hidden-paths-14-desktop.png)
 
 **Verifications:**
 
@@ -442,11 +416,49 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara visits fangorn-moot
+## Pip visits hidden-paths
 
-![Phone: Mara visits fangorn-moot](./screenshots/035-visit-fangorn-moot-16-phone.png)
+![Phone: Pip visits hidden-paths](./screenshots/033-visit-hidden-paths-14-phone.png)
 
-![Desktop: Mara visits fangorn-moot](./screenshots/035-visit-fangorn-moot-16-desktop.png)
+![Desktop: Pip visits hidden-paths](./screenshots/033-visit-hidden-paths-14-desktop.png)
+
+**Verifications:**
+
+- [x] All observers see the synchronized Agent occupation
+- [x] Every connected browser replays 25 accepted events with no diagnostics
+
+---
+
+## Pip leaves Companies in garrison
+
+![Phone: Pip leaves Companies in garrison](./screenshots/034-deploy-zero-15-phone.png)
+
+![Desktop: Pip leaves Companies in garrison](./screenshots/034-deploy-zero-15-desktop.png)
+
+**Verifications:**
+
+- [x] No Company enters the Battle
+- [x] Every connected browser replays 26 accepted events with no diagnostics
+
+---
+
+## Pip chooses a card for fangorn-moot
+
+![Phone: Pip chooses a card for fangorn-moot](./screenshots/035-choose-fangorn-moot-16-phone.png)
+
+![Desktop: Pip chooses a card for fangorn-moot](./screenshots/035-choose-fangorn-moot-16-desktop.png)
+
+**Verifications:**
+
+- [x] The intended complete destination becomes enabled
+
+---
+
+## Pip visits fangorn-moot
+
+![Phone: Pip visits fangorn-moot](./screenshots/036-visit-fangorn-moot-16-phone.png)
+
+![Desktop: Pip visits fangorn-moot](./screenshots/036-visit-fangorn-moot-16-desktop.png)
 
 **Verifications:**
 
@@ -455,11 +467,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara takes Ent-draught
+## Pip takes Ent-draught
 
-![Phone: Mara takes Ent-draught](./screenshots/036-take-ent-draught-phone.png)
+![Phone: Pip takes Ent-draught](./screenshots/037-take-ent-draught-phone.png)
 
-![Desktop: Mara takes Ent-draught](./screenshots/036-take-ent-draught-desktop.png)
+![Desktop: Pip takes Ent-draught](./screenshots/037-take-ent-draught-desktop.png)
 
 **Verifications:**
 
@@ -468,11 +480,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara leaves Companies in garrison
+## Pip leaves Companies in garrison
 
-![Phone: Mara leaves Companies in garrison](./screenshots/037-deploy-zero-18-phone.png)
+![Phone: Pip leaves Companies in garrison](./screenshots/038-deploy-zero-18-phone.png)
 
-![Desktop: Mara leaves Companies in garrison](./screenshots/037-deploy-zero-18-desktop.png)
+![Desktop: Pip leaves Companies in garrison](./screenshots/038-deploy-zero-18-desktop.png)
 
 **Verifications:**
 
@@ -481,11 +493,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals while waiting for the next Ent opportunity
+## Pip Reveals while waiting for the next Ent opportunity
 
-![Phone: Mara Reveals while waiting for the next Ent opportunity](./screenshots/038-reveal-target-19-phone.png)
+![Phone: Pip Reveals while waiting for the next Ent opportunity](./screenshots/039-reveal-target-19-phone.png)
 
-![Desktop: Mara Reveals while waiting for the next Ent opportunity](./screenshots/038-reveal-target-19-desktop.png)
+![Desktop: Pip Reveals while waiting for the next Ent opportunity](./screenshots/039-reveal-target-19-desktop.png)
 
 **Verifications:**
 
@@ -494,11 +506,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal
+## Pip finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/039-finish-reveal-20-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/040-finish-reveal-20-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/039-finish-reveal-20-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/040-finish-reveal-20-desktop.png)
 
 **Verifications:**
 
@@ -507,11 +519,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals
+## Mara Reveals
 
-![Phone: Rin Reveals](./screenshots/040-reveal-other-21-phone.png)
+![Phone: Mara Reveals](./screenshots/041-reveal-other-21-phone.png)
 
-![Desktop: Rin Reveals](./screenshots/040-reveal-other-21-desktop.png)
+![Desktop: Mara Reveals](./screenshots/041-reveal-other-21-desktop.png)
 
 **Verifications:**
 
@@ -520,11 +532,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin finishes Reveal
+## Mara finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/041-finish-reveal-22-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/042-finish-reveal-22-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/041-finish-reveal-22-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/042-finish-reveal-22-desktop.png)
 
 **Verifications:**
 
@@ -533,11 +545,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara chooses a card for dwarven-caravans
+## Pip chooses a card for dwarven-caravans
 
-![Phone: Mara chooses a card for dwarven-caravans](./screenshots/042-choose-dwarven-caravans-23-phone.png)
+![Phone: Pip chooses a card for dwarven-caravans](./screenshots/043-choose-dwarven-caravans-23-phone.png)
 
-![Desktop: Mara chooses a card for dwarven-caravans](./screenshots/042-choose-dwarven-caravans-23-desktop.png)
+![Desktop: Pip chooses a card for dwarven-caravans](./screenshots/043-choose-dwarven-caravans-23-desktop.png)
 
 **Verifications:**
 
@@ -545,11 +557,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara visits dwarven-caravans
+## Pip visits dwarven-caravans
 
-![Phone: Mara visits dwarven-caravans](./screenshots/043-visit-dwarven-caravans-23-phone.png)
+![Phone: Pip visits dwarven-caravans](./screenshots/044-visit-dwarven-caravans-23-phone.png)
 
-![Desktop: Mara visits dwarven-caravans](./screenshots/043-visit-dwarven-caravans-23-desktop.png)
+![Desktop: Pip visits dwarven-caravans](./screenshots/044-visit-dwarven-caravans-23-desktop.png)
 
 **Verifications:**
 
@@ -558,11 +570,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara keeps Seek Allies
+## Pip keeps Seek Allies
 
-![Phone: Mara keeps Seek Allies](./screenshots/044-keep-seek-24-phone.png)
+![Phone: Pip keeps Seek Allies](./screenshots/045-keep-seek-24-phone.png)
 
-![Desktop: Mara keeps Seek Allies](./screenshots/044-keep-seek-24-desktop.png)
+![Desktop: Pip keeps Seek Allies](./screenshots/045-keep-seek-24-desktop.png)
 
 **Verifications:**
 
@@ -571,11 +583,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals
+## Rin Reveals
 
-![Phone: Pip Reveals](./screenshots/045-reveal-other-25-phone.png)
+![Phone: Rin Reveals](./screenshots/046-reveal-other-25-phone.png)
 
-![Desktop: Pip Reveals](./screenshots/045-reveal-other-25-desktop.png)
+![Desktop: Rin Reveals](./screenshots/046-reveal-other-25-desktop.png)
 
 **Verifications:**
 
@@ -584,11 +596,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal
+## Rin finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/046-finish-reveal-26-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/047-finish-reveal-26-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/046-finish-reveal-26-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/047-finish-reveal-26-desktop.png)
 
 **Verifications:**
 
@@ -597,11 +609,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals while waiting for the next Ent opportunity
+## Pip Reveals while waiting for the next Ent opportunity
 
-![Phone: Mara Reveals while waiting for the next Ent opportunity](./screenshots/047-reveal-target-27-phone.png)
+![Phone: Pip Reveals while waiting for the next Ent opportunity](./screenshots/048-reveal-target-27-phone.png)
 
-![Desktop: Mara Reveals while waiting for the next Ent opportunity](./screenshots/047-reveal-target-27-desktop.png)
+![Desktop: Pip Reveals while waiting for the next Ent opportunity](./screenshots/048-reveal-target-27-desktop.png)
 
 **Verifications:**
 
@@ -610,11 +622,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal
+## Pip finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/048-finish-reveal-28-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/049-finish-reveal-28-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/048-finish-reveal-28-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/049-finish-reveal-28-desktop.png)
 
 **Verifications:**
 
@@ -623,11 +635,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara chooses a card for dwarven-caravans
+## Pip chooses a card for dwarven-caravans
 
-![Phone: Mara chooses a card for dwarven-caravans](./screenshots/049-choose-dwarven-caravans-29-phone.png)
+![Phone: Pip chooses a card for dwarven-caravans](./screenshots/050-choose-dwarven-caravans-29-phone.png)
 
-![Desktop: Mara chooses a card for dwarven-caravans](./screenshots/049-choose-dwarven-caravans-29-desktop.png)
+![Desktop: Pip chooses a card for dwarven-caravans](./screenshots/050-choose-dwarven-caravans-29-desktop.png)
 
 **Verifications:**
 
@@ -635,11 +647,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara visits dwarven-caravans
+## Pip visits dwarven-caravans
 
-![Phone: Mara visits dwarven-caravans](./screenshots/050-visit-dwarven-caravans-29-phone.png)
+![Phone: Pip visits dwarven-caravans](./screenshots/051-visit-dwarven-caravans-29-phone.png)
 
-![Desktop: Mara visits dwarven-caravans](./screenshots/050-visit-dwarven-caravans-29-desktop.png)
+![Desktop: Pip visits dwarven-caravans](./screenshots/051-visit-dwarven-caravans-29-desktop.png)
 
 **Verifications:**
 
@@ -648,11 +660,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals
+## Rin Reveals
 
-![Phone: Pip Reveals](./screenshots/051-reveal-other-30-phone.png)
+![Phone: Rin Reveals](./screenshots/052-reveal-other-30-phone.png)
 
-![Desktop: Pip Reveals](./screenshots/051-reveal-other-30-desktop.png)
+![Desktop: Rin Reveals](./screenshots/052-reveal-other-30-desktop.png)
 
 **Verifications:**
 
@@ -661,11 +673,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal
+## Rin finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/052-finish-reveal-31-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/053-finish-reveal-31-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/052-finish-reveal-31-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/053-finish-reveal-31-desktop.png)
 
 **Verifications:**
 
@@ -674,11 +686,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals
+## Mara Reveals
 
-![Phone: Rin Reveals](./screenshots/053-reveal-other-32-phone.png)
+![Phone: Mara Reveals](./screenshots/054-reveal-other-32-phone.png)
 
-![Desktop: Rin Reveals](./screenshots/053-reveal-other-32-desktop.png)
+![Desktop: Mara Reveals](./screenshots/054-reveal-other-32-desktop.png)
 
 **Verifications:**
 
@@ -687,11 +699,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin finishes Reveal
+## Mara finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/054-finish-reveal-33-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/055-finish-reveal-33-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/054-finish-reveal-33-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/055-finish-reveal-33-desktop.png)
 
 **Verifications:**
 
@@ -700,11 +712,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara chooses a card for deep-fangorn
+## Pip chooses a card for deep-fangorn
 
-![Phone: Mara chooses a card for deep-fangorn](./screenshots/055-choose-deep-fangorn-34-phone.png)
+![Phone: Pip chooses a card for deep-fangorn](./screenshots/056-choose-deep-fangorn-34-phone.png)
 
-![Desktop: Mara chooses a card for deep-fangorn](./screenshots/055-choose-deep-fangorn-34-desktop.png)
+![Desktop: Pip chooses a card for deep-fangorn](./screenshots/056-choose-deep-fangorn-34-desktop.png)
 
 **Verifications:**
 
@@ -712,11 +724,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara visits deep-fangorn
+## Pip visits deep-fangorn
 
-![Phone: Mara visits deep-fangorn](./screenshots/056-visit-deep-fangorn-34-phone.png)
+![Phone: Pip visits deep-fangorn](./screenshots/057-visit-deep-fangorn-34-phone.png)
 
-![Desktop: Mara visits deep-fangorn](./screenshots/056-visit-deep-fangorn-34-desktop.png)
+![Desktop: Pip visits deep-fangorn](./screenshots/057-visit-deep-fangorn-34-desktop.png)
 
 **Verifications:**
 
@@ -725,11 +737,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara takes Mithril while the intact Dam protects the Battle
+## Pip takes Mithril while the intact Dam protects the Battle
 
-![Phone: Mara takes Mithril while the intact Dam protects the Battle](./screenshots/057-choose-protected-mithril-phone.png)
+![Phone: Pip takes Mithril while the intact Dam protects the Battle](./screenshots/058-choose-protected-mithril-phone.png)
 
-![Desktop: Mara takes Mithril while the intact Dam protects the Battle](./screenshots/057-choose-protected-mithril-desktop.png)
+![Desktop: Pip takes Mithril while the intact Dam protects the Battle](./screenshots/058-choose-protected-mithril-desktop.png)
 
 **Verifications:**
 
@@ -738,11 +750,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara places the ordered Scout
+## Pip places the ordered Scout
 
-![Phone: Mara places the ordered Scout](./screenshots/058-place-scout-36-phone.png)
+![Phone: Pip places the ordered Scout](./screenshots/059-place-scout-36-phone.png)
 
-![Desktop: Mara places the ordered Scout](./screenshots/058-place-scout-36-desktop.png)
+![Desktop: Pip places the ordered Scout](./screenshots/059-place-scout-36-desktop.png)
 
 **Verifications:**
 
@@ -751,11 +763,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara leaves Companies in garrison
+## Pip leaves Companies in garrison
 
-![Phone: Mara leaves Companies in garrison](./screenshots/059-deploy-zero-37-phone.png)
+![Phone: Pip leaves Companies in garrison](./screenshots/060-deploy-zero-37-phone.png)
 
-![Desktop: Mara leaves Companies in garrison](./screenshots/059-deploy-zero-37-desktop.png)
+![Desktop: Pip leaves Companies in garrison](./screenshots/060-deploy-zero-37-desktop.png)
 
 **Verifications:**
 
@@ -764,11 +776,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals while waiting for the next Ent opportunity
+## Pip Reveals while waiting for the next Ent opportunity
 
-![Phone: Mara Reveals while waiting for the next Ent opportunity](./screenshots/060-reveal-target-38-phone.png)
+![Phone: Pip Reveals while waiting for the next Ent opportunity](./screenshots/061-reveal-target-38-phone.png)
 
-![Desktop: Mara Reveals while waiting for the next Ent opportunity](./screenshots/060-reveal-target-38-desktop.png)
+![Desktop: Pip Reveals while waiting for the next Ent opportunity](./screenshots/061-reveal-target-38-desktop.png)
 
 **Verifications:**
 
@@ -777,11 +789,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal
+## Pip finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/061-finish-reveal-39-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/062-finish-reveal-39-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/061-finish-reveal-39-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/062-finish-reveal-39-desktop.png)
 
 **Verifications:**
 
@@ -790,11 +802,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals
+## Rin Reveals
 
-![Phone: Pip Reveals](./screenshots/062-reveal-other-40-phone.png)
+![Phone: Rin Reveals](./screenshots/063-reveal-other-40-phone.png)
 
-![Desktop: Pip Reveals](./screenshots/062-reveal-other-40-desktop.png)
+![Desktop: Rin Reveals](./screenshots/063-reveal-other-40-desktop.png)
 
 **Verifications:**
 
@@ -803,11 +815,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal
+## Rin finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/063-finish-reveal-41-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/064-finish-reveal-41-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/063-finish-reveal-41-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/064-finish-reveal-41-desktop.png)
 
 **Verifications:**
 
@@ -816,11 +828,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals
+## Mara Reveals
 
-![Phone: Rin Reveals](./screenshots/064-reveal-other-42-phone.png)
+![Phone: Mara Reveals](./screenshots/065-reveal-other-42-phone.png)
 
-![Desktop: Rin Reveals](./screenshots/064-reveal-other-42-desktop.png)
+![Desktop: Mara Reveals](./screenshots/065-reveal-other-42-desktop.png)
 
 **Verifications:**
 
@@ -829,11 +841,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin finishes Reveal
+## Mara finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/065-finish-reveal-43-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/066-finish-reveal-43-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/065-finish-reveal-43-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/066-finish-reveal-43-desktop.png)
 
 **Verifications:**
 
@@ -842,11 +854,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara chooses a card for fangorn-moot
+## Pip chooses a card for fangorn-moot
 
-![Phone: Mara chooses a card for fangorn-moot](./screenshots/066-choose-fangorn-moot-44-phone.png)
+![Phone: Pip chooses a card for fangorn-moot](./screenshots/067-choose-fangorn-moot-44-phone.png)
 
-![Desktop: Mara chooses a card for fangorn-moot](./screenshots/066-choose-fangorn-moot-44-desktop.png)
+![Desktop: Pip chooses a card for fangorn-moot](./screenshots/067-choose-fangorn-moot-44-desktop.png)
 
 **Verifications:**
 
@@ -854,11 +866,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara visits fangorn-moot
+## Pip visits fangorn-moot
 
-![Phone: Mara visits fangorn-moot](./screenshots/067-visit-fangorn-moot-44-phone.png)
+![Phone: Pip visits fangorn-moot](./screenshots/068-visit-fangorn-moot-44-phone.png)
 
-![Desktop: Mara visits fangorn-moot](./screenshots/067-visit-fangorn-moot-44-desktop.png)
+![Desktop: Pip visits fangorn-moot](./screenshots/068-visit-fangorn-moot-44-desktop.png)
 
 **Verifications:**
 
@@ -867,11 +879,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara breaches the Dam
+## Pip breaches the Dam
 
-![Phone: Mara breaches the Dam](./screenshots/068-breach-dam-phone.png)
+![Phone: Pip breaches the Dam](./screenshots/069-breach-dam-phone.png)
 
-![Desktop: Mara breaches the Dam](./screenshots/068-breach-dam-desktop.png)
+![Desktop: Pip breaches the Dam](./screenshots/069-breach-dam-desktop.png)
 
 **Verifications:**
 
@@ -880,11 +892,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara leaves Companies in garrison
+## Pip leaves Companies in garrison
 
-![Phone: Mara leaves Companies in garrison](./screenshots/069-deploy-zero-46-phone.png)
+![Phone: Pip leaves Companies in garrison](./screenshots/070-deploy-zero-46-phone.png)
 
-![Desktop: Mara leaves Companies in garrison](./screenshots/069-deploy-zero-46-desktop.png)
+![Desktop: Pip leaves Companies in garrison](./screenshots/070-deploy-zero-46-desktop.png)
 
 **Verifications:**
 
@@ -893,11 +905,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara chooses a card for dwarven-caravans
+## Pip chooses a card for dwarven-caravans
 
-![Phone: Mara chooses a card for dwarven-caravans](./screenshots/070-choose-dwarven-caravans-47-phone.png)
+![Phone: Pip chooses a card for dwarven-caravans](./screenshots/071-choose-dwarven-caravans-47-phone.png)
 
-![Desktop: Mara chooses a card for dwarven-caravans](./screenshots/070-choose-dwarven-caravans-47-desktop.png)
+![Desktop: Pip chooses a card for dwarven-caravans](./screenshots/071-choose-dwarven-caravans-47-desktop.png)
 
 **Verifications:**
 
@@ -905,11 +917,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara visits dwarven-caravans
+## Pip visits dwarven-caravans
 
-![Phone: Mara visits dwarven-caravans](./screenshots/071-visit-dwarven-caravans-47-phone.png)
+![Phone: Pip visits dwarven-caravans](./screenshots/072-visit-dwarven-caravans-47-phone.png)
 
-![Desktop: Mara visits dwarven-caravans](./screenshots/071-visit-dwarven-caravans-47-desktop.png)
+![Desktop: Pip visits dwarven-caravans](./screenshots/072-visit-dwarven-caravans-47-desktop.png)
 
 **Verifications:**
 
@@ -918,11 +930,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara keeps Seek Allies
+## Pip keeps Seek Allies
 
-![Phone: Mara keeps Seek Allies](./screenshots/072-keep-seek-48-phone.png)
+![Phone: Pip keeps Seek Allies](./screenshots/073-keep-seek-48-phone.png)
 
-![Desktop: Mara keeps Seek Allies](./screenshots/072-keep-seek-48-desktop.png)
+![Desktop: Pip keeps Seek Allies](./screenshots/073-keep-seek-48-desktop.png)
 
 **Verifications:**
 
@@ -931,11 +943,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals while waiting for the next Ent opportunity
+## Pip Reveals while waiting for the next Ent opportunity
 
-![Phone: Mara Reveals while waiting for the next Ent opportunity](./screenshots/073-reveal-target-49-phone.png)
+![Phone: Pip Reveals while waiting for the next Ent opportunity](./screenshots/074-reveal-target-49-phone.png)
 
-![Desktop: Mara Reveals while waiting for the next Ent opportunity](./screenshots/073-reveal-target-49-desktop.png)
+![Desktop: Pip Reveals while waiting for the next Ent opportunity](./screenshots/074-reveal-target-49-desktop.png)
 
 **Verifications:**
 
@@ -944,11 +956,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal
+## Pip finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/074-finish-reveal-50-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/075-finish-reveal-50-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/074-finish-reveal-50-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/075-finish-reveal-50-desktop.png)
 
 **Verifications:**
 
@@ -957,11 +969,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals
+## Mara Reveals
 
-![Phone: Rin Reveals](./screenshots/075-reveal-other-51-phone.png)
+![Phone: Mara Reveals](./screenshots/076-reveal-other-51-phone.png)
 
-![Desktop: Rin Reveals](./screenshots/075-reveal-other-51-desktop.png)
+![Desktop: Mara Reveals](./screenshots/076-reveal-other-51-desktop.png)
 
 **Verifications:**
 
@@ -970,11 +982,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin finishes Reveal
+## Mara finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/076-finish-reveal-52-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/077-finish-reveal-52-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/076-finish-reveal-52-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/077-finish-reveal-52-desktop.png)
 
 **Verifications:**
 
@@ -983,49 +995,37 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara chooses a card for dwarven-caravans
+## Pip Reveals while waiting for the next Ent opportunity
 
-![Phone: Mara chooses a card for dwarven-caravans](./screenshots/077-choose-dwarven-caravans-53-phone.png)
+![Phone: Pip Reveals while waiting for the next Ent opportunity](./screenshots/078-reveal-target-53-phone.png)
 
-![Desktop: Mara chooses a card for dwarven-caravans](./screenshots/077-choose-dwarven-caravans-53-desktop.png)
-
-**Verifications:**
-
-- [x] The intended complete destination becomes enabled
-
----
-
-## Mara visits dwarven-caravans
-
-![Phone: Mara visits dwarven-caravans](./screenshots/078-visit-dwarven-caravans-53-phone.png)
-
-![Desktop: Mara visits dwarven-caravans](./screenshots/078-visit-dwarven-caravans-53-desktop.png)
+![Desktop: Pip Reveals while waiting for the next Ent opportunity](./screenshots/078-reveal-target-53-desktop.png)
 
 **Verifications:**
 
-- [x] All observers see the synchronized Agent occupation
+- [x] The target uses the ordinary Reveal control
 - [x] Every connected browser replays 64 accepted events with no diagnostics
 
 ---
 
-## Mara keeps Seek Allies
+## Pip finishes Reveal
 
-![Phone: Mara keeps Seek Allies](./screenshots/079-keep-seek-54-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/079-finish-reveal-54-phone.png)
 
-![Desktop: Mara keeps Seek Allies](./screenshots/079-keep-seek-54-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/079-finish-reveal-54-desktop.png)
 
 **Verifications:**
 
-- [x] The ordered Journey choice closes
+- [x] Authority advances through the ordinary phase sequence
 - [x] Every connected browser replays 65 accepted events with no diagnostics
 
 ---
 
-## Pip Reveals
+## Rin Reveals
 
-![Phone: Pip Reveals](./screenshots/080-reveal-other-55-phone.png)
+![Phone: Rin Reveals](./screenshots/080-reveal-other-55-phone.png)
 
-![Desktop: Pip Reveals](./screenshots/080-reveal-other-55-desktop.png)
+![Desktop: Rin Reveals](./screenshots/080-reveal-other-55-desktop.png)
 
 **Verifications:**
 
@@ -1034,11 +1034,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal
+## Rin finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/081-finish-reveal-56-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/081-finish-reveal-56-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/081-finish-reveal-56-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/081-finish-reveal-56-desktop.png)
 
 **Verifications:**
 
@@ -1047,11 +1047,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara chooses a card for deep-fangorn
+## Pip chooses a card for dwarven-caravans
 
-![Phone: Mara chooses a card for deep-fangorn](./screenshots/082-choose-deep-fangorn-57-phone.png)
+![Phone: Pip chooses a card for dwarven-caravans](./screenshots/082-choose-dwarven-caravans-57-phone.png)
 
-![Desktop: Mara chooses a card for deep-fangorn](./screenshots/082-choose-deep-fangorn-57-desktop.png)
+![Desktop: Pip chooses a card for dwarven-caravans](./screenshots/082-choose-dwarven-caravans-57-desktop.png)
 
 **Verifications:**
 
@@ -1059,11 +1059,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara visits deep-fangorn
+## Pip visits dwarven-caravans
 
-![Phone: Mara visits deep-fangorn](./screenshots/083-visit-deep-fangorn-57-phone.png)
+![Phone: Pip visits dwarven-caravans](./screenshots/083-visit-dwarven-caravans-57-phone.png)
 
-![Desktop: Mara visits deep-fangorn](./screenshots/083-visit-deep-fangorn-57-desktop.png)
+![Desktop: Pip visits dwarven-caravans](./screenshots/083-visit-dwarven-caravans-57-desktop.png)
 
 **Verifications:**
 
@@ -1072,145 +1072,171 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara summons two Ents into the active Battle
+## Rin Reveals
 
-![Phone: Mara summons two Ents into the active Battle](./screenshots/084-summon-two-ents-phone.png)
+![Phone: Rin Reveals](./screenshots/084-reveal-other-58-phone.png)
 
-![Desktop: Mara summons two Ents into the active Battle](./screenshots/084-summon-two-ents-desktop.png)
+![Desktop: Rin Reveals](./screenshots/084-reveal-other-58-desktop.png)
 
 **Verifications:**
 
-- [x] Every observer sees two Ents and at least six unit Strength immediately
+- [x] The public Muster row names the acting human
 - [x] Every connected browser replays 69 accepted events with no diagnostics
 
 ---
 
-## Mara places the ordered Scout
+## Rin finishes Reveal
 
-![Phone: Mara places the ordered Scout](./screenshots/085-place-scout-59-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/085-finish-reveal-59-phone.png)
 
-![Desktop: Mara places the ordered Scout](./screenshots/085-place-scout-59-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/085-finish-reveal-59-desktop.png)
 
 **Verifications:**
 
-- [x] The Scout network returns to its ordinary state
+- [x] Authority advances through the ordinary phase sequence
 - [x] Every connected browser replays 70 accepted events with no diagnostics
 
 ---
 
-## Mara leaves Companies in garrison
+## Mara Reveals
 
-![Phone: Mara leaves Companies in garrison](./screenshots/086-deploy-zero-60-phone.png)
+![Phone: Mara Reveals](./screenshots/086-reveal-other-60-phone.png)
 
-![Desktop: Mara leaves Companies in garrison](./screenshots/086-deploy-zero-60-desktop.png)
+![Desktop: Mara Reveals](./screenshots/086-reveal-other-60-desktop.png)
 
 **Verifications:**
 
-- [x] The summoned Ents remain in Battle without a Company
+- [x] The public Muster row names the acting human
 - [x] Every connected browser replays 71 accepted events with no diagnostics
-
----
-
-## Mara Reveals while waiting for the next Ent opportunity
-
-![Phone: Mara Reveals while waiting for the next Ent opportunity](./screenshots/087-reveal-target-61-phone.png)
-
-![Desktop: Mara Reveals while waiting for the next Ent opportunity](./screenshots/087-reveal-target-61-desktop.png)
-
-**Verifications:**
-
-- [x] The target uses the ordinary Reveal control
-- [x] Every connected browser replays 72 accepted events with no diagnostics
 
 ---
 
 ## Mara finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/088-finish-reveal-62-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/087-finish-reveal-61-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/088-finish-reveal-62-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/087-finish-reveal-61-desktop.png)
 
 **Verifications:**
 
 - [x] Authority advances through the ordinary phase sequence
+- [x] Every connected browser replays 72 accepted events with no diagnostics
+
+---
+
+## Pip chooses a card for deep-fangorn
+
+![Phone: Pip chooses a card for deep-fangorn](./screenshots/088-choose-deep-fangorn-62-phone.png)
+
+![Desktop: Pip chooses a card for deep-fangorn](./screenshots/088-choose-deep-fangorn-62-desktop.png)
+
+**Verifications:**
+
+- [x] The intended complete destination becomes enabled
+
+---
+
+## Pip visits deep-fangorn
+
+![Phone: Pip visits deep-fangorn](./screenshots/089-visit-deep-fangorn-62-phone.png)
+
+![Desktop: Pip visits deep-fangorn](./screenshots/089-visit-deep-fangorn-62-desktop.png)
+
+**Verifications:**
+
+- [x] All observers see the synchronized Agent occupation
 - [x] Every connected browser replays 73 accepted events with no diagnostics
 
 ---
 
-## Mara passes and resolves the Ent Battle
+## Pip summons two Ents into the active Battle
 
-![Phone: Mara passes and resolves the Ent Battle](./screenshots/089-resolve-ent-battle-phone.png)
+![Phone: Pip summons two Ents into the active Battle](./screenshots/090-summon-two-ents-phone.png)
 
-![Desktop: Mara passes and resolves the Ent Battle](./screenshots/089-resolve-ent-battle-desktop.png)
+![Desktop: Pip summons two Ents into the active Battle](./screenshots/090-summon-two-ents-desktop.png)
 
 **Verifications:**
 
-- [x] The sole Ent participant receives the ranked reward exactly twice
-- [x] Ents return to the bank during Battle cleanup and the next round opens
+- [x] Every observer sees two Ents and at least six unit Strength immediately
 - [x] Every connected browser replays 74 accepted events with no diagnostics
 
 ---
 
-## Mara reloads the doubled Ent reward
+## Pip places the ordered Scout
 
-![Phone: Mara reloads the doubled Ent reward](./screenshots/090-reload-ent-resolution-phone.png)
+![Phone: Pip places the ordered Scout](./screenshots/091-place-scout-64-phone.png)
 
-![Desktop: Mara reloads the doubled Ent reward](./screenshots/090-reload-ent-resolution-desktop.png)
-
-**Verifications:**
-
-- [x] The doubled reward, Dam, and Ent-draught replay without diagnostics
-- [x] Every connected browser replays 74 accepted events with no diagnostics
-
----
-
-## Mara chooses a Roads card for Entwash
-
-![Phone: Mara chooses a Roads card for Entwash](./screenshots/091-choose-entwash-road-phone.png)
-
-![Desktop: Mara chooses a Roads card for Entwash](./screenshots/091-choose-entwash-road-desktop.png)
+![Desktop: Pip places the ordered Scout](./screenshots/091-place-scout-64-desktop.png)
 
 **Verifications:**
 
-- [x] Entwash is enabled by a real Roads card
-
----
-
-## Mara pays one Provision and visits Entwash
-
-![Phone: Mara pays one Provision and visits Entwash](./screenshots/092-visit-entwash-phone.png)
-
-![Desktop: Mara pays one Provision and visits Entwash](./screenshots/092-visit-entwash-desktop.png)
-
-**Verifications:**
-
-- [x] The one-Provision cost and all accumulated Riches resolve before the choice
+- [x] The Scout network returns to its ordinary state
 - [x] Every connected browser replays 75 accepted events with no diagnostics
 
 ---
 
-## Mara summons one Ent at Entwash
+## Pip leaves Companies in garrison
 
-![Phone: Mara summons one Ent at Entwash](./screenshots/093-summon-one-entwash-ent-phone.png)
+![Phone: Pip leaves Companies in garrison](./screenshots/092-deploy-zero-65-phone.png)
 
-![Desktop: Mara summons one Ent at Entwash](./screenshots/093-summon-one-entwash-ent-desktop.png)
+![Desktop: Pip leaves Companies in garrison](./screenshots/092-deploy-zero-65-desktop.png)
 
 **Verifications:**
 
-- [x] Every observer sees exactly one Ent add three Strength in the new Battle
+- [x] The summoned Ents remain in Battle without a Company
 - [x] Every connected browser replays 76 accepted events with no diagnostics
 
 ---
 
-## Mara reloads the Entwash summon
+## Pip Reveals while waiting for the next Ent opportunity
 
-![Phone: Mara reloads the Entwash summon](./screenshots/094-reload-entwash-summon-phone.png)
+![Phone: Pip Reveals while waiting for the next Ent opportunity](./screenshots/093-reveal-target-66-phone.png)
 
-![Desktop: Mara reloads the Entwash summon](./screenshots/094-reload-entwash-summon-desktop.png)
+![Desktop: Pip Reveals while waiting for the next Ent opportunity](./screenshots/093-reveal-target-66-desktop.png)
 
 **Verifications:**
 
-- [x] Entwash occupation, one Ent, Dam state, and immutable history replay cleanly
-- [x] Every connected browser replays 76 accepted events with no diagnostics
+- [x] The target uses the ordinary Reveal control
+- [x] Every connected browser replays 77 accepted events with no diagnostics
+
+---
+
+## Pip finishes Reveal
+
+![Phone: Pip finishes Reveal](./screenshots/094-finish-reveal-67-phone.png)
+
+![Desktop: Pip finishes Reveal](./screenshots/094-finish-reveal-67-desktop.png)
+
+**Verifications:**
+
+- [x] Authority advances through the ordinary phase sequence
+- [x] Every connected browser replays 78 accepted events with no diagnostics
+
+---
+
+## Pip passes and resolves the Ent Battle
+
+![Phone: Pip passes and resolves the Ent Battle](./screenshots/095-resolve-ent-battle-phone.png)
+
+![Desktop: Pip passes and resolves the Ent Battle](./screenshots/095-resolve-ent-battle-desktop.png)
+
+**Verifications:**
+
+- [x] The sole Ent participant receives the ranked reward exactly twice
+- [x] Ents return to the bank and Battle cleanup opens round eight
+- [x] Every connected browser replays 79 accepted events with no diagnostics
+
+---
+
+## Pip reloads the doubled Ent reward
+
+![Phone: Pip reloads the doubled Ent reward](./screenshots/096-reload-ent-resolution-phone.png)
+
+![Desktop: Pip reloads the doubled Ent reward](./screenshots/096-reload-ent-resolution-desktop.png)
+
+**Verifications:**
+
+- [x] The doubled reward, Dam, and Ent-draught replay without diagnostics
+- [x] Every connected browser replays 79 accepted events with no diagnostics
 
 ---

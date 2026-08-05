@@ -3,14 +3,14 @@ import { reloadGameClient } from '../helpers/firebase-readiness';
 import { startPlotTable } from '../helpers/plot-table';
 import { TestStepHelper } from '../helpers/test-step-helper';
 
-test('Defence of Dale rewards a real final Battle victory with Dwarven standing', async ({ browser, page }, testInfo) => {
+test('Defence of Dale rewards a selected Age II Battle victory with Dwarven standing', async ({ browser, page }, testInfo) => {
   test.setTimeout(420_000);
   const steps = new TestStepHelper(testInfo);
   const table = await startPlotTable(browser, page, testInfo, steps, 'defence-dale', { phone: 'DALPH', desktop: 'DALDS' });
   const { seats, accepted, converged, currentSeat, row } = table;
 
   try {
-    for (let round = 1; round <= 10; round += 1) {
+    for (let round = 1; round < 2; round += 1) {
       for (let turn = 0; turn < 3; turn += 1) {
         const actor = await currentSeat();
         await steps.gesture(actor.page, `round-${round}-reveal-${turn + 1}`, `${actor.name} Reveals in round ${round}`, async () => {
@@ -22,9 +22,8 @@ test('Defence of Dale rewards a real final Battle victory with Dwarven standing'
         await steps.gesture(actor.page, `round-${round}-finish-${turn + 1}`, `${actor.name} finishes Reveal in round ${round}`, async () => {
           await actor.page.getByRole('button', { name: 'Finish Reveal' }).click(); accepted.value += 1;
         }, [
-          { spec: turn < 2 ? 'Reveal authority advances clockwise' : round < 10 ? `The unopposed Battle closes and round ${round + 1} opens` : 'The eleventh reviewed Battle opens after ten ordinary rounds', check: async () => {
+          { spec: turn < 2 ? 'Reveal authority advances clockwise' : 'The selected Age II Battle opens in round two', check: async () => {
             if (turn < 2) await expect(actor.page.locator('footer')).not.toContainText(`Current actor ${actor.name}`);
-            else if (round < 10) await expect(page.getByText(new RegExp(`Round ${round + 1} · Agent turns`, 'i'))).toBeVisible();
             else for (const observer of seats) await expect(observer.page.getByTestId('active-battle')).toContainText('Defence of Dale');
           } },
           converged(accepted.value + 1)
@@ -74,7 +73,7 @@ test('Defence of Dale rewards a real final Battle victory with Dwarven standing'
         await actor.page.getByRole('button', { name: 'Finish Reveal' }).click(); accepted.value += 1;
       }, [{ spec: turn < 2 ? 'Reveal authority advances to the next human' : 'The sole genuine participant receives Combat Fate authority', check: async () => {
         if (turn < 2) await expect(actor.page.locator('footer')).not.toContainText(`Current actor ${actor.name}`);
-        else await expect(defender.page.getByText('Round 11 · Combat Fate')).toBeVisible();
+        else await expect(defender.page.getByText('Round 2 · Combat Fate')).toBeVisible();
       } }, converged(accepted.value + 1)]);
     }
 
@@ -96,18 +95,18 @@ test('Defence of Dale rewards a real final Battle victory with Dwarven standing'
       } },
       converged(accepted.value + 1)
     ]);
-    await steps.gesture(defender.page, 'reload-defence-dale', `${defender.name} reloads the final Battle reward`, async () => {
+    await steps.gesture(defender.page, 'reload-defence-dale', `${defender.name} reloads the selected Battle reward`, async () => {
       await reloadGameClient(defender.page);
     }, [
-      { spec: 'The exact reward, trophy, and round-twelve authority replay immutably', check: async () => {
+      { spec: 'The exact reward, trophy, and round-three authority replay immutably', check: async () => {
         await expect(row(defender, defender.name).getByText('Renown', { exact: true }).locator('..')).toContainText(String(renownBefore + 1));
         await expect(row(defender, defender.name)).toContainText('Standards1 face up');
-        await expect(defender.page.getByText('Round 12 · Agent turns')).toBeVisible();
+        await expect(defender.page.getByText('Round 3 · Agent turns')).toBeVisible();
       } },
       converged(accepted.value)
     ]);
 
-    steps.generateDocs('Defence of Dale as the eleventh Battle', 'Three isolated humans exhaust ten real Battles through ordinary Reveal turns, enter Defence of Dale with Reconnaissance, place its Scout, deploy a finite Company, Reveal, win through the sole-participant Combat window, receive exactly one Renown and one Dwarven standing, and reload the converged trophy and next round.');
+    steps.generateDocs('Defence of Dale as a selected Age II Battle', 'Three isolated humans reveal through the Age I Battle, see Defence of Dale selected from the shuffled Age II cards, enter with Reconnaissance, place its Scout, deploy a finite Company, Reveal, win through the sole-participant Combat window, receive exactly one Renown and one Dwarven standing, and reload the converged trophy and next round.');
   } finally {
     await table.close();
   }

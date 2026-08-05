@@ -1,6 +1,6 @@
 # Test: Clash at the Morannon through final scoring
 
-Three isolated humans exhaust fifteen Battles through ordinary Reveal turns, deploy two finite forces through real cards and board destinations, resolve Combat ranking, receive the exact first-rank and second-rank rewards, reload persisted winner authority, enter Endgame only after the final ordered choice, pass clockwise with real gestures, agree on the deterministic winner and full tiebreak ledger, and reload the finished match from its immutable event history.
+Three isolated humans resolve the selected one-five-four age progression, deploy two finite forces through real cards and board destinations at the tenth and final Battle, resolve Combat ranking, receive the exact first-rank and second-rank rewards, reload persisted winner authority, enter Endgame only after the final ordered choice, pass clockwise with real gestures, agree on the deterministic winner and full tiebreak ledger, and reload the finished match from its immutable event history.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -940,484 +940,16 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 **Verifications:**
 
-- [x] The unopposed Battle closes and round 10 opens
+- [x] Clash at the Morannon opens as the tenth and final selected Battle
 - [x] Every connected browser replays 65 accepted events with no diagnostics
-
----
-
-## Mara Reveals in round 10
-
-![Phone: Mara Reveals in round 10](./screenshots/073-round-10-reveal-1-phone.png)
-
-![Desktop: Mara Reveals in round 10](./screenshots/073-round-10-reveal-1-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 66 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal in round 10
-
-![Phone: Mara finishes Reveal in round 10](./screenshots/074-round-10-finish-1-phone.png)
-
-![Desktop: Mara finishes Reveal in round 10](./screenshots/074-round-10-finish-1-desktop.png)
-
-**Verifications:**
-
-- [x] Reveal authority advances clockwise
-- [x] Every connected browser replays 67 accepted events with no diagnostics
-
----
-
-## Rin Reveals in round 10
-
-![Phone: Rin Reveals in round 10](./screenshots/075-round-10-reveal-2-phone.png)
-
-![Desktop: Rin Reveals in round 10](./screenshots/075-round-10-reveal-2-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 68 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal in round 10
-
-![Phone: Rin finishes Reveal in round 10](./screenshots/076-round-10-finish-2-phone.png)
-
-![Desktop: Rin finishes Reveal in round 10](./screenshots/076-round-10-finish-2-desktop.png)
-
-**Verifications:**
-
-- [x] Reveal authority advances clockwise
-- [x] Every connected browser replays 69 accepted events with no diagnostics
-
----
-
-## Pip Reveals in round 10
-
-![Phone: Pip Reveals in round 10](./screenshots/077-round-10-reveal-3-phone.png)
-
-![Desktop: Pip Reveals in round 10](./screenshots/077-round-10-reveal-3-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 70 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal in round 10
-
-![Phone: Pip finishes Reveal in round 10](./screenshots/078-round-10-finish-3-phone.png)
-
-![Desktop: Pip finishes Reveal in round 10](./screenshots/078-round-10-finish-3-desktop.png)
-
-**Verifications:**
-
-- [x] The unopposed Battle closes and round 11 opens
-- [x] Every connected browser replays 71 accepted events with no diagnostics
-
----
-
-## Rin Reveals in round 11
-
-![Phone: Rin Reveals in round 11](./screenshots/079-round-11-reveal-1-phone.png)
-
-![Desktop: Rin Reveals in round 11](./screenshots/079-round-11-reveal-1-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 72 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal in round 11
-
-![Phone: Rin finishes Reveal in round 11](./screenshots/080-round-11-finish-1-phone.png)
-
-![Desktop: Rin finishes Reveal in round 11](./screenshots/080-round-11-finish-1-desktop.png)
-
-**Verifications:**
-
-- [x] Reveal authority advances clockwise
-- [x] Every connected browser replays 73 accepted events with no diagnostics
-
----
-
-## Pip Reveals in round 11
-
-![Phone: Pip Reveals in round 11](./screenshots/081-round-11-reveal-2-phone.png)
-
-![Desktop: Pip Reveals in round 11](./screenshots/081-round-11-reveal-2-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 74 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal in round 11
-
-![Phone: Pip finishes Reveal in round 11](./screenshots/082-round-11-finish-2-phone.png)
-
-![Desktop: Pip finishes Reveal in round 11](./screenshots/082-round-11-finish-2-desktop.png)
-
-**Verifications:**
-
-- [x] Reveal authority advances clockwise
-- [x] Every connected browser replays 75 accepted events with no diagnostics
-
----
-
-## Mara Reveals in round 11
-
-![Phone: Mara Reveals in round 11](./screenshots/083-round-11-reveal-3-phone.png)
-
-![Desktop: Mara Reveals in round 11](./screenshots/083-round-11-reveal-3-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 76 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal in round 11
-
-![Phone: Mara finishes Reveal in round 11](./screenshots/084-round-11-finish-3-phone.png)
-
-![Desktop: Mara finishes Reveal in round 11](./screenshots/084-round-11-finish-3-desktop.png)
-
-**Verifications:**
-
-- [x] The unopposed Battle closes and round 12 opens
-- [x] Every connected browser replays 77 accepted events with no diagnostics
-
----
-
-## Pip Reveals in round 12
-
-![Phone: Pip Reveals in round 12](./screenshots/085-round-12-reveal-1-phone.png)
-
-![Desktop: Pip Reveals in round 12](./screenshots/085-round-12-reveal-1-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 78 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal in round 12
-
-![Phone: Pip finishes Reveal in round 12](./screenshots/086-round-12-finish-1-phone.png)
-
-![Desktop: Pip finishes Reveal in round 12](./screenshots/086-round-12-finish-1-desktop.png)
-
-**Verifications:**
-
-- [x] Reveal authority advances clockwise
-- [x] Every connected browser replays 79 accepted events with no diagnostics
-
----
-
-## Mara Reveals in round 12
-
-![Phone: Mara Reveals in round 12](./screenshots/087-round-12-reveal-2-phone.png)
-
-![Desktop: Mara Reveals in round 12](./screenshots/087-round-12-reveal-2-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 80 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal in round 12
-
-![Phone: Mara finishes Reveal in round 12](./screenshots/088-round-12-finish-2-phone.png)
-
-![Desktop: Mara finishes Reveal in round 12](./screenshots/088-round-12-finish-2-desktop.png)
-
-**Verifications:**
-
-- [x] Reveal authority advances clockwise
-- [x] Every connected browser replays 81 accepted events with no diagnostics
-
----
-
-## Rin Reveals in round 12
-
-![Phone: Rin Reveals in round 12](./screenshots/089-round-12-reveal-3-phone.png)
-
-![Desktop: Rin Reveals in round 12](./screenshots/089-round-12-reveal-3-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 82 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal in round 12
-
-![Phone: Rin finishes Reveal in round 12](./screenshots/090-round-12-finish-3-phone.png)
-
-![Desktop: Rin finishes Reveal in round 12](./screenshots/090-round-12-finish-3-desktop.png)
-
-**Verifications:**
-
-- [x] The unopposed Battle closes and round 13 opens
-- [x] Every connected browser replays 83 accepted events with no diagnostics
-
----
-
-## Mara Reveals in round 13
-
-![Phone: Mara Reveals in round 13](./screenshots/091-round-13-reveal-1-phone.png)
-
-![Desktop: Mara Reveals in round 13](./screenshots/091-round-13-reveal-1-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 84 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal in round 13
-
-![Phone: Mara finishes Reveal in round 13](./screenshots/092-round-13-finish-1-phone.png)
-
-![Desktop: Mara finishes Reveal in round 13](./screenshots/092-round-13-finish-1-desktop.png)
-
-**Verifications:**
-
-- [x] Reveal authority advances clockwise
-- [x] Every connected browser replays 85 accepted events with no diagnostics
-
----
-
-## Rin Reveals in round 13
-
-![Phone: Rin Reveals in round 13](./screenshots/093-round-13-reveal-2-phone.png)
-
-![Desktop: Rin Reveals in round 13](./screenshots/093-round-13-reveal-2-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 86 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal in round 13
-
-![Phone: Rin finishes Reveal in round 13](./screenshots/094-round-13-finish-2-phone.png)
-
-![Desktop: Rin finishes Reveal in round 13](./screenshots/094-round-13-finish-2-desktop.png)
-
-**Verifications:**
-
-- [x] Reveal authority advances clockwise
-- [x] Every connected browser replays 87 accepted events with no diagnostics
-
----
-
-## Pip Reveals in round 13
-
-![Phone: Pip Reveals in round 13](./screenshots/095-round-13-reveal-3-phone.png)
-
-![Desktop: Pip Reveals in round 13](./screenshots/095-round-13-reveal-3-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 88 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal in round 13
-
-![Phone: Pip finishes Reveal in round 13](./screenshots/096-round-13-finish-3-phone.png)
-
-![Desktop: Pip finishes Reveal in round 13](./screenshots/096-round-13-finish-3-desktop.png)
-
-**Verifications:**
-
-- [x] The unopposed Battle closes and round 14 opens
-- [x] Every connected browser replays 89 accepted events with no diagnostics
-
----
-
-## Rin Reveals in round 14
-
-![Phone: Rin Reveals in round 14](./screenshots/097-round-14-reveal-1-phone.png)
-
-![Desktop: Rin Reveals in round 14](./screenshots/097-round-14-reveal-1-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 90 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal in round 14
-
-![Phone: Rin finishes Reveal in round 14](./screenshots/098-round-14-finish-1-phone.png)
-
-![Desktop: Rin finishes Reveal in round 14](./screenshots/098-round-14-finish-1-desktop.png)
-
-**Verifications:**
-
-- [x] Reveal authority advances clockwise
-- [x] Every connected browser replays 91 accepted events with no diagnostics
-
----
-
-## Pip Reveals in round 14
-
-![Phone: Pip Reveals in round 14](./screenshots/099-round-14-reveal-2-phone.png)
-
-![Desktop: Pip Reveals in round 14](./screenshots/099-round-14-reveal-2-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 92 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal in round 14
-
-![Phone: Pip finishes Reveal in round 14](./screenshots/100-round-14-finish-2-phone.png)
-
-![Desktop: Pip finishes Reveal in round 14](./screenshots/100-round-14-finish-2-desktop.png)
-
-**Verifications:**
-
-- [x] Reveal authority advances clockwise
-- [x] Every connected browser replays 93 accepted events with no diagnostics
-
----
-
-## Mara Reveals in round 14
-
-![Phone: Mara Reveals in round 14](./screenshots/101-round-14-reveal-3-phone.png)
-
-![Desktop: Mara Reveals in round 14](./screenshots/101-round-14-reveal-3-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 94 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal in round 14
-
-![Phone: Mara finishes Reveal in round 14](./screenshots/102-round-14-finish-3-phone.png)
-
-![Desktop: Mara finishes Reveal in round 14](./screenshots/102-round-14-finish-3-desktop.png)
-
-**Verifications:**
-
-- [x] The unopposed Battle closes and round 15 opens
-- [x] Every connected browser replays 95 accepted events with no diagnostics
-
----
-
-## Pip Reveals in round 15
-
-![Phone: Pip Reveals in round 15](./screenshots/103-round-15-reveal-1-phone.png)
-
-![Desktop: Pip Reveals in round 15](./screenshots/103-round-15-reveal-1-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 96 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal in round 15
-
-![Phone: Pip finishes Reveal in round 15](./screenshots/104-round-15-finish-1-phone.png)
-
-![Desktop: Pip finishes Reveal in round 15](./screenshots/104-round-15-finish-1-desktop.png)
-
-**Verifications:**
-
-- [x] Reveal authority advances clockwise
-- [x] Every connected browser replays 97 accepted events with no diagnostics
-
----
-
-## Mara Reveals in round 15
-
-![Phone: Mara Reveals in round 15](./screenshots/105-round-15-reveal-2-phone.png)
-
-![Desktop: Mara Reveals in round 15](./screenshots/105-round-15-reveal-2-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 98 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal in round 15
-
-![Phone: Mara finishes Reveal in round 15](./screenshots/106-round-15-finish-2-phone.png)
-
-![Desktop: Mara finishes Reveal in round 15](./screenshots/106-round-15-finish-2-desktop.png)
-
-**Verifications:**
-
-- [x] Reveal authority advances clockwise
-- [x] Every connected browser replays 99 accepted events with no diagnostics
-
----
-
-## Rin Reveals in round 15
-
-![Phone: Rin Reveals in round 15](./screenshots/107-round-15-reveal-3-phone.png)
-
-![Desktop: Rin Reveals in round 15](./screenshots/107-round-15-reveal-3-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 100 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal in round 15
-
-![Phone: Rin finishes Reveal in round 15](./screenshots/108-round-15-finish-3-phone.png)
-
-![Desktop: Rin finishes Reveal in round 15](./screenshots/108-round-15-finish-3-desktop.png)
-
-**Verifications:**
-
-- [x] Clash at the Morannon opens as the sixteenth reviewed Battle
-- [x] Every connected browser replays 101 accepted events with no diagnostics
 
 ---
 
 ## Mara chooses a real Battle card
 
-![Phone: Mara chooses a real Battle card](./screenshots/109-morannon-1-choose-card-phone.png)
+![Phone: Mara chooses a real Battle card](./screenshots/073-morannon-1-choose-card-phone.png)
 
-![Desktop: Mara chooses a real Battle card](./screenshots/109-morannon-1-choose-card-desktop.png)
+![Desktop: Mara chooses a real Battle card](./screenshots/073-morannon-1-choose-card-desktop.png)
 
 **Verifications:**
 
@@ -1427,35 +959,35 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Mara enters the Clash through Edoras
 
-![Phone: Mara enters the Clash through Edoras](./screenshots/110-morannon-1-enter-phone.png)
+![Phone: Mara enters the Clash through Edoras](./screenshots/074-morannon-1-enter-phone.png)
 
-![Desktop: Mara enters the Clash through Edoras](./screenshots/110-morannon-1-enter-desktop.png)
+![Desktop: Mara enters the Clash through Edoras](./screenshots/074-morannon-1-enter-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees the genuine Agent occupation and ordered continuation
-- [x] Every connected browser replays 102 accepted events with no diagnostics
+- [x] Every connected browser replays 66 accepted events with no diagnostics
 
 ---
 
 ## Mara deploys 2 Companies
 
-![Phone: Mara deploys 2 Companies](./screenshots/111-morannon-1-deploy-phone.png)
+![Phone: Mara deploys 2 Companies](./screenshots/075-morannon-1-deploy-phone.png)
 
-![Desktop: Mara deploys 2 Companies](./screenshots/111-morannon-1-deploy-desktop.png)
+![Desktop: Mara deploys 2 Companies](./screenshots/075-morannon-1-deploy-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees the finite Battle force
-- [x] Every connected browser replays 103 accepted events with no diagnostics
+- [x] Every connected browser replays 67 accepted events with no diagnostics
 
 ---
 
 ## Rin chooses a real Battle card
 
-![Phone: Rin chooses a real Battle card](./screenshots/112-morannon-2-choose-card-phone.png)
+![Phone: Rin chooses a real Battle card](./screenshots/076-morannon-2-choose-card-phone.png)
 
-![Desktop: Rin chooses a real Battle card](./screenshots/112-morannon-2-choose-card-desktop.png)
+![Desktop: Rin chooses a real Battle card](./screenshots/076-morannon-2-choose-card-desktop.png)
 
 **Verifications:**
 
@@ -1465,235 +997,248 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Rin enters the Clash through Entwash
 
-![Phone: Rin enters the Clash through Entwash](./screenshots/113-morannon-2-enter-phone.png)
+![Phone: Rin enters the Clash through Entwash](./screenshots/077-morannon-2-enter-phone.png)
 
-![Desktop: Rin enters the Clash through Entwash](./screenshots/113-morannon-2-enter-desktop.png)
+![Desktop: Rin enters the Clash through Entwash](./screenshots/077-morannon-2-enter-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees the genuine Agent occupation and ordered continuation
-- [x] Every connected browser replays 104 accepted events with no diagnostics
+- [x] Every connected browser replays 68 accepted events with no diagnostics
 
 ---
 
 ## Rin takes Entwash Mithril
 
-![Phone: Rin takes Entwash Mithril](./screenshots/114-morannon-2-take-mithril-phone.png)
+![Phone: Rin takes Entwash Mithril](./screenshots/078-morannon-2-take-mithril-phone.png)
 
-![Desktop: Rin takes Entwash Mithril](./screenshots/114-morannon-2-take-mithril-desktop.png)
+![Desktop: Rin takes Entwash Mithril](./screenshots/078-morannon-2-take-mithril-desktop.png)
 
 **Verifications:**
 
 - [x] The Roads effect resolves before the next ordered continuation
-- [x] Every connected browser replays 105 accepted events with no diagnostics
+- [x] Every connected browser replays 69 accepted events with no diagnostics
+
+---
+
+## Rin places the card's required Scout
+
+![Phone: Rin places the card's required Scout](./screenshots/079-morannon-2-place-scout-phone.png)
+
+![Desktop: Rin places the card's required Scout](./screenshots/079-morannon-2-place-scout-desktop.png)
+
+**Verifications:**
+
+- [x] A finite Scout becomes public before Battle deployment
+- [x] Every connected browser replays 70 accepted events with no diagnostics
 
 ---
 
 ## Rin deploys 1 Company
 
-![Phone: Rin deploys 1 Company](./screenshots/115-morannon-2-deploy-phone.png)
+![Phone: Rin deploys 1 Company](./screenshots/080-morannon-2-deploy-phone.png)
 
-![Desktop: Rin deploys 1 Company](./screenshots/115-morannon-2-deploy-desktop.png)
+![Desktop: Rin deploys 1 Company](./screenshots/080-morannon-2-deploy-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees the finite Battle force
-- [x] Every connected browser replays 106 accepted events with no diagnostics
+- [x] Every connected browser replays 71 accepted events with no diagnostics
 
 ---
 
 ## Pip Reveals for the Morannon
 
-![Phone: Pip Reveals for the Morannon](./screenshots/116-morannon-reveal-1-phone.png)
+![Phone: Pip Reveals for the Morannon](./screenshots/081-morannon-reveal-1-phone.png)
 
-![Desktop: Pip Reveals for the Morannon](./screenshots/116-morannon-reveal-1-desktop.png)
+![Desktop: Pip Reveals for the Morannon](./screenshots/081-morannon-reveal-1-desktop.png)
 
 **Verifications:**
 
 - [x] The real Muster row and swords become public
-- [x] Every connected browser replays 107 accepted events with no diagnostics
+- [x] Every connected browser replays 72 accepted events with no diagnostics
 
 ---
 
 ## Pip finishes the Morannon Reveal
 
-![Phone: Pip finishes the Morannon Reveal](./screenshots/117-morannon-finish-1-phone.png)
+![Phone: Pip finishes the Morannon Reveal](./screenshots/082-morannon-finish-1-phone.png)
 
-![Desktop: Pip finishes the Morannon Reveal](./screenshots/117-morannon-finish-1-desktop.png)
+![Desktop: Pip finishes the Morannon Reveal](./screenshots/082-morannon-finish-1-desktop.png)
 
 **Verifications:**
 
 - [x] Reveal authority advances
-- [x] Every connected browser replays 108 accepted events with no diagnostics
+- [x] Every connected browser replays 73 accepted events with no diagnostics
 
 ---
 
 ## Mara Reveals for the Morannon
 
-![Phone: Mara Reveals for the Morannon](./screenshots/118-morannon-reveal-2-phone.png)
+![Phone: Mara Reveals for the Morannon](./screenshots/083-morannon-reveal-2-phone.png)
 
-![Desktop: Mara Reveals for the Morannon](./screenshots/118-morannon-reveal-2-desktop.png)
+![Desktop: Mara Reveals for the Morannon](./screenshots/083-morannon-reveal-2-desktop.png)
 
 **Verifications:**
 
 - [x] The real Muster row and swords become public
-- [x] Every connected browser replays 109 accepted events with no diagnostics
+- [x] Every connected browser replays 74 accepted events with no diagnostics
 
 ---
 
 ## Mara finishes the Morannon Reveal
 
-![Phone: Mara finishes the Morannon Reveal](./screenshots/119-morannon-finish-2-phone.png)
+![Phone: Mara finishes the Morannon Reveal](./screenshots/084-morannon-finish-2-phone.png)
 
-![Desktop: Mara finishes the Morannon Reveal](./screenshots/119-morannon-finish-2-desktop.png)
+![Desktop: Mara finishes the Morannon Reveal](./screenshots/084-morannon-finish-2-desktop.png)
 
 **Verifications:**
 
 - [x] Reveal authority advances
-- [x] Every connected browser replays 110 accepted events with no diagnostics
+- [x] Every connected browser replays 75 accepted events with no diagnostics
 
 ---
 
 ## Rin Reveals for the Morannon
 
-![Phone: Rin Reveals for the Morannon](./screenshots/120-morannon-reveal-3-phone.png)
+![Phone: Rin Reveals for the Morannon](./screenshots/085-morannon-reveal-3-phone.png)
 
-![Desktop: Rin Reveals for the Morannon](./screenshots/120-morannon-reveal-3-desktop.png)
+![Desktop: Rin Reveals for the Morannon](./screenshots/085-morannon-reveal-3-desktop.png)
 
 **Verifications:**
 
 - [x] The real Muster row and swords become public
-- [x] Every connected browser replays 111 accepted events with no diagnostics
+- [x] Every connected browser replays 76 accepted events with no diagnostics
 
 ---
 
 ## Rin finishes the Morannon Reveal
 
-![Phone: Rin finishes the Morannon Reveal](./screenshots/121-morannon-finish-3-phone.png)
+![Phone: Rin finishes the Morannon Reveal](./screenshots/086-morannon-finish-3-phone.png)
 
-![Desktop: Rin finishes the Morannon Reveal](./screenshots/121-morannon-finish-3-desktop.png)
+![Desktop: Rin finishes the Morannon Reveal](./screenshots/086-morannon-finish-3-desktop.png)
 
 **Verifications:**
 
 - [x] The two deployed humans enter Combat Fate
-- [x] Every connected browser replays 112 accepted events with no diagnostics
+- [x] Every connected browser replays 77 accepted events with no diagnostics
 
 ---
 
 ## Mara passes Combat Fate
 
-![Phone: Mara passes Combat Fate](./screenshots/122-morannon-pass-1-phone.png)
+![Phone: Mara passes Combat Fate](./screenshots/087-morannon-pass-1-phone.png)
 
-![Desktop: Mara passes Combat Fate](./screenshots/122-morannon-pass-1-desktop.png)
+![Desktop: Mara passes Combat Fate](./screenshots/087-morannon-pass-1-desktop.png)
 
 **Verifications:**
 
 - [x] Combat authority passes to the other participant
-- [x] Every connected browser replays 113 accepted events with no diagnostics
+- [x] Every connected browser replays 78 accepted events with no diagnostics
 
 ---
 
 ## Rin passes Combat Fate
 
-![Phone: Rin passes Combat Fate](./screenshots/123-morannon-pass-2-phone.png)
+![Phone: Rin passes Combat Fate](./screenshots/088-morannon-pass-2-phone.png)
 
-![Desktop: Rin passes Combat Fate](./screenshots/123-morannon-pass-2-desktop.png)
+![Desktop: Rin passes Combat Fate](./screenshots/088-morannon-pass-2-desktop.png)
 
 **Verifications:**
 
 - [x] Both ranked rewards resolve and the winner standing choice blocks Recall
-- [x] Every connected browser replays 114 accepted events with no diagnostics
+- [x] Every connected browser replays 79 accepted events with no diagnostics
 
 ---
 
 ## Mara reloads the final Battle standing reward
 
-![Phone: Mara reloads the final Battle standing reward](./screenshots/124-reload-morannon-standing-phone.png)
+![Phone: Mara reloads the final Battle standing reward](./screenshots/089-reload-morannon-standing-phone.png)
 
-![Desktop: Mara reloads the final Battle standing reward](./screenshots/124-reload-morannon-standing-desktop.png)
+![Desktop: Mara reloads the final Battle standing reward](./screenshots/089-reload-morannon-standing-desktop.png)
 
 **Verifications:**
 
 - [x] The exact winner and four faction options replay before Recall
-- [x] Every connected browser replays 114 accepted events with no diagnostics
+- [x] Every connected browser replays 79 accepted events with no diagnostics
 
 ---
 
 ## Mara chooses Dwarven standing
 
-![Phone: Mara chooses Dwarven standing](./screenshots/125-choose-morannon-standing-phone.png)
+![Phone: Mara chooses Dwarven standing](./screenshots/090-choose-morannon-standing-phone.png)
 
-![Desktop: Mara chooses Dwarven standing](./screenshots/125-choose-morannon-standing-desktop.png)
+![Desktop: Mara chooses Dwarven standing](./screenshots/090-choose-morannon-standing-desktop.png)
 
 **Verifications:**
 
 - [x] Exactly one Dwarven standing resolves publicly for the Battle winner
-- [x] The complete sixteen-card Battle sequence opens Endgame only after its last ordered reward
-- [x] Every connected browser replays 115 accepted events with no diagnostics
+- [x] The complete ten-card Battle sequence opens Endgame only after its last ordered reward
+- [x] Every connected browser replays 80 accepted events with no diagnostics
 
 ---
 
 ## Mara plays Lore Beyond Price
 
-![Phone: Mara plays Lore Beyond Price](./screenshots/126-play-lore-beyond-price-phone.png)
+![Phone: Mara plays Lore Beyond Price](./screenshots/091-play-lore-beyond-price-phone.png)
 
-![Desktop: Mara plays Lore Beyond Price](./screenshots/126-play-lore-beyond-price-desktop.png)
+![Desktop: Mara plays Lore Beyond Price](./screenshots/091-play-lore-beyond-price-desktop.png)
 
 **Verifications:**
 
 - [x] The Endgame Fate pays exactly four earned Mithril for one Renown and retains authority
-- [x] Every connected browser replays 116 accepted events with no diagnostics
+- [x] Every connected browser replays 81 accepted events with no diagnostics
 
 ---
 
 ## Mara passes Endgame
 
-![Phone: Mara passes Endgame](./screenshots/127-endgame-pass-1-phone.png)
+![Phone: Mara passes Endgame](./screenshots/092-endgame-pass-1-phone.png)
 
-![Desktop: Mara passes Endgame](./screenshots/127-endgame-pass-1-desktop.png)
+![Desktop: Mara passes Endgame](./screenshots/092-endgame-pass-1-desktop.png)
 
 **Verifications:**
 
 - [x] Endgame authority advances clockwise after a real human pass
-- [x] Every connected browser replays 117 accepted events with no diagnostics
+- [x] Every connected browser replays 82 accepted events with no diagnostics
 
 ---
 
 ## Rin passes Endgame
 
-![Phone: Rin passes Endgame](./screenshots/128-endgame-pass-2-phone.png)
+![Phone: Rin passes Endgame](./screenshots/093-endgame-pass-2-phone.png)
 
-![Desktop: Rin passes Endgame](./screenshots/128-endgame-pass-2-desktop.png)
+![Desktop: Rin passes Endgame](./screenshots/093-endgame-pass-2-desktop.png)
 
 **Verifications:**
 
 - [x] Endgame authority advances clockwise after a real human pass
-- [x] Every connected browser replays 118 accepted events with no diagnostics
+- [x] Every connected browser replays 83 accepted events with no diagnostics
 
 ---
 
 ## Pip passes Endgame
 
-![Phone: Pip passes Endgame](./screenshots/129-endgame-pass-3-phone.png)
+![Phone: Pip passes Endgame](./screenshots/094-endgame-pass-3-phone.png)
 
-![Desktop: Pip passes Endgame](./screenshots/129-endgame-pass-3-desktop.png)
+![Desktop: Pip passes Endgame](./screenshots/094-endgame-pass-3-desktop.png)
 
 **Verifications:**
 
 - [x] Three consecutive passes apply final scoring in every client
-- [x] Every connected browser replays 119 accepted events with no diagnostics
+- [x] Every connected browser replays 84 accepted events with no diagnostics
 
 ---
 
 ## Mara reloads the finished match
 
-![Phone: Mara reloads the finished match](./screenshots/130-reload-final-result-phone.png)
+![Phone: Mara reloads the finished match](./screenshots/095-reload-final-result-phone.png)
 
-![Desktop: Mara reloads the finished match](./screenshots/130-reload-final-result-desktop.png)
+![Desktop: Mara reloads the finished match](./screenshots/095-reload-final-result-desktop.png)
 
 **Verifications:**
 
 - [x] The immutable room history reproduces the same winner and complete tiebreak ledger
-- [x] Every connected browser replays 119 accepted events with no diagnostics
+- [x] Every connected browser replays 84 accepted events with no diagnostics
 
 ---

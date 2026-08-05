@@ -1,6 +1,6 @@
-# Test: Last March of the Ents as the twelfth Battle
+# Test: Last March of the Ents as the tenth Battle
 
-Three isolated humans exhaust eleven real Battles through ordinary Reveal turns, enter Last March of the Ents with a real card and destination, resolve its ordered continuation, deploy a finite Company, Reveal, win through Combat, receive exactly two Renown and two Mithril, permanently breach the Dam, and reload the converged Horse Standard and next round.
+Three isolated humans resolve the selected one-five-four age progression, enter Last March of the Ents as the tenth and final Battle with a real card and destination, resolve its ordered continuation, deploy a finite Company, Reveal, win through Combat, receive exactly two Renown and two Mithril, permanently breach the Dam, and reload the converged Horse Standard in Endgame.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -218,11 +218,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals in round 1
+## Mara Reveals in round 1
 
-![Phone: Pip Reveals in round 1](./screenshots/017-round-1-reveal-1-phone.png)
+![Phone: Mara Reveals in round 1](./screenshots/017-round-1-reveal-1-phone.png)
 
-![Desktop: Pip Reveals in round 1](./screenshots/017-round-1-reveal-1-desktop.png)
+![Desktop: Mara Reveals in round 1](./screenshots/017-round-1-reveal-1-desktop.png)
 
 **Verifications:**
 
@@ -231,11 +231,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal in round 1
+## Mara finishes Reveal in round 1
 
-![Phone: Pip finishes Reveal in round 1](./screenshots/018-round-1-finish-1-phone.png)
+![Phone: Mara finishes Reveal in round 1](./screenshots/018-round-1-finish-1-phone.png)
 
-![Desktop: Pip finishes Reveal in round 1](./screenshots/018-round-1-finish-1-desktop.png)
+![Desktop: Mara finishes Reveal in round 1](./screenshots/018-round-1-finish-1-desktop.png)
 
 **Verifications:**
 
@@ -244,11 +244,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals in round 1
+## Pip Reveals in round 1
 
-![Phone: Mara Reveals in round 1](./screenshots/019-round-1-reveal-2-phone.png)
+![Phone: Pip Reveals in round 1](./screenshots/019-round-1-reveal-2-phone.png)
 
-![Desktop: Mara Reveals in round 1](./screenshots/019-round-1-reveal-2-desktop.png)
+![Desktop: Pip Reveals in round 1](./screenshots/019-round-1-reveal-2-desktop.png)
 
 **Verifications:**
 
@@ -257,11 +257,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal in round 1
+## Pip finishes Reveal in round 1
 
-![Phone: Mara finishes Reveal in round 1](./screenshots/020-round-1-finish-2-phone.png)
+![Phone: Pip finishes Reveal in round 1](./screenshots/020-round-1-finish-2-phone.png)
 
-![Desktop: Mara finishes Reveal in round 1](./screenshots/020-round-1-finish-2-desktop.png)
+![Desktop: Pip finishes Reveal in round 1](./screenshots/020-round-1-finish-2-desktop.png)
 
 **Verifications:**
 
@@ -296,11 +296,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals in round 2
+## Pip Reveals in round 2
 
-![Phone: Mara Reveals in round 2](./screenshots/023-round-2-reveal-1-phone.png)
+![Phone: Pip Reveals in round 2](./screenshots/023-round-2-reveal-1-phone.png)
 
-![Desktop: Mara Reveals in round 2](./screenshots/023-round-2-reveal-1-desktop.png)
+![Desktop: Pip Reveals in round 2](./screenshots/023-round-2-reveal-1-desktop.png)
 
 **Verifications:**
 
@@ -309,11 +309,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal in round 2
+## Pip finishes Reveal in round 2
 
-![Phone: Mara finishes Reveal in round 2](./screenshots/024-round-2-finish-1-phone.png)
+![Phone: Pip finishes Reveal in round 2](./screenshots/024-round-2-finish-1-phone.png)
 
-![Desktop: Mara finishes Reveal in round 2](./screenshots/024-round-2-finish-1-desktop.png)
+![Desktop: Pip finishes Reveal in round 2](./screenshots/024-round-2-finish-1-desktop.png)
 
 **Verifications:**
 
@@ -348,11 +348,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals in round 2
+## Mara Reveals in round 2
 
-![Phone: Pip Reveals in round 2](./screenshots/027-round-2-reveal-3-phone.png)
+![Phone: Mara Reveals in round 2](./screenshots/027-round-2-reveal-3-phone.png)
 
-![Desktop: Pip Reveals in round 2](./screenshots/027-round-2-reveal-3-desktop.png)
+![Desktop: Mara Reveals in round 2](./screenshots/027-round-2-reveal-3-desktop.png)
 
 **Verifications:**
 
@@ -361,11 +361,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal in round 2
+## Mara finishes Reveal in round 2
 
-![Phone: Pip finishes Reveal in round 2](./screenshots/028-round-2-finish-3-phone.png)
+![Phone: Mara finishes Reveal in round 2](./screenshots/028-round-2-finish-3-phone.png)
 
-![Desktop: Pip finishes Reveal in round 2](./screenshots/028-round-2-finish-3-desktop.png)
+![Desktop: Mara finishes Reveal in round 2](./screenshots/028-round-2-finish-3-desktop.png)
 
 **Verifications:**
 
@@ -400,11 +400,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals in round 3
+## Mara Reveals in round 3
 
-![Phone: Pip Reveals in round 3](./screenshots/031-round-3-reveal-2-phone.png)
+![Phone: Mara Reveals in round 3](./screenshots/031-round-3-reveal-2-phone.png)
 
-![Desktop: Pip Reveals in round 3](./screenshots/031-round-3-reveal-2-desktop.png)
+![Desktop: Mara Reveals in round 3](./screenshots/031-round-3-reveal-2-desktop.png)
 
 **Verifications:**
 
@@ -413,11 +413,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal in round 3
+## Mara finishes Reveal in round 3
 
-![Phone: Pip finishes Reveal in round 3](./screenshots/032-round-3-finish-2-phone.png)
+![Phone: Mara finishes Reveal in round 3](./screenshots/032-round-3-finish-2-phone.png)
 
-![Desktop: Pip finishes Reveal in round 3](./screenshots/032-round-3-finish-2-desktop.png)
+![Desktop: Mara finishes Reveal in round 3](./screenshots/032-round-3-finish-2-desktop.png)
 
 **Verifications:**
 
@@ -426,11 +426,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals in round 3
+## Pip Reveals in round 3
 
-![Phone: Mara Reveals in round 3](./screenshots/033-round-3-reveal-3-phone.png)
+![Phone: Pip Reveals in round 3](./screenshots/033-round-3-reveal-3-phone.png)
 
-![Desktop: Mara Reveals in round 3](./screenshots/033-round-3-reveal-3-desktop.png)
+![Desktop: Pip Reveals in round 3](./screenshots/033-round-3-reveal-3-desktop.png)
 
 **Verifications:**
 
@@ -439,11 +439,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal in round 3
+## Pip finishes Reveal in round 3
 
-![Phone: Mara finishes Reveal in round 3](./screenshots/034-round-3-finish-3-phone.png)
+![Phone: Pip finishes Reveal in round 3](./screenshots/034-round-3-finish-3-phone.png)
 
-![Desktop: Mara finishes Reveal in round 3](./screenshots/034-round-3-finish-3-desktop.png)
+![Desktop: Pip finishes Reveal in round 3](./screenshots/034-round-3-finish-3-desktop.png)
 
 **Verifications:**
 
@@ -452,11 +452,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals in round 4
+## Mara Reveals in round 4
 
-![Phone: Pip Reveals in round 4](./screenshots/035-round-4-reveal-1-phone.png)
+![Phone: Mara Reveals in round 4](./screenshots/035-round-4-reveal-1-phone.png)
 
-![Desktop: Pip Reveals in round 4](./screenshots/035-round-4-reveal-1-desktop.png)
+![Desktop: Mara Reveals in round 4](./screenshots/035-round-4-reveal-1-desktop.png)
 
 **Verifications:**
 
@@ -465,11 +465,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal in round 4
+## Mara finishes Reveal in round 4
 
-![Phone: Pip finishes Reveal in round 4](./screenshots/036-round-4-finish-1-phone.png)
+![Phone: Mara finishes Reveal in round 4](./screenshots/036-round-4-finish-1-phone.png)
 
-![Desktop: Pip finishes Reveal in round 4](./screenshots/036-round-4-finish-1-desktop.png)
+![Desktop: Mara finishes Reveal in round 4](./screenshots/036-round-4-finish-1-desktop.png)
 
 **Verifications:**
 
@@ -478,11 +478,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals in round 4
+## Pip Reveals in round 4
 
-![Phone: Mara Reveals in round 4](./screenshots/037-round-4-reveal-2-phone.png)
+![Phone: Pip Reveals in round 4](./screenshots/037-round-4-reveal-2-phone.png)
 
-![Desktop: Mara Reveals in round 4](./screenshots/037-round-4-reveal-2-desktop.png)
+![Desktop: Pip Reveals in round 4](./screenshots/037-round-4-reveal-2-desktop.png)
 
 **Verifications:**
 
@@ -491,11 +491,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal in round 4
+## Pip finishes Reveal in round 4
 
-![Phone: Mara finishes Reveal in round 4](./screenshots/038-round-4-finish-2-phone.png)
+![Phone: Pip finishes Reveal in round 4](./screenshots/038-round-4-finish-2-phone.png)
 
-![Desktop: Mara finishes Reveal in round 4](./screenshots/038-round-4-finish-2-desktop.png)
+![Desktop: Pip finishes Reveal in round 4](./screenshots/038-round-4-finish-2-desktop.png)
 
 **Verifications:**
 
@@ -530,11 +530,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals in round 5
+## Pip Reveals in round 5
 
-![Phone: Mara Reveals in round 5](./screenshots/041-round-5-reveal-1-phone.png)
+![Phone: Pip Reveals in round 5](./screenshots/041-round-5-reveal-1-phone.png)
 
-![Desktop: Mara Reveals in round 5](./screenshots/041-round-5-reveal-1-desktop.png)
+![Desktop: Pip Reveals in round 5](./screenshots/041-round-5-reveal-1-desktop.png)
 
 **Verifications:**
 
@@ -543,11 +543,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal in round 5
+## Pip finishes Reveal in round 5
 
-![Phone: Mara finishes Reveal in round 5](./screenshots/042-round-5-finish-1-phone.png)
+![Phone: Pip finishes Reveal in round 5](./screenshots/042-round-5-finish-1-phone.png)
 
-![Desktop: Mara finishes Reveal in round 5](./screenshots/042-round-5-finish-1-desktop.png)
+![Desktop: Pip finishes Reveal in round 5](./screenshots/042-round-5-finish-1-desktop.png)
 
 **Verifications:**
 
@@ -582,11 +582,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals in round 5
+## Mara Reveals in round 5
 
-![Phone: Pip Reveals in round 5](./screenshots/045-round-5-reveal-3-phone.png)
+![Phone: Mara Reveals in round 5](./screenshots/045-round-5-reveal-3-phone.png)
 
-![Desktop: Pip Reveals in round 5](./screenshots/045-round-5-reveal-3-desktop.png)
+![Desktop: Mara Reveals in round 5](./screenshots/045-round-5-reveal-3-desktop.png)
 
 **Verifications:**
 
@@ -595,11 +595,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal in round 5
+## Mara finishes Reveal in round 5
 
-![Phone: Pip finishes Reveal in round 5](./screenshots/046-round-5-finish-3-phone.png)
+![Phone: Mara finishes Reveal in round 5](./screenshots/046-round-5-finish-3-phone.png)
 
-![Desktop: Pip finishes Reveal in round 5](./screenshots/046-round-5-finish-3-desktop.png)
+![Desktop: Mara finishes Reveal in round 5](./screenshots/046-round-5-finish-3-desktop.png)
 
 **Verifications:**
 
@@ -634,11 +634,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals in round 6
+## Mara Reveals in round 6
 
-![Phone: Pip Reveals in round 6](./screenshots/049-round-6-reveal-2-phone.png)
+![Phone: Mara Reveals in round 6](./screenshots/049-round-6-reveal-2-phone.png)
 
-![Desktop: Pip Reveals in round 6](./screenshots/049-round-6-reveal-2-desktop.png)
+![Desktop: Mara Reveals in round 6](./screenshots/049-round-6-reveal-2-desktop.png)
 
 **Verifications:**
 
@@ -647,11 +647,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal in round 6
+## Mara finishes Reveal in round 6
 
-![Phone: Pip finishes Reveal in round 6](./screenshots/050-round-6-finish-2-phone.png)
+![Phone: Mara finishes Reveal in round 6](./screenshots/050-round-6-finish-2-phone.png)
 
-![Desktop: Pip finishes Reveal in round 6](./screenshots/050-round-6-finish-2-desktop.png)
+![Desktop: Mara finishes Reveal in round 6](./screenshots/050-round-6-finish-2-desktop.png)
 
 **Verifications:**
 
@@ -660,11 +660,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals in round 6
+## Pip Reveals in round 6
 
-![Phone: Mara Reveals in round 6](./screenshots/051-round-6-reveal-3-phone.png)
+![Phone: Pip Reveals in round 6](./screenshots/051-round-6-reveal-3-phone.png)
 
-![Desktop: Mara Reveals in round 6](./screenshots/051-round-6-reveal-3-desktop.png)
+![Desktop: Pip Reveals in round 6](./screenshots/051-round-6-reveal-3-desktop.png)
 
 **Verifications:**
 
@@ -673,11 +673,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal in round 6
+## Pip finishes Reveal in round 6
 
-![Phone: Mara finishes Reveal in round 6](./screenshots/052-round-6-finish-3-phone.png)
+![Phone: Pip finishes Reveal in round 6](./screenshots/052-round-6-finish-3-phone.png)
 
-![Desktop: Mara finishes Reveal in round 6](./screenshots/052-round-6-finish-3-desktop.png)
+![Desktop: Pip finishes Reveal in round 6](./screenshots/052-round-6-finish-3-desktop.png)
 
 **Verifications:**
 
@@ -686,11 +686,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals in round 7
+## Mara Reveals in round 7
 
-![Phone: Pip Reveals in round 7](./screenshots/053-round-7-reveal-1-phone.png)
+![Phone: Mara Reveals in round 7](./screenshots/053-round-7-reveal-1-phone.png)
 
-![Desktop: Pip Reveals in round 7](./screenshots/053-round-7-reveal-1-desktop.png)
+![Desktop: Mara Reveals in round 7](./screenshots/053-round-7-reveal-1-desktop.png)
 
 **Verifications:**
 
@@ -699,11 +699,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal in round 7
+## Mara finishes Reveal in round 7
 
-![Phone: Pip finishes Reveal in round 7](./screenshots/054-round-7-finish-1-phone.png)
+![Phone: Mara finishes Reveal in round 7](./screenshots/054-round-7-finish-1-phone.png)
 
-![Desktop: Pip finishes Reveal in round 7](./screenshots/054-round-7-finish-1-desktop.png)
+![Desktop: Mara finishes Reveal in round 7](./screenshots/054-round-7-finish-1-desktop.png)
 
 **Verifications:**
 
@@ -712,11 +712,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals in round 7
+## Pip Reveals in round 7
 
-![Phone: Mara Reveals in round 7](./screenshots/055-round-7-reveal-2-phone.png)
+![Phone: Pip Reveals in round 7](./screenshots/055-round-7-reveal-2-phone.png)
 
-![Desktop: Mara Reveals in round 7](./screenshots/055-round-7-reveal-2-desktop.png)
+![Desktop: Pip Reveals in round 7](./screenshots/055-round-7-reveal-2-desktop.png)
 
 **Verifications:**
 
@@ -725,11 +725,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal in round 7
+## Pip finishes Reveal in round 7
 
-![Phone: Mara finishes Reveal in round 7](./screenshots/056-round-7-finish-2-phone.png)
+![Phone: Pip finishes Reveal in round 7](./screenshots/056-round-7-finish-2-phone.png)
 
-![Desktop: Mara finishes Reveal in round 7](./screenshots/056-round-7-finish-2-desktop.png)
+![Desktop: Pip finishes Reveal in round 7](./screenshots/056-round-7-finish-2-desktop.png)
 
 **Verifications:**
 
@@ -764,11 +764,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals in round 8
+## Pip Reveals in round 8
 
-![Phone: Mara Reveals in round 8](./screenshots/059-round-8-reveal-1-phone.png)
+![Phone: Pip Reveals in round 8](./screenshots/059-round-8-reveal-1-phone.png)
 
-![Desktop: Mara Reveals in round 8](./screenshots/059-round-8-reveal-1-desktop.png)
+![Desktop: Pip Reveals in round 8](./screenshots/059-round-8-reveal-1-desktop.png)
 
 **Verifications:**
 
@@ -777,11 +777,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal in round 8
+## Pip finishes Reveal in round 8
 
-![Phone: Mara finishes Reveal in round 8](./screenshots/060-round-8-finish-1-phone.png)
+![Phone: Pip finishes Reveal in round 8](./screenshots/060-round-8-finish-1-phone.png)
 
-![Desktop: Mara finishes Reveal in round 8](./screenshots/060-round-8-finish-1-desktop.png)
+![Desktop: Pip finishes Reveal in round 8](./screenshots/060-round-8-finish-1-desktop.png)
 
 **Verifications:**
 
@@ -816,11 +816,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals in round 8
+## Mara Reveals in round 8
 
-![Phone: Pip Reveals in round 8](./screenshots/063-round-8-reveal-3-phone.png)
+![Phone: Mara Reveals in round 8](./screenshots/063-round-8-reveal-3-phone.png)
 
-![Desktop: Pip Reveals in round 8](./screenshots/063-round-8-reveal-3-desktop.png)
+![Desktop: Mara Reveals in round 8](./screenshots/063-round-8-reveal-3-desktop.png)
 
 **Verifications:**
 
@@ -829,11 +829,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal in round 8
+## Mara finishes Reveal in round 8
 
-![Phone: Pip finishes Reveal in round 8](./screenshots/064-round-8-finish-3-phone.png)
+![Phone: Mara finishes Reveal in round 8](./screenshots/064-round-8-finish-3-phone.png)
 
-![Desktop: Pip finishes Reveal in round 8](./screenshots/064-round-8-finish-3-desktop.png)
+![Desktop: Mara finishes Reveal in round 8](./screenshots/064-round-8-finish-3-desktop.png)
 
 **Verifications:**
 
@@ -868,11 +868,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals in round 9
+## Mara Reveals in round 9
 
-![Phone: Pip Reveals in round 9](./screenshots/067-round-9-reveal-2-phone.png)
+![Phone: Mara Reveals in round 9](./screenshots/067-round-9-reveal-2-phone.png)
 
-![Desktop: Pip Reveals in round 9](./screenshots/067-round-9-reveal-2-desktop.png)
+![Desktop: Mara Reveals in round 9](./screenshots/067-round-9-reveal-2-desktop.png)
 
 **Verifications:**
 
@@ -881,11 +881,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal in round 9
+## Mara finishes Reveal in round 9
 
-![Phone: Pip finishes Reveal in round 9](./screenshots/068-round-9-finish-2-phone.png)
+![Phone: Mara finishes Reveal in round 9](./screenshots/068-round-9-finish-2-phone.png)
 
-![Desktop: Pip finishes Reveal in round 9](./screenshots/068-round-9-finish-2-desktop.png)
+![Desktop: Mara finishes Reveal in round 9](./screenshots/068-round-9-finish-2-desktop.png)
 
 **Verifications:**
 
@@ -894,11 +894,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals in round 9
+## Pip Reveals in round 9
 
-![Phone: Mara Reveals in round 9](./screenshots/069-round-9-reveal-3-phone.png)
+![Phone: Pip Reveals in round 9](./screenshots/069-round-9-reveal-3-phone.png)
 
-![Desktop: Mara Reveals in round 9](./screenshots/069-round-9-reveal-3-desktop.png)
+![Desktop: Pip Reveals in round 9](./screenshots/069-round-9-reveal-3-desktop.png)
 
 **Verifications:**
 
@@ -907,180 +907,24 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal in round 9
+## Pip finishes Reveal in round 9
 
-![Phone: Mara finishes Reveal in round 9](./screenshots/070-round-9-finish-3-phone.png)
+![Phone: Pip finishes Reveal in round 9](./screenshots/070-round-9-finish-3-phone.png)
 
-![Desktop: Mara finishes Reveal in round 9](./screenshots/070-round-9-finish-3-desktop.png)
+![Desktop: Pip finishes Reveal in round 9](./screenshots/070-round-9-finish-3-desktop.png)
 
 **Verifications:**
 
-- [x] The unopposed Battle closes and round 10 opens
+- [x] Last March opens as the tenth and final selected Battle
 - [x] Every connected browser replays 64 accepted events with no diagnostics
 
 ---
 
-## Pip Reveals in round 10
+## Mara chooses a real card for the Last March
 
-![Phone: Pip Reveals in round 10](./screenshots/071-round-10-reveal-1-phone.png)
+![Phone: Mara chooses a real card for the Last March](./screenshots/071-choose-march-card-phone.png)
 
-![Desktop: Pip Reveals in round 10](./screenshots/071-round-10-reveal-1-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 65 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal in round 10
-
-![Phone: Pip finishes Reveal in round 10](./screenshots/072-round-10-finish-1-phone.png)
-
-![Desktop: Pip finishes Reveal in round 10](./screenshots/072-round-10-finish-1-desktop.png)
-
-**Verifications:**
-
-- [x] Reveal authority advances clockwise
-- [x] Every connected browser replays 66 accepted events with no diagnostics
-
----
-
-## Mara Reveals in round 10
-
-![Phone: Mara Reveals in round 10](./screenshots/073-round-10-reveal-2-phone.png)
-
-![Desktop: Mara Reveals in round 10](./screenshots/073-round-10-reveal-2-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 67 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal in round 10
-
-![Phone: Mara finishes Reveal in round 10](./screenshots/074-round-10-finish-2-phone.png)
-
-![Desktop: Mara finishes Reveal in round 10](./screenshots/074-round-10-finish-2-desktop.png)
-
-**Verifications:**
-
-- [x] Reveal authority advances clockwise
-- [x] Every connected browser replays 68 accepted events with no diagnostics
-
----
-
-## Rin Reveals in round 10
-
-![Phone: Rin Reveals in round 10](./screenshots/075-round-10-reveal-3-phone.png)
-
-![Desktop: Rin Reveals in round 10](./screenshots/075-round-10-reveal-3-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 69 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal in round 10
-
-![Phone: Rin finishes Reveal in round 10](./screenshots/076-round-10-finish-3-phone.png)
-
-![Desktop: Rin finishes Reveal in round 10](./screenshots/076-round-10-finish-3-desktop.png)
-
-**Verifications:**
-
-- [x] The unopposed Battle closes and round 11 opens
-- [x] Every connected browser replays 70 accepted events with no diagnostics
-
----
-
-## Mara Reveals in round 11
-
-![Phone: Mara Reveals in round 11](./screenshots/077-round-11-reveal-1-phone.png)
-
-![Desktop: Mara Reveals in round 11](./screenshots/077-round-11-reveal-1-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 71 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal in round 11
-
-![Phone: Mara finishes Reveal in round 11](./screenshots/078-round-11-finish-1-phone.png)
-
-![Desktop: Mara finishes Reveal in round 11](./screenshots/078-round-11-finish-1-desktop.png)
-
-**Verifications:**
-
-- [x] Reveal authority advances clockwise
-- [x] Every connected browser replays 72 accepted events with no diagnostics
-
----
-
-## Rin Reveals in round 11
-
-![Phone: Rin Reveals in round 11](./screenshots/079-round-11-reveal-2-phone.png)
-
-![Desktop: Rin Reveals in round 11](./screenshots/079-round-11-reveal-2-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 73 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal in round 11
-
-![Phone: Rin finishes Reveal in round 11](./screenshots/080-round-11-finish-2-phone.png)
-
-![Desktop: Rin finishes Reveal in round 11](./screenshots/080-round-11-finish-2-desktop.png)
-
-**Verifications:**
-
-- [x] Reveal authority advances clockwise
-- [x] Every connected browser replays 74 accepted events with no diagnostics
-
----
-
-## Pip Reveals in round 11
-
-![Phone: Pip Reveals in round 11](./screenshots/081-round-11-reveal-3-phone.png)
-
-![Desktop: Pip Reveals in round 11](./screenshots/081-round-11-reveal-3-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a real Muster row
-- [x] Every connected browser replays 75 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal in round 11
-
-![Phone: Pip finishes Reveal in round 11](./screenshots/082-round-11-finish-3-phone.png)
-
-![Desktop: Pip finishes Reveal in round 11](./screenshots/082-round-11-finish-3-desktop.png)
-
-**Verifications:**
-
-- [x] The twelfth reviewed Battle opens after eleven ordinary rounds
-- [x] Every connected browser replays 76 accepted events with no diagnostics
-
----
-
-## Rin chooses a real card for the Last March
-
-![Phone: Rin chooses a real card for the Last March](./screenshots/083-choose-march-card-phone.png)
-
-![Desktop: Rin chooses a real card for the Last March](./screenshots/083-choose-march-card-desktop.png)
+![Desktop: Mara chooses a real card for the Last March](./screenshots/071-choose-march-card-desktop.png)
 
 **Verifications:**
 
@@ -1088,133 +932,133 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin enters the Last March through Edoras
+## Mara enters the Last March through Edoras
 
-![Phone: Rin enters the Last March through Edoras](./screenshots/084-enter-last-march-phone.png)
+![Phone: Mara enters the Last March through Edoras](./screenshots/072-enter-last-march-phone.png)
 
-![Desktop: Rin enters the Last March through Edoras](./screenshots/084-enter-last-march-desktop.png)
+![Desktop: Mara enters the Last March through Edoras](./screenshots/072-enter-last-march-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees the Agent and an ordered card or Battle continuation
-- [x] Every connected browser replays 77 accepted events with no diagnostics
+- [x] Every connected browser replays 65 accepted events with no diagnostics
 
 ---
 
-## Rin deploys one Company to the Last March
+## Mara deploys one Company to the Last March
 
-![Phone: Rin deploys one Company to the Last March](./screenshots/085-deploy-last-march-company-phone.png)
+![Phone: Mara deploys one Company to the Last March](./screenshots/073-deploy-last-march-company-phone.png)
 
-![Desktop: Rin deploys one Company to the Last March](./screenshots/085-deploy-last-march-company-desktop.png)
+![Desktop: Mara deploys one Company to the Last March](./screenshots/073-deploy-last-march-company-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees one finite Company at the named Battle
-- [x] Every connected browser replays 78 accepted events with no diagnostics
+- [x] Every connected browser replays 66 accepted events with no diagnostics
 
 ---
 
 ## Pip Reveals for the Last March
 
-![Phone: Pip Reveals for the Last March](./screenshots/086-march-reveal-1-phone.png)
+![Phone: Pip Reveals for the Last March](./screenshots/074-march-reveal-1-phone.png)
 
-![Desktop: Pip Reveals for the Last March](./screenshots/086-march-reveal-1-desktop.png)
+![Desktop: Pip Reveals for the Last March](./screenshots/074-march-reveal-1-desktop.png)
 
 **Verifications:**
 
 - [x] The real Muster row is public before Combat
-- [x] Every connected browser replays 79 accepted events with no diagnostics
+- [x] Every connected browser replays 67 accepted events with no diagnostics
 
 ---
 
 ## Pip finishes the Last March Reveal
 
-![Phone: Pip finishes the Last March Reveal](./screenshots/087-march-finish-1-phone.png)
+![Phone: Pip finishes the Last March Reveal](./screenshots/075-march-finish-1-phone.png)
 
-![Desktop: Pip finishes the Last March Reveal](./screenshots/087-march-finish-1-desktop.png)
-
-**Verifications:**
-
-- [x] Reveal authority advances to the next human
-- [x] Every connected browser replays 80 accepted events with no diagnostics
-
----
-
-## Mara Reveals for the Last March
-
-![Phone: Mara Reveals for the Last March](./screenshots/088-march-reveal-2-phone.png)
-
-![Desktop: Mara Reveals for the Last March](./screenshots/088-march-reveal-2-desktop.png)
-
-**Verifications:**
-
-- [x] The real Muster row is public before Combat
-- [x] Every connected browser replays 81 accepted events with no diagnostics
-
----
-
-## Mara finishes the Last March Reveal
-
-![Phone: Mara finishes the Last March Reveal](./screenshots/089-march-finish-2-phone.png)
-
-![Desktop: Mara finishes the Last March Reveal](./screenshots/089-march-finish-2-desktop.png)
+![Desktop: Pip finishes the Last March Reveal](./screenshots/075-march-finish-1-desktop.png)
 
 **Verifications:**
 
 - [x] Reveal authority advances to the next human
-- [x] Every connected browser replays 82 accepted events with no diagnostics
+- [x] Every connected browser replays 68 accepted events with no diagnostics
 
 ---
 
 ## Rin Reveals for the Last March
 
-![Phone: Rin Reveals for the Last March](./screenshots/090-march-reveal-3-phone.png)
+![Phone: Rin Reveals for the Last March](./screenshots/076-march-reveal-2-phone.png)
 
-![Desktop: Rin Reveals for the Last March](./screenshots/090-march-reveal-3-desktop.png)
+![Desktop: Rin Reveals for the Last March](./screenshots/076-march-reveal-2-desktop.png)
 
 **Verifications:**
 
 - [x] The real Muster row is public before Combat
-- [x] Every connected browser replays 83 accepted events with no diagnostics
+- [x] Every connected browser replays 69 accepted events with no diagnostics
 
 ---
 
 ## Rin finishes the Last March Reveal
 
-![Phone: Rin finishes the Last March Reveal](./screenshots/091-march-finish-3-phone.png)
+![Phone: Rin finishes the Last March Reveal](./screenshots/077-march-finish-2-phone.png)
 
-![Desktop: Rin finishes the Last March Reveal](./screenshots/091-march-finish-3-desktop.png)
+![Desktop: Rin finishes the Last March Reveal](./screenshots/077-march-finish-2-desktop.png)
+
+**Verifications:**
+
+- [x] Reveal authority advances to the next human
+- [x] Every connected browser replays 70 accepted events with no diagnostics
+
+---
+
+## Mara Reveals for the Last March
+
+![Phone: Mara Reveals for the Last March](./screenshots/078-march-reveal-3-phone.png)
+
+![Desktop: Mara Reveals for the Last March](./screenshots/078-march-reveal-3-desktop.png)
+
+**Verifications:**
+
+- [x] The real Muster row is public before Combat
+- [x] Every connected browser replays 71 accepted events with no diagnostics
+
+---
+
+## Mara finishes the Last March Reveal
+
+![Phone: Mara finishes the Last March Reveal](./screenshots/079-march-finish-3-phone.png)
+
+![Desktop: Mara finishes the Last March Reveal](./screenshots/079-march-finish-3-desktop.png)
 
 **Verifications:**
 
 - [x] The sole genuine participant receives Combat Fate authority
-- [x] Every connected browser replays 84 accepted events with no diagnostics
+- [x] Every connected browser replays 72 accepted events with no diagnostics
 
 ---
 
-## Rin passes and wins the Last March
+## Mara passes and wins the Last March
 
-![Phone: Rin passes and wins the Last March](./screenshots/092-win-last-march-phone.png)
+![Phone: Mara passes and wins the Last March](./screenshots/080-win-last-march-phone.png)
 
-![Desktop: Rin passes and wins the Last March](./screenshots/092-win-last-march-desktop.png)
+![Desktop: Mara passes and wins the Last March](./screenshots/080-win-last-march-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees exactly two Renown and two Mithril awarded
 - [x] The Horse Standard is owned and the Dam is permanently breached
-- [x] Every connected browser replays 85 accepted events with no diagnostics
+- [x] Every connected browser replays 73 accepted events with no diagnostics
 
 ---
 
-## Rin reloads the Last March victory
+## Mara reloads the Last March victory
 
-![Phone: Rin reloads the Last March victory](./screenshots/093-reload-last-march-phone.png)
+![Phone: Mara reloads the Last March victory](./screenshots/081-reload-last-march-phone.png)
 
-![Desktop: Rin reloads the Last March victory](./screenshots/093-reload-last-march-desktop.png)
+![Desktop: Mara reloads the Last March victory](./screenshots/081-reload-last-march-desktop.png)
 
 **Verifications:**
 
-- [x] The exact reward, Dam breach, trophy, and round-thirteen authority replay immutably
-- [x] Every connected browser replays 85 accepted events with no diagnostics
+- [x] The exact reward, Dam breach, trophy, and Endgame replay immutably
+- [x] Every connected browser replays 73 accepted events with no diagnostics
 
 ---

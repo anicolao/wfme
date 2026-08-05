@@ -1328,535 +1328,67 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals the remaining hand
-
-![Phone: Pip Reveals the remaining hand](./screenshots/101-reveal-83-phone.png)
-
-![Desktop: Pip Reveals the remaining hand](./screenshots/101-reveal-83-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 93 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal
-
-![Phone: Pip finishes Reveal](./screenshots/102-finish-84-phone.png)
-
-![Desktop: Pip finishes Reveal](./screenshots/102-finish-84-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 94 accepted events with no diagnostics
-
----
-
-## Mara Reveals the remaining hand
-
-![Phone: Mara Reveals the remaining hand](./screenshots/103-reveal-85-phone.png)
-
-![Desktop: Mara Reveals the remaining hand](./screenshots/103-reveal-85-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 95 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal
-
-![Phone: Mara finishes Reveal](./screenshots/104-finish-86-phone.png)
-
-![Desktop: Mara finishes Reveal](./screenshots/104-finish-86-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 96 accepted events with no diagnostics
-
----
-
-## Rin Reveals the remaining hand
-
-![Phone: Rin Reveals the remaining hand](./screenshots/105-reveal-87-phone.png)
-
-![Desktop: Rin Reveals the remaining hand](./screenshots/105-reveal-87-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 97 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/106-finish-88-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/106-finish-88-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 98 accepted events with no diagnostics
-
----
-
-## Mara Reveals the remaining hand
-
-![Phone: Mara Reveals the remaining hand](./screenshots/107-reveal-89-phone.png)
-
-![Desktop: Mara Reveals the remaining hand](./screenshots/107-reveal-89-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 99 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal
-
-![Phone: Mara finishes Reveal](./screenshots/108-finish-90-phone.png)
-
-![Desktop: Mara finishes Reveal](./screenshots/108-finish-90-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 100 accepted events with no diagnostics
-
----
-
-## Rin Reveals the remaining hand
-
-![Phone: Rin Reveals the remaining hand](./screenshots/109-reveal-91-phone.png)
-
-![Desktop: Rin Reveals the remaining hand](./screenshots/109-reveal-91-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 101 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/110-finish-92-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/110-finish-92-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 102 accepted events with no diagnostics
-
----
-
-## Pip Reveals the remaining hand
-
-![Phone: Pip Reveals the remaining hand](./screenshots/111-reveal-93-phone.png)
-
-![Desktop: Pip Reveals the remaining hand](./screenshots/111-reveal-93-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 103 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal
-
-![Phone: Pip finishes Reveal](./screenshots/112-finish-94-phone.png)
-
-![Desktop: Pip finishes Reveal](./screenshots/112-finish-94-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 104 accepted events with no diagnostics
-
----
-
-## Rin Reveals the remaining hand
-
-![Phone: Rin Reveals the remaining hand](./screenshots/113-reveal-95-phone.png)
-
-![Desktop: Rin Reveals the remaining hand](./screenshots/113-reveal-95-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 105 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/114-finish-96-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/114-finish-96-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 106 accepted events with no diagnostics
-
----
-
-## Pip Reveals the remaining hand
-
-![Phone: Pip Reveals the remaining hand](./screenshots/115-reveal-97-phone.png)
-
-![Desktop: Pip Reveals the remaining hand](./screenshots/115-reveal-97-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 107 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal
-
-![Phone: Pip finishes Reveal](./screenshots/116-finish-98-phone.png)
-
-![Desktop: Pip finishes Reveal](./screenshots/116-finish-98-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 108 accepted events with no diagnostics
-
----
-
-## Mara Reveals the remaining hand
-
-![Phone: Mara Reveals the remaining hand](./screenshots/117-reveal-99-phone.png)
-
-![Desktop: Mara Reveals the remaining hand](./screenshots/117-reveal-99-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 109 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal
-
-![Phone: Mara finishes Reveal](./screenshots/118-finish-100-phone.png)
-
-![Desktop: Mara finishes Reveal](./screenshots/118-finish-100-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 110 accepted events with no diagnostics
-
----
-
-## Pip Reveals the remaining hand
-
-![Phone: Pip Reveals the remaining hand](./screenshots/119-reveal-101-phone.png)
-
-![Desktop: Pip Reveals the remaining hand](./screenshots/119-reveal-101-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 111 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal
-
-![Phone: Pip finishes Reveal](./screenshots/120-finish-102-phone.png)
-
-![Desktop: Pip finishes Reveal](./screenshots/120-finish-102-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 112 accepted events with no diagnostics
-
----
-
-## Mara Reveals the remaining hand
-
-![Phone: Mara Reveals the remaining hand](./screenshots/121-reveal-103-phone.png)
-
-![Desktop: Mara Reveals the remaining hand](./screenshots/121-reveal-103-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 113 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal
-
-![Phone: Mara finishes Reveal](./screenshots/122-finish-104-phone.png)
-
-![Desktop: Mara finishes Reveal](./screenshots/122-finish-104-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 114 accepted events with no diagnostics
-
----
-
-## Rin Reveals the remaining hand
-
-![Phone: Rin Reveals the remaining hand](./screenshots/123-reveal-105-phone.png)
-
-![Desktop: Rin Reveals the remaining hand](./screenshots/123-reveal-105-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 115 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/124-finish-106-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/124-finish-106-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 116 accepted events with no diagnostics
-
----
-
-## Mara Reveals the remaining hand
-
-![Phone: Mara Reveals the remaining hand](./screenshots/125-reveal-107-phone.png)
-
-![Desktop: Mara Reveals the remaining hand](./screenshots/125-reveal-107-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 117 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal
-
-![Phone: Mara finishes Reveal](./screenshots/126-finish-108-phone.png)
-
-![Desktop: Mara finishes Reveal](./screenshots/126-finish-108-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 118 accepted events with no diagnostics
-
----
-
-## Rin Reveals the remaining hand
-
-![Phone: Rin Reveals the remaining hand](./screenshots/127-reveal-109-phone.png)
-
-![Desktop: Rin Reveals the remaining hand](./screenshots/127-reveal-109-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 119 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/128-finish-110-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/128-finish-110-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 120 accepted events with no diagnostics
-
----
-
-## Pip Reveals the remaining hand
-
-![Phone: Pip Reveals the remaining hand](./screenshots/129-reveal-111-phone.png)
-
-![Desktop: Pip Reveals the remaining hand](./screenshots/129-reveal-111-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 121 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal
-
-![Phone: Pip finishes Reveal](./screenshots/130-finish-112-phone.png)
-
-![Desktop: Pip finishes Reveal](./screenshots/130-finish-112-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 122 accepted events with no diagnostics
-
----
-
-## Rin Reveals the remaining hand
-
-![Phone: Rin Reveals the remaining hand](./screenshots/131-reveal-113-phone.png)
-
-![Desktop: Rin Reveals the remaining hand](./screenshots/131-reveal-113-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 123 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/132-finish-114-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/132-finish-114-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 124 accepted events with no diagnostics
-
----
-
-## Pip Reveals the remaining hand
-
-![Phone: Pip Reveals the remaining hand](./screenshots/133-reveal-115-phone.png)
-
-![Desktop: Pip Reveals the remaining hand](./screenshots/133-reveal-115-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 125 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal
-
-![Phone: Pip finishes Reveal](./screenshots/134-finish-116-phone.png)
-
-![Desktop: Pip finishes Reveal](./screenshots/134-finish-116-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 126 accepted events with no diagnostics
-
----
-
-## Mara Reveals the remaining hand
-
-![Phone: Mara Reveals the remaining hand](./screenshots/135-reveal-117-phone.png)
-
-![Desktop: Mara Reveals the remaining hand](./screenshots/135-reveal-117-desktop.png)
-
-**Verifications:**
-
-- [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 127 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal
-
-![Phone: Mara finishes Reveal](./screenshots/136-finish-118-phone.png)
-
-![Desktop: Mara finishes Reveal](./screenshots/136-finish-118-desktop.png)
-
-**Verifications:**
-
-- [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 128 accepted events with no diagnostics
-
----
-
 ## Rin plays The Long Game
 
-![Phone: Rin plays The Long Game](./screenshots/137-play-long-game-phone.png)
+![Phone: Rin plays The Long Game](./screenshots/101-play-long-game-phone.png)
 
-![Desktop: Rin plays The Long Game](./screenshots/137-play-long-game-desktop.png)
+![Desktop: Rin plays The Long Game](./screenshots/101-play-long-game-desktop.png)
 
 **Verifications:**
 
 - [x] Four owned five-cost cards grant exactly one Renown and retain authority
-- [x] Every connected browser replays 129 accepted events with no diagnostics
+- [x] Every connected browser replays 93 accepted events with no diagnostics
 
 ---
 
 ## Rin passes final scoring
 
-![Phone: Rin passes final scoring](./screenshots/138-final-pass-1-phone.png)
+![Phone: Rin passes final scoring](./screenshots/102-final-pass-1-phone.png)
 
-![Desktop: Rin passes final scoring](./screenshots/138-final-pass-1-desktop.png)
+![Desktop: Rin passes final scoring](./screenshots/102-final-pass-1-desktop.png)
 
 **Verifications:**
 
 - [x] Endgame authority advances after the pass
-- [x] Every connected browser replays 130 accepted events with no diagnostics
+- [x] Every connected browser replays 94 accepted events with no diagnostics
 
 ---
 
 ## Pip passes final scoring
 
-![Phone: Pip passes final scoring](./screenshots/139-final-pass-2-phone.png)
+![Phone: Pip passes final scoring](./screenshots/103-final-pass-2-phone.png)
 
-![Desktop: Pip passes final scoring](./screenshots/139-final-pass-2-desktop.png)
+![Desktop: Pip passes final scoring](./screenshots/103-final-pass-2-desktop.png)
 
 **Verifications:**
 
 - [x] Endgame authority advances after the pass
-- [x] Every connected browser replays 131 accepted events with no diagnostics
+- [x] Every connected browser replays 95 accepted events with no diagnostics
 
 ---
 
 ## Mara passes final scoring
 
-![Phone: Mara passes final scoring](./screenshots/140-final-pass-3-phone.png)
+![Phone: Mara passes final scoring](./screenshots/104-final-pass-3-phone.png)
 
-![Desktop: Mara passes final scoring](./screenshots/140-final-pass-3-desktop.png)
+![Desktop: Mara passes final scoring](./screenshots/104-final-pass-3-desktop.png)
 
 **Verifications:**
 
 - [x] Three consecutive passes record the final result
-- [x] Every connected browser replays 132 accepted events with no diagnostics
+- [x] Every connected browser replays 96 accepted events with no diagnostics
 
 ---
 
 ## Rin reloads the finished Long Game
 
-![Phone: Rin reloads the finished Long Game](./screenshots/141-reload-long-game-result-phone.png)
+![Phone: Rin reloads the finished Long Game](./screenshots/105-reload-long-game-result-phone.png)
 
-![Desktop: Rin reloads the finished Long Game](./screenshots/141-reload-long-game-result-desktop.png)
+![Desktop: Rin reloads the finished Long Game](./screenshots/105-reload-long-game-result-desktop.png)
 
 **Verifications:**
 
 - [x] Replay reproduces the Chronicle-backed final result
-- [x] Every connected browser replays 132 accepted events with no diagnostics
+- [x] Every connected browser replays 96 accepted events with no diagnostics
 
 ---

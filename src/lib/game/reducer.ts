@@ -345,6 +345,15 @@ function startingDeck(uid: string, seat: number, seed: string): CardInstance[] {
   return shuffled(instances, `${seed}:seat-${seat}:starting-deck`);
 }
 
+function battleDeck(seed: string): string[] {
+  const selectedByAge = ([1, 2, 3] as const).flatMap((age) => {
+    const candidates = BATTLE_CARD_DEFINITIONS.filter((battle) => battle.age === age);
+    const count = age === 1 ? 1 : age === 2 ? 5 : candidates.length;
+    return shuffled(candidates, `${seed}:battle-age-${age}`).slice(0, count);
+  });
+  return selectedByAge.map((battle) => battle.id);
+}
+
 function createMatch(state: GameState, seed: string): MatchState {
   const playerOrder = shuffled(
     state.players.map((player) => player.uid),
@@ -391,6 +400,7 @@ function createMatch(state: GameState, seed: string): MatchState {
       definitionId: definition.id
     }))
   ), `${seed}:chronicle-deck`);
+  const selectedBattles = battleDeck(seed);
   return {
     seed,
     round: 1,
@@ -436,8 +446,8 @@ function createMatch(state: GameState, seed: string): MatchState {
     fateDiscard: [],
     chronicleDeck: chronicleInstances.slice(5),
     chronicleRow: chronicleInstances.slice(0, 5),
-    activeBattleId: BATTLE_CARD_DEFINITIONS[0]?.id ?? null,
-    battleDeck: BATTLE_CARD_DEFINITIONS.slice(1).map((battle) => battle.id),
+    activeBattleId: selectedBattles[0] ?? null,
+    battleDeck: selectedBattles.slice(1),
     battleDiscard: [],
     battleCompanies: {},
     battleEnts: {},
@@ -463,7 +473,7 @@ function createMatch(state: GameState, seed: string): MatchState {
     alliances: { shadow: null, dwarven: null, elven: null, wild: null },
     activity: [
       `The seeded match begins. ${state.players.find((player) => player.uid === playerOrder[0])?.displayName ?? 'Seat 1'} acts first.`,
-      BATTLE_CARD_DEFINITIONS[0] ? `${BATTLE_CARD_DEFINITIONS[0].name} is the active Battle.` : 'No reviewed Battle remains.'
+      selectedBattles[0] ? `${BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === selectedBattles[0])!.name} is the active Battle.` : 'No reviewed Battle remains.'
     ]
   };
 }

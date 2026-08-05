@@ -107,7 +107,7 @@ test('Clash at the Morannon resolves the final Battle rewards before Recall', as
         converged(accepted.value + 1)
       ]);
     }
-    for (let round = 1; round <= 15; round += 1) {
+    for (let round = 1; round < 10; round += 1) {
       for (let turn = 0; turn < 3; turn += 1) {
         const actor = await currentSeat();
         await steps.gesture(actor.page, `round-${round}-reveal-${turn + 1}`, `${actor.name} Reveals in round ${round}`, async () => {
@@ -119,9 +119,9 @@ test('Clash at the Morannon resolves the final Battle rewards before Recall', as
         await steps.gesture(actor.page, `round-${round}-finish-${turn + 1}`, `${actor.name} finishes Reveal in round ${round}`, async () => {
           await actor.page.getByRole('button', { name: 'Finish Reveal' }).click(); accepted.value += 1;
         }, [
-          { spec: turn < 2 ? 'Reveal authority advances clockwise' : round < 15 ? `The unopposed Battle closes and round ${round + 1} opens` : 'Clash at the Morannon opens as the sixteenth reviewed Battle', check: async () => {
+          { spec: turn < 2 ? 'Reveal authority advances clockwise' : round < 9 ? `The unopposed Battle closes and round ${round + 1} opens` : 'Clash at the Morannon opens as the tenth and final selected Battle', check: async () => {
             if (turn < 2) await expect(actor.page.locator('footer')).not.toContainText(`Current actor ${actor.name}`);
-            else if (round < 15) await expect(page.getByText(new RegExp(`Round ${round + 1} · Agent turns`, 'i'))).toBeVisible();
+            else if (round < 9) await expect(page.getByText(new RegExp(`Round ${round + 1} · Agent turns`, 'i'))).toBeVisible();
             else for (const observer of seats) {
               await expect(observer.page.getByTestId('active-battle')).toContainText('Clash at the Morannon');
               await expect(observer.page.getByTestId('active-battle')).toContainText('First: 2 Renown + 1 standing with any faction');
@@ -182,7 +182,7 @@ test('Clash at the Morannon resolves the final Battle rewards before Recall', as
       }, [
         { spec: turn < 2 ? 'Reveal authority advances' : 'The two deployed humans enter Combat Fate', check: async () => {
           if (turn < 2) await expect(actor.page.locator('footer')).not.toContainText(`Current actor ${actor.name}`);
-          else for (const participant of participants) await expect(participant.page.getByText('Round 16 · Combat Fate')).toBeVisible();
+          else for (const participant of participants) await expect(participant.page.getByText('Round 10 · Combat Fate')).toBeVisible();
         } },
         converged(accepted.value + 1)
       ]);
@@ -238,9 +238,9 @@ test('Clash at the Morannon resolves the final Battle rewards before Recall', as
       { spec: 'Exactly one Dwarven standing resolves publicly for the Battle winner', check: async () => {
         for (const observer of seats) await expect(row(observer, winner.name).getByText('Dwarven', { exact: true }).locator('..')).toContainText(String(winnerStandingBefore + 1));
       } },
-      { spec: 'The complete sixteen-card Battle sequence opens Endgame only after its last ordered reward', check: async () => {
+      { spec: 'The complete ten-card Battle sequence opens Endgame only after its last ordered reward', check: async () => {
         for (const observer of seats) {
-          await expect(observer.page.getByText('Round 16 · Endgame')).toBeVisible();
+          await expect(observer.page.getByText('Round 10 · Endgame')).toBeVisible();
           await expect(observer.page.getByTestId('endgame-window')).toContainText('Battle deck exhausted');
           await expect(observer.page.getByText('16 / 16')).toBeVisible();
         }
@@ -302,7 +302,7 @@ test('Clash at the Morannon resolves the final Battle rewards before Recall', as
       converged(accepted.value)
     ]);
 
-    steps.generateDocs('Clash at the Morannon through final scoring', 'Three isolated humans exhaust fifteen Battles through ordinary Reveal turns, deploy two finite forces through real cards and board destinations, resolve Combat ranking, receive the exact first-rank and second-rank rewards, reload persisted winner authority, enter Endgame only after the final ordered choice, pass clockwise with real gestures, agree on the deterministic winner and full tiebreak ledger, and reload the finished match from its immutable event history.');
+    steps.generateDocs('Clash at the Morannon through final scoring', 'Three isolated humans resolve the selected one-five-four age progression, deploy two finite forces through real cards and board destinations at the tenth and final Battle, resolve Combat ranking, receive the exact first-rank and second-rank rewards, reload persisted winner authority, enter Endgame only after the final ordered choice, pass clockwise with real gestures, agree on the deterministic winner and full tiebreak ledger, and reload the finished match from its immutable event history.');
   } finally {
     await table.close();
   }

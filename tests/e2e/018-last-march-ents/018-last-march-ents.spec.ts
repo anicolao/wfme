@@ -6,11 +6,11 @@ import { TestStepHelper } from '../helpers/test-step-helper';
 test('Last March of the Ents permanently breaches the Dam through a final Battle victory', async ({ browser, page }, testInfo) => {
   test.setTimeout(330_000);
   const steps = new TestStepHelper(testInfo);
-  const table = await startPlotTable(browser, page, testInfo, steps, 'last-march-ents', { phone: 'ENTPH', desktop: 'ENTDS' });
+  const table = await startPlotTable(browser, page, testInfo, steps, 'last-march-ents-0', { phone: 'ENTPH', desktop: 'ENTDS' });
   const { seats, accepted, converged, currentSeat, row } = table;
 
   try {
-    for (let round = 1; round <= 11; round += 1) {
+    for (let round = 1; round < 10; round += 1) {
       for (let turn = 0; turn < 3; turn += 1) {
         const actor = await currentSeat();
         await steps.gesture(actor.page, `round-${round}-reveal-${turn + 1}`, `${actor.name} Reveals in round ${round}`, async () => {
@@ -24,9 +24,9 @@ test('Last March of the Ents permanently breaches the Dam through a final Battle
           await actor.page.getByRole('button', { name: 'Finish Reveal' }).click();
           accepted.value += 1;
         }, [
-          { spec: turn < 2 ? 'Reveal authority advances clockwise' : round < 11 ? `The unopposed Battle closes and round ${round + 1} opens` : 'The twelfth reviewed Battle opens after eleven ordinary rounds', check: async () => {
+          { spec: turn < 2 ? 'Reveal authority advances clockwise' : round < 9 ? `The unopposed Battle closes and round ${round + 1} opens` : 'Last March opens as the tenth and final selected Battle', check: async () => {
             if (turn < 2) await expect(actor.page.locator('footer')).not.toContainText(`Current actor ${actor.name}`);
-            else if (round < 11) await expect(page.getByText(new RegExp(`Round ${round + 1} · Agent turns`, 'i'))).toBeVisible();
+            else if (round < 9) await expect(page.getByText(new RegExp(`Round ${round + 1} · Agent turns`, 'i'))).toBeVisible();
             else {
               for (const observer of seats) {
                 await expect(observer.page.getByTestId('active-battle')).toContainText('Last March of the Ents');
@@ -104,7 +104,7 @@ test('Last March of the Ents permanently breaches the Dam through a final Battle
       }, [
         { spec: turn < 2 ? 'Reveal authority advances to the next human' : 'The sole genuine participant receives Combat Fate authority', check: async () => {
           if (turn < 2) await expect(actor.page.locator('footer')).not.toContainText(`Current actor ${actor.name}`);
-          else await expect(marcher.page.getByText('Round 12 · Combat Fate')).toBeVisible();
+          else await expect(marcher.page.getByText('Round 10 · Combat Fate')).toBeVisible();
         } },
         converged(accepted.value + 1)
       ]);
@@ -133,17 +133,17 @@ test('Last March of the Ents permanently breaches the Dam through a final Battle
     await steps.gesture(marcher.page, 'reload-last-march', `${marcher.name} reloads the Last March victory`, async () => {
       await reloadGameClient(marcher.page);
     }, [
-      { spec: 'The exact reward, Dam breach, trophy, and round-thirteen authority replay immutably', check: async () => {
+      { spec: 'The exact reward, Dam breach, trophy, and Endgame replay immutably', check: async () => {
         await expect(row(marcher, marcher.name).getByText('Renown', { exact: true }).locator('..')).toContainText(String(renownBefore + 2));
         await expect(row(marcher, marcher.name).getByText('Mithril', { exact: true }).locator('..')).toContainText(String(mithrilBefore + 2));
         await expect(row(marcher, marcher.name)).toContainText('Standards1 face up');
         await expect(marcher.page.getByTestId('dam-status')).toContainText('Breached');
-        await expect(marcher.page.getByText('Round 13 · Agent turns')).toBeVisible();
+        await expect(marcher.page.getByText('Round 10 · Endgame')).toBeVisible();
       } },
       converged(accepted.value)
     ]);
 
-    steps.generateDocs('Last March of the Ents as the twelfth Battle', 'Three isolated humans exhaust eleven real Battles through ordinary Reveal turns, enter Last March of the Ents with a real card and destination, resolve its ordered continuation, deploy a finite Company, Reveal, win through Combat, receive exactly two Renown and two Mithril, permanently breach the Dam, and reload the converged Horse Standard and next round.');
+    steps.generateDocs('Last March of the Ents as the tenth Battle', 'Three isolated humans resolve the selected one-five-four age progression, enter Last March of the Ents as the tenth and final Battle with a real card and destination, resolve its ordered continuation, deploy a finite Company, Reveal, win through Combat, receive exactly two Renown and two Mithril, permanently breach the Dam, and reload the converged Horse Standard in Endgame.');
   } finally {
     await table.close();
   }

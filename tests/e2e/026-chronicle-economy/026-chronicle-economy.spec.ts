@@ -9,7 +9,7 @@ type TargetName = (typeof TARGETS)[number];
 test('four economy Chronicle cards are acquired, drawn, and executed through the real board', async ({ browser, page }, testInfo) => {
   test.setTimeout(900_000);
   const steps = new TestStepHelper(testInfo);
-  const table = await startPlotTable(browser, page, testInfo, steps, 'chronicle-economy-26', { phone: 'ECONP', desktop: 'ECOND' });
+  const table = await startPlotTable(browser, page, testInfo, steps, 'economy-26202', { phone: 'ECONP', desktop: 'ECOND' });
   const { seats, accepted, converged, currentSeat, row } = table;
   const acquired = new Set<TargetName>();
   const played = new Set<TargetName>();

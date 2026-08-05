@@ -6,11 +6,11 @@ import { TestStepHelper } from '../helpers/test-step-helper';
 test('Ambush in Ithilien awards a real victory and places its finite Scout before Recall', async ({ browser, page }, testInfo) => {
   test.setTimeout(360_000);
   const steps = new TestStepHelper(testInfo);
-  const table = await startPlotTable(browser, page, testInfo, steps, 'ambush-ithilien', { phone: 'ITHIP', desktop: 'ITHID' });
+  const table = await startPlotTable(browser, page, testInfo, steps, 'ambush-ithilien-3', { phone: 'ITHIP', desktop: 'ITHID' });
   const { seats, accepted, converged, currentSeat, row } = table;
 
   try {
-    for (let round = 1; round <= 13; round += 1) {
+    for (let round = 1; round < 2; round += 1) {
       for (let turn = 0; turn < 3; turn += 1) {
         const actor = await currentSeat();
         await steps.gesture(actor.page, `round-${round}-reveal-${turn + 1}`, `${actor.name} Reveals in round ${round}`, async () => {
@@ -22,9 +22,8 @@ test('Ambush in Ithilien awards a real victory and places its finite Scout befor
         await steps.gesture(actor.page, `round-${round}-finish-${turn + 1}`, `${actor.name} finishes Reveal in round ${round}`, async () => {
           await actor.page.getByRole('button', { name: 'Finish Reveal' }).click(); accepted.value += 1;
         }, [
-          { spec: turn < 2 ? 'Reveal authority advances clockwise' : round < 13 ? `The unopposed Battle closes and round ${round + 1} opens` : 'Ambush in Ithilien opens as the fourteenth reviewed Battle', check: async () => {
+          { spec: turn < 2 ? 'Reveal authority advances clockwise' : 'Ambush in Ithilien opens as the first selected Age II Battle', check: async () => {
             if (turn < 2) await expect(actor.page.locator('footer')).not.toContainText(`Current actor ${actor.name}`);
-            else if (round < 13) await expect(page.getByText(new RegExp(`Round ${round + 1} · Agent turns`, 'i'))).toBeVisible();
             else for (const observer of seats) {
               await expect(observer.page.getByTestId('active-battle')).toContainText('Ambush in Ithilien');
               await expect(observer.page.getByTestId('active-battle')).toContainText('First: 1 Renown + place 1 Scout');
@@ -95,7 +94,7 @@ test('Ambush in Ithilien awards a real victory and places its finite Scout befor
       }, [
         { spec: turn < 2 ? 'Reveal authority advances to the next human' : 'The sole genuine participant receives Combat Fate authority', check: async () => {
           if (turn < 2) await expect(actor.page.locator('footer')).not.toContainText(`Current actor ${actor.name}`);
-          else await expect(ambusher.page.getByText('Round 14 · Combat Fate')).toBeVisible();
+          else await expect(ambusher.page.getByText('Round 2 · Combat Fate')).toBeVisible();
         } },
         converged(accepted.value + 1)
       ]);
@@ -114,7 +113,7 @@ test('Ambush in Ithilien awards a real victory and places its finite Scout befor
       } },
       { spec: 'Recall waits on the mandatory finite Scout placement', check: async () => {
         for (const observer of seats) await expect(observer.page.getByText('Choose an empty post for the Scout.')).toBeVisible();
-        await expect(ambusher.page.getByText('Round 14 · Combat Fate')).toBeVisible();
+        await expect(ambusher.page.getByText('Round 2 · Combat Fate')).toBeVisible();
       } },
       converged(accepted.value + 1)
     ]);
@@ -140,12 +139,12 @@ test('Ambush in Ithilien awards a real victory and places its finite Scout befor
         }
       } },
       { spec: 'Recall completes only after the ranked reward is fully resolved', check: async () => {
-        for (const observer of seats) await expect(observer.page.getByText('Round 15 · Agent turns')).toBeVisible();
+        for (const observer of seats) await expect(observer.page.getByText('Round 3 · Agent turns')).toBeVisible();
       } },
       converged(accepted.value + 1)
     ]);
 
-    steps.generateDocs('Ambush in Ithilien as the fourteenth Battle', 'Three isolated humans exhaust thirteen Battles through ordinary Reveal turns, enter Ambush in Ithilien through a real card and destination, deploy a finite Company, win through Combat, receive exactly one Renown and the Horse Standard, reload the persisted ranked Scout authority, place that finite Scout by click, and only then complete Recall.');
+    steps.generateDocs('Ambush in Ithilien as a selected Age II Battle', 'Three isolated humans reveal through the Age I Battle, enter selected Ambush in Ithilien through a real card and destination, deploy a finite Company, win through Combat, receive exactly one Renown and the Horse Standard, reload the persisted ranked Scout authority, place that finite Scout by click, and only then complete Recall.');
   } finally {
     await table.close();
   }

@@ -6,7 +6,7 @@ import { TestStepHelper } from '../helpers/test-step-helper';
 test('Treachery at Orthanc resolves a private ranked Fate choice before Recall', async ({ browser, page }, testInfo) => {
   test.setTimeout(420_000);
   const steps = new TestStepHelper(testInfo);
-  const table = await startPlotTable(browser, page, testInfo, steps, 'treachery-orthanc', { phone: 'ORTHP', desktop: 'ORTHD' });
+  const table = await startPlotTable(browser, page, testInfo, steps, 'treachery-orthanc-0', { phone: 'ORTHP', desktop: 'ORTHD' });
   const { seats, accepted, converged, currentSeat, row } = table;
   const occupied = new Set<string>();
 
@@ -84,7 +84,7 @@ test('Treachery at Orthanc resolves a private ranked Fate choice before Recall',
   );
 
   try {
-    for (let round = 1; round <= 14; round += 1) {
+    for (let round = 1; round < 2; round += 1) {
       for (let turn = 0; turn < 3; turn += 1) {
         const actor = await currentSeat();
         await steps.gesture(actor.page, `round-${round}-reveal-${turn + 1}`, `${actor.name} Reveals in round ${round}`, async () => {
@@ -96,9 +96,8 @@ test('Treachery at Orthanc resolves a private ranked Fate choice before Recall',
         await steps.gesture(actor.page, `round-${round}-finish-${turn + 1}`, `${actor.name} finishes Reveal in round ${round}`, async () => {
           await actor.page.getByRole('button', { name: 'Finish Reveal' }).click(); accepted.value += 1;
         }, [
-          { spec: turn < 2 ? 'Reveal authority advances clockwise' : round < 14 ? `The unopposed Battle closes and round ${round + 1} opens` : 'Treachery at Orthanc opens as the fifteenth reviewed Battle', check: async () => {
+          { spec: turn < 2 ? 'Reveal authority advances clockwise' : 'Treachery at Orthanc opens as the first selected Age II Battle', check: async () => {
             if (turn < 2) await expect(actor.page.locator('footer')).not.toContainText(`Current actor ${actor.name}`);
-            else if (round < 14) await expect(page.getByText(new RegExp(`Round ${round + 1} · Agent turns`, 'i'))).toBeVisible();
             else for (const observer of seats) {
               await expect(observer.page.getByTestId('active-battle')).toContainText('Treachery at Orthanc');
               await expect(observer.page.getByTestId('active-battle')).toContainText('First: 1 Renown + 1 Shadow standing');
@@ -156,7 +155,7 @@ test('Treachery at Orthanc resolves a private ranked Fate choice before Recall',
       }, [
         { spec: turn < 2 ? 'Reveal authority advances' : 'The two deployed humans enter Combat Fate', check: async () => {
           if (turn < 2) await expect(actor.page.locator('footer')).not.toContainText(`Current actor ${actor.name}`);
-          else for (const participant of participants) await expect(participant.page.getByText('Round 15 · Combat Fate')).toBeVisible();
+          else for (const participant of participants) await expect(participant.page.getByText('Round 2 · Combat Fate')).toBeVisible();
         } },
         converged(accepted.value + 1)
       ]);
@@ -223,15 +222,15 @@ test('Treachery at Orthanc resolves a private ranked Fate choice before Recall',
             await expect(observer.page.getByTestId('fate-discard')).toContainText(`${discardBefore + index + 1} cards`);
           }
         } },
-        { spec: index + 1 < rewardRecipients.length ? 'The next tied recipient receives private ordered authority' : 'All ranked rewards finish before round sixteen begins', check: async () => {
+        { spec: index + 1 < rewardRecipients.length ? 'The next tied recipient receives private ordered authority' : 'All ranked rewards finish before round three begins', check: async () => {
           if (index + 1 < rewardRecipients.length) for (const observer of seats) await expect(observer.page.getByRole('heading', { name: 'Keep one of the two Fate cards?' })).toBeVisible();
-          else for (const observer of seats) await expect(observer.page.getByText('Round 16 · Agent turns')).toBeVisible();
+          else for (const observer of seats) await expect(observer.page.getByText('Round 3 · Agent turns')).toBeVisible();
         } },
         converged(accepted.value + 1)
       ]);
     }
 
-    steps.generateDocs('Treachery at Orthanc as the fifteenth Battle', 'Three isolated humans exhaust fourteen Battles through ordinary Reveal turns, deploy two finite forces through real cards and board destinations, resolve Combat ranking, receive the exact first-rank Renown and Shadow standing plus the private second-rank draw-two-keep-one Fate reward, reload that persisted authority, discard the unkept Fate by click, and finish Recall only after every ranked reward resolves.');
+    steps.generateDocs('Treachery at Orthanc as a selected Age II Battle', 'Three isolated humans reveal through the Age I Battle, deploy two finite forces through real cards and board destinations at selected Treachery at Orthanc, resolve Combat ranking, receive the exact first-rank Renown and Shadow standing plus the private second-rank draw-two-keep-one Fate reward, reload that persisted authority, discard the unkept Fate by click, and finish Recall only after every ranked reward resolves.');
   } finally {
     await table.close();
   }

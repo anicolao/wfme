@@ -6,7 +6,7 @@ import { TestStepHelper } from '../helpers/test-step-helper';
 test('Assault on the Fords resolves exact first- and second-rank rewards before Recall', async ({ browser, page }, testInfo) => {
   test.setTimeout(390_000);
   const steps = new TestStepHelper(testInfo);
-  const table = await startPlotTable(browser, page, testInfo, steps, 'assault-fords', { phone: 'FORDP', desktop: 'FORDD' });
+  const table = await startPlotTable(browser, page, testInfo, steps, 'assault-fords-0', { phone: 'FORDP', desktop: 'FORDD' });
   const { seats, accepted, converged, currentSeat, row } = table;
   const occupied = new Set<string>();
 
@@ -71,7 +71,7 @@ test('Assault on the Fords resolves exact first- and second-rank rewards before 
   };
 
   try {
-    for (let round = 1; round <= 12; round += 1) {
+    for (let round = 1; round < 5; round += 1) {
       for (let turn = 0; turn < 3; turn += 1) {
         const actor = await currentSeat();
         await steps.gesture(actor.page, `round-${round}-reveal-${turn + 1}`, `${actor.name} Reveals in round ${round}`, async () => {
@@ -83,9 +83,9 @@ test('Assault on the Fords resolves exact first- and second-rank rewards before 
         await steps.gesture(actor.page, `round-${round}-finish-${turn + 1}`, `${actor.name} finishes Reveal in round ${round}`, async () => {
           await actor.page.getByRole('button', { name: 'Finish Reveal' }).click(); accepted.value += 1;
         }, [
-          { spec: turn < 2 ? 'Reveal authority advances clockwise' : round < 12 ? `The unopposed Battle closes and round ${round + 1} opens` : 'Assault on the Fords opens as the thirteenth reviewed Battle', check: async () => {
+          { spec: turn < 2 ? 'Reveal authority advances clockwise' : round < 4 ? `The unopposed Battle closes and round ${round + 1} opens` : 'Assault on the Fords opens as the fifth selected Battle', check: async () => {
             if (turn < 2) await expect(actor.page.locator('footer')).not.toContainText(`Current actor ${actor.name}`);
-            else if (round < 12) await expect(page.getByText(new RegExp(`Round ${round + 1} · Agent turns`, 'i'))).toBeVisible();
+            else if (round < 4) await expect(page.getByText(new RegExp(`Round ${round + 1} · Agent turns`, 'i'))).toBeVisible();
             else for (const observer of seats) {
               await expect(observer.page.getByTestId('active-battle')).toContainText('Assault on the Fords');
               await expect(observer.page.getByTestId('active-battle')).toContainText('First: 1 Renown + 1 Wild standing');
@@ -143,7 +143,7 @@ test('Assault on the Fords resolves exact first- and second-rank rewards before 
       }, [
         { spec: turn < 2 ? 'Reveal authority advances' : 'The two deployed humans enter Combat Fate', check: async () => {
           if (turn < 2) await expect(actor.page.locator('footer')).not.toContainText(`Current actor ${actor.name}`);
-          else for (const participant of participants) await expect(participant.page.getByText('Round 13 · Combat Fate')).toBeVisible();
+          else for (const participant of participants) await expect(participant.page.getByText('Round 5 · Combat Fate')).toBeVisible();
         } },
         converged(accepted.value + 1)
       ]);
@@ -204,15 +204,15 @@ test('Assault on the Fords resolves exact first- and second-rank rewards before 
         { spec: 'Exactly one Dwarven standing resolves publicly for the ranked recipient', check: async () => {
           for (const observer of seats) await expect(row(observer, recipient!.name).getByText('Dwarven', { exact: true }).locator('..')).toContainText(String(before + 1));
         } },
-        { spec: index + 1 < rewardRecipients.length ? 'The next tied recipient receives ordered authority' : 'All ranked rewards finish before round fourteen begins', check: async () => {
+        { spec: index + 1 < rewardRecipients.length ? 'The next tied recipient receives ordered authority' : 'All ranked rewards finish before round six begins', check: async () => {
           if (index + 1 < rewardRecipients.length) for (const observer of seats) await expect(observer.page.getByRole('heading', { name: 'Which faction gains standing?' })).toBeVisible();
-          else for (const observer of seats) await expect(observer.page.getByText('Round 14 · Agent turns')).toBeVisible();
+          else for (const observer of seats) await expect(observer.page.getByText('Round 6 · Agent turns')).toBeVisible();
         } },
         converged(accepted.value + 1)
       ]);
     }
 
-    steps.generateDocs('Assault on the Fords as the thirteenth Battle', 'Three isolated humans exhaust twelve Battles through ordinary Reveal turns, deploy two finite forces through real cards and board destinations, resolve Combat ranking, receive the exact first-rank Renown and Wild standing plus the ordered second-rank faction choice, reload that persisted authority, and finish Recall only after every ranked reward resolves.');
+    steps.generateDocs('Assault on the Fords as a selected Age II Battle', 'Three isolated humans reveal through the first four selected Battles, deploy two finite forces through real cards and board destinations at Assault on the Fords, resolve Combat ranking, receive the exact first-rank Renown and Wild standing plus the ordered second-rank faction choice, reload that persisted authority, and finish Recall only after every ranked reward resolves.');
   } finally {
     await table.close();
   }

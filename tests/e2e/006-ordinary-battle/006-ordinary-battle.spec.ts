@@ -75,8 +75,8 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
     await steps.gesture(page, 'start-match', 'Mara starts the match', async () => {
       await page.getByRole('button', { name: 'Start seeded match' }).click(); accepted += 1;
     }, [
-      { spec: 'Every human sees Crossing of the Isen as the active Battle', check: async () => {
-        for (const seat of seats) await expect(seat.page.getByTestId('active-battle')).toContainText('Crossing of the Isen');
+      { spec: 'Every human sees the selected Age I Battle first', check: async () => {
+        for (const seat of seats) await expect(seat.page.getByTestId('active-battle')).toContainText('Raid on the Westfold');
       } },
       { spec: 'The production board reports all twenty-two executable destinations', check: async () => await expect(page.getByText('22 / 22')).toBeVisible() },
       converged(accepted + 1)
@@ -198,7 +198,7 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
         if (pass < 2) await expect(actor.page.getByTestId('pass-battle')).toBeDisabled();
         else for (const observer of seats) {
           await expect(observer.page.getByText('Round 2 · Agent turns')).toBeVisible();
-          await expect(observer.page.getByTestId('activity-log')).toContainText('Crossing of the Isen is won');
+          await expect(observer.page.getByTestId('activity-log')).toContainText('Raid on the Westfold is won');
           await expect(observer.page.getByTestId('active-battle')).toContainText('Siege of Minas Tirith');
           await expect(observer.page.getByTestId('active-battle')).toContainText('Contested: Minas Tirith');
         }
@@ -316,7 +316,8 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
         if (pass === 4) for (const observer of seats) {
           await expect(observer.page.getByTestId('control-minas-tirith')).not.toContainText('Uncontrolled');
           await expect(observer.page.getByTestId('activity-log')).toContainText('Siege of Minas Tirith is won');
-          await expect(observer.page.getByTestId('active-battle')).toContainText('Battle of the Pelennor Fields');
+          await expect(observer.page.getByText('Round 3 · Agent turns')).toBeVisible();
+          await expect(observer.page.getByTestId('active-battle')).toContainText('Contest for Aglarond');
         }
       } }, converged(accepted + 1)]);
     }
@@ -330,6 +331,35 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
       if (/Fate\s*1/.test(playerText ?? '')) reinforcementHolder = seat;
     }
     if (!reinforcementHolder || reinforcementHolder === controllerSeat) throw new Error('The Siege runner-up did not retain the private Reinforcements reward');
+
+    const unopposedSchedule = [
+      { round: 3, next: 'Treachery at Orthanc' },
+      { round: 4, next: 'Wargs in the Wild' },
+      { round: 5, next: 'Battle for Osgiliath' },
+      { round: 6, next: 'Clash at the Morannon' },
+      { round: 7, next: 'Battle of the Pelennor Fields' }
+    ];
+    for (const { round, next } of unopposedSchedule) {
+      if (round === 3) {
+        let defenseActor: Seat | undefined;
+        for (const seat of seats) if (await seat.page.getByRole('button', { name: 'Decline defense' }).isEnabled().catch(() => false)) defenseActor = seat;
+        if (defenseActor) await steps.gesture(defenseActor.page, 'decline-aglarond-defense', `${defenseActor.name} declines the optional Aglarond defense`, async () => {
+          await defenseActor!.page.getByRole('button', { name: 'Decline defense' }).click(); accepted += 1;
+        }, [{ spec: 'Round three opens for ordinary Agent turns', check: async () => await expect(defenseActor!.page.getByText('Round 3 · Agent turns')).toBeVisible() }, converged(accepted + 1)]);
+      }
+      for (let reveal = 0; reveal < 3; reveal += 1) {
+        const actor = await currentSeat();
+        await steps.gesture(actor.page, `advance-${round}-reveal-${reveal + 1}`, `${actor.name} Reveals in unopposed round ${round}`, async () => {
+          await actor.page.getByRole('button', { name: 'Reveal remaining hand' }).click(); accepted += 1;
+        }, [{ spec: 'The public Muster row names the acting human', check: async () => await expect(actor.page.getByTestId('reveal-panel')).toContainText(`${actor.name} Reveals`) }, converged(accepted + 1)]);
+        await steps.gesture(actor.page, `advance-${round}-finish-${reveal + 1}`, `${actor.name} finishes unopposed round ${round}`, async () => {
+          await actor.page.getByRole('button', { name: 'Finish Reveal' }).click(); accepted += 1;
+        }, [{ spec: reveal < 2 ? 'Reveal authority advances clockwise' : `The ten-card deck advances to ${next}`, check: async () => {
+          if (reveal < 2) await expect(actor.page.locator('footer')).not.toContainText(`Current actor ${actor.name}`);
+          else for (const observer of seats) await expect(observer.page.getByTestId('active-battle')).toContainText(next);
+        } }, converged(accepted + 1)]);
+      }
+    }
     await steps.gesture(controllerSeat.page, 'reload-pelennor-decision', `${controllerSeat.name} reloads before the Pelennor defense choice`, async () => {
       await reloadGameClient(controllerSeat.page);
     }, [
@@ -431,7 +461,7 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
         await actor.page.getByRole('button', { name: 'Finish Reveal' }).click(); accepted += 1;
       }, [{ spec: reveal < 2 ? 'Turn authority advances to the next human' : 'Only the deployed defender enters Combat', check: async () => {
         if (reveal === 2) for (const observer of seats) {
-          await expect(observer.page.getByText(/Round 3 · Combat Fate/)).toBeVisible();
+          await expect(observer.page.getByText(/Round 8 · Combat Fate/)).toBeVisible();
           await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: reinforcementHolder.name })).toContainText('1 Companies');
           for (const nonParticipant of seats.filter((seat) => seat !== controllerSeat && seat !== reinforcementHolder)) {
             await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: nonParticipant.name })).toContainText('0 Companies');
@@ -441,57 +471,56 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
       reveal += 1;
     }
 
-    const reinforcementActor = await currentSeat();
-    if (reinforcementActor !== reinforcementHolder) throw new Error('Combat authority did not begin with the first-player Pelennor participant');
-    const reinforcementArea = reinforcementActor.page.locator('.players article').filter({ hasText: reinforcementActor.name });
-    const garrisonBefore = Number((await reinforcementArea.getByText('Garrison').locator('..').textContent())?.match(/(\d+)/)?.[1] ?? '-1');
-    const companiesBeforeReinforcement = Number((await reinforcementActor.page.getByTestId('active-battle').locator('article').filter({ hasText: reinforcementActor.name }).textContent())?.match(/(\d+) Companies/)?.[1] ?? '0');
-    const strengthBeforeReinforcement = Number((await reinforcementActor.page.getByTestId('active-battle').locator('article').filter({ hasText: reinforcementActor.name }).getByText(/Strength/).textContent())?.match(/(\d+)/)?.[1] ?? '0');
-    await steps.gesture(reinforcementActor.page, 'play-reinforcements', `${reinforcementActor.name} plays Reinforcements from the Siege reward`, async () => {
-      await reinforcementActor.page.getByRole('button', { name: /Play Reinforcements/ }).click(); accepted += 1;
-    }, [
-      { spec: 'One Company moves from garrison into Pelennor for exactly two additional Strength', check: async () => {
-        for (const observer of seats) {
-          await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: reinforcementActor.name })).toContainText(`${companiesBeforeReinforcement + 1} Companies`);
-          await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: reinforcementActor.name })).toContainText(`${strengthBeforeReinforcement + 2} Strength`);
-          await expect(observer.page.locator('.players article').filter({ hasText: reinforcementActor.name }).getByText('Garrison').locator('..')).toContainText(`${garrisonBefore - 1}`);
-          await expect(observer.page.getByTestId('fate-discard')).toContainText('3 cards');
-        }
-      } },
-      { spec: 'The same participant retains Combat authority after the deployment', check: async () => await expect(reinforcementActor.page.getByTestId('pass-battle')).toBeEnabled() },
-      converged(accepted + 1)
-    ]);
-    await steps.gesture(reinforcementActor.page, 'pelennor-reinforcement-pass', `${reinforcementActor.name} passes after Reinforcements`, async () => {
-      await reinforcementActor.page.getByTestId('pass-battle').click(); accepted += 1;
-    }, [{ spec: 'Combat authority advances to the Minas Tirith defender', check: async () => await expect(controllerSeat.page.getByTestId('pass-battle')).toBeEnabled() }, converged(accepted + 1)]);
+    const reinforcementActor = reinforcementHolder;
+    const playPelennorFate = async (actor: Seat, sequence: number) => {
+      if (actor === reinforcementActor) {
+        const reinforcementArea = actor.page.locator('.players article').filter({ hasText: actor.name });
+        const garrisonBefore = Number((await reinforcementArea.getByText('Garrison').locator('..').textContent())?.match(/(\d+)/)?.[1] ?? '-1');
+        const companiesBefore = Number((await actor.page.getByTestId('active-battle').locator('article').filter({ hasText: actor.name }).textContent())?.match(/(\d+) Companies/)?.[1] ?? '0');
+        const strengthBefore = Number((await actor.page.getByTestId('active-battle').locator('article').filter({ hasText: actor.name }).getByText(/Strength/).textContent())?.match(/(\d+)/)?.[1] ?? '0');
+        await steps.gesture(actor.page, `pelennor-fate-${sequence}-reinforcements`, `${actor.name} plays Reinforcements from the Siege reward`, async () => {
+          await actor.page.getByRole('button', { name: /Play Reinforcements/ }).click(); accepted += 1;
+        }, [
+          { spec: 'One Company moves from garrison into Pelennor for exactly two additional Strength', check: async () => {
+            for (const observer of seats) {
+              await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: actor.name })).toContainText(`${companiesBefore + 1} Companies`);
+              await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: actor.name })).toContainText(`${strengthBefore + 2} Strength`);
+              await expect(observer.page.locator('.players article').filter({ hasText: actor.name }).getByText('Garrison').locator('..')).toContainText(`${garrisonBefore - 1}`);
+            }
+          } },
+          { spec: 'The same participant retains Combat authority after the deployment', check: async () => await expect(actor.page.getByTestId('pass-battle')).toBeEnabled() },
+          converged(accepted + 1)
+        ]);
+      } else {
+        if (actor !== controllerSeat) throw new Error('An unexpected human received Pelennor Combat authority');
+        const strengthBefore = Number((await actor.page.getByTestId('active-battle').locator('article').filter({ hasText: actor.name }).getByText(/Strength/).textContent())?.match(/(\d+)/)?.[1] ?? '0');
+        await steps.gesture(actor.page, `pelennor-fate-${sequence}-hold-line`, `${actor.name} plays Hold the Line while controlling Minas Tirith`, async () => {
+          await actor.page.getByRole('button', { name: /Play Hold the Line/ }).click(); accepted += 1;
+        }, [
+          { spec: 'Control of the contested location raises the printed two Strength bonus to four', check: async () => {
+            for (const observer of seats) await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: actor.name })).toContainText(`${strengthBefore + 4} Strength`);
+          } },
+          { spec: 'The same defender retains Combat authority after playing the Fate card', check: async () => await expect(actor.page.getByTestId('pass-battle')).toBeEnabled() },
+          converged(accepted + 1)
+        ]);
+      }
+      await steps.gesture(actor.page, `pelennor-fate-${sequence}-pass`, `${actor.name} passes after playing Combat Fate`, async () => {
+        await actor.page.getByTestId('pass-battle').click(); accepted += 1;
+      }, [{ spec: 'Combat authority advances to the other participant', check: async () => await expect((actor === controllerSeat ? reinforcementActor : controllerSeat).page.getByTestId('pass-battle')).toBeEnabled() }, converged(accepted + 1)]);
+    };
 
-    const defender = await currentSeat();
-    if (defender !== controllerSeat) throw new Error('Combat authority did not advance to the Pelennor defender');
-    const strengthBeforeHold = Number((await defender.page.getByTestId('active-battle').locator('article').filter({ hasText: defender.name }).getByText(/Strength/).textContent())?.match(/(\d+)/)?.[1] ?? '0');
-    await steps.gesture(defender.page, 'play-hold-line', `${defender.name} plays Hold the Line while controlling Minas Tirith`, async () => {
-      await defender.page.getByRole('button', { name: /Play Hold the Line/ }).click(); accepted += 1;
-    }, [
-      { spec: 'Control of the contested location raises the printed two Strength bonus to four', check: async () => {
-        for (const observer of seats) {
-          await expect(observer.page.getByTestId('active-battle').locator('article').filter({ hasText: defender.name })).toContainText(`${strengthBeforeHold + 4} Strength`);
-          await expect(observer.page.getByTestId('fate-discard')).toContainText('4 cards');
-        }
-      } },
-      { spec: 'The same defender retains Combat authority after playing the Fate card', check: async () => {
-        await expect(defender.page.getByTestId('pass-battle')).toBeEnabled();
-      } },
-      converged(accepted + 1)
-    ]);
-    await steps.gesture(defender.page, 'pelennor-defender-pass', `${defender.name} passes after Hold the Line`, async () => {
-      await defender.page.getByTestId('pass-battle').click(); accepted += 1;
-    }, [{ spec: 'Playing Hold the Line reset the pass streak, so authority returns to the other participant', check: async () => await expect(reinforcementActor.page.getByTestId('pass-battle')).toBeEnabled() }, converged(accepted + 1)]);
-    await steps.gesture(reinforcementActor.page, 'pelennor-final-pass', `${reinforcementActor.name} passes and the defender wins Pelennor`, async () => {
-      await reinforcementActor.page.getByTestId('pass-battle').click(); accepted += 1;
+    const firstPelennorActor = await currentSeat();
+    await playPelennorFate(firstPelennorActor, 1);
+    const secondPelennorActor = await currentSeat();
+    await playPelennorFate(secondPelennorActor, 2);
+    const finalPelennorActor = await currentSeat();
+    await steps.gesture(finalPelennorActor.page, 'pelennor-final-pass', `${finalPelennorActor.name} passes and the defender wins Pelennor`, async () => {
+      await finalPelennorActor.page.getByTestId('pass-battle').click(); accepted += 1;
     }, [
       { spec: 'The two White Tree Battle cards turn face down as one paired Standard', check: async () => {
         for (const observer of seats) {
           const playerArea = observer.page.locator('.players article').filter({ hasText: controllerSeat.name });
-          await expect(playerArea.locator('[data-testid^="battle-trophies-"]')).toContainText('1 face up · 1 paired');
+          await expect(playerArea.locator('[data-testid^="battle-trophies-"]')).toContainText('0 face up · 1 paired');
         }
       } },
       { spec: 'Printed Pelennor Renown and separate Standard-pair Renown total four', check: async () => {
@@ -501,16 +530,34 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
           await expect(observer.page.getByTestId('activity-log')).toContainText('White Tree Standards are paired face down for 1 Renown');
         }
       } },
-      { spec: 'Cleanup opens round four with Minas Tirith still controlled by the winner', check: async () => {
+      { spec: 'Cleanup opens round nine with Minas Tirith still controlled by the winner', check: async () => {
         for (const observer of seats) {
-          await expect(observer.page.getByText('Round 4 · Agent turns')).toBeVisible();
+          await expect(observer.page.getByText('Round 9 · Agent turns')).toBeVisible();
           await expect(observer.page.getByTestId('control-minas-tirith')).toContainText(controllerSeat.name);
-          await expect(observer.page.getByTestId('active-battle')).toContainText("Battle of Helm's Deep");
+          await expect(observer.page.getByTestId('active-battle')).toContainText('Last March of the Ents');
           await expect(observer.page.locator('.players article').filter({ hasText: reinforcementActor.name })).toContainText('Fate1');
         }
       } },
       converged(accepted + 1)
     ]);
+
+    for (let reveal = 0; reveal < 3; reveal += 1) {
+      const actor = await currentSeat();
+      await steps.gesture(actor.page, `advance-9-reveal-${reveal + 1}`, `${actor.name} Reveals in round nine`, async () => {
+        await actor.page.getByRole('button', { name: 'Reveal remaining hand' }).click(); accepted += 1;
+      }, [{ spec: 'The public Muster row names the acting human', check: async () => await expect(actor.page.getByTestId('reveal-panel')).toContainText(`${actor.name} Reveals`) }, converged(accepted + 1)]);
+      await steps.gesture(actor.page, `advance-9-finish-${reveal + 1}`, `${actor.name} finishes round nine`, async () => {
+        await actor.page.getByRole('button', { name: 'Finish Reveal' }).click(); accepted += 1;
+      }, [{ spec: reveal < 2 ? 'Reveal authority advances clockwise' : "The final selected Battle is Helm's Deep", check: async () => {
+        if (reveal < 2) await expect(actor.page.locator('footer')).not.toContainText(`Current actor ${actor.name}`);
+        else for (const observer of seats) await expect(observer.page.getByTestId('active-battle')).toContainText("Battle of Helm's Deep");
+      } }, converged(accepted + 1)]);
+    }
+    let helmDefenseActor: Seat | undefined;
+    for (const seat of seats) if (await seat.page.getByRole('button', { name: 'Decline defense' }).isEnabled().catch(() => false)) helmDefenseActor = seat;
+    if (helmDefenseActor) await steps.gesture(helmDefenseActor.page, 'decline-helms-defense', `${helmDefenseActor.name} declines the optional Helm's Deep defense`, async () => {
+      await helmDefenseActor!.page.getByRole('button', { name: 'Decline defense' }).click(); accepted += 1;
+    }, [{ spec: 'Round ten opens for ordinary Agent turns', check: async () => await expect(helmDefenseActor!.page.getByText('Round 10 · Agent turns')).toBeVisible() }, converged(accepted + 1)]);
 
     type RoundFourPlan = { cardName: string; spaceId: string };
     const planOptions = async (seat: Seat): Promise<RoundFourPlan[]> => {
@@ -545,7 +592,7 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
     const roundFourDeployed = new Set<Seat>();
     let roundFourReveal = 0;
     for (let guard = 0; guard < 12; guard += 1) {
-      if (await page.getByText(/Round 4 · Combat Fate/).isVisible().catch(() => false)) break;
+      if (await page.getByText(/Round 10 · Combat Fate/).isVisible().catch(() => false)) break;
       const actor = await currentSeat();
       const plan = roundFourPlans.get(actor);
       if (plan && !roundFourDeployed.has(actor)) {
@@ -583,16 +630,16 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
         await steps.gesture(actor.page, `helms-deep-finish-${roundFourReveal}`, `${actor.name} finishes the Helm's Deep Reveal`, async () => {
           await actor.page.getByRole('button', { name: 'Finish Reveal' }).click(); accepted += 1;
         }, [{ spec: roundFourReveal < 3 ? 'Turn authority advances toward the remaining Reveal' : 'The fourth Combat Fate window opens', check: async () => {
-          if (roundFourReveal === 3) for (const observer of seats) await expect(observer.page.getByText(/Round 4 · Combat Fate/)).toBeVisible();
+          if (roundFourReveal === 3) for (const observer of seats) await expect(observer.page.getByText(/Round 10 · Combat Fate/)).toBeVisible();
         } }, converged(accepted + 1)]);
       }
     }
 
     const helmFirst = await currentSeat();
-    if (helmFirst !== controllerSeat) throw new Error("Helm's Deep Combat did not begin with the round-four first player");
-    await steps.gesture(helmFirst.page, 'helms-deep-opening-pass', `${helmFirst.name} passes at Helm's Deep`, async () => {
+    if (helmFirst === controllerSeat) await steps.gesture(helmFirst.page, 'helms-deep-opening-pass', `${helmFirst.name} passes at Helm's Deep`, async () => {
       await helmFirst.page.getByTestId('pass-battle').click(); accepted += 1;
     }, [{ spec: 'Combat authority advances to the Desperate Valor holder', check: async () => await expect(reinforcementActor.page.getByTestId('pass-battle')).toBeEnabled() }, converged(accepted + 1)]);
+    else if (helmFirst !== reinforcementActor) throw new Error("An unexpected human received Helm's Deep Combat authority");
     const valorSupplyBefore = Number((await reinforcementActor.page.locator('.players article').filter({ hasText: reinforcementActor.name }).getByText('Supply', { exact: true }).locator('..').textContent())?.match(/(\d+)/)?.[1] ?? '-1');
     await steps.gesture(reinforcementActor.page, 'play-desperate-valor', `${reinforcementActor.name} plays Desperate Valor with one Company`, async () => {
       await reinforcementActor.page.getByRole('button', { name: /Play Desperate Valor/ }).click(); accepted += 1;
@@ -620,62 +667,15 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
           await expect(observer.page.getByTestId('activity-log')).toContainText("Battle of Helm's Deep is won");
         }
       } },
-      { spec: 'Cleanup opens round five with no reviewed Battle silently substituted', check: async () => {
-        for (const observer of seats) await expect(observer.page.getByText('Round 5 · Agent turns')).toBeVisible();
-      } },
-      converged(accepted + 1)
-    ]);
-
-    let roundFiveReveal = 0;
-    while (await currentSeat() !== controllerSeat) {
-      const actor = await currentSeat();
-      roundFiveReveal += 1;
-      await steps.gesture(actor.page, `round-five-reveal-${roundFiveReveal}`, `${actor.name} Reveals before the Edoras visit`, async () => {
-        await actor.page.getByRole('button', { name: 'Reveal remaining hand' }).click(); accepted += 1;
-      }, [{ spec: 'Every observer sees the real public Muster row', check: async () => {
-        for (const observer of seats) await expect(observer.page.getByTestId('reveal-panel')).toContainText(`${actor.name} Reveals`);
-      } }, converged(accepted + 1)]);
-      await steps.gesture(actor.page, `round-five-finish-${roundFiveReveal}`, `${actor.name} finishes the round-five Reveal`, async () => {
-        await actor.page.getByRole('button', { name: 'Finish Reveal' }).click(); accepted += 1;
-      }, [{ spec: 'Turn authority advances toward the Edoras controller', check: async () => await expect(actor.page.getByTestId('space-edoras')).toBeDisabled() }, converged(accepted + 1)]);
-    }
-    let edorasCardName = '';
-    for (const cardName of ['The Open Road', 'Muster the Host']) {
-      if (await controllerSeat.page.getByTestId('private-hand').getByRole('button', { name: new RegExp(`^${cardName}`) }).first().isVisible().catch(() => false)) {
-        edorasCardName = cardName;
-        break;
-      }
-    }
-    if (!edorasCardName) throw new Error('The Edoras controller has no real Roads card in round five');
-    await steps.gesture(controllerSeat.page, 'choose-edoras-road', `${controllerSeat.name} chooses ${edorasCardName} for Edoras`, async () => {
-      await controllerSeat.page.getByTestId('private-hand').getByRole('button', { name: new RegExp(`^${edorasCardName}`) }).first().click();
-    }, [{ spec: 'The newly executable Edoras destination is enabled by the real Roads icon', check: async () => {
-      await expect(controllerSeat.page.getByTestId('space-edoras')).toBeEnabled();
-      await expect(controllerSeat.page.getByTestId('space-edoras')).toContainText('4 Riches');
-    } }]);
-    const controllerMithrilBeforeEdoras = Number((await controllerSeat.page.locator('.players article').filter({ hasText: controllerSeat.name }).getByText('Mithril', { exact: true }).locator('..').textContent())?.match(/(\d+)/)?.[1] ?? '-1');
-    await steps.gesture(controllerSeat.page, 'collect-edoras-riches', `${controllerSeat.name} visits controlled Edoras and gathers Riches`, async () => {
-      await controllerSeat.page.getByTestId('space-edoras').click(); accepted += 1;
-    }, [
-      { spec: 'The controller gains one tribute, one printed Mithril, and all four accumulated Riches', check: async () => {
-        for (const observer of seats) {
-          await expect(observer.page.locator('.players article').filter({ hasText: controllerSeat.name }).getByText('Mithril', { exact: true }).locator('..')).toContainText(`${controllerMithrilBeforeEdoras + 6}`);
-          await expect(observer.page.getByTestId('space-edoras')).toContainText(controllerSeat.name);
-          await expect(observer.page.getByTestId('activity-log')).toContainText(`${controllerSeat.name} gains 1 Mithril from Edoras`);
-        }
-      } },
-      { spec: 'The collected Riches area resets to zero and replay remains deterministic', check: async () => {
-        for (const observer of seats) {
-          await expect(observer.page.getByTestId('space-edoras')).toContainText('0 Riches');
-          await expect(observer.page.getByTestId('activity-log')).toContainText('taking 4 bonus Mithril from Riches');
-        }
+      { spec: 'Cleanup ends the game after exactly ten selected Battles', check: async () => {
+        for (const observer of seats) await expect(observer.page.getByText('Round 10 · Endgame')).toBeVisible();
       } },
       converged(accepted + 1)
     ]);
 
     steps.generateDocs(
       'Three-player ordinary Battle',
-      "Three isolated humans start in the real lobby, resolve ordinary Battles with Combat Fate, establish and defend Minas Tirith, contest Helm's Deep, play Hold the Line, Hidden Archers, Reinforcements, and Desperate Valor from private Fate, preserve participation after a last Company returns to supply, and gather accumulated Riches at controlled Edoras."
+      "Three isolated humans start in the real lobby, resolve selected Battles in strict Age order, establish and defend Minas Tirith, contest Helm's Deep as the tenth and final Battle, play Hold the Line, Hidden Archers, Reinforcements, and Desperate Valor from private Fate, preserve participation after a last Company returns to supply, and enter endgame after exactly ten rounds."
     );
   } finally {
     await guestAContext.close();

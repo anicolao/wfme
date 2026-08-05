@@ -1,6 +1,6 @@
 # Test: Three-player ordinary Battle
 
-Three isolated humans start in the real lobby, resolve ordinary Battles with Combat Fate, establish and defend Minas Tirith, contest Helm's Deep, play Hold the Line, Hidden Archers, Reinforcements, and Desperate Valor from private Fate, preserve participation after a last Company returns to supply, and gather accumulated Riches at controlled Edoras.
+Three isolated humans start in the real lobby, resolve selected Battles in strict Age order, establish and defend Minas Tirith, contest Helm's Deep as the tenth and final Battle, play Hold the Line, Hidden Archers, Reinforcements, and Desperate Valor from private Fate, preserve participation after a last Company returns to supply, and enter endgame after exactly ten rounds.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -213,7 +213,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 **Verifications:**
 
-- [x] Every human sees Crossing of the Isen as the active Battle
+- [x] Every human sees the selected Age I Battle first
 - [x] The production board reports all twenty-two executable destinations
 - [x] Every connected browser replays 10 accepted events with no diagnostics
 
@@ -850,75 +850,466 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara reloads before the Pelennor defense choice
+## Mara declines the optional Aglarond defense
 
-![Phone: Mara reloads before the Pelennor defense choice](./screenshots/066-reload-pelennor-decision-phone.png)
+![Phone: Mara declines the optional Aglarond defense](./screenshots/066-decline-aglarond-defense-phone.png)
 
-![Desktop: Mara reloads before the Pelennor defense choice](./screenshots/066-reload-pelennor-decision-desktop.png)
-
-**Verifications:**
-
-- [x] The contested Age III Battle and controller-only defense choice survive replay
-- [x] Every connected browser replays 50 accepted events with no diagnostics
-
----
-
-## Mara deploys from supply to defend Minas Tirith
-
-![Phone: Mara deploys from supply to defend Minas Tirith](./screenshots/067-deploy-pelennor-defender-phone.png)
-
-![Desktop: Mara deploys from supply to defend Minas Tirith](./screenshots/067-deploy-pelennor-defender-desktop.png)
+![Desktop: Mara declines the optional Aglarond defense](./screenshots/066-decline-aglarond-defense-desktop.png)
 
 **Verifications:**
 
-- [x] Every observer sees exactly one defending Company before Agent turns
+- [x] Round three opens for ordinary Agent turns
 - [x] Every connected browser replays 51 accepted events with no diagnostics
 
 ---
 
-## Pip chooses Armed Escort for Pelennor
+## Pip Reveals in unopposed round 3
 
-![Phone: Pip chooses Armed Escort for Pelennor](./screenshots/068-choose-reinforcement-battle-card-phone.png)
+![Phone: Pip Reveals in unopposed round 3](./screenshots/067-advance-3-reveal-1-phone.png)
 
-![Desktop: Pip chooses Armed Escort for Pelennor](./screenshots/068-choose-reinforcement-battle-card-desktop.png)
-
-**Verifications:**
-
-- [x] minas-tirith is enabled by the selected real card
-
----
-
-## Pip enters minas-tirith for Pelennor
-
-![Phone: Pip enters minas-tirith for Pelennor](./screenshots/069-enter-reinforcement-battle-space-phone.png)
-
-![Desktop: Pip enters minas-tirith for Pelennor](./screenshots/069-enter-reinforcement-battle-space-desktop.png)
+![Desktop: Pip Reveals in unopposed round 3](./screenshots/067-advance-3-reveal-1-desktop.png)
 
 **Verifications:**
 
-- [x] Every observer sees the second Pelennor participant on the board
+- [x] The public Muster row names the acting human
 - [x] Every connected browser replays 52 accepted events with no diagnostics
 
 ---
 
-## Pip deploys one Company to Pelennor
+## Pip finishes unopposed round 3
 
-![Phone: Pip deploys one Company to Pelennor](./screenshots/070-deploy-reinforcement-force-phone.png)
+![Phone: Pip finishes unopposed round 3](./screenshots/068-advance-3-finish-1-phone.png)
 
-![Desktop: Pip deploys one Company to Pelennor](./screenshots/070-deploy-reinforcement-force-desktop.png)
+![Desktop: Pip finishes unopposed round 3](./screenshots/068-advance-3-finish-1-desktop.png)
 
 **Verifications:**
 
-- [x] Every observer sees exactly one Company before Combat Reinforcements
+- [x] Reveal authority advances clockwise
 - [x] Every connected browser replays 53 accepted events with no diagnostics
 
 ---
 
-## Mara chooses Armed Escort for Hall of Fire
+## Mara Reveals in unopposed round 3
 
-![Phone: Mara chooses Armed Escort for Hall of Fire](./screenshots/071-choose-hold-hall-card-phone.png)
+![Phone: Mara Reveals in unopposed round 3](./screenshots/069-advance-3-reveal-2-phone.png)
 
-![Desktop: Mara chooses Armed Escort for Hall of Fire](./screenshots/071-choose-hold-hall-card-desktop.png)
+![Desktop: Mara Reveals in unopposed round 3](./screenshots/069-advance-3-reveal-2-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row names the acting human
+- [x] Every connected browser replays 54 accepted events with no diagnostics
+
+---
+
+## Mara finishes unopposed round 3
+
+![Phone: Mara finishes unopposed round 3](./screenshots/070-advance-3-finish-2-phone.png)
+
+![Desktop: Mara finishes unopposed round 3](./screenshots/070-advance-3-finish-2-desktop.png)
+
+**Verifications:**
+
+- [x] Reveal authority advances clockwise
+- [x] Every connected browser replays 55 accepted events with no diagnostics
+
+---
+
+## Rin Reveals in unopposed round 3
+
+![Phone: Rin Reveals in unopposed round 3](./screenshots/071-advance-3-reveal-3-phone.png)
+
+![Desktop: Rin Reveals in unopposed round 3](./screenshots/071-advance-3-reveal-3-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row names the acting human
+- [x] Every connected browser replays 56 accepted events with no diagnostics
+
+---
+
+## Rin finishes unopposed round 3
+
+![Phone: Rin finishes unopposed round 3](./screenshots/072-advance-3-finish-3-phone.png)
+
+![Desktop: Rin finishes unopposed round 3](./screenshots/072-advance-3-finish-3-desktop.png)
+
+**Verifications:**
+
+- [x] The ten-card deck advances to Treachery at Orthanc
+- [x] Every connected browser replays 57 accepted events with no diagnostics
+
+---
+
+## Mara Reveals in unopposed round 4
+
+![Phone: Mara Reveals in unopposed round 4](./screenshots/073-advance-4-reveal-1-phone.png)
+
+![Desktop: Mara Reveals in unopposed round 4](./screenshots/073-advance-4-reveal-1-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row names the acting human
+- [x] Every connected browser replays 58 accepted events with no diagnostics
+
+---
+
+## Mara finishes unopposed round 4
+
+![Phone: Mara finishes unopposed round 4](./screenshots/074-advance-4-finish-1-phone.png)
+
+![Desktop: Mara finishes unopposed round 4](./screenshots/074-advance-4-finish-1-desktop.png)
+
+**Verifications:**
+
+- [x] Reveal authority advances clockwise
+- [x] Every connected browser replays 59 accepted events with no diagnostics
+
+---
+
+## Rin Reveals in unopposed round 4
+
+![Phone: Rin Reveals in unopposed round 4](./screenshots/075-advance-4-reveal-2-phone.png)
+
+![Desktop: Rin Reveals in unopposed round 4](./screenshots/075-advance-4-reveal-2-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row names the acting human
+- [x] Every connected browser replays 60 accepted events with no diagnostics
+
+---
+
+## Rin finishes unopposed round 4
+
+![Phone: Rin finishes unopposed round 4](./screenshots/076-advance-4-finish-2-phone.png)
+
+![Desktop: Rin finishes unopposed round 4](./screenshots/076-advance-4-finish-2-desktop.png)
+
+**Verifications:**
+
+- [x] Reveal authority advances clockwise
+- [x] Every connected browser replays 61 accepted events with no diagnostics
+
+---
+
+## Pip Reveals in unopposed round 4
+
+![Phone: Pip Reveals in unopposed round 4](./screenshots/077-advance-4-reveal-3-phone.png)
+
+![Desktop: Pip Reveals in unopposed round 4](./screenshots/077-advance-4-reveal-3-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row names the acting human
+- [x] Every connected browser replays 62 accepted events with no diagnostics
+
+---
+
+## Pip finishes unopposed round 4
+
+![Phone: Pip finishes unopposed round 4](./screenshots/078-advance-4-finish-3-phone.png)
+
+![Desktop: Pip finishes unopposed round 4](./screenshots/078-advance-4-finish-3-desktop.png)
+
+**Verifications:**
+
+- [x] The ten-card deck advances to Wargs in the Wild
+- [x] Every connected browser replays 63 accepted events with no diagnostics
+
+---
+
+## Rin Reveals in unopposed round 5
+
+![Phone: Rin Reveals in unopposed round 5](./screenshots/079-advance-5-reveal-1-phone.png)
+
+![Desktop: Rin Reveals in unopposed round 5](./screenshots/079-advance-5-reveal-1-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row names the acting human
+- [x] Every connected browser replays 64 accepted events with no diagnostics
+
+---
+
+## Rin finishes unopposed round 5
+
+![Phone: Rin finishes unopposed round 5](./screenshots/080-advance-5-finish-1-phone.png)
+
+![Desktop: Rin finishes unopposed round 5](./screenshots/080-advance-5-finish-1-desktop.png)
+
+**Verifications:**
+
+- [x] Reveal authority advances clockwise
+- [x] Every connected browser replays 65 accepted events with no diagnostics
+
+---
+
+## Pip Reveals in unopposed round 5
+
+![Phone: Pip Reveals in unopposed round 5](./screenshots/081-advance-5-reveal-2-phone.png)
+
+![Desktop: Pip Reveals in unopposed round 5](./screenshots/081-advance-5-reveal-2-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row names the acting human
+- [x] Every connected browser replays 66 accepted events with no diagnostics
+
+---
+
+## Pip finishes unopposed round 5
+
+![Phone: Pip finishes unopposed round 5](./screenshots/082-advance-5-finish-2-phone.png)
+
+![Desktop: Pip finishes unopposed round 5](./screenshots/082-advance-5-finish-2-desktop.png)
+
+**Verifications:**
+
+- [x] Reveal authority advances clockwise
+- [x] Every connected browser replays 67 accepted events with no diagnostics
+
+---
+
+## Mara Reveals in unopposed round 5
+
+![Phone: Mara Reveals in unopposed round 5](./screenshots/083-advance-5-reveal-3-phone.png)
+
+![Desktop: Mara Reveals in unopposed round 5](./screenshots/083-advance-5-reveal-3-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row names the acting human
+- [x] Every connected browser replays 68 accepted events with no diagnostics
+
+---
+
+## Mara finishes unopposed round 5
+
+![Phone: Mara finishes unopposed round 5](./screenshots/084-advance-5-finish-3-phone.png)
+
+![Desktop: Mara finishes unopposed round 5](./screenshots/084-advance-5-finish-3-desktop.png)
+
+**Verifications:**
+
+- [x] The ten-card deck advances to Battle for Osgiliath
+- [x] Every connected browser replays 69 accepted events with no diagnostics
+
+---
+
+## Pip Reveals in unopposed round 6
+
+![Phone: Pip Reveals in unopposed round 6](./screenshots/085-advance-6-reveal-1-phone.png)
+
+![Desktop: Pip Reveals in unopposed round 6](./screenshots/085-advance-6-reveal-1-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row names the acting human
+- [x] Every connected browser replays 70 accepted events with no diagnostics
+
+---
+
+## Pip finishes unopposed round 6
+
+![Phone: Pip finishes unopposed round 6](./screenshots/086-advance-6-finish-1-phone.png)
+
+![Desktop: Pip finishes unopposed round 6](./screenshots/086-advance-6-finish-1-desktop.png)
+
+**Verifications:**
+
+- [x] Reveal authority advances clockwise
+- [x] Every connected browser replays 71 accepted events with no diagnostics
+
+---
+
+## Mara Reveals in unopposed round 6
+
+![Phone: Mara Reveals in unopposed round 6](./screenshots/087-advance-6-reveal-2-phone.png)
+
+![Desktop: Mara Reveals in unopposed round 6](./screenshots/087-advance-6-reveal-2-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row names the acting human
+- [x] Every connected browser replays 72 accepted events with no diagnostics
+
+---
+
+## Mara finishes unopposed round 6
+
+![Phone: Mara finishes unopposed round 6](./screenshots/088-advance-6-finish-2-phone.png)
+
+![Desktop: Mara finishes unopposed round 6](./screenshots/088-advance-6-finish-2-desktop.png)
+
+**Verifications:**
+
+- [x] Reveal authority advances clockwise
+- [x] Every connected browser replays 73 accepted events with no diagnostics
+
+---
+
+## Rin Reveals in unopposed round 6
+
+![Phone: Rin Reveals in unopposed round 6](./screenshots/089-advance-6-reveal-3-phone.png)
+
+![Desktop: Rin Reveals in unopposed round 6](./screenshots/089-advance-6-reveal-3-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row names the acting human
+- [x] Every connected browser replays 74 accepted events with no diagnostics
+
+---
+
+## Rin finishes unopposed round 6
+
+![Phone: Rin finishes unopposed round 6](./screenshots/090-advance-6-finish-3-phone.png)
+
+![Desktop: Rin finishes unopposed round 6](./screenshots/090-advance-6-finish-3-desktop.png)
+
+**Verifications:**
+
+- [x] The ten-card deck advances to Clash at the Morannon
+- [x] Every connected browser replays 75 accepted events with no diagnostics
+
+---
+
+## Mara Reveals in unopposed round 7
+
+![Phone: Mara Reveals in unopposed round 7](./screenshots/091-advance-7-reveal-1-phone.png)
+
+![Desktop: Mara Reveals in unopposed round 7](./screenshots/091-advance-7-reveal-1-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row names the acting human
+- [x] Every connected browser replays 76 accepted events with no diagnostics
+
+---
+
+## Mara finishes unopposed round 7
+
+![Phone: Mara finishes unopposed round 7](./screenshots/092-advance-7-finish-1-phone.png)
+
+![Desktop: Mara finishes unopposed round 7](./screenshots/092-advance-7-finish-1-desktop.png)
+
+**Verifications:**
+
+- [x] Reveal authority advances clockwise
+- [x] Every connected browser replays 77 accepted events with no diagnostics
+
+---
+
+## Rin Reveals in unopposed round 7
+
+![Phone: Rin Reveals in unopposed round 7](./screenshots/093-advance-7-reveal-2-phone.png)
+
+![Desktop: Rin Reveals in unopposed round 7](./screenshots/093-advance-7-reveal-2-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row names the acting human
+- [x] Every connected browser replays 78 accepted events with no diagnostics
+
+---
+
+## Rin finishes unopposed round 7
+
+![Phone: Rin finishes unopposed round 7](./screenshots/094-advance-7-finish-2-phone.png)
+
+![Desktop: Rin finishes unopposed round 7](./screenshots/094-advance-7-finish-2-desktop.png)
+
+**Verifications:**
+
+- [x] Reveal authority advances clockwise
+- [x] Every connected browser replays 79 accepted events with no diagnostics
+
+---
+
+## Pip Reveals in unopposed round 7
+
+![Phone: Pip Reveals in unopposed round 7](./screenshots/095-advance-7-reveal-3-phone.png)
+
+![Desktop: Pip Reveals in unopposed round 7](./screenshots/095-advance-7-reveal-3-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row names the acting human
+- [x] Every connected browser replays 80 accepted events with no diagnostics
+
+---
+
+## Pip finishes unopposed round 7
+
+![Phone: Pip finishes unopposed round 7](./screenshots/096-advance-7-finish-3-phone.png)
+
+![Desktop: Pip finishes unopposed round 7](./screenshots/096-advance-7-finish-3-desktop.png)
+
+**Verifications:**
+
+- [x] The ten-card deck advances to Battle of the Pelennor Fields
+- [x] Every connected browser replays 81 accepted events with no diagnostics
+
+---
+
+## Pip reloads before the Pelennor defense choice
+
+![Phone: Pip reloads before the Pelennor defense choice](./screenshots/097-reload-pelennor-decision-phone.png)
+
+![Desktop: Pip reloads before the Pelennor defense choice](./screenshots/097-reload-pelennor-decision-desktop.png)
+
+**Verifications:**
+
+- [x] The contested Age III Battle and controller-only defense choice survive replay
+- [x] Every connected browser replays 81 accepted events with no diagnostics
+
+---
+
+## Pip deploys from supply to defend Minas Tirith
+
+![Phone: Pip deploys from supply to defend Minas Tirith](./screenshots/098-deploy-pelennor-defender-phone.png)
+
+![Desktop: Pip deploys from supply to defend Minas Tirith](./screenshots/098-deploy-pelennor-defender-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees exactly one defending Company before Agent turns
+- [x] Every connected browser replays 82 accepted events with no diagnostics
+
+---
+
+## Rin Reveals without deploying at Pelennor
+
+![Phone: Rin Reveals without deploying at Pelennor](./screenshots/099-pelennor-reveal-1-phone.png)
+
+![Desktop: Rin Reveals without deploying at Pelennor](./screenshots/099-pelennor-reveal-1-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees the current public Pelennor Muster row
+- [x] Every connected browser replays 83 accepted events with no diagnostics
+
+---
+
+## Rin finishes the Pelennor Reveal
+
+![Phone: Rin finishes the Pelennor Reveal](./screenshots/100-pelennor-finish-1-phone.png)
+
+![Desktop: Rin finishes the Pelennor Reveal](./screenshots/100-pelennor-finish-1-desktop.png)
+
+**Verifications:**
+
+- [x] Turn authority advances to the next human
+- [x] Every connected browser replays 84 accepted events with no diagnostics
+
+---
+
+## Pip chooses Armed Escort for Hall of Fire
+
+![Phone: Pip chooses Armed Escort for Hall of Fire](./screenshots/101-choose-hold-hall-card-phone.png)
+
+![Desktop: Pip chooses Armed Escort for Hall of Fire](./screenshots/101-choose-hold-hall-card-desktop.png)
 
 **Verifications:**
 
@@ -926,171 +1317,274 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara visits Hall of Fire to draw Hold the Line
+## Pip visits Hall of Fire to draw Hold the Line
 
-![Phone: Mara visits Hall of Fire to draw Hold the Line](./screenshots/072-draw-hold-line-phone.png)
+![Phone: Pip visits Hall of Fire to draw Hold the Line](./screenshots/102-draw-hold-line-phone.png)
 
-![Desktop: Mara visits Hall of Fire to draw Hold the Line](./screenshots/072-draw-hold-line-desktop.png)
+![Desktop: Pip visits Hall of Fire to draw Hold the Line](./screenshots/102-draw-hold-line-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees one private Fate card and only its owner can later identify it
-- [x] Every connected browser replays 54 accepted events with no diagnostics
+- [x] Every connected browser replays 85 accepted events with no diagnostics
 
 ---
 
-## Rin Reveals without deploying at Pelennor
+## Mara chooses Armed Escort for Pelennor
 
-![Phone: Rin Reveals without deploying at Pelennor](./screenshots/073-pelennor-reveal-1-phone.png)
+![Phone: Mara chooses Armed Escort for Pelennor](./screenshots/103-choose-reinforcement-battle-card-phone.png)
 
-![Desktop: Rin Reveals without deploying at Pelennor](./screenshots/073-pelennor-reveal-1-desktop.png)
+![Desktop: Mara chooses Armed Escort for Pelennor](./screenshots/103-choose-reinforcement-battle-card-desktop.png)
 
 **Verifications:**
 
-- [x] Every observer sees the current public Pelennor Muster row
-- [x] Every connected browser replays 55 accepted events with no diagnostics
+- [x] minas-tirith is enabled by the selected real card
 
 ---
 
-## Rin finishes the Pelennor Reveal
+## Mara enters minas-tirith for Pelennor
 
-![Phone: Rin finishes the Pelennor Reveal](./screenshots/074-pelennor-finish-1-phone.png)
+![Phone: Mara enters minas-tirith for Pelennor](./screenshots/104-enter-reinforcement-battle-space-phone.png)
 
-![Desktop: Rin finishes the Pelennor Reveal](./screenshots/074-pelennor-finish-1-desktop.png)
+![Desktop: Mara enters minas-tirith for Pelennor](./screenshots/104-enter-reinforcement-battle-space-desktop.png)
 
 **Verifications:**
 
-- [x] Turn authority advances to the next human
-- [x] Every connected browser replays 56 accepted events with no diagnostics
+- [x] Every observer sees the second Pelennor participant on the board
+- [x] Every connected browser replays 86 accepted events with no diagnostics
+
+---
+
+## Mara deploys one Company to Pelennor
+
+![Phone: Mara deploys one Company to Pelennor](./screenshots/105-deploy-reinforcement-force-phone.png)
+
+![Desktop: Mara deploys one Company to Pelennor](./screenshots/105-deploy-reinforcement-force-desktop.png)
+
+**Verifications:**
+
+- [x] Every observer sees exactly one Company before Combat Reinforcements
+- [x] Every connected browser replays 87 accepted events with no diagnostics
 
 ---
 
 ## Pip Reveals without deploying at Pelennor
 
-![Phone: Pip Reveals without deploying at Pelennor](./screenshots/075-pelennor-reveal-2-phone.png)
+![Phone: Pip Reveals without deploying at Pelennor](./screenshots/106-pelennor-reveal-2-phone.png)
 
-![Desktop: Pip Reveals without deploying at Pelennor](./screenshots/075-pelennor-reveal-2-desktop.png)
+![Desktop: Pip Reveals without deploying at Pelennor](./screenshots/106-pelennor-reveal-2-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees the current public Pelennor Muster row
-- [x] Every connected browser replays 57 accepted events with no diagnostics
+- [x] Every connected browser replays 88 accepted events with no diagnostics
 
 ---
 
 ## Pip finishes the Pelennor Reveal
 
-![Phone: Pip finishes the Pelennor Reveal](./screenshots/076-pelennor-finish-2-phone.png)
+![Phone: Pip finishes the Pelennor Reveal](./screenshots/107-pelennor-finish-2-phone.png)
 
-![Desktop: Pip finishes the Pelennor Reveal](./screenshots/076-pelennor-finish-2-desktop.png)
+![Desktop: Pip finishes the Pelennor Reveal](./screenshots/107-pelennor-finish-2-desktop.png)
 
 **Verifications:**
 
 - [x] Turn authority advances to the next human
-- [x] Every connected browser replays 58 accepted events with no diagnostics
+- [x] Every connected browser replays 89 accepted events with no diagnostics
 
 ---
 
 ## Mara Reveals without deploying at Pelennor
 
-![Phone: Mara Reveals without deploying at Pelennor](./screenshots/077-pelennor-reveal-3-phone.png)
+![Phone: Mara Reveals without deploying at Pelennor](./screenshots/108-pelennor-reveal-3-phone.png)
 
-![Desktop: Mara Reveals without deploying at Pelennor](./screenshots/077-pelennor-reveal-3-desktop.png)
+![Desktop: Mara Reveals without deploying at Pelennor](./screenshots/108-pelennor-reveal-3-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees the current public Pelennor Muster row
-- [x] Every connected browser replays 59 accepted events with no diagnostics
+- [x] Every connected browser replays 90 accepted events with no diagnostics
 
 ---
 
 ## Mara finishes the Pelennor Reveal
 
-![Phone: Mara finishes the Pelennor Reveal](./screenshots/078-pelennor-finish-3-phone.png)
+![Phone: Mara finishes the Pelennor Reveal](./screenshots/109-pelennor-finish-3-phone.png)
 
-![Desktop: Mara finishes the Pelennor Reveal](./screenshots/078-pelennor-finish-3-desktop.png)
+![Desktop: Mara finishes the Pelennor Reveal](./screenshots/109-pelennor-finish-3-desktop.png)
 
 **Verifications:**
 
 - [x] Only the deployed defender enters Combat
-- [x] Every connected browser replays 60 accepted events with no diagnostics
+- [x] Every connected browser replays 91 accepted events with no diagnostics
 
 ---
 
-## Pip plays Reinforcements from the Siege reward
+## Pip plays Hold the Line while controlling Minas Tirith
 
-![Phone: Pip plays Reinforcements from the Siege reward](./screenshots/079-play-reinforcements-phone.png)
+![Phone: Pip plays Hold the Line while controlling Minas Tirith](./screenshots/110-pelennor-fate-1-hold-line-phone.png)
 
-![Desktop: Pip plays Reinforcements from the Siege reward](./screenshots/079-play-reinforcements-desktop.png)
-
-**Verifications:**
-
-- [x] One Company moves from garrison into Pelennor for exactly two additional Strength
-- [x] The same participant retains Combat authority after the deployment
-- [x] Every connected browser replays 61 accepted events with no diagnostics
-
----
-
-## Pip passes after Reinforcements
-
-![Phone: Pip passes after Reinforcements](./screenshots/080-pelennor-reinforcement-pass-phone.png)
-
-![Desktop: Pip passes after Reinforcements](./screenshots/080-pelennor-reinforcement-pass-desktop.png)
-
-**Verifications:**
-
-- [x] Combat authority advances to the Minas Tirith defender
-- [x] Every connected browser replays 62 accepted events with no diagnostics
-
----
-
-## Mara plays Hold the Line while controlling Minas Tirith
-
-![Phone: Mara plays Hold the Line while controlling Minas Tirith](./screenshots/081-play-hold-line-phone.png)
-
-![Desktop: Mara plays Hold the Line while controlling Minas Tirith](./screenshots/081-play-hold-line-desktop.png)
+![Desktop: Pip plays Hold the Line while controlling Minas Tirith](./screenshots/110-pelennor-fate-1-hold-line-desktop.png)
 
 **Verifications:**
 
 - [x] Control of the contested location raises the printed two Strength bonus to four
 - [x] The same defender retains Combat authority after playing the Fate card
-- [x] Every connected browser replays 63 accepted events with no diagnostics
+- [x] Every connected browser replays 92 accepted events with no diagnostics
 
 ---
 
-## Mara passes after Hold the Line
+## Pip passes after playing Combat Fate
 
-![Phone: Mara passes after Hold the Line](./screenshots/082-pelennor-defender-pass-phone.png)
+![Phone: Pip passes after playing Combat Fate](./screenshots/111-pelennor-fate-1-pass-phone.png)
 
-![Desktop: Mara passes after Hold the Line](./screenshots/082-pelennor-defender-pass-desktop.png)
+![Desktop: Pip passes after playing Combat Fate](./screenshots/111-pelennor-fate-1-pass-desktop.png)
 
 **Verifications:**
 
-- [x] Playing Hold the Line reset the pass streak, so authority returns to the other participant
-- [x] Every connected browser replays 64 accepted events with no diagnostics
+- [x] Combat authority advances to the other participant
+- [x] Every connected browser replays 93 accepted events with no diagnostics
+
+---
+
+## Mara plays Reinforcements from the Siege reward
+
+![Phone: Mara plays Reinforcements from the Siege reward](./screenshots/112-pelennor-fate-2-reinforcements-phone.png)
+
+![Desktop: Mara plays Reinforcements from the Siege reward](./screenshots/112-pelennor-fate-2-reinforcements-desktop.png)
+
+**Verifications:**
+
+- [x] One Company moves from garrison into Pelennor for exactly two additional Strength
+- [x] The same participant retains Combat authority after the deployment
+- [x] Every connected browser replays 94 accepted events with no diagnostics
+
+---
+
+## Mara passes after playing Combat Fate
+
+![Phone: Mara passes after playing Combat Fate](./screenshots/113-pelennor-fate-2-pass-phone.png)
+
+![Desktop: Mara passes after playing Combat Fate](./screenshots/113-pelennor-fate-2-pass-desktop.png)
+
+**Verifications:**
+
+- [x] Combat authority advances to the other participant
+- [x] Every connected browser replays 95 accepted events with no diagnostics
 
 ---
 
 ## Pip passes and the defender wins Pelennor
 
-![Phone: Pip passes and the defender wins Pelennor](./screenshots/083-pelennor-final-pass-phone.png)
+![Phone: Pip passes and the defender wins Pelennor](./screenshots/114-pelennor-final-pass-phone.png)
 
-![Desktop: Pip passes and the defender wins Pelennor](./screenshots/083-pelennor-final-pass-desktop.png)
+![Desktop: Pip passes and the defender wins Pelennor](./screenshots/114-pelennor-final-pass-desktop.png)
 
 **Verifications:**
 
 - [x] The two White Tree Battle cards turn face down as one paired Standard
 - [x] Printed Pelennor Renown and separate Standard-pair Renown total four
-- [x] Cleanup opens round four with Minas Tirith still controlled by the winner
-- [x] Every connected browser replays 65 accepted events with no diagnostics
+- [x] Cleanup opens round nine with Minas Tirith still controlled by the winner
+- [x] Every connected browser replays 96 accepted events with no diagnostics
+
+---
+
+## Pip Reveals in round nine
+
+![Phone: Pip Reveals in round nine](./screenshots/115-advance-9-reveal-1-phone.png)
+
+![Desktop: Pip Reveals in round nine](./screenshots/115-advance-9-reveal-1-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row names the acting human
+- [x] Every connected browser replays 97 accepted events with no diagnostics
+
+---
+
+## Pip finishes round nine
+
+![Phone: Pip finishes round nine](./screenshots/116-advance-9-finish-1-phone.png)
+
+![Desktop: Pip finishes round nine](./screenshots/116-advance-9-finish-1-desktop.png)
+
+**Verifications:**
+
+- [x] Reveal authority advances clockwise
+- [x] Every connected browser replays 98 accepted events with no diagnostics
+
+---
+
+## Mara Reveals in round nine
+
+![Phone: Mara Reveals in round nine](./screenshots/117-advance-9-reveal-2-phone.png)
+
+![Desktop: Mara Reveals in round nine](./screenshots/117-advance-9-reveal-2-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row names the acting human
+- [x] Every connected browser replays 99 accepted events with no diagnostics
+
+---
+
+## Mara finishes round nine
+
+![Phone: Mara finishes round nine](./screenshots/118-advance-9-finish-2-phone.png)
+
+![Desktop: Mara finishes round nine](./screenshots/118-advance-9-finish-2-desktop.png)
+
+**Verifications:**
+
+- [x] Reveal authority advances clockwise
+- [x] Every connected browser replays 100 accepted events with no diagnostics
+
+---
+
+## Rin Reveals in round nine
+
+![Phone: Rin Reveals in round nine](./screenshots/119-advance-9-reveal-3-phone.png)
+
+![Desktop: Rin Reveals in round nine](./screenshots/119-advance-9-reveal-3-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row names the acting human
+- [x] Every connected browser replays 101 accepted events with no diagnostics
+
+---
+
+## Rin finishes round nine
+
+![Phone: Rin finishes round nine](./screenshots/120-advance-9-finish-3-phone.png)
+
+![Desktop: Rin finishes round nine](./screenshots/120-advance-9-finish-3-desktop.png)
+
+**Verifications:**
+
+- [x] The final selected Battle is Helm's Deep
+- [x] Every connected browser replays 102 accepted events with no diagnostics
+
+---
+
+## Mara declines the optional Helm's Deep defense
+
+![Phone: Mara declines the optional Helm's Deep defense](./screenshots/121-decline-helms-defense-phone.png)
+
+![Desktop: Mara declines the optional Helm's Deep defense](./screenshots/121-decline-helms-defense-desktop.png)
+
+**Verifications:**
+
+- [x] Round ten opens for ordinary Agent turns
+- [x] Every connected browser replays 103 accepted events with no diagnostics
 
 ---
 
 ## Mara chooses Diplomatic Mission for Helm's Deep
 
-![Phone: Mara chooses Diplomatic Mission for Helm's Deep](./screenshots/084-choose-helms-deep-card-1-phone.png)
+![Phone: Mara chooses Diplomatic Mission for Helm's Deep](./screenshots/122-choose-helms-deep-card-1-phone.png)
 
-![Desktop: Mara chooses Diplomatic Mission for Helm's Deep](./screenshots/084-choose-helms-deep-card-1-desktop.png)
+![Desktop: Mara chooses Diplomatic Mission for Helm's Deep](./screenshots/122-choose-helms-deep-card-1-desktop.png)
 
 **Verifications:**
 
@@ -1100,61 +1594,61 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Mara enters hidden-paths for Helm's Deep
 
-![Phone: Mara enters hidden-paths for Helm's Deep](./screenshots/085-enter-helms-deep-space-1-phone.png)
+![Phone: Mara enters hidden-paths for Helm's Deep](./screenshots/123-enter-helms-deep-space-1-phone.png)
 
-![Desktop: Mara enters hidden-paths for Helm's Deep](./screenshots/085-enter-helms-deep-space-1-desktop.png)
+![Desktop: Mara enters hidden-paths for Helm's Deep](./screenshots/123-enter-helms-deep-space-1-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees the Helm’s Deep occupation
-- [x] Every connected browser replays 66 accepted events with no diagnostics
+- [x] Every connected browser replays 104 accepted events with no diagnostics
 
 ---
 
 ## Mara deploys one Company to Helm's Deep
 
-![Phone: Mara deploys one Company to Helm's Deep](./screenshots/086-deploy-helms-deep-1-phone.png)
+![Phone: Mara deploys one Company to Helm's Deep](./screenshots/124-deploy-helms-deep-1-phone.png)
 
-![Desktop: Mara deploys one Company to Helm's Deep](./screenshots/086-deploy-helms-deep-1-desktop.png)
+![Desktop: Mara deploys one Company to Helm's Deep](./screenshots/124-deploy-helms-deep-1-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees exactly one Company in the new Battle force
-- [x] Every connected browser replays 67 accepted events with no diagnostics
+- [x] Every connected browser replays 105 accepted events with no diagnostics
 
 ---
 
 ## Rin Reveals for Helm's Deep
 
-![Phone: Rin Reveals for Helm's Deep](./screenshots/087-helms-deep-reveal-1-phone.png)
+![Phone: Rin Reveals for Helm's Deep](./screenshots/125-helms-deep-reveal-1-phone.png)
 
-![Desktop: Rin Reveals for Helm's Deep](./screenshots/087-helms-deep-reveal-1-desktop.png)
+![Desktop: Rin Reveals for Helm's Deep](./screenshots/125-helms-deep-reveal-1-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees the public Muster row
-- [x] Every connected browser replays 68 accepted events with no diagnostics
+- [x] Every connected browser replays 106 accepted events with no diagnostics
 
 ---
 
 ## Rin finishes the Helm's Deep Reveal
 
-![Phone: Rin finishes the Helm's Deep Reveal](./screenshots/088-helms-deep-finish-1-phone.png)
+![Phone: Rin finishes the Helm's Deep Reveal](./screenshots/126-helms-deep-finish-1-phone.png)
 
-![Desktop: Rin finishes the Helm's Deep Reveal](./screenshots/088-helms-deep-finish-1-desktop.png)
+![Desktop: Rin finishes the Helm's Deep Reveal](./screenshots/126-helms-deep-finish-1-desktop.png)
 
 **Verifications:**
 
 - [x] Turn authority advances toward the remaining Reveal
-- [x] Every connected browser replays 69 accepted events with no diagnostics
+- [x] Every connected browser replays 107 accepted events with no diagnostics
 
 ---
 
 ## Pip chooses Armed Escort for Helm's Deep
 
-![Phone: Pip chooses Armed Escort for Helm's Deep](./screenshots/089-choose-helms-deep-card-2-phone.png)
+![Phone: Pip chooses Armed Escort for Helm's Deep](./screenshots/127-choose-helms-deep-card-2-phone.png)
 
-![Desktop: Pip chooses Armed Escort for Helm's Deep](./screenshots/089-choose-helms-deep-card-2-desktop.png)
+![Desktop: Pip chooses Armed Escort for Helm's Deep](./screenshots/127-choose-helms-deep-card-2-desktop.png)
 
 **Verifications:**
 
@@ -1164,210 +1658,119 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Pip enters minas-tirith for Helm's Deep
 
-![Phone: Pip enters minas-tirith for Helm's Deep](./screenshots/090-enter-helms-deep-space-2-phone.png)
+![Phone: Pip enters minas-tirith for Helm's Deep](./screenshots/128-enter-helms-deep-space-2-phone.png)
 
-![Desktop: Pip enters minas-tirith for Helm's Deep](./screenshots/090-enter-helms-deep-space-2-desktop.png)
+![Desktop: Pip enters minas-tirith for Helm's Deep](./screenshots/128-enter-helms-deep-space-2-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees the Helm’s Deep occupation
-- [x] Every connected browser replays 70 accepted events with no diagnostics
+- [x] Every connected browser replays 108 accepted events with no diagnostics
 
 ---
 
 ## Pip deploys one Company to Helm's Deep
 
-![Phone: Pip deploys one Company to Helm's Deep](./screenshots/091-deploy-helms-deep-2-phone.png)
+![Phone: Pip deploys one Company to Helm's Deep](./screenshots/129-deploy-helms-deep-2-phone.png)
 
-![Desktop: Pip deploys one Company to Helm's Deep](./screenshots/091-deploy-helms-deep-2-desktop.png)
+![Desktop: Pip deploys one Company to Helm's Deep](./screenshots/129-deploy-helms-deep-2-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees exactly one Company in the new Battle force
-- [x] Every connected browser replays 71 accepted events with no diagnostics
+- [x] Every connected browser replays 109 accepted events with no diagnostics
 
 ---
 
 ## Mara Reveals for Helm's Deep
 
-![Phone: Mara Reveals for Helm's Deep](./screenshots/092-helms-deep-reveal-2-phone.png)
+![Phone: Mara Reveals for Helm's Deep](./screenshots/130-helms-deep-reveal-2-phone.png)
 
-![Desktop: Mara Reveals for Helm's Deep](./screenshots/092-helms-deep-reveal-2-desktop.png)
+![Desktop: Mara Reveals for Helm's Deep](./screenshots/130-helms-deep-reveal-2-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees the public Muster row
-- [x] Every connected browser replays 72 accepted events with no diagnostics
+- [x] Every connected browser replays 110 accepted events with no diagnostics
 
 ---
 
 ## Mara finishes the Helm's Deep Reveal
 
-![Phone: Mara finishes the Helm's Deep Reveal](./screenshots/093-helms-deep-finish-2-phone.png)
+![Phone: Mara finishes the Helm's Deep Reveal](./screenshots/131-helms-deep-finish-2-phone.png)
 
-![Desktop: Mara finishes the Helm's Deep Reveal](./screenshots/093-helms-deep-finish-2-desktop.png)
+![Desktop: Mara finishes the Helm's Deep Reveal](./screenshots/131-helms-deep-finish-2-desktop.png)
 
 **Verifications:**
 
 - [x] Turn authority advances toward the remaining Reveal
-- [x] Every connected browser replays 73 accepted events with no diagnostics
+- [x] Every connected browser replays 111 accepted events with no diagnostics
 
 ---
 
 ## Pip Reveals for Helm's Deep
 
-![Phone: Pip Reveals for Helm's Deep](./screenshots/094-helms-deep-reveal-3-phone.png)
+![Phone: Pip Reveals for Helm's Deep](./screenshots/132-helms-deep-reveal-3-phone.png)
 
-![Desktop: Pip Reveals for Helm's Deep](./screenshots/094-helms-deep-reveal-3-desktop.png)
+![Desktop: Pip Reveals for Helm's Deep](./screenshots/132-helms-deep-reveal-3-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees the public Muster row
-- [x] Every connected browser replays 74 accepted events with no diagnostics
+- [x] Every connected browser replays 112 accepted events with no diagnostics
 
 ---
 
 ## Pip finishes the Helm's Deep Reveal
 
-![Phone: Pip finishes the Helm's Deep Reveal](./screenshots/095-helms-deep-finish-3-phone.png)
+![Phone: Pip finishes the Helm's Deep Reveal](./screenshots/133-helms-deep-finish-3-phone.png)
 
-![Desktop: Pip finishes the Helm's Deep Reveal](./screenshots/095-helms-deep-finish-3-desktop.png)
+![Desktop: Pip finishes the Helm's Deep Reveal](./screenshots/133-helms-deep-finish-3-desktop.png)
 
 **Verifications:**
 
 - [x] The fourth Combat Fate window opens
-- [x] Every connected browser replays 75 accepted events with no diagnostics
+- [x] Every connected browser replays 113 accepted events with no diagnostics
 
 ---
 
-## Mara passes at Helm's Deep
+## Mara plays Desperate Valor with one Company
 
-![Phone: Mara passes at Helm's Deep](./screenshots/096-helms-deep-opening-pass-phone.png)
+![Phone: Mara plays Desperate Valor with one Company](./screenshots/134-play-desperate-valor-phone.png)
 
-![Desktop: Mara passes at Helm's Deep](./screenshots/096-helms-deep-opening-pass-desktop.png)
-
-**Verifications:**
-
-- [x] Combat authority advances to the Desperate Valor holder
-- [x] Every connected browser replays 76 accepted events with no diagnostics
-
----
-
-## Pip plays Desperate Valor with one Company
-
-![Phone: Pip plays Desperate Valor with one Company](./screenshots/097-play-desperate-valor-phone.png)
-
-![Desktop: Pip plays Desperate Valor with one Company](./screenshots/097-play-desperate-valor-desktop.png)
+![Desktop: Mara plays Desperate Valor with one Company](./screenshots/134-play-desperate-valor-desktop.png)
 
 **Verifications:**
 
 - [x] The last Company returns to supply and the printed no-unit rule makes Strength zero
 - [x] The original participant retains Combat authority after losing their last unit
-- [x] Every connected browser replays 77 accepted events with no diagnostics
+- [x] Every connected browser replays 114 accepted events with no diagnostics
 
 ---
 
-## Pip passes at zero Strength
+## Mara passes at zero Strength
 
-![Phone: Pip passes at zero Strength](./screenshots/098-desperate-valor-pass-phone.png)
+![Phone: Mara passes at zero Strength](./screenshots/135-desperate-valor-pass-phone.png)
 
-![Desktop: Pip passes at zero Strength](./screenshots/098-desperate-valor-pass-desktop.png)
+![Desktop: Mara passes at zero Strength](./screenshots/135-desperate-valor-pass-desktop.png)
 
 **Verifications:**
 
 - [x] The Valor play reset the pass streak and returns authority to the other participant
-- [x] Every connected browser replays 78 accepted events with no diagnostics
+- [x] Every connected browser replays 115 accepted events with no diagnostics
 
 ---
 
-## Mara passes and wins Helm's Deep
+## Pip passes and wins Helm's Deep
 
-![Phone: Mara passes and wins Helm's Deep](./screenshots/099-helms-deep-final-pass-phone.png)
+![Phone: Pip passes and wins Helm's Deep](./screenshots/136-helms-deep-final-pass-phone.png)
 
-![Desktop: Mara passes and wins Helm's Deep](./screenshots/099-helms-deep-final-pass-desktop.png)
+![Desktop: Pip passes and wins Helm's Deep](./screenshots/136-helms-deep-final-pass-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees exact Edoras control and printed two Renown reward
-- [x] Cleanup opens round five with no reviewed Battle silently substituted
-- [x] Every connected browser replays 79 accepted events with no diagnostics
-
----
-
-## Rin Reveals before the Edoras visit
-
-![Phone: Rin Reveals before the Edoras visit](./screenshots/100-round-five-reveal-1-phone.png)
-
-![Desktop: Rin Reveals before the Edoras visit](./screenshots/100-round-five-reveal-1-desktop.png)
-
-**Verifications:**
-
-- [x] Every observer sees the real public Muster row
-- [x] Every connected browser replays 80 accepted events with no diagnostics
-
----
-
-## Rin finishes the round-five Reveal
-
-![Phone: Rin finishes the round-five Reveal](./screenshots/101-round-five-finish-1-phone.png)
-
-![Desktop: Rin finishes the round-five Reveal](./screenshots/101-round-five-finish-1-desktop.png)
-
-**Verifications:**
-
-- [x] Turn authority advances toward the Edoras controller
-- [x] Every connected browser replays 81 accepted events with no diagnostics
-
----
-
-## Pip Reveals before the Edoras visit
-
-![Phone: Pip Reveals before the Edoras visit](./screenshots/102-round-five-reveal-2-phone.png)
-
-![Desktop: Pip Reveals before the Edoras visit](./screenshots/102-round-five-reveal-2-desktop.png)
-
-**Verifications:**
-
-- [x] Every observer sees the real public Muster row
-- [x] Every connected browser replays 82 accepted events with no diagnostics
-
----
-
-## Pip finishes the round-five Reveal
-
-![Phone: Pip finishes the round-five Reveal](./screenshots/103-round-five-finish-2-phone.png)
-
-![Desktop: Pip finishes the round-five Reveal](./screenshots/103-round-five-finish-2-desktop.png)
-
-**Verifications:**
-
-- [x] Turn authority advances toward the Edoras controller
-- [x] Every connected browser replays 83 accepted events with no diagnostics
-
----
-
-## Mara chooses The Open Road for Edoras
-
-![Phone: Mara chooses The Open Road for Edoras](./screenshots/104-choose-edoras-road-phone.png)
-
-![Desktop: Mara chooses The Open Road for Edoras](./screenshots/104-choose-edoras-road-desktop.png)
-
-**Verifications:**
-
-- [x] The newly executable Edoras destination is enabled by the real Roads icon
-
----
-
-## Mara visits controlled Edoras and gathers Riches
-
-![Phone: Mara visits controlled Edoras and gathers Riches](./screenshots/105-collect-edoras-riches-phone.png)
-
-![Desktop: Mara visits controlled Edoras and gathers Riches](./screenshots/105-collect-edoras-riches-desktop.png)
-
-**Verifications:**
-
-- [x] The controller gains one tribute, one printed Mithril, and all four accumulated Riches
-- [x] The collected Riches area resets to zero and replay remains deterministic
-- [x] Every connected browser replays 84 accepted events with no diagnostics
+- [x] Cleanup ends the game after exactly ten selected Battles
+- [x] Every connected browser replays 116 accepted events with no diagnostics
 
 ---

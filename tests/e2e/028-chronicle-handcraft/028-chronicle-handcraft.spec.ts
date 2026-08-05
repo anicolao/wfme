@@ -9,7 +9,7 @@ type TargetName = (typeof TARGETS)[number];
 test('Grey Pilgrim and Lore of Imladris are acquired, drawn, and resolved by their owner', async ({ browser, page }, testInfo) => {
   test.setTimeout(900_000);
   const steps = new TestStepHelper(testInfo);
-  const table = await startPlotTable(browser, page, testInfo, steps, 'handcraft-37', { phone: 'HANDP', desktop: 'HANDD' });
+  const table = await startPlotTable(browser, page, testInfo, steps, 'handcraft-4866', { phone: 'HANDP', desktop: 'HANDD' });
   const { seats, accepted, converged, currentSeat, row } = table;
   const acquired = new Set<TargetName>();
   const played = new Set<TargetName>();

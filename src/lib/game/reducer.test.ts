@@ -77,6 +77,15 @@ describe('integrated Agent placement replay', () => {
     for (const definition of CHRONICLE_CARD_DEFINITIONS) {
       expect(chronicleInstances.filter((card) => card.definitionId === definition.id)).toHaveLength(2);
     }
+    const selectedBattleIds = [first.match!.activeBattleId!, ...first.match!.battleDeck];
+    expect(selectedBattleIds).toHaveLength(10);
+    expect(new Set(selectedBattleIds)).toHaveLength(10);
+    expect(selectedBattleIds.map((id) => BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === id)!.age)).toEqual([
+      1, 2, 2, 2, 2, 2, 3, 3, 3, 3
+    ]);
+    expect(BATTLE_CARD_DEFINITIONS.filter((battle) => !selectedBattleIds.includes(battle.id))).toHaveLength(6);
+    const otherSetup = reduceGame(readyRoom('ten-battle-selection'));
+    expect([otherSetup.match!.activeBattleId!, ...otherSetup.match!.battleDeck]).not.toEqual(selectedBattleIds);
     const rejectedFate = reduceGame([...readyRoom(), createEvent('fate/played', currentPlayerUid(first)!, 5, { cardInstanceId: 'fate:1' }, 11)]);
     expect(rejectedFate.diagnostics.at(-1)).toContain('illegal Fate play');
     expect(rejectedFate.match!.fateDiscard).toEqual([]);
@@ -257,7 +266,7 @@ describe('integrated Agent placement replay', () => {
   });
 
   it('requires Wild respect and resolves both final Fangorn Moot decisions', () => {
-    const stream = readyRoom('fangorn-moot');
+    const stream = readyRoom('fangorn-moot-3');
     const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
     let timestamp = 11;
     const opening = reduceGame(stream);
@@ -312,6 +321,8 @@ describe('integrated Agent placement replay', () => {
 
     sequences[target] += 1;
     const draughtStream = [...stream, createEvent('choice/resolved', target, sequences[target], { choice: 'take-ent-draught' }, timestamp)];
+    const draughtSequences = { ...sequences };
+    const draughtTimestamp = timestamp + 1;
     const draught = reduceGame(draughtStream);
     expect(draught.diagnostics).toEqual([]);
     expect(draught.match!.players[target].entDraught).toBe(true);
@@ -340,11 +351,20 @@ describe('integrated Agent placement replay', () => {
       const match = state.match!;
       if (match.pendingChoice?.kind === 'deep-fangorn') {
         if (!match.damBreached) {
-          expect(match.pendingChoice.options).toEqual(['gain-4-mithril']);
-          const rejected = reduceGame([...entStream, createEvent('choice/resolved', target, sequences[target] + 1, { choice: 'summon-2-ents' }, nextTimestamp)]);
-          expect(rejected.diagnostics.at(-1)).toContain('illegal choice resolution');
-          expect(rejected.match!.battleEnts[target] ?? 0).toBe(0);
-          protectedDeepChecked = true;
+          const contested = BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === match.activeBattleId)?.contestedLocationId;
+          if (contested === 'minas-tirith' || contested === 'osgiliath' || contested === 'edoras') {
+            expect(match.pendingChoice.options).toEqual(['gain-4-mithril']);
+            const rejected = reduceGame([...entStream, createEvent('choice/resolved', target, sequences[target] + 1, { choice: 'summon-2-ents' }, nextTimestamp)]);
+            expect(rejected.diagnostics.at(-1)).toContain('illegal choice resolution');
+            expect(rejected.match!.battleEnts[target] ?? 0).toBe(0);
+            protectedDeepChecked = true;
+          } else {
+            expect(match.pendingChoice.options).toEqual(['gain-4-mithril', 'summon-2-ents']);
+            if (protectedDeepChecked) {
+              beforeDeep = state;
+              break;
+            }
+          }
           appendEnt(state, 'choice/resolved', { choice: 'gain-4-mithril' });
           continue;
         }
@@ -396,13 +416,20 @@ describe('integrated Agent placement replay', () => {
     expect(summoned.match!.battleEnts[target]).toBe(2);
     expect(battleStrength(summoned.match!, target)).toBeGreaterThanOrEqual(6);
 
+    entStream.splice(0, entStream.length, ...draughtStream);
+    Object.assign(sequences, draughtSequences);
+    nextTimestamp = draughtTimestamp;
     let beforeEntwash: ReturnType<typeof reduceGame> | null = null;
     for (let guard = 0; guard < 180; guard += 1) {
       const state = reduceGame(entStream);
       const match = state.match!;
       if (match.pendingChoice?.kind === 'entwash') {
-        beforeEntwash = state;
-        break;
+        if (match.pendingChoice.options.includes('summon-1-ent')) {
+          beforeEntwash = state;
+          break;
+        }
+        appendEnt(state, 'choice/resolved', { choice: 'gain-2-mithril' });
+        continue;
       }
       const current = currentPlayerUid(state)!;
       const player = match.players[current];
@@ -593,12 +620,14 @@ describe('integrated Agent placement replay', () => {
       definitionId: (typeof CHRONICLE_CARD_DEFINITIONS)[number]['id'],
       minimumGold = 0,
       prepareScout = false,
-      minimumDrawPile = 0
+      minimumDrawPile = 0,
+      minimumSeedCandidate = 0
     ) => {
       const definition = CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!;
-      let completed: { events: ReturnType<typeof readyRoom> } | null = null;
+      let completed: { events: ReturnType<typeof readyRoom>; seed: string } | null = null;
       for (let candidate = 0; candidate < 5_000 && !completed; candidate += 1) {
         try {
+          if (candidate < minimumSeedCandidate) continue;
           const seed = `chronicle-${definitionId}-${candidate}`;
           const attempt = definition.cost > 5
             ? { events: readyRoom(seed) }
@@ -639,7 +668,7 @@ describe('integrated Agent placement replay', () => {
             (definition.cost <= 5 || revealedAttempt.match!.players[attemptActor].fateHand.some((card) =>
               card.definitionId === 'chance-meeting'
             ))
-          ) completed = { ...attempt, events: attemptEvents };
+          ) completed = { ...attempt, events: attemptEvents, seed };
         } catch {
           // Some seeds do not put the setup cards in the opening hands; keep looking.
         }
@@ -699,13 +728,14 @@ describe('integrated Agent placement replay', () => {
             continue;
           }
         }
+        if (state.match!.turnMode === 'endgame') break;
         append(current, state.match!.turnMode === 'reveal' ? 'reveal/finished' : 'turn/revealed', {});
       }
       state = reduceGame(stream);
-      expect(state.diagnostics).toEqual([]);
+      expect(state.diagnostics, `round ${state.match!.round}, mode ${state.match!.turnMode}, hand ${state.match!.players[actor].hand.length}, draw ${state.match!.players[actor].drawPile.length}`).toEqual([]);
       expect(state.match!.round).toBeGreaterThanOrEqual(3);
       const acquired = state.match!.players[actor].hand.find((card) => card.id === offered.id)!;
-      expect(acquired).toEqual(offered);
+      expect(acquired, `seed ${completed!.seed}, round ${state.match!.round}, mode ${state.match!.turnMode}, draw ${state.match!.players[actor].drawPile.length}, discard ${state.match!.players[actor].discardPile.map((card) => card.definitionId).join(',')}`).toEqual(offered);
       return { stream, append, actor, acquired, before: state };
     };
 
@@ -1021,7 +1051,7 @@ describe('integrated Agent placement replay', () => {
     expect(declinedMoth.match!.players[moth.actor].hand).toHaveLength(mothHandBefore);
     expect(declinedMoth.match!.pendingChoice).toMatchObject({ kind: 'battle-deployment', actorUid: moth.actor });
 
-    const foresight = reachAcquiredCard('elven-foresight', 0, false, 3);
+    const foresight = reachAcquiredCard('elven-foresight', 0, false, 3, 101);
     const foresightTop = foresight.before.match!.players[foresight.actor].drawPile.slice(0, 3);
     expect(foresightTop).toHaveLength(3);
     foresight.append(foresight.actor, 'agent/placed', { cardInstanceId: foresight.acquired.id, spaceId: 'hall-fire' });
@@ -1573,6 +1603,10 @@ describe('integrated Agent placement replay', () => {
     expect(bargained.match!.players[target].hand).toHaveLength(beforeBargainHandSize);
     expect(bargained.match!.pendingChoice).toBeNull();
 
+    stream = readyRoom('captain-economy');
+    sequences = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    timestamp = 11;
+    target = reduceGame(stream).match!.playerOrder[0];
     let beforeCaptain: ReturnType<typeof reduceGame> | null = null;
     let captainCardId = '';
     for (let step = 0; step < 800; step += 1) {
@@ -1712,6 +1746,10 @@ describe('integrated Agent placement replay', () => {
     expect(afterPits.match!.boardAgents['pits-isengard']?.some((occupation) => occupation.uid === target)).toBe(true);
 
     const reachFactionSpace = (spaceId: 'deep-roads' | 'hidden-paths' | 'ranger-mustering') => {
+      stream = readyRoom(`faction-${spaceId}`);
+      sequences = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+      timestamp = 11;
+      target = reduceGame(stream).match!.playerOrder[0];
       for (let step = 0; step < 1200; step += 1) {
         const state = reduceGame(stream);
         const current = currentPlayerUid(state)!;
@@ -1774,7 +1812,8 @@ describe('integrated Agent placement replay', () => {
     }
     expect(awaitingRangerTrash.match!.players[target].resources.provisions)
       .toBe(beforeRangers.match!.players[target].resources.provisions - 1);
-    expect(awaitingRangerTrash.match!.players[target].standing.wild).toBe(2);
+    expect(awaitingRangerTrash.match!.players[target].standing.wild)
+      .toBe(Math.min(6, beforeRangers.match!.players[target].standing.wild + 1));
     expect(awaitingRangerTrash.match!.pendingChoice?.kind).toBe('ranger-mustering-trash');
     if (awaitingRangerTrash.match!.pendingChoice?.kind !== 'ranger-mustering-trash') throw new Error('Ranger trash choice is required');
     const chosenTrash = awaitingRangerTrash.match!.pendingChoice.options.find((option) => option.startsWith('trash-card:'))!;
@@ -2428,7 +2467,7 @@ describe('integrated Agent placement replay', () => {
     expect(resolved.match!.consecutiveBattlePasses).toBe(0);
   });
 
-  it('plays Defence of Dale as a final Battle with exact Renown and Dwarven standing', () => {
+  it('plays selected Age II Defence of Dale with exact Renown and Dwarven standing', () => {
     const stream = readyRoom('defence-dale');
     const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
     let timestamp = 11;
@@ -2446,7 +2485,7 @@ describe('integrated Agent placement replay', () => {
     }
     let state = reduceGame(stream);
     expect(state.diagnostics).toEqual([]);
-    expect(state.match!.round).toBe(11);
+    expect(state.match!.round).toBe(2);
     expect(state.match!.activeBattleId).toBe('defence-dale');
     const winner = currentPlayerUid(state)!;
     const placement = state.match!.players[winner].hand.flatMap((card) =>
@@ -2454,7 +2493,7 @@ describe('integrated Agent placement replay', () => {
         .filter((spaceId) => spaceId === 'minas-tirith' || spaceId === 'edoras')
         .map((spaceId) => ({ card, spaceId }))
     )[0];
-    expect(placement, 'the final Battle must be reached by a real Stronghold or Roads card').toBeDefined();
+    expect(placement, 'the selected Battle must be reached by a real Stronghold or Roads card').toBeDefined();
     append(winner, 'agent/placed', { cardInstanceId: placement!.card.id, spaceId: placement!.spaceId });
     state = reduceGame(stream);
     if (state.match!.pendingChoice?.kind === 'place-scout') {
@@ -2492,7 +2531,7 @@ describe('integrated Agent placement replay', () => {
   });
 
   it('plays Last March of the Ents as a final Battle and permanently breaches the Dam', () => {
-    const stream = readyRoom('last-march-ents');
+    const stream = readyRoom('last-march-ents-0');
     const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
     let timestamp = 11;
     const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
@@ -2509,7 +2548,7 @@ describe('integrated Agent placement replay', () => {
     }
     let state = reduceGame(stream);
     expect(state.diagnostics).toEqual([]);
-    expect(state.match!.round).toBe(12);
+    expect(state.match!.round).toBe(10);
     expect(state.match!.activeBattleId).toBe('last-march-ents');
     expect(state.match!.damBreached).toBe(false);
     const winner = currentPlayerUid(state)!;
@@ -2556,7 +2595,7 @@ describe('integrated Agent placement replay', () => {
     expect(resolved.match!.damBreached).toBe(true);
   });
 
-  it('plays Assault on the Fords as a final Battle with exact Renown and Wild standing', () => {
+  it('plays selected Age II Assault on the Fords with exact Renown and Wild standing', () => {
     const stream = readyRoom('assault-fords');
     const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
     let timestamp = 11;
@@ -2574,7 +2613,7 @@ describe('integrated Agent placement replay', () => {
     }
     let state = reduceGame(stream);
     expect(state.diagnostics).toEqual([]);
-    expect(state.match!.round).toBe(13);
+    expect(state.match!.round).toBe(5);
     expect(state.match!.activeBattleId).toBe('assault-fords');
     const winner = currentPlayerUid(state)!;
     const placement = state.match!.players[winner].hand.flatMap((card) =>
@@ -2616,7 +2655,7 @@ describe('integrated Agent placement replay', () => {
     expect(resolved.match!.players[winner].wonBattleIds).toContain('assault-fords');
     expect(resolved.match!.players[winner].renown).toBe(renownBefore + 1);
     expect(resolved.match!.players[winner].standing.wild).toBe(wildBefore + 1);
-    expect(resolved.match!.round).toBe(14);
+    expect(resolved.match!.round).toBe(6);
   });
 
   it('queues ranked Assault standing choices with actor authority and immutable replay', () => {
@@ -2705,7 +2744,7 @@ describe('integrated Agent placement replay', () => {
     }
     expect(awaiting.match!.pendingChoice).toBeNull();
     expect(awaiting.match!.pendingBattleRewardChoices).toEqual([]);
-    expect(awaiting.match!.round).toBe(14);
+    expect(awaiting.match!.round).toBe(3);
     expect(reduceGame(stream)).toEqual(awaiting);
   });
 
@@ -2736,7 +2775,7 @@ describe('integrated Agent placement replay', () => {
     }
     let state = reduceGame(stream);
     expect(state.diagnostics).toEqual([]);
-    expect(state.match!.round).toBe(14);
+    expect(state.match!.round).toBe(2);
     expect(state.match!.activeBattleId).toBe('ambush-ithilien');
     const winner = currentPlayerUid(state)!;
     const placement = state.match!.players[winner].hand.flatMap((card) =>
@@ -2779,7 +2818,7 @@ describe('integrated Agent placement replay', () => {
     expect(awaiting.match!.pendingChoice).toMatchObject({
       kind: 'place-scout', actorUid: winner, resumeBattleReward: true
     });
-    expect(awaiting.match!.round).toBe(14);
+    expect(awaiting.match!.round).toBe(2);
 
     const emptyPost = OBSERVATION_POSTS.find((post) => !awaiting.match!.boardScouts[post.id])!;
     const unauthorized = awaiting.match!.playerOrder.find((uid) => uid !== winner)!;
@@ -2798,7 +2837,7 @@ describe('integrated Agent placement replay', () => {
     expect(resolved.match!.players[winner].scouts.supply).toBe(scoutsBefore - 1);
     expect(resolved.match!.pendingBattleRewardChoices).toEqual([]);
     expect(resolved.match!.pendingChoice).toBeNull();
-    expect(resolved.match!.round).toBe(15);
+    expect(resolved.match!.round).toBe(3);
     expect(reduceGame(stream)).toEqual(resolved);
   });
 
@@ -2879,7 +2918,7 @@ describe('integrated Agent placement replay', () => {
       resolved = reduceGame(stream);
     }
     expect(resolved.diagnostics).toEqual([]);
-    expect(resolved.match!.round).toBe(15);
+    expect(resolved.match!.round).toBe(5);
   });
 
   it('plays Treachery at Orthanc with its exact sole-winner reward and Star trophy', () => {
@@ -2892,7 +2931,7 @@ describe('integrated Agent placement replay', () => {
         { drawFate: 1 }
       ]
     });
-    const stream = readyRoom('treachery-orthanc');
+    const stream = readyRoom('treachery-orthanc-0');
     const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
     let timestamp = 11;
     const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
@@ -2909,7 +2948,8 @@ describe('integrated Agent placement replay', () => {
     }
     let state = reduceGame(stream);
     expect(state.diagnostics).toEqual([]);
-    expect(state.match!.round).toBe(15);
+    expect(state.match!.round).toBe(2);
+    expect(state.match!.activeBattleId).toBe('treachery-orthanc');
     const winner = currentPlayerUid(state)!;
     const placement = state.match!.players[winner].hand.flatMap((card) =>
       legalAgentSpaces(state, winner, card.id)
@@ -2950,7 +2990,7 @@ describe('integrated Agent placement replay', () => {
     expect(resolved.match!.players[winner].wonBattleIds).toContain('treachery-orthanc');
     expect(resolved.match!.pendingBattleRewardChoices).toEqual([]);
     expect(resolved.match!.pendingChoice).toBeNull();
-    expect(resolved.match!.round).toBe(16);
+    expect(resolved.match!.round).toBe(3);
     expect(reduceGame(stream)).toEqual(resolved);
   });
 
@@ -3019,7 +3059,7 @@ describe('integrated Agent placement replay', () => {
     for (const expectedUid of recipients) {
       const awaiting = reduceGame(stream);
       expect(awaiting.diagnostics).toEqual([]);
-      expect(awaiting.match!.round).toBe(15);
+      expect(awaiting.match!.round).toBe(5);
       expect(awaiting.match!.pendingChoice).toMatchObject({
         kind: 'battle-fate-keep', actorUid: expectedUid
       });
@@ -3044,7 +3084,7 @@ describe('integrated Agent placement replay', () => {
     expect(resolved.match!.fateDiscard).toHaveLength(discardBefore + recipients.length);
     expect(resolved.match!.pendingBattleRewardChoices).toEqual([]);
     expect(resolved.match!.pendingChoice).toBeNull();
-    expect(resolved.match!.round).toBe(16);
+    expect(resolved.match!.round).toBe(6);
     expect(reduceGame(stream)).toEqual(resolved);
   });
 
@@ -3076,7 +3116,7 @@ describe('integrated Agent placement replay', () => {
     }
     let state = reduceGame(stream);
     expect(state.diagnostics).toEqual([]);
-    expect(state.match!.round).toBe(16);
+    expect(state.match!.round).toBe(10);
     expect(state.match!.activeBattleId).toBe('clash-morannon');
     const winner = currentPlayerUid(state)!;
     const placement = state.match!.players[winner].hand.flatMap((card) =>
@@ -3120,21 +3160,21 @@ describe('integrated Agent placement replay', () => {
       actorUid: winner,
       options: ['standing-shadow', 'standing-dwarven', 'standing-elven', 'standing-wild']
     });
-    expect(awaiting.match!.round).toBe(16);
+    expect(awaiting.match!.round).toBe(10);
     append(winner, 'choice/resolved', { choice: 'standing-dwarven' });
     awaiting = reduceGame(stream);
     expect(awaiting.diagnostics).toEqual([]);
     expect(awaiting.match!.players[winner].standing.dwarven).toBe(standingBefore + 1);
     expect(awaiting.match!.pendingBattleRewardChoices).toEqual([]);
     expect(awaiting.match!.pendingChoice).toBeNull();
-    expect(awaiting.match!.round).toBe(16);
+    expect(awaiting.match!.round).toBe(10);
     expect(awaiting.match!.turnMode).toBe('endgame');
     expect(awaiting.match!.endgameTrigger).toBe('battle-deck');
     expect(reduceGame(stream)).toEqual(awaiting);
   });
 
   it('orders Clash standing authority and grants finite runner-up recruitment before Recall', () => {
-    const stream = readyRoom('clash-ranked-rewards');
+    const stream = readyRoom('clash-morannon-5');
     const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
     let timestamp = 11;
     const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
@@ -3216,7 +3256,7 @@ describe('integrated Agent placement replay', () => {
     awaiting = reduceGame(stream);
     expect(awaiting.diagnostics).toEqual([]);
     expect(awaiting.match!.pendingChoice).toBeNull();
-    expect(awaiting.match!.round).toBe(16);
+    expect(awaiting.match!.round).toBe(10);
     expect(awaiting.match!.turnMode).toBe('endgame');
     expect(reduceGame(stream)).toEqual(awaiting);
   });
@@ -3241,9 +3281,9 @@ describe('integrated Agent placement replay', () => {
     let state = reduceGame(stream);
     expect(state.diagnostics).toEqual([]);
     expect(state.phase).toBe('playing');
-    expect(state.match!.round).toBe(16);
+    expect(state.match!.round).toBe(10);
     expect(state.match!.battleHistory).toHaveLength(0);
-    expect(state.match!.battleDiscard).toHaveLength(16);
+    expect(state.match!.battleDiscard).toHaveLength(10);
     expect(state.match!.turnMode).toBe('endgame');
     expect(state.match!.endgameTrigger).toBe('battle-deck');
     expect(state.match!.finalResult).toBeNull();
@@ -3523,7 +3563,7 @@ describe('integrated Agent placement replay', () => {
   });
 
   it('runs a three-player Battle from legal deployments through ranked rewards and cleanup', () => {
-    const stream = readyRoom('battle-reinforce-4035');
+    const stream = readyRoom('battle-reinforce-1796691');
     const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
     let timestamp = 11;
     const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
@@ -3580,9 +3620,9 @@ describe('integrated Agent placement replay', () => {
     expect(resolved.match!.round).toBe(2);
     expect(resolved.match!.battleHistory).toHaveLength(1);
     expect(resolved.match!.battleHistory[0].winnerUid).toBe(expectedWinner);
-    expect(resolved.match!.players[expectedWinner].wonBattleIds).toEqual(['crossing-isen']);
+    expect(resolved.match!.players[expectedWinner].wonBattleIds).toEqual(['raid-westfold']);
     expect(Object.values(resolved.match!.battleCompanies)).toEqual([0, 0, 0]);
-    expect(resolved.match!.players[expectedWinner].resources.gold).toBeGreaterThanOrEqual(3);
+    expect(resolved.match!.players[expectedWinner].resources.provisions).toBeGreaterThanOrEqual(2);
 
     used.clear();
     for (let guard = 0; guard < 80; guard += 1) {
@@ -3598,14 +3638,15 @@ describe('integrated Agent placement replay', () => {
         const emptyPost = OBSERVATION_POSTS.find((post) => !match.boardScouts[post.id])!;
         append(current, 'scout/placed', { postId: emptyPost.id });
       } else if (match.turnMode === 'reveal') append(current, 'reveal/finished', {});
-      else if ((match.battleCompanies[current] ?? 0) > 0) append(current, 'turn/revealed', {});
+      else if (Object.values(match.battleCompanies).some((amount) => amount > 0)) append(current, 'turn/revealed', {});
       else {
         const placement = match.players[current].hand.flatMap((card) => legalAgentSpaces(state, current, card.id)
           .filter((spaceId) => battleSpaces.includes(spaceId) && !used.has(spaceId))
           .map((spaceId) => ({ card, spaceId })))[0];
-        expect(placement, `${current} must reach round two's contested Battle`).toBeDefined();
-        used.add(placement!.spaceId);
-        append(current, 'agent/placed', { cardInstanceId: placement!.card.id, spaceId: placement!.spaceId });
+        if (placement) {
+          used.add(placement.spaceId);
+          append(current, 'agent/placed', { cardInstanceId: placement.card.id, spaceId: placement.spaceId });
+        } else append(current, 'turn/revealed', {});
       }
     }
     expect(reduceGame(stream).match!.activeBattleId).toBe('siege-minas-tirith');
@@ -3613,13 +3654,34 @@ describe('integrated Agent placement replay', () => {
       const state = reduceGame(stream);
       append(currentPlayerUid(state)!, 'battle/passed', {});
     }
-    const afterSiege = reduceGame(stream);
+    let afterSiege = reduceGame(stream);
     const controller = afterSiege.match!.criticalControl['minas-tirith'];
     expect(controller).not.toBeNull();
     expect(afterSiege.match!.players[controller!].renown).toBeGreaterThanOrEqual(1);
     expect(afterSiege.match!.players[controller!].wonBattleIds).toContain('siege-minas-tirith');
-    expect(afterSiege.match!.activeBattleId).toBe('battle-pelennor-fields');
     expect(afterSiege.match!.battleCompanies[controller!] ?? 0).toBe(0);
+    for (let guard = 0; guard < 80 && afterSiege.match!.activeBattleId !== 'battle-pelennor-fields'; guard += 1) {
+      const current = currentPlayerUid(afterSiege)!;
+      if (afterSiege.match!.pendingChoice?.kind === 'critical-defense') append(afterSiege.match!.pendingChoice.actorUid, 'choice/resolved', { choice: 'decline-defender' });
+      else if (afterSiege.match!.pendingChoice?.kind === 'seek-allies') append(current, 'choice/resolved', { choice: 'keep-card' });
+      else if (afterSiege.match!.turnMode === 'battle') append(current, 'battle/passed', {});
+      else if (afterSiege.match!.turnMode === 'reveal') append(current, 'reveal/finished', {});
+      else if (
+        current === controller &&
+        afterSiege.match!.players[current].fateHand.filter((card) => card.definitionId === 'reinforcements').length < 2
+      ) {
+        const fatePlacement = afterSiege.match!.players[current].hand.flatMap((card) =>
+          legalAgentSpaces(afterSiege, current, card.id)
+            .filter((spaceId) => spaceId === 'hall-fire' || spaceId === 'hidden-counsel')
+            .map((spaceId) => ({ card, spaceId }))
+        )[0];
+        if (fatePlacement) append(current, 'agent/placed', { cardInstanceId: fatePlacement.card.id, spaceId: fatePlacement.spaceId });
+        else append(current, 'turn/revealed', {});
+      } else append(current, 'turn/revealed', {});
+      afterSiege = reduceGame(stream);
+    }
+    expect(afterSiege.diagnostics).toEqual([]);
+    expect(afterSiege.match!.activeBattleId).toBe('battle-pelennor-fields');
     expect(afterSiege.match!.pendingChoice).toMatchObject({
       kind: 'critical-defense', actorUid: controller, locationId: 'minas-tirith'
     });
@@ -3630,8 +3692,10 @@ describe('integrated Agent placement replay', () => {
     expect(afterDefense.match!.activity).toContain(`${afterDefense.players.find((player) => player.uid === controller)?.displayName} deploys 1 defending Company from supply at Minas Tirith.`);
 
     const renownBeforePelennor = afterDefense.match!.players[controller!].renown;
-    let controllerDrewFirstReinforcements = false;
-    let controllerDrewSecondReinforcements = false;
+    let controllerDrewFirstReinforcements = afterDefense.match!.players[controller!].fateHand
+      .filter((card) => card.definitionId === 'reinforcements').length >= 1;
+    let controllerDrewSecondReinforcements = afterDefense.match!.players[controller!].fateHand
+      .filter((card) => card.definitionId === 'reinforcements').length >= 2;
     for (let guard = 0; guard < 12; guard += 1) {
       const state = reduceGame(stream);
       if (state.match!.turnMode === 'battle') break;
@@ -3694,7 +3758,8 @@ describe('integrated Agent placement replay', () => {
       const state = reduceGame(stream);
       if (state.match!.boardAgents['minas-tirith']) break;
       const current = currentPlayerUid(state)!;
-      if (state.match!.turnMode === 'reveal') append(current, 'reveal/finished', {});
+      if (state.match!.pendingChoice?.kind === 'critical-defense') append(state.match!.pendingChoice.actorUid, 'choice/resolved', { choice: 'decline-defender' });
+      else if (state.match!.turnMode === 'reveal') append(current, 'reveal/finished', {});
       else {
         const player = state.match!.players[current];
         const strongholdCard = player.hand.find((card) => legalAgentSpaces(state, current, card.id).includes('minas-tirith'));
@@ -3703,7 +3768,7 @@ describe('integrated Agent placement replay', () => {
       }
     }
     const afterVisit = reduceGame(stream);
-    expect(afterVisit.match!.boardAgents['minas-tirith']).toBeDefined();
+    expect(afterVisit.match!.boardAgents['minas-tirith'], `round ${afterVisit.match!.round}, mode ${afterVisit.match!.turnMode}, pending ${afterVisit.match!.pendingChoice?.kind ?? 'none'}, diagnostics ${afterVisit.diagnostics.at(-1) ?? 'none'}`).toBeDefined();
     expect(afterVisit.match!.players[controller!].resources.gold).toBe(controllerGold + 1);
     const helmParticipant = afterVisit.match!.boardAgents['minas-tirith'][0].uid;
 
