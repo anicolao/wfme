@@ -122,6 +122,7 @@ export type MatchState = {
   } | null;
   queuedChronicleStandingLoss: { actorUid: string } | null;
   queuedMessengerMothRecall: { actorUid: string } | null;
+  queuedElvenForesight: { actorUid: string } | null;
   queuedBattleDeployment: { actorUid: string; spaceId: string } | null;
   pendingBattleRewardChoices: Array<{ kind: 'standing' | 'place-scout' | 'fate-keep-one'; actorUid: string }>;
   pendingChoice: null | {
@@ -151,6 +152,11 @@ export type MatchState = {
     actorUid: string;
     placedPostId: string;
     postIds: readonly string[];
+    options: readonly string[];
+  } | {
+    kind: 'chronicle-elven-foresight';
+    actorUid: string;
+    cardInstanceIds: readonly string[];
     options: readonly string[];
   } | {
     kind: 'critical-defense';
@@ -449,6 +455,7 @@ function createMatch(state: GameState, seed: string): MatchState {
     queuedChronicleCardChoice: null,
     queuedChronicleStandingLoss: null,
     queuedMessengerMothRecall: null,
+    queuedElvenForesight: null,
     queuedBattleDeployment: null,
     pendingBattleRewardChoices: [],
     pendingChoice: null,
@@ -782,6 +789,28 @@ function openChronicleStandingLoss(match: MatchState, actorUid: string): boolean
   return true;
 }
 
+function permutations<T>(values: readonly T[]): T[][] {
+  if (values.length < 2) return [values.slice()];
+  return values.flatMap((value, index) =>
+    permutations([...values.slice(0, index), ...values.slice(index + 1)]).map((tail) => [value, ...tail])
+  );
+}
+
+function openElvenForesight(match: MatchState, actorUid: string): boolean {
+  const cardInstanceIds = match.players[actorUid].drawPile.slice(0, 3).map((card) => card.id);
+  if (cardInstanceIds.length < 2) {
+    match.activity.push(`Elven Foresight finds only ${cardInstanceIds.length} card${cardInstanceIds.length === 1 ? '' : 's'} in the deck, so its order is unchanged.`);
+    return false;
+  }
+  match.pendingChoice = {
+    kind: 'chronicle-elven-foresight',
+    actorUid,
+    cardInstanceIds,
+    options: permutations(cardInstanceIds).map((ids) => `order-draw:${ids.join('|')}`)
+  };
+  return true;
+}
+
 function finishAgentAction(match: MatchState, actorUid: string): void {
   const queuedCardChoice = match.queuedChronicleCardChoice;
   if (queuedCardChoice?.actorUid === actorUid) {
@@ -798,6 +827,11 @@ function finishAgentAction(match: MatchState, actorUid: string): void {
   if (queuedStandingLoss?.actorUid === actorUid) {
     match.queuedChronicleStandingLoss = null;
     if (openChronicleStandingLoss(match, actorUid)) return;
+  }
+  const queuedElvenForesight = match.queuedElvenForesight;
+  if (queuedElvenForesight?.actorUid === actorUid) {
+    match.queuedElvenForesight = null;
+    if (openElvenForesight(match, actorUid)) return;
   }
   const queued = match.queuedBattleDeployment;
   if (queued?.actorUid === actorUid) {
@@ -1130,6 +1164,9 @@ function resolveAgentEffects(
   }
   if (cardDefinition.journeyEffect?.kind === 'place-scout-optional-recall-draw') {
     match.queuedMessengerMothRecall = { actorUid };
+  }
+  if (cardDefinition.journeyEffect?.kind === 'reorder-draw-pile') {
+    match.queuedElvenForesight = { actorUid };
   }
   if (
     cardDefinition.journeyEffect?.kind === 'draw-discard-card' ||
@@ -1662,6 +1699,23 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         state.match.activity.push(`${actor.displayName} leaves their other Scouts in place for Messenger Moth.`);
       } else return 'illegal choice resolution';
       state.match.pendingChoice = null;
+      finishAgentAction(state.match, event.actorUid);
+      return null;
+    }
+    if (pending.kind === 'chronicle-elven-foresight') {
+      if (!choice.startsWith('order-draw:')) return 'illegal choice resolution';
+      const orderedIds = choice.slice('order-draw:'.length).split('|');
+      const currentTop = player.drawPile.slice(0, pending.cardInstanceIds.length);
+      if (
+        orderedIds.length !== pending.cardInstanceIds.length ||
+        new Set(orderedIds).size !== pending.cardInstanceIds.length ||
+        !orderedIds.every((id) => pending.cardInstanceIds.includes(id)) ||
+        !pending.cardInstanceIds.every((id) => currentTop.some((card) => card.id === id))
+      ) return 'illegal choice resolution';
+      const byId = new Map(currentTop.map((card) => [card.id, card]));
+      player.drawPile.splice(0, currentTop.length, ...orderedIds.map((id) => byId.get(id)!));
+      state.match.pendingChoice = null;
+      state.match.activity.push(`${actor.displayName} returns the cards seen by Elven Foresight to the top of their deck in a private order.`);
       finishAgentAction(state.match, event.actorUid);
       return null;
     }

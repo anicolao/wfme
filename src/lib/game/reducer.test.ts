@@ -71,9 +71,9 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'keeper-oaths')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'the-long-game')).toHaveLength(2);
     expect(first.match!.chronicleRow).toHaveLength(5);
-    expect(first.match!.chronicleDeck).toHaveLength(33);
+    expect(first.match!.chronicleDeck).toHaveLength(35);
     const chronicleInstances = [...first.match!.chronicleRow, ...first.match!.chronicleDeck];
-    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(38);
+    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(40);
     for (const definition of CHRONICLE_CARD_DEFINITIONS) {
       expect(chronicleInstances.filter((card) => card.definitionId === definition.id)).toHaveLength(2);
     }
@@ -592,7 +592,8 @@ describe('integrated Agent placement replay', () => {
     const reachAcquiredCard = (
       definitionId: (typeof CHRONICLE_CARD_DEFINITIONS)[number]['id'],
       minimumGold = 0,
-      prepareScout = false
+      prepareScout = false,
+      minimumDrawPile = 0
     ) => {
       const definition = CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!;
       let completed: { events: ReturnType<typeof readyRoom> } | null = null;
@@ -666,7 +667,7 @@ describe('integrated Agent placement replay', () => {
       expect(state.diagnostics).toEqual([]);
       expect(state.match!.players[actor].revealInfluence).toBe(influenceBefore - definition.cost);
       expect(state.match!.players[actor].discardPile).toContainEqual(offered);
-      expect(state.match!.chronicleDeck).toHaveLength(32);
+      expect(state.match!.chronicleDeck).toHaveLength(34);
       expect(state.match!.chronicleRow).toHaveLength(5);
       expect(state.match!.chronicleRow).toContainEqual(refill);
 
@@ -683,6 +684,7 @@ describe('integrated Agent placement replay', () => {
           currentPlayerUid(state) === actor &&
           state.match!.turnMode === 'agent' &&
           state.match!.players[actor].hand.some((card) => card.id === offered.id) &&
+          state.match!.players[actor].drawPile.length >= minimumDrawPile &&
           (!prepareScout || Object.values(state.match!.boardScouts).includes(actor))
         ) break;
         const current = currentPlayerUid(state)!;
@@ -1019,6 +1021,43 @@ describe('integrated Agent placement replay', () => {
     expect(declinedMoth.match!.players[moth.actor].hand).toHaveLength(mothHandBefore);
     expect(declinedMoth.match!.pendingChoice).toMatchObject({ kind: 'battle-deployment', actorUid: moth.actor });
 
+    const foresight = reachAcquiredCard('elven-foresight', 0, false, 3);
+    const foresightTop = foresight.before.match!.players[foresight.actor].drawPile.slice(0, 3);
+    expect(foresightTop).toHaveLength(3);
+    foresight.append(foresight.actor, 'agent/placed', { cardInstanceId: foresight.acquired.id, spaceId: 'hall-fire' });
+    let afterForesight = reduceGame(foresight.stream);
+    expect(afterForesight.diagnostics).toEqual([]);
+    expect(afterForesight.match!.pendingChoice).toMatchObject({
+      kind: 'chronicle-elven-foresight',
+      actorUid: foresight.actor,
+      cardInstanceIds: foresightTop.map((card) => card.id)
+    });
+    const foresightPending = afterForesight.match!.pendingChoice;
+    if (foresightPending?.kind !== 'chronicle-elven-foresight') throw new Error('Elven Foresight ordering is required');
+    expect(foresightPending.options).toHaveLength(6);
+    const unauthorizedForesightActor = afterForesight.match!.playerOrder.find((uid) => uid !== foresight.actor)!;
+    foresight.append(unauthorizedForesightActor, 'choice/resolved', { choice: foresightPending.options[0] });
+    const unauthorizedForesight = reduceGame(foresight.stream);
+    expect(unauthorizedForesight.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(unauthorizedForesight.match!.players[foresight.actor].drawPile.slice(0, 3)).toEqual(foresightTop);
+    foresight.stream.pop();
+    foresight.append(foresight.actor, 'choice/resolved', {
+      choice: `order-draw:${foresightTop[0].id}|${foresightTop[0].id}|${foresightTop[2].id}`
+    });
+    const duplicateForesight = reduceGame(foresight.stream);
+    expect(duplicateForesight.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(duplicateForesight.match!.players[foresight.actor].drawPile.slice(0, 3)).toEqual(foresightTop);
+    foresight.stream.pop();
+    const reversedForesight = [...foresightTop].reverse();
+    foresight.append(foresight.actor, 'choice/resolved', {
+      choice: `order-draw:${reversedForesight.map((card) => card.id).join('|')}`
+    });
+    afterForesight = reduceGame(foresight.stream);
+    expect(afterForesight.diagnostics).toEqual([]);
+    expect(afterForesight.match!.players[foresight.actor].drawPile.slice(0, 3)).toEqual(reversedForesight);
+    expect(afterForesight.match!.pendingChoice).toBeNull();
+    expect(afterForesight.match!.activity.at(-1)).toContain('returns the cards seen by Elven Foresight');
+
     const informerMuster = reachAcquiredCard('goblin-informer', 0, true);
     const informerScout = reduceGame(informerMuster.stream);
     expect(informerScout.match!.boardScouts['old-south-road']).toBe(informerMuster.actor);
@@ -1100,7 +1139,8 @@ describe('integrated Agent placement replay', () => {
       'grey-pilgrim': { influence: 4, swords: 1 },
       'whispered-rumor': { influence: 1, swords: 0 },
       'goblin-informer': { influence: 0, swords: 1 },
-      'orcish-muster': { influence: 0, swords: 2 }
+      'orcish-muster': { influence: 0, swords: 2 },
+      'elven-foresight': { influence: 3, swords: 0 }
     } as const;
     for (const [definitionId, printed] of Object.entries(economyMuster)) {
       expect(MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === definitionId)?.muster).toEqual(printed);
@@ -2260,7 +2300,7 @@ describe('integrated Agent placement replay', () => {
     const rowBefore = [...state.match!.chronicleRow];
     const deckBefore = [...state.match!.chronicleDeck];
     const affordable = (definitionId: string) => CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!.cost <= 3;
-    expect(deckBefore).toHaveLength(33);
+    expect(deckBefore).toHaveLength(35);
     append(actor, 'fate/played', { cardInstanceId: fate.id });
     const awaitingChoice = reduceGame(stream);
     expect(awaitingChoice.match!.pendingChoice).toEqual({

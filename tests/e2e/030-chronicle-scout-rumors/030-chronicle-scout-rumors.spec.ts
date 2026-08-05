@@ -153,8 +153,8 @@ test('Whispered Rumor and Goblin Informer execute both Scout-linked boxes', asyn
   try {
     const buyer = await currentSeat();
     for (const observer of seats) {
-      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 33');
-      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('38 / 54');
+      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 35');
+      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('40 / 54');
     }
 
     for (let guard = 0; guard < 220 && !(rumorMuster && goblinMuster && goblinJourney && rumorPlacements >= 2); guard += 1) {

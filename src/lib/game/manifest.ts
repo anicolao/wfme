@@ -45,6 +45,7 @@ export type AgentCardDefinition = StartingCardIdentity & {
     | { kind: 'gain-gold-optional-pay-standing'; gainGold: 2; costGold: 2; faction: 'dwarven' }
     | { kind: 'recruit-lose-standing'; recruit: 2 }
     | { kind: 'place-scout-optional-recall-draw'; placeScout: 1; draw: 1 }
+    | { kind: 'reorder-draw-pile'; look: 3 }
     | { kind: 'draw-discard-card'; draw: 1 }
     | { kind: 'draw-optional-trash'; draw: 1; includeDiscard: boolean }
     | { kind: 'gain-gold'; amount: 1 }
@@ -251,6 +252,14 @@ export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
     placementIcons: ['Wild', 'Scout'],
     journeyEffect: { kind: 'place-scout-optional-recall-draw', placeScout: 1, draw: 1 },
     reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'elven-foresight',
+    name: 'Elven Foresight',
+    copies: 2,
+    placementIcons: ['Elven', 'Council'],
+    journeyEffect: { kind: 'reorder-draw-pile', look: 3 },
+    reviewedCapabilities: ['agent-placement']
   }
 ];
 
@@ -305,7 +314,8 @@ export const MUSTER_CARD_DEFINITIONS: readonly MusterCardDefinition[] = [
   { id: 'whispered-rumor', name: 'Whispered Rumor', muster: { influence: 1, swords: 0 } },
   { id: 'goblin-informer', name: 'Goblin Informer', muster: { influence: 0, swords: 1 } },
   { id: 'orcish-muster', name: 'Orcish Muster', muster: { influence: 0, swords: 2 } },
-  { id: 'messenger-moth', name: 'Messenger Moth', muster: { influence: 1, swords: 0 } }
+  { id: 'messenger-moth', name: 'Messenger Moth', muster: { influence: 1, swords: 0 } },
+  { id: 'elven-foresight', name: 'Elven Foresight', muster: { influence: 3, swords: 0 } }
 ];
 
 export type ReserveCardId = 'muster-host';
@@ -343,7 +353,8 @@ export type ChronicleCardId =
   | 'whispered-rumor'
   | 'goblin-informer'
   | 'orcish-muster'
-  | 'messenger-moth';
+  | 'messenger-moth'
+  | 'elven-foresight';
 
 export type ChronicleCardDefinition = {
   id: ChronicleCardId;
@@ -473,6 +484,12 @@ export const CHRONICLE_CARD_DEFINITIONS: readonly ChronicleCardDefinition[] = [
     id: 'messenger-moth', name: 'Messenger Moth', copies: 2, cost: 3,
     placementIcons: ['Wild', 'Scout'], journeyText: 'Place 1 Scout; you may recall a different Scout to draw 1 card',
     muster: { influence: 1, swords: 0 },
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'elven-foresight', name: 'Elven Foresight', copies: 2, cost: 4,
+    placementIcons: ['Elven', 'Council'], journeyText: 'Look at the top 3 cards of your deck; return them in any order',
+    muster: { influence: 3, swords: 0 },
     reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
   }
 ];

@@ -244,6 +244,8 @@ One Scout cannot provide both benefits. You may recall two different Scouts on o
 
 When **Messenger Moth** tells you to place a Scout and then optionally recall a different Scout to draw 1 card, finish the placement first. The Scout just placed is not eligible for that recall. If you recall another Scout, return it to supply before drawing; if no other Scout is on the board, omit the optional effect.
 
+When **Elven Foresight** looks at the top three cards of your deck, only you may see their identities. Choose one exact top-to-bottom permutation and return those same physical cards in that order. This does not draw a card. If fewer than three cards remain in your deck, look at all that remain; with fewer than two, their order is unchanged. Looking does not cause a discard reshuffle.
+
 ### Scout placement icon
 
 A card showing the Scout placement icon may send an Agent to any space connected to an observation post holding your Scout. This does not recall the Scout. Occupancy still applies unless another Scout is recalled to infiltrate.
