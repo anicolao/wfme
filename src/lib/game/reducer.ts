@@ -123,7 +123,7 @@ export type MatchState = {
   queuedChronicleStandingLoss: { actorUid: string } | null;
   queuedMessengerMothRecall: { actorUid: string } | null;
   queuedElvenForesight: { actorUid: string } | null;
-  queuedBattleDeployment: { actorUid: string; spaceId: string } | null;
+  queuedBattleDeployment: { actorUid: string; spaceId: string; additionalGarrisonAllowance: number } | null;
   pendingBattleRewardChoices: Array<{ kind: 'standing' | 'place-scout' | 'fate-keep-one'; actorUid: string }>;
   pendingChoice: null | {
     kind: 'chronicle-payment';
@@ -207,6 +207,7 @@ export type MatchState = {
     actorUid: string;
     spaceId: string;
     maximum: number;
+    additionalGarrisonAllowance: number;
     options: readonly string[];
   } | {
     kind: 'ranger-mustering-trash';
@@ -394,12 +395,25 @@ function createMatch(state: GameState, seed: string): MatchState {
       ];
     })
   );
-  const chronicleInstances = shuffled(CHRONICLE_CARD_DEFINITIONS.flatMap((definition) =>
+  const chronicleFoundation = CHRONICLE_CARD_DEFINITIONS.filter((definition) => !definition.incrementalDeckInsertion);
+  const chronicleExtensions = CHRONICLE_CARD_DEFINITIONS.filter((definition) => definition.incrementalDeckInsertion);
+  const chronicleInstances = shuffled(chronicleFoundation.flatMap((definition) =>
     Array.from({ length: definition.copies }, (_, index) => ({
       id: `chronicle:${definition.id}:${index + 1}`,
       definitionId: definition.id
     }))
   ), `${seed}:chronicle-deck`);
+  for (const instance of chronicleExtensions.flatMap((definition) =>
+    Array.from({ length: definition.copies }, (_, index) => ({
+      id: `chronicle:${definition.id}:${index + 1}`,
+      definitionId: definition.id
+    })))) {
+    const insertionPoints = shuffled(
+      Array.from({ length: chronicleInstances.length + 1 }, (_, index) => index),
+      `${seed}:chronicle-insertion:${instance.id}`
+    );
+    chronicleInstances.splice(insertionPoints[0], 0, instance);
+  }
   const selectedBattles = battleDeck(seed);
   return {
     seed,
@@ -718,14 +732,19 @@ function canSummonEnts(match: MatchState, player: MatchPlayer): boolean {
   return match.damBreached || (contested !== 'minas-tirith' && contested !== 'osgiliath' && contested !== 'edoras');
 }
 
-function openBattleDeployment(match: MatchState, actorUid: string, spaceId: string): boolean {
+function openBattleDeployment(
+  match: MatchState,
+  actorUid: string,
+  spaceId: string,
+  additionalGarrisonAllowance = 0
+): boolean {
   if (!match.activeBattleId) return false;
   const player = match.players[actorUid];
   const fresh = Math.min(player.recruitedThisRound, player.companies.garrison);
   const existing = player.companies.garrison - fresh;
-  const maximum = fresh + Math.min(2, existing);
+  const maximum = fresh + Math.min(2 + additionalGarrisonAllowance, existing);
   match.pendingChoice = {
-    kind: 'battle-deployment', actorUid, spaceId, maximum,
+    kind: 'battle-deployment', actorUid, spaceId, maximum, additionalGarrisonAllowance,
     options: Array.from({ length: maximum + 1 }, (_, amount) => `deploy:${amount}`)
   };
   return true;
@@ -846,7 +865,7 @@ function finishAgentAction(match: MatchState, actorUid: string): void {
   const queued = match.queuedBattleDeployment;
   if (queued?.actorUid === actorUid) {
     match.queuedBattleDeployment = null;
-    openBattleDeployment(match, actorUid, queued.spaceId);
+    openBattleDeployment(match, actorUid, queued.spaceId, queued.additionalGarrisonAllowance);
   }
   if (!match.pendingChoice) advanceToNextAgentPlayer(match);
 }
@@ -1178,6 +1197,9 @@ function resolveAgentEffects(
   if (cardDefinition.journeyEffect?.kind === 'reorder-draw-pile') {
     match.queuedElvenForesight = { actorUid };
   }
+  if (cardDefinition.journeyEffect?.kind === 'gain-mithril-extra-battle-deploy') {
+    player.resources.mithril += cardDefinition.journeyEffect.mithril;
+  }
   if (
     cardDefinition.journeyEffect?.kind === 'draw-discard-card' ||
     cardDefinition.journeyEffect?.kind === 'draw-optional-trash'
@@ -1385,8 +1407,14 @@ function resolveAgentEffects(
     };
   }
   if (isBattleSpace(space) && match.activeBattleId) {
-    if (match.pendingChoice) match.queuedBattleDeployment = { actorUid, spaceId: space.id };
-    else openBattleDeployment(match, actorUid, space.id);
+    const additionalGarrisonAllowance = cardDefinition.journeyEffect?.kind === 'gain-mithril-extra-battle-deploy'
+      ? cardDefinition.journeyEffect.additionalGarrisonCompany
+      : 0;
+    if (match.pendingChoice) {
+      match.queuedBattleDeployment = { actorUid, spaceId: space.id, additionalGarrisonAllowance };
+    } else {
+      openBattleDeployment(match, actorUid, space.id, additionalGarrisonAllowance);
+    }
   }
   match.activity.push(`${actorName} sends an Agent to ${space.name}, ${resolution}.`);
 }

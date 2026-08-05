@@ -46,6 +46,7 @@ export type AgentCardDefinition = StartingCardIdentity & {
     | { kind: 'recruit-lose-standing'; recruit: 2 }
     | { kind: 'place-scout-optional-recall-draw'; placeScout: 1; draw: 1 }
     | { kind: 'reorder-draw-pile'; look: 3 }
+    | { kind: 'gain-mithril-extra-battle-deploy'; mithril: 1; additionalGarrisonCompany: 1 }
     | { kind: 'draw-discard-card'; draw: 1 }
     | { kind: 'draw-optional-trash'; draw: 1; includeDiscard: boolean }
     | { kind: 'gain-gold'; amount: 1 }
@@ -260,6 +261,14 @@ export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
     placementIcons: ['Elven', 'Council'],
     journeyEffect: { kind: 'reorder-draw-pile', look: 3 },
     reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'khazad-guard',
+    name: 'Khazad Guard',
+    copies: 2,
+    placementIcons: ['Dwarven', 'Stronghold'],
+    journeyEffect: { kind: 'gain-mithril-extra-battle-deploy', mithril: 1, additionalGarrisonCompany: 1 },
+    reviewedCapabilities: ['agent-placement']
   }
 ];
 
@@ -315,7 +324,8 @@ export const MUSTER_CARD_DEFINITIONS: readonly MusterCardDefinition[] = [
   { id: 'goblin-informer', name: 'Goblin Informer', muster: { influence: 0, swords: 1 } },
   { id: 'orcish-muster', name: 'Orcish Muster', muster: { influence: 0, swords: 2 } },
   { id: 'messenger-moth', name: 'Messenger Moth', muster: { influence: 1, swords: 0 } },
-  { id: 'elven-foresight', name: 'Elven Foresight', muster: { influence: 3, swords: 0 } }
+  { id: 'elven-foresight', name: 'Elven Foresight', muster: { influence: 3, swords: 0 } },
+  { id: 'khazad-guard', name: 'Khazad Guard', muster: { influence: 1, swords: 2 } }
 ];
 
 export type ReserveCardId = 'muster-host';
@@ -354,7 +364,8 @@ export type ChronicleCardId =
   | 'goblin-informer'
   | 'orcish-muster'
   | 'messenger-moth'
-  | 'elven-foresight';
+  | 'elven-foresight'
+  | 'khazad-guard';
 
 export type ChronicleCardDefinition = {
   id: ChronicleCardId;
@@ -365,6 +376,7 @@ export type ChronicleCardDefinition = {
   journeyText: string;
   muster: { influence: number; swords: number };
   musterText?: string;
+  incrementalDeckInsertion?: true;
   reviewedCapabilities: readonly ['chronicle-market', 'agent-placement', 'reveal'];
 };
 
@@ -490,6 +502,13 @@ export const CHRONICLE_CARD_DEFINITIONS: readonly ChronicleCardDefinition[] = [
     id: 'elven-foresight', name: 'Elven Foresight', copies: 2, cost: 4,
     placementIcons: ['Elven', 'Council'], journeyText: 'Look at the top 3 cards of your deck; return them in any order',
     muster: { influence: 3, swords: 0 },
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'khazad-guard', name: 'Khazad Guard', copies: 2, cost: 4,
+    placementIcons: ['Dwarven', 'Stronghold'], journeyText: 'Gain 1 Mithril; at a Battle space, you may deploy 1 additional Company from your garrison',
+    muster: { influence: 1, swords: 2 },
+    incrementalDeckInsertion: true,
     reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
   }
 ];

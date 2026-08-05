@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createEvent } from './events';
 import { BATTLE_CARD_DEFINITIONS, CHRONICLE_CARD_DEFINITIONS, MUSTER_CARD_DEFINITIONS, OBSERVATION_POSTS } from './manifest';
 import { battleStrength, currentPlayerUid, legalAgentSpaces, reduceGame } from './reducer';
+import { shuffled } from './prng';
 
 function readyRoom(seed = 'road-2') {
   const events = [
@@ -71,12 +72,18 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'keeper-oaths')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'the-long-game')).toHaveLength(2);
     expect(first.match!.chronicleRow).toHaveLength(5);
-    expect(first.match!.chronicleDeck).toHaveLength(35);
+    expect(first.match!.chronicleDeck).toHaveLength(37);
     const chronicleInstances = [...first.match!.chronicleRow, ...first.match!.chronicleDeck];
-    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(40);
+    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(42);
     for (const definition of CHRONICLE_CARD_DEFINITIONS) {
       expect(chronicleInstances.filter((card) => card.definitionId === definition.id)).toHaveLength(2);
     }
+    const expectedFoundationOrder = shuffled(CHRONICLE_CARD_DEFINITIONS
+      .filter((definition) => !definition.incrementalDeckInsertion)
+      .flatMap((definition) => Array.from({ length: definition.copies }, (_, index) => `chronicle:${definition.id}:${index + 1}`)),
+    'road-2:chronicle-deck');
+    expect(chronicleInstances.filter((card) => card.definitionId !== 'khazad-guard').map((card) => card.id))
+      .toEqual(expectedFoundationOrder);
     const selectedBattleIds = [first.match!.activeBattleId!, ...first.match!.battleDeck];
     expect(selectedBattleIds).toHaveLength(10);
     expect(new Set(selectedBattleIds)).toHaveLength(10);
@@ -696,7 +703,7 @@ describe('integrated Agent placement replay', () => {
       expect(state.diagnostics).toEqual([]);
       expect(state.match!.players[actor].revealInfluence).toBe(influenceBefore - definition.cost);
       expect(state.match!.players[actor].discardPile).toContainEqual(offered);
-      expect(state.match!.chronicleDeck).toHaveLength(34);
+      expect(state.match!.chronicleDeck).toHaveLength(36);
       expect(state.match!.chronicleRow).toHaveLength(5);
       expect(state.match!.chronicleRow).toContainEqual(refill);
 
@@ -1087,6 +1094,41 @@ describe('integrated Agent placement replay', () => {
     expect(afterForesight.match!.players[foresight.actor].drawPile.slice(0, 3)).toEqual(reversedForesight);
     expect(afterForesight.match!.pendingChoice).toBeNull();
     expect(afterForesight.match!.activity.at(-1)).toContain('returns the cards seen by Elven Foresight');
+
+    const khazad = reachAcquiredCard('khazad-guard');
+    const khazadPlayer = khazad.before.match!.players[khazad.actor];
+    const khazadMithril = khazadPlayer.resources.mithril;
+    const khazadGarrison = khazadPlayer.companies.garrison;
+    const khazadSupply = khazadPlayer.companies.supply;
+    const khazadFresh = khazadPlayer.recruitedThisRound;
+    const minasRecruit = Math.min(1, khazadSupply);
+    const garrisonAfterMinas = khazadGarrison + minasRecruit;
+    const freshAfterMinas = Math.min(khazadFresh + minasRecruit, garrisonAfterMinas);
+    const existingAfterMinas = garrisonAfterMinas - freshAfterMinas;
+    const expectedKhazadMaximum = freshAfterMinas + Math.min(3, existingAfterMinas);
+    khazad.append(khazad.actor, 'agent/placed', { cardInstanceId: khazad.acquired.id, spaceId: 'minas-tirith' });
+    let afterKhazad = reduceGame(khazad.stream);
+    expect(afterKhazad.diagnostics).toEqual([]);
+    expect(afterKhazad.match!.players[khazad.actor].resources.mithril).toBe(khazadMithril + 1);
+    expect(afterKhazad.match!.players[khazad.actor].companies.garrison).toBe(garrisonAfterMinas);
+    expect(afterKhazad.match!.pendingChoice).toMatchObject({
+      kind: 'battle-deployment',
+      actorUid: khazad.actor,
+      maximum: expectedKhazadMaximum,
+      additionalGarrisonAllowance: 1
+    });
+    khazad.append(khazad.actor, 'choice/resolved', { choice: `deploy:${expectedKhazadMaximum + 1}` });
+    const rejectedKhazad = reduceGame(khazad.stream);
+    expect(rejectedKhazad.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(rejectedKhazad.match!.players[khazad.actor].companies.garrison).toBe(garrisonAfterMinas);
+    expect(rejectedKhazad.match!.battleCompanies[khazad.actor] ?? 0).toBe(0);
+    khazad.stream.pop();
+    khazad.append(khazad.actor, 'choice/resolved', { choice: `deploy:${expectedKhazadMaximum}` });
+    afterKhazad = reduceGame(khazad.stream);
+    expect(afterKhazad.diagnostics).toEqual([]);
+    expect(afterKhazad.match!.players[khazad.actor].companies.garrison).toBe(garrisonAfterMinas - expectedKhazadMaximum);
+    expect(afterKhazad.match!.battleCompanies[khazad.actor]).toBe(expectedKhazadMaximum);
+    expect(afterKhazad.match!.pendingChoice).toBeNull();
 
     const informerMuster = reachAcquiredCard('goblin-informer', 0, true);
     const informerScout = reduceGame(informerMuster.stream);
@@ -2339,7 +2381,7 @@ describe('integrated Agent placement replay', () => {
     const rowBefore = [...state.match!.chronicleRow];
     const deckBefore = [...state.match!.chronicleDeck];
     const affordable = (definitionId: string) => CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!.cost <= 3;
-    expect(deckBefore).toHaveLength(35);
+    expect(deckBefore).toHaveLength(37);
     append(actor, 'fate/played', { cardInstanceId: fate.id });
     const awaitingChoice = reduceGame(stream);
     expect(awaitingChoice.match!.pendingChoice).toEqual({

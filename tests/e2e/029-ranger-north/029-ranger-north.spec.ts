@@ -38,8 +38,8 @@ test('Ranger of the North is acquired, drawn, and completes its mandatory privat
   try {
     const buyer = await currentSeat();
     for (const observer of seats) {
-      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 35');
-      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('40 / 54');
+      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 37');
+      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('42 / 54');
     }
 
     for (let guard = 0; guard < 60 && !played; guard += 1) {
