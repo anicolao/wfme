@@ -12,6 +12,7 @@ git diff --check
 echo "Running static checks..."
 bun run check
 bun run check:workflow
+bun run check:e2e-policy
 
 echo "Running unit tests..."
 bun run test:unit
