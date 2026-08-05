@@ -71,9 +71,9 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'keeper-oaths')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'the-long-game')).toHaveLength(2);
     expect(first.match!.chronicleRow).toHaveLength(5);
-    expect(first.match!.chronicleDeck).toHaveLength(31);
+    expect(first.match!.chronicleDeck).toHaveLength(33);
     const chronicleInstances = [...first.match!.chronicleRow, ...first.match!.chronicleDeck];
-    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(36);
+    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(38);
     for (const definition of CHRONICLE_CARD_DEFINITIONS) {
       expect(chronicleInstances.filter((card) => card.definitionId === definition.id)).toHaveLength(2);
     }
@@ -666,7 +666,7 @@ describe('integrated Agent placement replay', () => {
       expect(state.diagnostics).toEqual([]);
       expect(state.match!.players[actor].revealInfluence).toBe(influenceBefore - definition.cost);
       expect(state.match!.players[actor].discardPile).toContainEqual(offered);
-      expect(state.match!.chronicleDeck).toHaveLength(30);
+      expect(state.match!.chronicleDeck).toHaveLength(32);
       expect(state.match!.chronicleRow).toHaveLength(5);
       expect(state.match!.chronicleRow).toContainEqual(refill);
 
@@ -919,15 +919,21 @@ describe('integrated Agent placement replay', () => {
     if (pilgrimPending?.kind !== 'chronicle-card-choice') throw new Error('Pilgrim trash choice is required');
     const pilgrimPendingHand = afterPilgrim.match!.players[pilgrim.actor].hand.length;
     const pilgrimPendingDiscard = afterPilgrim.match!.players[pilgrim.actor].discardPile.length;
+    expect(pilgrimPending.cardInstanceIds).toEqual([
+      ...afterPilgrim.match!.players[pilgrim.actor].hand,
+      ...afterPilgrim.match!.players[pilgrim.actor].discardPile
+    ].map((card) => card.id));
     const pilgrimDiscardId = pilgrimPending.cardInstanceIds.find((id) =>
       afterPilgrim.match!.players[pilgrim.actor].discardPile.some((candidate) => candidate.id === id)
     );
-    expect(pilgrimDiscardId).toBeDefined();
-    pilgrim.append(pilgrim.actor, 'choice/resolved', { choice: `trash-card:${pilgrimDiscardId}` });
+    const pilgrimTrashId = pilgrimDiscardId ?? pilgrimPending.cardInstanceIds[0];
+    expect(pilgrimTrashId).toBeDefined();
+    const trashFromDiscard = Boolean(pilgrimDiscardId);
+    pilgrim.append(pilgrim.actor, 'choice/resolved', { choice: `trash-card:${pilgrimTrashId}` });
     afterPilgrim = reduceGame(pilgrim.stream);
     expect(afterPilgrim.diagnostics).toEqual([]);
-    expect(afterPilgrim.match!.players[pilgrim.actor].hand).toHaveLength(pilgrimPendingHand);
-    expect(afterPilgrim.match!.players[pilgrim.actor].discardPile).toHaveLength(pilgrimPendingDiscard - 1);
+    expect(afterPilgrim.match!.players[pilgrim.actor].hand).toHaveLength(pilgrimPendingHand - (trashFromDiscard ? 0 : 1));
+    expect(afterPilgrim.match!.players[pilgrim.actor].discardPile).toHaveLength(pilgrimPendingDiscard - (trashFromDiscard ? 1 : 0));
     expect(afterPilgrim.match!.players[pilgrim.actor].trashPile).toHaveLength(pilgrimTrash + 1);
 
     const rumor = reachAcquiredCard('whispered-rumor');
@@ -971,6 +977,47 @@ describe('integrated Agent placement replay', () => {
     expect(afterOrcish.diagnostics).toEqual([]);
     expect(afterOrcish.match!.players[orcish.actor].standing.shadow).toBe(orcishShadow);
     expect(afterOrcish.match!.pendingChoice).toBeNull();
+
+    const moth = reachAcquiredCard('messenger-moth', 0, true);
+    expect(moth.before.match!.boardScouts['old-south-road']).toBe(moth.actor);
+    const mothHandBefore = moth.before.match!.players[moth.actor].hand.length;
+    moth.append(moth.actor, 'agent/placed', { cardInstanceId: moth.acquired.id, spaceId: 'hidden-paths' });
+    let afterMoth = reduceGame(moth.stream);
+    expect(afterMoth.diagnostics).toEqual([]);
+    expect(afterMoth.match!.pendingChoice).toMatchObject({ kind: 'place-scout', actorUid: moth.actor });
+    moth.append(moth.actor, 'scout/placed', { postId: 'northern-eaves' });
+    afterMoth = reduceGame(moth.stream);
+    expect(afterMoth.diagnostics).toEqual([]);
+    expect(afterMoth.match!.pendingChoice).toEqual({
+      kind: 'chronicle-messenger-moth',
+      actorUid: moth.actor,
+      placedPostId: 'northern-eaves',
+      postIds: ['old-south-road'],
+      options: ['recall-moth:old-south-road', 'decline-moth-recall']
+    });
+    moth.append(moth.actor, 'choice/resolved', { choice: 'recall-moth:northern-eaves' });
+    const rejectedMoth = reduceGame(moth.stream);
+    expect(rejectedMoth.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(rejectedMoth.match!.boardScouts['northern-eaves']).toBe(moth.actor);
+    moth.stream.pop();
+    moth.append(moth.actor, 'choice/resolved', { choice: 'recall-moth:old-south-road' });
+    afterMoth = reduceGame(moth.stream);
+    expect(afterMoth.diagnostics).toEqual([]);
+    expect(afterMoth.match!.boardScouts['old-south-road']).toBeUndefined();
+    expect(afterMoth.match!.boardScouts['northern-eaves']).toBe(moth.actor);
+    expect(afterMoth.match!.players[moth.actor].hand).toHaveLength(mothHandBefore + 1);
+    expect(afterMoth.match!.pendingChoice).toMatchObject({ kind: 'battle-deployment', actorUid: moth.actor });
+    expect(afterMoth.match!.queuedMessengerMothRecall).toBeNull();
+    const legalMothChoice = moth.stream.at(-1)!;
+    const declinedMoth = reduceGame([
+      ...moth.stream.slice(0, -1),
+      { ...legalMothChoice, payload: { choice: 'decline-moth-recall' } }
+    ]);
+    expect(declinedMoth.diagnostics).toEqual([]);
+    expect(declinedMoth.match!.boardScouts['old-south-road']).toBe(moth.actor);
+    expect(declinedMoth.match!.boardScouts['northern-eaves']).toBe(moth.actor);
+    expect(declinedMoth.match!.players[moth.actor].hand).toHaveLength(mothHandBefore);
+    expect(declinedMoth.match!.pendingChoice).toMatchObject({ kind: 'battle-deployment', actorUid: moth.actor });
 
     const informerMuster = reachAcquiredCard('goblin-informer', 0, true);
     const informerScout = reduceGame(informerMuster.stream);
@@ -2213,7 +2260,7 @@ describe('integrated Agent placement replay', () => {
     const rowBefore = [...state.match!.chronicleRow];
     const deckBefore = [...state.match!.chronicleDeck];
     const affordable = (definitionId: string) => CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!.cost <= 3;
-    expect(deckBefore).toHaveLength(31);
+    expect(deckBefore).toHaveLength(33);
     append(actor, 'fate/played', { cardInstanceId: fate.id });
     const awaitingChoice = reduceGame(stream);
     expect(awaitingChoice.match!.pendingChoice).toEqual({

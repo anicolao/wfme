@@ -242,6 +242,8 @@ A recall effect returns one of your Scouts from any observation post to your sup
 
 One Scout cannot provide both benefits. You may recall two different Scouts on one turn, one to infiltrate and one to gather intelligence.
 
+When **Messenger Moth** tells you to place a Scout and then optionally recall a different Scout to draw 1 card, finish the placement first. The Scout just placed is not eligible for that recall. If you recall another Scout, return it to supply before drawing; if no other Scout is on the board, omit the optional effect.
+
 ### Scout placement icon
 
 A card showing the Scout placement icon may send an Agent to any space connected to an observation post holding your Scout. This does not recall the Scout. Occupancy still applies unless another Scout is recalled to infiltrate.

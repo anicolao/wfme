@@ -130,8 +130,8 @@ test('three paid-choice Chronicle cards are acquired, drawn, and resolved by the
   try {
     const buyer = await currentSeat();
     for (const observer of seats) {
-      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 31');
-      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('36 / 54');
+      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 33');
+      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('38 / 54');
     }
 
     for (let guard = 0; guard < 220 && played.size < TARGETS.length; guard += 1) {

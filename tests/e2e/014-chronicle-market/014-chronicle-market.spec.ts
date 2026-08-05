@@ -13,7 +13,7 @@ test('a human buys from the public Chronicle Row, refills it, reshuffles, and pl
     const buyer = await currentSeat();
     for (const observer of seats) {
       await expect(observer.page.getByTestId('chronicle-row').getByRole('button')).toHaveCount(5);
-      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 31');
+      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 33');
       await expect(observer.page.getByTestId('chronicle-row').getByRole('button', { name: /^Rider of Rohan/ }).first()).toBeDisabled();
     }
 
@@ -45,7 +45,7 @@ test('a human buys from the public Chronicle Row, refills it, reshuffles, and pl
       { spec: 'The Chronicle Row immediately refills to five from its eighteen-card deck', check: async () => {
         for (const observer of seats) {
           await expect(observer.page.getByTestId('chronicle-row').getByRole('button')).toHaveCount(5);
-          await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 30');
+          await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 32');
           await expect(observer.page.getByTestId('activity-log')).toContainText(`${buyer.name} acquires Rider of Rohan from the Chronicle Row for 2 Influence and refills its place.`);
         }
       } },
@@ -57,7 +57,7 @@ test('a human buys from the public Chronicle Row, refills it, reshuffles, and pl
     }, [
       { spec: 'Immutable replay preserves the exact refill, Influence, and acquired discard count', check: async () => {
         await expect(buyer.page.getByTestId('chronicle-row').getByRole('button')).toHaveCount(5);
-        await expect(buyer.page.getByTestId('chronicle-market')).toContainText('deck 30');
+        await expect(buyer.page.getByTestId('chronicle-market')).toContainText('deck 32');
         await expect(buyer.page.locator('.reveal-total strong')).toHaveText(`${influenceBefore - 2} Influence`);
         await expect(row(buyer, buyer.name)).toContainText('Discard1');
       } },

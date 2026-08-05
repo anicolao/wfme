@@ -121,6 +121,7 @@ export type MatchState = {
     cardInstanceIds: string[];
   } | null;
   queuedChronicleStandingLoss: { actorUid: string } | null;
+  queuedMessengerMothRecall: { actorUid: string } | null;
   queuedBattleDeployment: { actorUid: string; spaceId: string } | null;
   pendingBattleRewardChoices: Array<{ kind: 'standing' | 'place-scout' | 'fate-keep-one'; actorUid: string }>;
   pendingChoice: null | {
@@ -145,6 +146,12 @@ export type MatchState = {
     kind: 'chronicle-standing-loss';
     actorUid: string;
     options: readonly `lose-standing-${FactionId}`[];
+  } | {
+    kind: 'chronicle-messenger-moth';
+    actorUid: string;
+    placedPostId: string;
+    postIds: readonly string[];
+    options: readonly string[];
   } | {
     kind: 'critical-defense';
     actorUid: string;
@@ -441,6 +448,7 @@ function createMatch(state: GameState, seed: string): MatchState {
     queuedChroniclePayment: null,
     queuedChronicleCardChoice: null,
     queuedChronicleStandingLoss: null,
+    queuedMessengerMothRecall: null,
     queuedBattleDeployment: null,
     pendingBattleRewardChoices: [],
     pendingChoice: null,
@@ -1120,6 +1128,9 @@ function resolveAgentEffects(
   if (cardDefinition.journeyEffect?.kind === 'recruit-lose-standing') {
     recruitCompanies(player, cardDefinition.journeyEffect.recruit);
   }
+  if (cardDefinition.journeyEffect?.kind === 'place-scout-optional-recall-draw') {
+    match.queuedMessengerMothRecall = { actorUid };
+  }
   if (
     cardDefinition.journeyEffect?.kind === 'draw-discard-card' ||
     cardDefinition.journeyEffect?.kind === 'draw-optional-trash'
@@ -1239,14 +1250,14 @@ function resolveAgentEffects(
     if (player.resources.mithril >= space.effect.optionalCostMithril) options.push('pay-1-mithril');
     match.pendingChoice = {
       kind: 'osgiliath', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
-      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout', options
+      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout' || cardDefinition.journeyEffect?.kind === 'place-scout-optional-recall-draw', options
     };
     resolution = 'choosing whether to pay 1 Mithril for 2 or 4 Gold before deploying to Battle';
   } else if (space.effect.kind === 'great-forge') {
     player.resources.gold += space.effect.gainGold;
     match.pendingChoice = {
       kind: 'great-forge', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
-      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout',
+      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout' || cardDefinition.journeyEffect?.kind === 'place-scout-optional-recall-draw',
       options: ['standing-shadow', 'standing-dwarven', 'standing-elven', 'standing-wild']
     };
     resolution = 'paying 3 Mithril, gaining 5 Gold, and choosing one faction standing';
@@ -1257,7 +1268,7 @@ function resolveAgentEffects(
     options.push('gain-provision-leave-dam');
     match.pendingChoice = {
       kind: 'fangorn-moot', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
-      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout', options
+      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout' || cardDefinition.journeyEffect?.kind === 'place-scout-optional-recall-draw', options
     };
     resolution = 'calling the Moot to choose Ent-draught or the fate of the Dam';
   } else if (space.effect.kind === 'deep-fangorn') {
@@ -1268,7 +1279,7 @@ function resolveAgentEffects(
     if (canSummonEnts(match, player)) options.push('summon-2-ents');
     match.pendingChoice = {
       kind: 'deep-fangorn', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
-      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout', options
+      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout' || cardDefinition.journeyEffect?.kind === 'place-scout-optional-recall-draw', options
     };
     resolution = `paying 3 Provisions, taking ${riches} Riches, and choosing Mithril or Ents`;
   } else if (space.effect.kind === 'entwash') {
@@ -1279,7 +1290,7 @@ function resolveAgentEffects(
     if (canSummonEnts(match, player)) options.push('summon-1-ent');
     match.pendingChoice = {
       kind: 'entwash', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
-      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout', options
+      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout' || cardDefinition.journeyEffect?.kind === 'place-scout-optional-recall-draw', options
     };
     resolution = `paying 1 Provision, taking ${riches} Riches, and choosing Mithril or an Ent`;
   } else if (space.effect.kind === 'edoras') {
@@ -1318,7 +1329,7 @@ function resolveAgentEffects(
       options: ['trash-self', 'keep-card']
     };
   }
-  if ((cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout') && !match.pendingChoice) {
+  if ((cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout' || cardDefinition.journeyEffect?.kind === 'place-scout-optional-recall-draw') && !match.pendingChoice) {
     match.pendingChoice = {
       kind: 'place-scout',
       actorUid: player.uid,
@@ -1632,6 +1643,25 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       loseStanding(state.match, player, faction);
       state.match.pendingChoice = null;
       state.match.activity.push(`${actor.displayName} loses 1 ${faction} standing to complete Orcish Muster.`);
+      finishAgentAction(state.match, event.actorUid);
+      return null;
+    }
+    if (pending.kind === 'chronicle-messenger-moth') {
+      if (choice.startsWith('recall-moth:')) {
+        const postId = choice.slice('recall-moth:'.length);
+        if (!pending.postIds.includes(postId) || postId === pending.placedPostId || state.match.boardScouts[postId] !== event.actorUid) {
+          return 'illegal choice resolution';
+        }
+        delete state.match.boardScouts[postId];
+        player.scouts.supply += 1;
+        player.scoutsRecalledThisRound += 1;
+        const drawn = drawOneCard(state.match, event.actorUid, 'Messenger Moth');
+        const postName = OBSERVATION_POSTS.find((post) => post.id === postId)?.name ?? postId;
+        state.match.activity.push(`${actor.displayName} recalls their Scout from ${postName} with Messenger Moth and draws ${drawn ? '1 card' : 'no card'}.`);
+      } else if (choice === 'decline-moth-recall') {
+        state.match.activity.push(`${actor.displayName} leaves their other Scouts in place for Messenger Moth.`);
+      } else return 'illegal choice resolution';
+      state.match.pendingChoice = null;
       finishAgentAction(state.match, event.actorUid);
       return null;
     }
@@ -2078,6 +2108,23 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     player.scouts.supply -= 1;
     state.match.boardScouts[postId] = event.actorUid;
     state.match.activity.push(`${actor.displayName} places a Scout at ${OBSERVATION_POSTS.find((post) => post.id === postId)!.name}.`);
+    if (state.match.queuedMessengerMothRecall?.actorUid === event.actorUid) {
+      state.match.queuedMessengerMothRecall = null;
+      const postIds = OBSERVATION_POSTS
+        .filter((post) => post.id !== postId && state.match!.boardScouts[post.id] === event.actorUid)
+        .map((post) => post.id);
+      if (postIds.length > 0) {
+        state.match.pendingChoice = {
+          kind: 'chronicle-messenger-moth',
+          actorUid: event.actorUid,
+          placedPostId: postId,
+          postIds,
+          options: [...postIds.map((id) => `recall-moth:${id}`), 'decline-moth-recall']
+        };
+        state.match.activity.push(`${actor.displayName} may recall a different Scout with Messenger Moth to draw 1 card.`);
+        return null;
+      }
+    }
     if (pending.followupSeekAlliesCardId) {
       state.match.pendingChoice = {
         kind: 'seek-allies', actorUid: player.uid, cardInstanceId: pending.followupSeekAlliesCardId,

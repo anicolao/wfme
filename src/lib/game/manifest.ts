@@ -44,6 +44,7 @@ export type AgentCardDefinition = StartingCardIdentity & {
     | { kind: 'optional-pay-gold-recruit'; costGold: 1; recruit: 3 }
     | { kind: 'gain-gold-optional-pay-standing'; gainGold: 2; costGold: 2; faction: 'dwarven' }
     | { kind: 'recruit-lose-standing'; recruit: 2 }
+    | { kind: 'place-scout-optional-recall-draw'; placeScout: 1; draw: 1 }
     | { kind: 'draw-discard-card'; draw: 1 }
     | { kind: 'draw-optional-trash'; draw: 1; includeDiscard: boolean }
     | { kind: 'gain-gold'; amount: 1 }
@@ -242,6 +243,14 @@ export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
     placementIcons: ['Shadow', 'Stronghold'],
     journeyEffect: { kind: 'recruit-lose-standing', recruit: 2 },
     reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'messenger-moth',
+    name: 'Messenger Moth',
+    copies: 2,
+    placementIcons: ['Wild', 'Scout'],
+    journeyEffect: { kind: 'place-scout-optional-recall-draw', placeScout: 1, draw: 1 },
+    reviewedCapabilities: ['agent-placement']
   }
 ];
 
@@ -295,7 +304,8 @@ export const MUSTER_CARD_DEFINITIONS: readonly MusterCardDefinition[] = [
   { id: 'grey-pilgrim', name: 'The Grey Pilgrim', muster: { influence: 4, swords: 1 } },
   { id: 'whispered-rumor', name: 'Whispered Rumor', muster: { influence: 1, swords: 0 } },
   { id: 'goblin-informer', name: 'Goblin Informer', muster: { influence: 0, swords: 1 } },
-  { id: 'orcish-muster', name: 'Orcish Muster', muster: { influence: 0, swords: 2 } }
+  { id: 'orcish-muster', name: 'Orcish Muster', muster: { influence: 0, swords: 2 } },
+  { id: 'messenger-moth', name: 'Messenger Moth', muster: { influence: 1, swords: 0 } }
 ];
 
 export type ReserveCardId = 'muster-host';
@@ -332,7 +342,8 @@ export type ChronicleCardId =
   | 'grey-pilgrim'
   | 'whispered-rumor'
   | 'goblin-informer'
-  | 'orcish-muster';
+  | 'orcish-muster'
+  | 'messenger-moth';
 
 export type ChronicleCardDefinition = {
   id: ChronicleCardId;
@@ -456,6 +467,12 @@ export const CHRONICLE_CARD_DEFINITIONS: readonly ChronicleCardDefinition[] = [
     id: 'orcish-muster', name: 'Orcish Muster', copies: 2, cost: 3,
     placementIcons: ['Shadow', 'Stronghold'], journeyText: 'Recruit 2 Companies; lose 1 faction standing of your choice',
     muster: { influence: 0, swords: 2 },
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'messenger-moth', name: 'Messenger Moth', copies: 2, cost: 3,
+    placementIcons: ['Wild', 'Scout'], journeyText: 'Place 1 Scout; you may recall a different Scout to draw 1 card',
+    muster: { influence: 1, swords: 0 },
     reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
   }
 ];
