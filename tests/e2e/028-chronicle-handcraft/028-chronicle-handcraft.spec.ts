@@ -155,8 +155,8 @@ test('Grey Pilgrim and Lore of Imladris are acquired, drawn, and resolved by the
   try {
     const buyer = await currentSeat();
     for (const observer of seats) {
-      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 25');
-      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('30 / 54');
+      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 29');
+      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('34 / 54');
     }
 
     const escort = buyer.page.getByTestId('private-hand').getByRole('button', { name: /^Armed Escort/ }).first();

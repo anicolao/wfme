@@ -57,6 +57,7 @@ export type MatchPlayer = {
   wonBattleIds: string[];
   pairedBattleIds: string[];
   scouts: { supply: number };
+  scoutsRecalledThisRound: number;
   fateHand: FateInstance[];
   councilSeat: boolean;
   entDraught: boolean;
@@ -130,6 +131,13 @@ export type MatchState = {
     actorUid: string;
     definitionId: HandcraftChronicleId;
     cardInstanceIds: readonly string[];
+    options: readonly string[];
+  } | {
+    kind: 'chronicle-muster-scout';
+    actorUid: string;
+    cardInstanceId: string;
+    remainingCardInstanceIds: readonly string[];
+    postIds: readonly string[];
     options: readonly string[];
   } | {
     kind: 'critical-defense';
@@ -350,6 +358,7 @@ function createMatch(state: GameState, seed: string): MatchState {
           wonBattleIds: [],
           pairedBattleIds: [],
           scouts: { supply: 3 },
+          scoutsRecalledThisRound: 0,
       fateHand: [],
       councilSeat: false,
       entDraught: false
@@ -575,6 +584,7 @@ function recallAndBeginNextRound(match: MatchState): void {
     player.revealInfluence = 0;
     player.revealedSwords = 0;
     player.recruitedThisRound = 0;
+    player.scoutsRecalledThisRound = 0;
     drawToFive(match, uid);
   }
   match.firstPlayerIndex = (match.firstPlayerIndex + 1) % match.playerOrder.length;
@@ -718,6 +728,28 @@ function openChronicleCardChoice(
     ? cardInstanceIds.map((id) => `discard-card:${id}`)
     : [...cardInstanceIds.map((id) => `trash-card:${id}`), 'decline-trash'];
   match.pendingChoice = { kind: 'chronicle-card-choice', actorUid, definitionId, cardInstanceIds, options };
+  return true;
+}
+
+function openGoblinMusterChoice(
+  match: MatchState,
+  actorUid: string,
+  cardInstanceIds: readonly string[]
+): boolean {
+  const [cardInstanceId, ...remainingCardInstanceIds] = cardInstanceIds;
+  if (!cardInstanceId) return false;
+  const postIds = OBSERVATION_POSTS
+    .filter((post) => match.boardScouts[post.id] === actorUid)
+    .map((post) => post.id);
+  if (postIds.length === 0) return false;
+  match.pendingChoice = {
+    kind: 'chronicle-muster-scout',
+    actorUid,
+    cardInstanceId,
+    remainingCardInstanceIds,
+    postIds,
+    options: [...postIds.map((postId) => `recall-scout:${postId}`), 'decline-scout-recall']
+  };
   return true;
 }
 
@@ -1004,6 +1036,9 @@ function resolveAgentEffects(
   }
   if (cardDefinition.journeyEffect?.kind === 'gain-provisions') {
     player.resources.provisions += cardDefinition.journeyEffect.amount;
+  }
+  if (cardDefinition.journeyEffect?.kind === 'gain-gold') {
+    player.resources.gold += cardDefinition.journeyEffect.amount;
   }
   if (cardDefinition.journeyEffect?.kind === 'draw-card-battle-recruit') {
     for (let index = 0; index < cardDefinition.journeyEffect.draw; index += 1) drawOneCard(match, player.uid, cardDefinition.name);
@@ -1419,6 +1454,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       ) return 'illegal Agent infiltration';
       delete state.match.boardScouts[post.id];
       player.scouts.supply += 1;
+      player.scoutsRecalledThisRound += 1;
       state.match.activity.push(`${actor.displayName} recalls their Scout from ${post.name} to infiltrate ${space.name}.`);
     } else if (infiltrationPostId !== undefined) {
       return 'illegal Agent infiltration';
@@ -1534,6 +1570,29 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       }
       state.match.pendingChoice = null;
       finishAgentAction(state.match, event.actorUid);
+      return null;
+    }
+    if (pending.kind === 'chronicle-muster-scout') {
+      if (choice.startsWith('recall-scout:')) {
+        const postId = choice.slice('recall-scout:'.length);
+        if (!pending.postIds.includes(postId) || state.match.boardScouts[postId] !== event.actorUid) {
+          return 'illegal choice resolution';
+        }
+        const firstRecall = player.scoutsRecalledThisRound === 0;
+        delete state.match.boardScouts[postId];
+        player.scouts.supply += 1;
+        player.scoutsRecalledThisRound += 1;
+        player.revealedSwords += 1;
+        if (firstRecall) {
+          player.revealInfluence += player.muster.filter((card) => card.definitionId === 'whispered-rumor').length;
+        }
+        const postName = OBSERVATION_POSTS.find((post) => post.id === postId)?.name ?? postId;
+        state.match.activity.push(`${actor.displayName} recalls their Scout from ${postName} with Goblin Informer for 1 additional sword.`);
+      } else {
+        state.match.activity.push(`${actor.displayName} leaves every Scout in place for this Goblin Informer.`);
+      }
+      state.match.pendingChoice = null;
+      openGoblinMusterChoice(state.match, event.actorUid, pending.remainingCardInstanceIds);
       return null;
     }
     if (pending.kind === 'plot-discard') {
@@ -1847,6 +1906,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         }
         delete state.match.boardScouts[postId];
         player.scouts.supply += 1;
+        player.scoutsRecalledThisRound += 1;
         const drawn = player.drawPile.shift();
         if (drawn) player.hand.push(drawn);
         const postName = OBSERVATION_POSTS.find((post) => post.id === postId)!.name;
@@ -1947,6 +2007,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       }
       delete state.match.boardScouts[recallPostId];
       player.scouts.supply += 1;
+      player.scoutsRecalledThisRound += 1;
     } else if (recallPostId !== undefined) {
       return 'illegal Scout placement';
     }
@@ -1984,6 +2045,9 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     player.muster.push(...player.hand.splice(0));
     player.revealInfluence = player.muster.reduce((total, card) =>
       total + (MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === card.definitionId)?.muster.influence ?? 0), 0);
+    if (player.scoutsRecalledThisRound > 0) {
+      player.revealInfluence += player.muster.filter((card) => card.definitionId === 'whispered-rumor').length;
+    }
     if (player.councilSeat) player.revealInfluence += 2;
     if (state.match.boardAgents['hall-fire']?.some((occupation) => occupation.uid === event.actorUid)) {
       player.revealInfluence += 1;
@@ -1992,6 +2056,11 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       total + (MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === card.definitionId)?.muster.swords ?? 0), 0);
     state.match.turnMode = 'reveal';
     state.match.activity.push(`${actor.displayName} Reveals ${player.muster.length} cards for ${player.revealInfluence} Influence and ${player.revealedSwords} swords.`);
+    openGoblinMusterChoice(
+      state.match,
+      event.actorUid,
+      player.muster.filter((card) => card.definitionId === 'goblin-informer').map((card) => card.id)
+    );
     return null;
   }
 
@@ -2002,6 +2071,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       state.phase !== 'playing' ||
       !state.match ||
       state.match.turnMode !== 'reveal' ||
+      state.match.pendingChoice ||
       currentPlayerUid(state) !== event.actorUid ||
       typeof definitionId !== 'string' ||
       (cardInstanceId !== undefined && typeof cardInstanceId !== 'string')
@@ -2042,6 +2112,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       state.phase !== 'playing' ||
       !state.match ||
       state.match.turnMode !== 'reveal' ||
+      state.match.pendingChoice ||
       currentPlayerUid(state) !== event.actorUid
     ) return 'illegal Reveal finish';
     const player = state.match.players[event.actorUid];

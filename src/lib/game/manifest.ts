@@ -45,6 +45,7 @@ export type AgentCardDefinition = StartingCardIdentity & {
     | { kind: 'gain-gold-optional-pay-standing'; gainGold: 2; costGold: 2; faction: 'dwarven' }
     | { kind: 'draw-discard-card'; draw: 1 }
     | { kind: 'draw-optional-trash'; draw: 1; includeDiscard: boolean }
+    | { kind: 'gain-gold'; amount: 1 }
     | { kind: 'optional-trash-self' }
     | { kind: 'place-scout'; amount: 1 };
   reviewedCapabilities: readonly ['agent-placement'];
@@ -216,6 +217,22 @@ export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
     placementIcons: ['Elven', 'Wild', 'Council', 'Roads'],
     journeyEffect: { kind: 'draw-optional-trash', draw: 1, includeDiscard: true },
     reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'whispered-rumor',
+    name: 'Whispered Rumor',
+    copies: 2,
+    placementIcons: ['Elven', 'Council'],
+    journeyEffect: { kind: 'place-scout', amount: 1 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'goblin-informer',
+    name: 'Goblin Informer',
+    copies: 2,
+    placementIcons: ['Shadow', 'Scout'],
+    journeyEffect: { kind: 'gain-gold', amount: 1 },
+    reviewedCapabilities: ['agent-placement']
   }
 ];
 
@@ -266,7 +283,9 @@ export const MUSTER_CARD_DEFINITIONS: readonly MusterCardDefinition[] = [
   { id: 'envoy-dale', name: 'Envoy of Dale', muster: { influence: 2, swords: 0 } },
   { id: 'ranger-north', name: 'Ranger of the North', muster: { influence: 1, swords: 1 } },
   { id: 'lore-imladris', name: 'Lore of Imladris', muster: { influence: 2, swords: 0 } },
-  { id: 'grey-pilgrim', name: 'The Grey Pilgrim', muster: { influence: 4, swords: 1 } }
+  { id: 'grey-pilgrim', name: 'The Grey Pilgrim', muster: { influence: 4, swords: 1 } },
+  { id: 'whispered-rumor', name: 'Whispered Rumor', muster: { influence: 1, swords: 0 } },
+  { id: 'goblin-informer', name: 'Goblin Informer', muster: { influence: 0, swords: 1 } }
 ];
 
 export type ReserveCardId = 'muster-host';
@@ -300,7 +319,9 @@ export type ChronicleCardId =
   | 'envoy-dale'
   | 'ranger-north'
   | 'lore-imladris'
-  | 'grey-pilgrim';
+  | 'grey-pilgrim'
+  | 'whispered-rumor'
+  | 'goblin-informer';
 
 export type ChronicleCardDefinition = {
   id: ChronicleCardId;
@@ -310,6 +331,7 @@ export type ChronicleCardDefinition = {
   placementIcons: readonly PlacementIcon[];
   journeyText: string;
   muster: { influence: number; swords: number };
+  musterText?: string;
   reviewedCapabilities: readonly ['chronicle-market', 'agent-placement', 'reveal'];
 };
 
@@ -403,6 +425,20 @@ export const CHRONICLE_CARD_DEFINITIONS: readonly ChronicleCardDefinition[] = [
     id: 'grey-pilgrim', name: 'The Grey Pilgrim', copies: 2, cost: 6,
     placementIcons: ['Elven', 'Wild', 'Council', 'Roads'], journeyText: 'Draw 1 card, then you may trash a card from your hand or discard pile',
     muster: { influence: 4, swords: 1 },
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'whispered-rumor', name: 'Whispered Rumor', copies: 2, cost: 2,
+    placementIcons: ['Elven', 'Council'], journeyText: 'Place 1 Scout',
+    muster: { influence: 1, swords: 0 },
+    musterText: '2 Influence if you recalled a Scout this round; otherwise 1 Influence',
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'goblin-informer', name: 'Goblin Informer', copies: 2, cost: 2,
+    placementIcons: ['Shadow', 'Scout'], journeyText: 'Gain 1 Gold',
+    muster: { influence: 0, swords: 1 },
+    musterText: '1 sword; you may recall a Scout for +1 sword',
     reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
   }
 ];

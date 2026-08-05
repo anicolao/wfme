@@ -35,7 +35,7 @@ test('Eagle of the Misty Mountains is acquired, drawn, and played at a Battle', 
     const buyer = await currentSeat();
     for (const observer of seats) {
       await expect(observer.page.getByTestId('chronicle-row').getByRole('button')).toHaveCount(5);
-      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 25');
+      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 29');
       await expect(observer.page.getByTestId('chronicle-row').getByRole('button', { name: /^Eagle of the Misty Mountains/ }).first()).toBeDisabled();
     }
 
@@ -64,7 +64,7 @@ test('Eagle of the Misty Mountains is acquired, drawn, and played at a Battle', 
       { spec: 'Every browser sees the immediate positional refill and twenty-four-card deck', check: async () => {
         for (const observer of seats) {
           await expect(observer.page.getByTestId('chronicle-row').getByRole('button')).toHaveCount(5);
-          await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 24');
+          await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 28');
           await expect(observer.page.getByTestId('activity-log')).toContainText(`${buyer.name} acquires Eagle of the Misty Mountains from the Chronicle Row for 5 Influence and refills its place.`);
         }
       } },
@@ -77,7 +77,7 @@ test('Eagle of the Misty Mountains is acquired, drawn, and played at a Battle', 
       { spec: 'Replay preserves the spent Influence, acquired discard, and exact refill', check: async () => {
         await expect(buyer.page.locator('.reveal-total strong')).toHaveText('0 Influence');
         await expect(row(buyer, buyer.name)).toContainText('Discard1');
-        await expect(buyer.page.getByTestId('chronicle-market')).toContainText('deck 24');
+        await expect(buyer.page.getByTestId('chronicle-market')).toContainText('deck 28');
       } },
       converged(accepted.value)
     ]);

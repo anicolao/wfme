@@ -71,9 +71,9 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'keeper-oaths')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'the-long-game')).toHaveLength(2);
     expect(first.match!.chronicleRow).toHaveLength(5);
-    expect(first.match!.chronicleDeck).toHaveLength(25);
+    expect(first.match!.chronicleDeck).toHaveLength(29);
     const chronicleInstances = [...first.match!.chronicleRow, ...first.match!.chronicleDeck];
-    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(30);
+    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(34);
     for (const definition of CHRONICLE_CARD_DEFINITIONS) {
       expect(chronicleInstances.filter((card) => card.definitionId === definition.id)).toHaveLength(2);
     }
@@ -589,7 +589,11 @@ describe('integrated Agent placement replay', () => {
   });
 
   it('buys, refills, reshuffles, draws, and executes every reviewed Chronicle card', () => {
-    const reachAcquiredCard = (definitionId: (typeof CHRONICLE_CARD_DEFINITIONS)[number]['id'], minimumGold = 0) => {
+    const reachAcquiredCard = (
+      definitionId: (typeof CHRONICLE_CARD_DEFINITIONS)[number]['id'],
+      minimumGold = 0,
+      prepareScout = false
+    ) => {
       const definition = CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!;
       let completed: { events: ReturnType<typeof readyRoom> } | null = null;
       for (let candidate = 0; candidate < 5_000 && !completed; candidate += 1) {
@@ -662,7 +666,7 @@ describe('integrated Agent placement replay', () => {
       expect(state.diagnostics).toEqual([]);
       expect(state.match!.players[actor].revealInfluence).toBe(influenceBefore - definition.cost);
       expect(state.match!.players[actor].discardPile).toContainEqual(offered);
-      expect(state.match!.chronicleDeck).toHaveLength(24);
+      expect(state.match!.chronicleDeck).toHaveLength(28);
       expect(state.match!.chronicleRow).toHaveLength(5);
       expect(state.match!.chronicleRow).toContainEqual(refill);
 
@@ -678,9 +682,21 @@ describe('integrated Agent placement replay', () => {
           state.match!.round >= 3 &&
           currentPlayerUid(state) === actor &&
           state.match!.turnMode === 'agent' &&
-          state.match!.players[actor].hand.some((card) => card.id === offered.id)
+          state.match!.players[actor].hand.some((card) => card.id === offered.id) &&
+          (!prepareScout || Object.values(state.match!.boardScouts).includes(actor))
         ) break;
         const current = currentPlayerUid(state)!;
+        if (prepareScout && current === actor && !Object.values(state.match!.boardScouts).includes(actor)) {
+          const reconnaissance = state.match!.players[actor].hand.find((card) => card.definitionId === 'reconnaissance');
+          if (reconnaissance) {
+            append(actor, 'agent/placed', { cardInstanceId: reconnaissance.id, spaceId: 'take-war-effort' });
+            state = reduceGame(stream);
+            if (state.match!.pendingChoice?.kind === 'place-scout') {
+              append(actor, 'scout/placed', { postId: 'old-south-road' });
+            }
+            continue;
+          }
+        }
         append(current, state.match!.turnMode === 'reveal' ? 'reveal/finished' : 'turn/revealed', {});
       }
       state = reduceGame(stream);
@@ -914,6 +930,77 @@ describe('integrated Agent placement replay', () => {
     expect(afterPilgrim.match!.players[pilgrim.actor].discardPile).toHaveLength(pilgrimPendingDiscard - 1);
     expect(afterPilgrim.match!.players[pilgrim.actor].trashPile).toHaveLength(pilgrimTrash + 1);
 
+    const rumor = reachAcquiredCard('whispered-rumor');
+    rumor.append(rumor.actor, 'agent/placed', { cardInstanceId: rumor.acquired.id, spaceId: 'hidden-counsel' });
+    let afterRumor = reduceGame(rumor.stream);
+    expect(afterRumor.diagnostics).toEqual([]);
+    expect(afterRumor.match!.pendingChoice).toMatchObject({ kind: 'place-scout', actorUid: rumor.actor });
+    const rumorPost = OBSERVATION_POSTS.find((post) => !afterRumor.match!.boardScouts[post.id])!;
+    rumor.append(rumor.actor, 'scout/placed', { postId: rumorPost.id });
+    afterRumor = reduceGame(rumor.stream);
+    expect(afterRumor.diagnostics).toEqual([]);
+    expect(afterRumor.match!.boardScouts[rumorPost.id]).toBe(rumor.actor);
+
+    const informer = reachAcquiredCard('goblin-informer');
+    const informerGold = informer.before.match!.players[informer.actor].resources.gold;
+    informer.append(informer.actor, 'agent/placed', { cardInstanceId: informer.acquired.id, spaceId: 'tribute-shadow' });
+    const afterInformer = reduceGame(informer.stream);
+    expect(afterInformer.diagnostics).toEqual([]);
+    expect(afterInformer.match!.players[informer.actor].resources.gold).toBe(informerGold + 3);
+
+    const informerMuster = reachAcquiredCard('goblin-informer', 0, true);
+    const informerScout = reduceGame(informerMuster.stream);
+    expect(informerScout.match!.boardScouts['old-south-road']).toBe(informerMuster.actor);
+    informerMuster.append(informerMuster.actor, 'turn/revealed', {});
+    const awaitingInformer = reduceGame(informerMuster.stream);
+    expect(awaitingInformer.diagnostics).toEqual([]);
+    expect(awaitingInformer.match!.pendingChoice).toMatchObject({
+      kind: 'chronicle-muster-scout',
+      actorUid: informerMuster.actor,
+      postIds: ['old-south-road']
+    });
+    const swordsBeforeRecall = awaitingInformer.match!.players[informerMuster.actor].revealedSwords;
+    informerMuster.append(informerMuster.actor, 'choice/resolved', { choice: 'recall-scout:old-south-road' });
+    const recalledInformer = reduceGame(informerMuster.stream);
+    expect(recalledInformer.diagnostics).toEqual([]);
+    expect(recalledInformer.match!.pendingChoice).toBeNull();
+    expect(recalledInformer.match!.players[informerMuster.actor].revealedSwords).toBe(swordsBeforeRecall + 1);
+    expect(recalledInformer.match!.players[informerMuster.actor].scoutsRecalledThisRound).toBe(1);
+    expect(recalledInformer.match!.boardScouts['old-south-road']).toBeUndefined();
+
+    const rumorMuster = reachAcquiredCard('whispered-rumor', 0, true);
+    const rumorBeforeRecall = reduceGame(rumorMuster.stream);
+    const recallCard = rumorBeforeRecall.match!.players[rumorMuster.actor].hand.find((card) =>
+      card.id !== rumorMuster.acquired.id && legalAgentSpaces(rumorBeforeRecall, rumorMuster.actor, card.id).includes('take-war-effort')
+    );
+    expect(recallCard, 'the deterministic Rumor proof must retain a Roads card').toBeDefined();
+    rumorMuster.append(rumorMuster.actor, 'agent/placed', {
+      cardInstanceId: recallCard!.id,
+      spaceId: 'take-war-effort'
+    });
+    const rumorGather = reduceGame(rumorMuster.stream);
+    expect(rumorGather.match!.pendingChoice).toMatchObject({
+      kind: 'gather-intelligence',
+      actorUid: rumorMuster.actor,
+      postIds: ['old-south-road']
+    });
+    rumorMuster.append(rumorMuster.actor, 'choice/resolved', { choice: 'recall:old-south-road' });
+    let rumorRecalled = reduceGame(rumorMuster.stream);
+    while (currentPlayerUid(rumorRecalled) !== rumorMuster.actor) {
+      const current = currentPlayerUid(rumorRecalled)!;
+      rumorMuster.append(current, 'turn/revealed', {});
+      rumorMuster.append(current, 'reveal/finished', {});
+      rumorRecalled = reduceGame(rumorMuster.stream);
+    }
+    const printedRumorInfluence = rumorRecalled.match!.players[rumorMuster.actor].hand.reduce((total, card) =>
+      total + (MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === card.definitionId)?.muster.influence ?? 0), 0
+    );
+    rumorMuster.append(rumorMuster.actor, 'turn/revealed', {});
+    const rumorRevealed = reduceGame(rumorMuster.stream);
+    expect(rumorRevealed.diagnostics).toEqual([]);
+    expect(rumorRevealed.match!.players[rumorMuster.actor].scoutsRecalledThisRound).toBe(1);
+    expect(rumorRevealed.match!.players[rumorMuster.actor].revealInfluence).toBe(printedRumorInfluence + 1);
+
     const economyMuster = {
       'stewards-messenger': { influence: 2, swords: 0 },
       'delving-expedition': { influence: 1, swords: 1 },
@@ -924,7 +1011,9 @@ describe('integrated Agent placement replay', () => {
       'envoy-dale': { influence: 2, swords: 0 },
       'ranger-north': { influence: 1, swords: 1 },
       'lore-imladris': { influence: 2, swords: 0 },
-      'grey-pilgrim': { influence: 4, swords: 1 }
+      'grey-pilgrim': { influence: 4, swords: 1 },
+      'whispered-rumor': { influence: 1, swords: 0 },
+      'goblin-informer': { influence: 0, swords: 1 }
     } as const;
     for (const [definitionId, printed] of Object.entries(economyMuster)) {
       expect(MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === definitionId)?.muster).toEqual(printed);
@@ -2084,7 +2173,7 @@ describe('integrated Agent placement replay', () => {
     const rowBefore = [...state.match!.chronicleRow];
     const deckBefore = [...state.match!.chronicleDeck];
     const affordable = (definitionId: string) => CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!.cost <= 3;
-    expect(deckBefore).toHaveLength(25);
+    expect(deckBefore).toHaveLength(29);
     append(actor, 'fate/played', { cardInstanceId: fate.id });
     const awaitingChoice = reduceGame(stream);
     expect(awaitingChoice.match!.pendingChoice).toEqual({
