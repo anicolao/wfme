@@ -38,6 +38,7 @@ export type FactionId = 'shadow' | 'dwarven' | 'elven' | 'wild';
 
 export type MatchPlayer = {
   uid: string;
+  commander: CommanderId;
   hand: CardInstance[];
   drawPile: CardInstance[];
   discardPile: CardInstance[];
@@ -55,6 +56,7 @@ export type MatchPlayer = {
   standing: { shadow: number; dwarven: number; elven: number; wild: number };
   companies: { supply: number; garrison: number };
   recruitedThisRound: number;
+  commanderPersistentUsedThisRound: boolean;
   wonBattleIds: string[];
   pairedBattleIds: string[];
   scouts: { supply: number };
@@ -414,6 +416,7 @@ function createMatch(state: GameState, seed: string, epoch: number): MatchState 
         player.uid,
         {
           uid: player.uid,
+          commander: player.commander!,
           hand: deck.slice(0, 5),
           drawPile: deck.slice(5),
           discardPile: [],
@@ -431,6 +434,7 @@ function createMatch(state: GameState, seed: string, epoch: number): MatchState 
           standing: { shadow: 0, dwarven: 0, elven: 0, wild: 0 },
           companies: { supply: 9, garrison: 3 },
           recruitedThisRound: 0,
+          commanderPersistentUsedThisRound: false,
           wonBattleIds: [],
           pairedBattleIds: [],
           scouts: { supply: 3 },
@@ -673,6 +677,7 @@ function recallAndBeginNextRound(match: MatchState): void {
     player.revealInfluence = 0;
     player.revealedSwords = 0;
     player.recruitedThisRound = 0;
+    player.commanderPersistentUsedThisRound = false;
     player.scoutsRecalledThisRound = 0;
     drawToFive(match, uid);
   }
@@ -1257,6 +1262,16 @@ function gainStanding(
   const before = player.standing[faction];
   player.standing[faction] = Math.min(6, before + 1);
   const after = player.standing[faction];
+  if (
+    after > before &&
+    before >= 2 &&
+    player.commander === 'aragorn' &&
+    !player.commanderPersistentUsedThisRound
+  ) {
+    player.commanderPersistentUsedThisRound = true;
+    const recruited = recruitCompanies(player, 1);
+    match.activity.push(`Aragorn's Line Unbroken recruits ${recruited} Company${recruited === 1 ? '' : 'ies'}.`);
+  }
   if (before < 2 && after >= 2) player.renown += 1;
   if (before < 4 && after >= 4) {
     if (faction === 'shadow') recruitCompanies(player, 2);

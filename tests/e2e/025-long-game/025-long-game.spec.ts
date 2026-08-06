@@ -159,6 +159,7 @@ test('The Long Game rewards four five-cost Chronicle cards acquired through ordi
       gestureNumber += 1;
       await steps.gesture(actor.page, `finish-${gestureNumber}`, `${actor.name} finishes Reveal`, async () => {
         await actor.page.getByRole('button', { name: 'Finish Reveal' }).click(); accepted.value += 1;
+        await actor.page.evaluate(() => scrollTo(0, 0));
       }, [
         { spec: 'The Reveal closes and ordinary authority advances', check: async () => await expect(actor.page.getByTestId('reveal-panel')).toHaveCount(0) },
         converged(accepted.value + 1)

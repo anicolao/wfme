@@ -127,7 +127,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] Aragorn is selected for Mara
-- [x] Aragorn’s implemented Ring is visibly active
+- [x] Both of Aragorn’s implemented powers are visibly active
 - [x] Every connected replay has accepted exactly 4 events with no diagnostics
 
 ---

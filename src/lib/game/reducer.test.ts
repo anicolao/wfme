@@ -2083,6 +2083,74 @@ describe('integrated Agent placement replay', () => {
     expect(transferred.match!.players[challenger].renown).toBe(2);
   });
 
+  it('refreshes Aragorn’s Line Unbroken after Recall and never triggers below standing two', () => {
+    const stream = readyRoom('aragorn-line-0');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    const clock = { timestamp: 11 };
+    const advanceStanding = (
+      events: ReturnType<typeof readyRoom>,
+      actorSequences: Record<string, number>,
+      eventClock: { timestamp: number },
+      standing: number
+    ) => {
+      for (let step = 0; step < 400; step += 1) {
+        const state = reduceGame(events);
+        if (state.match!.players.host.standing.dwarven >= standing) return state;
+        const current = currentPlayerUid(state)!;
+        const match = state.match!;
+        const player = match.players[current];
+        const append = (type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+          actorSequences[current] += 1;
+          events.push(createEvent(type, current, actorSequences[current], payload, eventClock.timestamp++));
+        };
+        if (match.pendingChoice?.kind === 'seek-allies') {
+          append('choice/resolved', { choice: 'keep-card' });
+        } else if (match.turnMode === 'reveal') {
+          append('reveal/finished', {});
+        } else {
+          const factionCard = current === 'host'
+            ? player.hand.find((card) => card.definitionId === 'diplomatic-mission' || card.definitionId === 'seek-allies')
+            : undefined;
+          if (factionCard && !match.boardAgents['dwarven-caravans'] && player.availableAgents > 0) {
+            append('agent/placed', { cardInstanceId: factionCard.id, spaceId: 'dwarven-caravans' });
+          } else {
+            append('turn/revealed', {});
+          }
+        }
+      }
+      throw new Error(`Host standing ${standing} was not reached`);
+    };
+
+    const respected = advanceStanding(stream, sequences, clock, 2);
+    expect(respected.match!.players.host.companies.garrison).toBe(3);
+    expect(respected.match!.players.host.commanderPersistentUsedThisRound).toBe(false);
+
+    const firstTrigger = advanceStanding(stream, sequences, clock, 3);
+    expect(firstTrigger.match!.players.host.companies.garrison).toBe(4);
+    expect(firstTrigger.match!.players.host.commanderPersistentUsedThisRound).toBe(true);
+    expect(firstTrigger.match!.activity).toContain("Aragorn's Line Unbroken recruits 1 Company.");
+
+    const refreshedTrigger = advanceStanding(stream, sequences, clock, 4);
+    expect(refreshedTrigger.diagnostics).toEqual([]);
+    expect(refreshedTrigger.match!.players.host.companies.garrison).toBe(5);
+    expect(refreshedTrigger.match!.players.host.commanderPersistentUsedThisRound).toBe(true);
+    expect(refreshedTrigger.match!.alliances.dwarven).toBe('host');
+
+    const otherCommanderStream = readyRoom('aragorn-line-0');
+    otherCommanderStream[3] = createEvent('player/commander-selected', 'host', 2, { commanderId: 'theoden' }, 4);
+    otherCommanderStream[4] = createEvent('player/commander-selected', 'guest-a', 2, { commanderId: 'aragorn' }, 5);
+    const otherCommander = advanceStanding(
+      otherCommanderStream,
+      { host: 4, 'guest-a': 3, 'guest-b': 3 },
+      { timestamp: 11 },
+      3
+    );
+    expect(otherCommander.match!.players.host.commander).toBe('theoden');
+    expect(otherCommander.match!.players.host.companies).toEqual({ supply: 9, garrison: 3 });
+    expect(otherCommander.match!.players.host.commanderPersistentUsedThisRound).toBe(false);
+    expect(otherCommander.match!.activity).not.toContain("Aragorn's Line Unbroken recruits 1 Company.");
+  });
+
   it('pays for a Council seat, adds Reveal Influence, and resolves a repeat Fate visit', () => {
     let stream = readyRoom('council-economy');
     let sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
