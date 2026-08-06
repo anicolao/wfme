@@ -3882,6 +3882,129 @@ describe('integrated Agent placement replay', () => {
     expect(resolved.match!.consecutiveBattlePasses).toBe(0);
   });
 
+  it("answers an opponent's exact overtaking Combat Fate with No Living Man once per Battle", () => {
+    const stream = readyRoom('eowyn-living-371');
+    const initial = reduceGame(stream);
+    const fateActor = currentPlayerUid(initial)!;
+    const fateActorIndex = initial.match!.playerOrder.indexOf(fateActor);
+    const eowynUid = initial.match!.playerOrder[(fateActorIndex + 1) % initial.match!.playerOrder.length];
+    const eowynCommanderIndex = stream.findIndex((event) => event.type === 'player/commander-selected' && event.actorUid === eowynUid);
+    stream[eowynCommanderIndex] = createEvent(
+      'player/commander-selected',
+      eowynUid,
+      2,
+      { commanderId: 'eowyn' },
+      stream[eowynCommanderIndex].createdAtMillis
+    );
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      sequences[uid] += 1;
+      stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+    };
+
+    let state = reduceGame(stream);
+    expect(currentPlayerUid(state)).toBe(fateActor);
+    const hallCard = state.match!.players[fateActor].hand.find((card) => card.definitionId === 'armed-escort')!;
+    expect(legalAgentSpaces(state, fateActor, hallCard.id)).toContain('hall-fire');
+    append(fateActor, 'agent/placed', { cardInstanceId: hallCard.id, spaceId: 'hall-fire' });
+    state = reduceGame(stream);
+    expect(state.match!.players[fateActor].fateHand).toContainEqual(expect.objectContaining({ definitionId: 'sudden-charge' }));
+
+    expect(currentPlayerUid(state)).toBe(eowynUid);
+    expect(state.match!.players[eowynUid].commander).toBe('eowyn');
+    const minasCard = state.match!.players[eowynUid].hand.find((card) => legalAgentSpaces(state, eowynUid, card.id).includes('minas-tirith'))!;
+    append(eowynUid, 'agent/placed', { cardInstanceId: minasCard.id, spaceId: 'minas-tirith' });
+    append(eowynUid, 'choice/resolved', { choice: 'deploy:1' });
+
+    state = reduceGame(stream);
+    const thirdUid = currentPlayerUid(state)!;
+    const osgiliathCard = state.match!.players[thirdUid].hand.find((card) => card.definitionId === 'armed-escort')!;
+    expect(legalAgentSpaces(state, thirdUid, osgiliathCard.id)).toContain('osgiliath');
+    append(thirdUid, 'agent/placed', { cardInstanceId: osgiliathCard.id, spaceId: 'osgiliath' });
+    append(thirdUid, 'choice/resolved', { choice: 'pay-0-mithril' });
+    state = reduceGame(stream);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.pendingChoice).toMatchObject({ kind: 'battle-deployment', actorUid: thirdUid });
+    append(thirdUid, 'choice/resolved', { choice: 'deploy:2' });
+
+    state = reduceGame(stream);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.pendingChoice).toBeNull();
+    expect(currentPlayerUid(state)).toBe(fateActor);
+    const hiddenPathsCard = state.match!.players[fateActor].hand.find((card) => card.definitionId === 'seek-allies')!;
+    expect(legalAgentSpaces(state, fateActor, hiddenPathsCard.id)).toContain('hidden-paths');
+    append(fateActor, 'agent/placed', { cardInstanceId: hiddenPathsCard.id, spaceId: 'hidden-paths' });
+    append(fateActor, 'choice/resolved', { choice: 'keep-card' });
+    append(fateActor, 'choice/resolved', { choice: 'deploy:1' });
+
+    state = reduceGame(stream);
+    expect(currentPlayerUid(state)).toBe(eowynUid);
+    append(eowynUid, 'turn/revealed', {});
+    append(eowynUid, 'reveal/finished', {});
+
+    state = reduceGame(stream);
+    expect(currentPlayerUid(state)).toBe(thirdUid);
+    const secondFateCard = state.match!.players[thirdUid].hand.find((card) => card.definitionId === 'seek-allies')!;
+    expect(legalAgentSpaces(state, thirdUid, secondFateCard.id)).toContain('hidden-counsel');
+    append(thirdUid, 'agent/placed', { cardInstanceId: secondFateCard.id, spaceId: 'hidden-counsel' });
+    append(thirdUid, 'choice/resolved', { choice: 'keep-card' });
+    state = reduceGame(stream);
+    expect(state.match!.players[thirdUid].fateHand).toContainEqual(expect.objectContaining({ definitionId: 'sudden-charge' }));
+
+    expect(currentPlayerUid(state)).toBe(fateActor);
+    append(fateActor, 'turn/revealed', {});
+    append(fateActor, 'reveal/finished', {});
+    state = reduceGame(stream);
+    expect(currentPlayerUid(state)).toBe(thirdUid);
+    append(thirdUid, 'turn/revealed', {});
+    append(thirdUid, 'reveal/finished', {});
+
+    state = reduceGame(stream);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.turnMode).toBe('battle');
+    expect(currentPlayerUid(state)).toBe(fateActor);
+    const eowynStrengthBefore = battleStrength(state.match!, eowynUid);
+    const opponentStrengthBefore = battleStrength(state.match!, fateActor);
+    expect(opponentStrengthBefore).toBeLessThanOrEqual(eowynStrengthBefore);
+
+    const firstCharge = state.match!.players[fateActor].fateHand.find((card) => card.definitionId === 'sudden-charge')!;
+    append(fateActor, 'fate/played', { cardInstanceId: firstCharge.id });
+    const answered = reduceGame(stream);
+    expect(answered.diagnostics).toEqual([]);
+    expect(answered.match!.eowynNoLivingManUsed).toBe(true);
+    expect(battleStrength(answered.match!, fateActor)).toBe(opponentStrengthBefore + 3);
+    expect(battleStrength(answered.match!, eowynUid)).toBe(eowynStrengthBefore + 2);
+    expect(answered.match!.activity.filter((entry) => entry.includes('No Living Man'))).toHaveLength(1);
+
+    append(fateActor, 'battle/passed', {});
+    state = reduceGame(stream);
+    expect(currentPlayerUid(state)).toBe(eowynUid);
+    append(eowynUid, 'battle/passed', {});
+    state = reduceGame(stream);
+    expect(currentPlayerUid(state)).toBe(thirdUid);
+    const eowynStrengthBeforeSecondCharge = battleStrength(state.match!, eowynUid);
+    const thirdStrengthBeforeCharge = battleStrength(state.match!, thirdUid);
+    expect(thirdStrengthBeforeCharge).toBeLessThanOrEqual(eowynStrengthBeforeSecondCharge);
+    expect(thirdStrengthBeforeCharge + 3).toBeGreaterThan(eowynStrengthBeforeSecondCharge);
+    const secondCharge = state.match!.players[thirdUid].fateHand.find((card) => card.definitionId === 'sudden-charge')!;
+    append(thirdUid, 'fate/played', { cardInstanceId: secondCharge.id });
+    const spent = reduceGame(stream);
+    expect(spent.diagnostics).toEqual([]);
+    expect(battleStrength(spent.match!, thirdUid)).toBe(thirdStrengthBeforeCharge + 3);
+    expect(battleStrength(spent.match!, eowynUid)).toBe(eowynStrengthBeforeSecondCharge);
+    expect(spent.match!.activity.filter((entry) => entry.includes('No Living Man'))).toHaveLength(1);
+
+    append(thirdUid, 'battle/passed', {});
+    append(fateActor, 'battle/passed', {});
+    append(eowynUid, 'battle/passed', {});
+    const recalled = reduceGame(stream);
+    expect(recalled.diagnostics).toEqual([]);
+    expect(recalled.match!.round).toBe(2);
+    expect(recalled.match!.eowynNoLivingManUsed).toBe(false);
+    expect(reduceGame(stream)).toEqual(recalled);
+  });
+
   it('plays selected Age II Defence of Dale with exact Renown and Dwarven standing', () => {
     const stream = readyRoom('defence-dale');
     const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };

@@ -143,6 +143,7 @@ export type MatchState = {
   battleEnts: Record<string, number>;
   battleParticipantUids: string[];
   battleBonusStrength: Record<string, number>;
+  eowynNoLivingManUsed: boolean;
   consecutiveBattlePasses: number;
   consecutiveEndgamePasses: number;
   endgameTrigger: 'renown' | 'battle-deck' | null;
@@ -574,6 +575,7 @@ function createMatch(state: GameState, seed: string, epoch: number): MatchState 
     battleEnts: {},
     battleParticipantUids: [],
     battleBonusStrength: {},
+    eowynNoLivingManUsed: false,
     consecutiveBattlePasses: 0,
     consecutiveEndgamePasses: 0,
     endgameTrigger: null,
@@ -1560,6 +1562,7 @@ function resolveBattle(match: MatchState): void {
     match.battleBonusStrength[uid] = 0;
   }
   match.battleParticipantUids = [];
+  match.eowynNoLivingManUsed = false;
   match.activeBattleId = null;
   if (!match.pendingChoice) continueBattleRewardChoicesOrRecall(match);
 }
@@ -1577,9 +1580,27 @@ function beginBattleOrRecall(match: MatchState): void {
   }
   match.turnMode = 'battle';
   match.battleParticipantUids = participants;
+  match.eowynNoLivingManUsed = false;
   match.consecutiveBattlePasses = 0;
   match.currentPlayerIndex = match.playerOrder.indexOf(participants[0]);
   match.activity.push('The Combat Fate window opens with every participant at their revealed Strength.');
+}
+
+function resolveEowynNoLivingMan(
+  match: MatchState,
+  fateActorUid: string,
+  fateActorName: string,
+  fateActorStrengthBefore: number
+): void {
+  if (match.eowynNoLivingManUsed) return;
+  const eowynUid = match.battleParticipantUids.find((uid) => match.players[uid].commander === 'eowyn');
+  if (!eowynUid || eowynUid === fateActorUid) return;
+  const eowynStrength = battleStrength(match, eowynUid);
+  const fateActorStrengthAfter = battleStrength(match, fateActorUid);
+  if (fateActorStrengthBefore > eowynStrength || fateActorStrengthAfter <= eowynStrength) return;
+  match.battleBonusStrength[eowynUid] = (match.battleBonusStrength[eowynUid] ?? 0) + 2;
+  match.eowynNoLivingManUsed = true;
+  match.activity.push(`Éowyn answers ${fateActorName}'s Combat Fate with No Living Man and gains +2 Strength.`);
 }
 
 function gainStanding(
@@ -3374,6 +3395,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     player.fateHand.splice(cardIndex, 1);
     state.match.fateDiscard.push(card);
     const activeBattle = BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === state.match!.activeBattleId);
+    const fateActorStrengthBefore = battleStrength(state.match, event.actorUid);
     let strengthBonus = 0;
     if (definition.effect.kind === 'fell-sorcery') {
       player.resources.mithril -= definition.effect.costMithril;
@@ -3415,6 +3437,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       state.match.activity.push(`${actor.displayName} plays ${definition.name} for +${strengthBonus} Strength.`);
     }
     state.match.battleBonusStrength[event.actorUid] = (state.match.battleBonusStrength[event.actorUid] ?? 0) + strengthBonus;
+    resolveEowynNoLivingMan(state.match, event.actorUid, actor.displayName, fateActorStrengthBefore);
     state.match.consecutiveBattlePasses = 0;
     return null;
   }

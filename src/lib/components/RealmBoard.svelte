@@ -250,6 +250,9 @@
             <strong>{player.displayName}</strong>
             <span>{game.match.battleCompanies[player.uid] ?? 0} Companies · {game.match.battleEnts[player.uid] ?? 0} Ents · {game.match.players[player.uid].revealedSwords} swords</span>
             <b>{battleStrength(game.match, player.uid)} Strength</b>
+            {#if game.match.players[player.uid].commander === 'eowyn' && game.match.turnMode === 'battle'}
+              <small>No Living Man · {game.match.eowynNoLivingManUsed ? 'spent this Battle' : 'ready'}</small>
+            {/if}
           </article>
         {/each}
       </div>
