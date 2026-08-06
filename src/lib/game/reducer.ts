@@ -36,6 +36,35 @@ type PaidChronicleId = 'dwarven-smith' | 'uruk-hai-captain' | 'envoy-dale' | 'pa
 type HandcraftChronicleId = 'ranger-north' | 'lore-imladris' | 'grey-pilgrim' | 'palantir-glimpse';
 export type FactionId = 'shadow' | 'dwarven' | 'elven' | 'wild';
 
+type FateDrawResume =
+  | { kind: 'finish-agent' }
+  | {
+    kind: 'agent-destination';
+    actorName: string;
+    cardInstanceId: string;
+    spaceId: string;
+    ignoredResourceCost: boolean;
+    commanderDeploymentAllowance: number;
+  }
+  | { kind: 'battle-reward' }
+  | { kind: 'battle-keep-one' }
+  | {
+    kind: 'elven-favor';
+    followupSeekAlliesCardId: string | null;
+    followupPlaceScout: boolean;
+    resumeBattleStanding: boolean;
+  }
+  | { kind: 'master-muster'; actorName: string; remainingCardInstanceIds: readonly string[] }
+  | { kind: 'reveal-muster'; actorName: string; palantirFateDraws: number }
+  | { kind: 'secret-bargain-recall'; actorName: string };
+
+type QueuedFateDraw = {
+  actorUid: string;
+  count: number;
+  source: string;
+  resume: FateDrawResume;
+};
+
 export type MatchPlayer = {
   uid: string;
   commander: CommanderId;
@@ -133,6 +162,12 @@ export type MatchState = {
   queuedCommanderRing: { actorUid: string } | null;
   queuedMessengerMothRecall: { actorUid: string } | null;
   queuedElvenForesight: { actorUid: string } | null;
+  queuedFateDraws: QueuedFateDraw[];
+  queuedAgentFollowup: {
+    actorUid: string;
+    seekAlliesCardId: string | null;
+    placeScout: boolean;
+  } | null;
   queuedScoutPlacementRestriction: { actorUid: string; postIds: readonly string[] } | null;
   queuedBattleDeployment: {
     actorUid: string;
@@ -142,6 +177,14 @@ export type MatchState = {
   } | null;
   pendingBattleRewardChoices: Array<{ kind: 'standing' | 'place-scout' | 'fate-keep-one'; actorUid: string }>;
   pendingChoice: null | {
+    kind: 'commander-fate-foresight';
+    actorUid: string;
+    fateIds: readonly string[];
+    remainingDraws: number;
+    source: string;
+    resume: FateDrawResume;
+    options: readonly string[];
+  } | {
     kind: 'token-command-order';
     actorUid: string;
     cardInstanceId: string;
@@ -540,6 +583,8 @@ function createMatch(state: GameState, seed: string, epoch: number): MatchState 
     queuedCommanderRing: null,
     queuedMessengerMothRecall: null,
     queuedElvenForesight: null,
+    queuedFateDraws: [],
+    queuedAgentFollowup: null,
     queuedScoutPlacementRestriction: null,
     queuedBattleDeployment: null,
     pendingBattleRewardChoices: [],
@@ -1044,7 +1089,191 @@ function openElvenForesight(match: MatchState, actorUid: string): boolean {
   return true;
 }
 
+function openRevealMusterChoices(match: MatchState, actorUid: string): void {
+  const player = match.players[actorUid];
+  if (!openGoblinMusterChoice(
+    match,
+    actorUid,
+    player.muster.filter((card) => card.definitionId === 'goblin-informer').map((card) => card.id)
+  )) {
+    openMasterMusterChoice(
+      match,
+      actorUid,
+      player.muster.filter((card) => card.definitionId === 'master-lake-town').map((card) => card.id)
+    );
+  }
+}
+
+function drawFateOrOpenForesight(
+  match: MatchState,
+  actorUid: string,
+  count: number,
+  source: string,
+  resume: FateDrawResume
+): FateInstance[] | null {
+  const request = { actorUid, count, source, resume };
+  if (match.pendingChoice?.kind === 'commander-fate-foresight') {
+    match.queuedFateDraws.push(request);
+    return null;
+  }
+  const player = match.players[actorUid];
+  if (
+    count > 0 &&
+    match.fateDeck.length > 0 &&
+    player.commander === 'galadriel' &&
+    !player.commanderPersistentUsedThisRound
+  ) {
+    player.commanderPersistentUsedThisRound = true;
+    const fateIds = match.fateDeck.slice(0, 2).map((fate) => fate.id);
+    if (fateIds.length > 1) {
+      match.pendingChoice = {
+        kind: 'commander-fate-foresight',
+        actorUid,
+        fateIds,
+        remainingDraws: count - 1,
+        source,
+        resume,
+        options: fateIds.map((id) => `take-fate:${id}`)
+      };
+      match.activity.push(`Galadriel privately looks at the top two Fate cards with Foresight before drawing from ${source}.`);
+      return null;
+    }
+    match.activity.push(`Galadriel's Foresight finds only one Fate card, so she draws it without a choice.`);
+  }
+  const drawn = match.fateDeck.splice(0, count);
+  player.fateHand.push(...drawn);
+  return drawn;
+}
+
+function continueAfterElvenFavor(
+  match: MatchState,
+  actorUid: string,
+  followupSeekAlliesCardId: string | null,
+  followupPlaceScout: boolean,
+  resumeBattleStanding: boolean
+): void {
+  if (drainQueuedFateDraw(match)) return;
+  if (followupPlaceScout) {
+    if (!openScoutPlacement(match, actorUid, { followupSeekAlliesCardId })) {
+      if (followupSeekAlliesCardId) {
+        match.pendingChoice = {
+          kind: 'seek-allies', actorUid, cardInstanceId: followupSeekAlliesCardId,
+          options: ['trash-self', 'keep-card']
+        };
+      } else if (resumeBattleStanding) continueBattleRewardChoicesOrRecall(match);
+      else finishAgentAction(match, actorUid);
+    }
+  } else if (followupSeekAlliesCardId) {
+    match.pendingChoice = {
+      kind: 'seek-allies', actorUid, cardInstanceId: followupSeekAlliesCardId,
+      options: ['trash-self', 'keep-card']
+    };
+  } else if (resumeBattleStanding) continueBattleRewardChoicesOrRecall(match);
+  else finishAgentAction(match, actorUid);
+}
+
+function resumeFateDraw(match: MatchState, request: QueuedFateDraw, drawn: FateInstance[]): void {
+  if (request.resume.kind === 'agent-destination') {
+    const resume = request.resume;
+    const card = match.players[request.actorUid].journey.find((candidate) => candidate.id === resume.cardInstanceId);
+    const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === resume.spaceId);
+    if (!card || !space) return;
+    resolveAgentEffects(
+      match,
+      resume.actorName,
+      request.actorUid,
+      card,
+      space,
+      resume.ignoredResourceCost,
+      resume.commanderDeploymentAllowance,
+      true
+    );
+    if (!match.pendingChoice) finishAgentAction(match, request.actorUid);
+    return;
+  }
+  if (request.resume.kind === 'finish-agent') {
+    if (!drainQueuedFateDraw(match)) finishAgentAction(match, request.actorUid);
+    return;
+  }
+  if (request.resume.kind === 'battle-reward') {
+    if (!drainQueuedFateDraw(match)) continueBattleRewardChoicesOrRecall(match);
+    return;
+  }
+  if (request.resume.kind === 'battle-keep-one') {
+    if (drawn.length < 2) {
+      match.activity.push(`A ranked player draws and keeps ${drawn.length} Fate because the deck cannot supply two cards.`);
+      continueBattleRewardChoicesOrRecall(match);
+      return;
+    }
+    match.pendingChoice = {
+      kind: 'battle-fate-keep', actorUid: request.actorUid,
+      drawnFateIds: drawn.map((fate) => fate.id),
+      options: drawn.map((fate) => `keep:${fate.id}`)
+    };
+    match.activity.push('A ranked player privately draws two Fate cards and must keep one before Recall.');
+    return;
+  }
+  if (request.resume.kind === 'elven-favor') {
+    if (drawn.length > 1) {
+      match.pendingChoice = {
+        kind: 'elven-favor', actorUid: request.actorUid,
+        drawnFateIds: drawn.map((fate) => fate.id),
+        followupSeekAlliesCardId: request.resume.followupSeekAlliesCardId,
+        followupPlaceScout: request.resume.followupPlaceScout,
+        resumeBattleStanding: request.resume.resumeBattleStanding,
+        options: drawn.map((fate) => `keep:${fate.id}`)
+      };
+    } else {
+      continueAfterElvenFavor(
+        match,
+        request.actorUid,
+        request.resume.followupSeekAlliesCardId,
+        request.resume.followupPlaceScout,
+        request.resume.resumeBattleStanding
+      );
+    }
+    return;
+  }
+  if (request.resume.kind === 'master-muster') {
+    match.activity.push(`${request.resume.actorName} pays 2 Gold and privately draws ${drawn.length} Fate with Master of Lake-town.`);
+    openMasterMusterChoice(match, request.actorUid, request.resume.remainingCardInstanceIds);
+    return;
+  }
+  if (request.resume.kind === 'reveal-muster') {
+    match.activity.push(`${request.resume.actorName} privately draws ${drawn.length} Fate with ${request.resume.palantirFateDraws} ${request.resume.palantirFateDraws === 1 ? 'Palantír Glimpse' : 'Palantír Glimpses'}.`);
+    openRevealMusterChoices(match, request.actorUid);
+    return;
+  }
+  match.activity.push(`${request.resume.actorName} cycles one Fate card through the public discard.`);
+  beginSecretBargainRecall(match, request.actorUid);
+}
+
+function drainQueuedFateDraw(match: MatchState): boolean {
+  if (match.pendingChoice) return true;
+  const request = match.queuedFateDraws.shift();
+  if (!request) return false;
+  const drawn = drawFateOrOpenForesight(match, request.actorUid, request.count, request.source, request.resume);
+  if (drawn) resumeFateDraw(match, request, drawn);
+  return true;
+}
+
 function finishAgentAction(match: MatchState, actorUid: string): void {
+  const queuedAgentFollowup = match.queuedAgentFollowup;
+  if (queuedAgentFollowup?.actorUid === actorUid) {
+    match.queuedAgentFollowup = null;
+    if (queuedAgentFollowup.seekAlliesCardId) {
+      match.pendingChoice = {
+        kind: 'seek-allies',
+        actorUid,
+        cardInstanceId: queuedAgentFollowup.seekAlliesCardId,
+        options: ['trash-self', 'keep-card']
+      };
+      return;
+    }
+    if (queuedAgentFollowup.placeScout && openScoutPlacement(match, actorUid, { followupSeekAlliesCardId: null })) {
+      return;
+    }
+  }
   const queuedCardChoice = match.queuedChronicleCardChoice;
   if (queuedCardChoice?.actorUid === actorUid) {
     match.queuedChronicleCardChoice = null;
@@ -1148,8 +1377,7 @@ function applyBattleReward(match: MatchState, uid: string, rank: 0 | 1 | 2): voi
       match.pendingBattleRewardChoices.push({ kind: 'fate-keep-one', actorUid: uid });
     }
     if (reward.drawFate) {
-      const drawn = match.fateDeck.splice(0, reward.drawFate);
-      player.fateHand.push(...drawn);
+      drawFateOrOpenForesight(match, uid, reward.drawFate, 'a Battle reward', { kind: 'battle-reward' });
     }
   }
   if (reward.breachDam) match.damBreached = true;
@@ -1180,21 +1408,11 @@ function continueBattleRewardChoicesOrRecall(match: MatchState): void {
     return;
   }
   if (next?.kind === 'fate-keep-one') {
-    const player = match.players[next.actorUid];
-    const drawn = match.fateDeck.splice(0, 2);
-    player.fateHand.push(...drawn);
-    if (drawn.length < 2) {
-      match.activity.push(`A ranked player draws and keeps ${drawn.length} Fate because the deck cannot supply two cards.`);
-      continueBattleRewardChoicesOrRecall(match);
-      return;
-    }
-    match.pendingChoice = {
-      kind: 'battle-fate-keep',
-      actorUid: next.actorUid,
-      drawnFateIds: drawn.map((fate) => fate.id),
-      options: drawn.map((fate) => `keep:${fate.id}`)
+    const request: QueuedFateDraw = {
+      actorUid: next.actorUid, count: 2, source: 'a Battle reward', resume: { kind: 'battle-keep-one' }
     };
-    match.activity.push('A ranked player privately draws two Fate cards and must keep one before Recall.');
+    const drawn = drawFateOrOpenForesight(match, request.actorUid, request.count, request.source, request.resume);
+    if (drawn) resumeFateDraw(match, request, drawn);
     return;
   }
   recallAndBeginNextRound(match);
@@ -1259,7 +1477,7 @@ function resolveBattle(match: MatchState): void {
   }
   match.battleParticipantUids = [];
   match.activeBattleId = null;
-  continueBattleRewardChoicesOrRecall(match);
+  if (!match.pendingChoice) continueBattleRewardChoicesOrRecall(match);
 }
 
 function beginBattleOrRecall(match: MatchState): void {
@@ -1306,9 +1524,11 @@ function gainStanding(
     if (faction === 'shadow') recruitCompanies(player, 2);
     if (faction === 'dwarven') player.resources.provisions += 2;
     if (faction === 'elven') {
-      const drawn = match.fateDeck.splice(0, 2);
-      player.fateHand.push(...drawn);
-      if (drawn.length > 1) {
+      const resume: FateDrawResume = {
+        kind: 'elven-favor', followupSeekAlliesCardId, followupPlaceScout, resumeBattleStanding
+      };
+      const drawn = drawFateOrOpenForesight(match, player.uid, 2, 'Elven favor', resume);
+      if (drawn && drawn.length > 1) {
         match.pendingChoice = {
           kind: 'elven-favor',
           actorUid: player.uid,
@@ -1365,18 +1585,18 @@ function beginSecretBargainRecall(match: MatchState, actorUid: string): void {
 }
 
 function resolveAgentEffects(
-  state: GameState,
+  match: MatchState,
   actorName: string,
   actorUid: string,
   card: CardInstance,
   space: (typeof BOARD_SPACE_DEFINITIONS)[number],
   ignoredResourceCost = false,
-  commanderDeploymentAllowance = 0
+  commanderDeploymentAllowance = 0,
+  skipJourney = false
 ): void {
-  const match = state.match!;
   const player = match.players[actorUid];
   const cardDefinition = AGENT_CARD_DEFINITIONS.find((candidate) => candidate.id === card.definitionId)!;
-  if (
+  if (!skipJourney &&
     isBattleSpace(space) &&
     player.commander === 'theoden' &&
     !player.commanderPersistentUsedThisRound
@@ -1394,45 +1614,49 @@ function resolveAgentEffects(
     ? `ignoring the ${printedCost} cost through the Paths of the Dead`
     : `paying ${printedCost}`;
   let resolution: string;
-  if (cardDefinition.journeyEffect?.kind === 'recruit-companies') {
+  if (!skipJourney && cardDefinition.journeyEffect?.kind === 'recruit-companies') {
     recruitCompanies(player, cardDefinition.journeyEffect.amount);
   }
-  if (cardDefinition.journeyEffect?.kind === 'gain-provisions') {
+  if (!skipJourney && cardDefinition.journeyEffect?.kind === 'gain-provisions') {
     player.resources.provisions += cardDefinition.journeyEffect.amount;
   }
-  if (cardDefinition.journeyEffect?.kind === 'gain-gold') {
+  if (!skipJourney && cardDefinition.journeyEffect?.kind === 'gain-gold') {
     player.resources.gold += cardDefinition.journeyEffect.amount;
   }
-  if (cardDefinition.journeyEffect?.kind === 'draw-card-battle-recruit') {
+  if (!skipJourney && cardDefinition.journeyEffect?.kind === 'draw-card-battle-recruit') {
     for (let index = 0; index < cardDefinition.journeyEffect.draw; index += 1) drawOneCard(match, player.uid, cardDefinition.name);
     if (isBattleSpace(space)) recruitCompanies(player, cardDefinition.journeyEffect.recruit);
   }
-  if (cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout') {
-    for (let index = 0; index < cardDefinition.journeyEffect.drawFate; index += 1) {
-      const fate = match.fateDeck.shift();
-      if (fate) player.fateHand.push(fate);
-    }
+  if (!skipJourney && cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout') {
+    drawFateOrOpenForesight(
+      match, actorUid, cardDefinition.journeyEffect.drawFate, cardDefinition.name, {
+        kind: 'agent-destination', actorName, cardInstanceId: card.id, spaceId: space.id,
+        ignoredResourceCost, commanderDeploymentAllowance
+      }
+    );
   }
-  if (cardDefinition.journeyEffect?.kind === 'draw-fate-recruit') {
-    for (let index = 0; index < cardDefinition.journeyEffect.drawFate; index += 1) {
-      const fate = match.fateDeck.shift();
-      if (fate) player.fateHand.push(fate);
-    }
+  if (!skipJourney && cardDefinition.journeyEffect?.kind === 'draw-fate-recruit') {
+    drawFateOrOpenForesight(
+      match, actorUid, cardDefinition.journeyEffect.drawFate, cardDefinition.name, {
+        kind: 'agent-destination', actorName, cardInstanceId: card.id, spaceId: space.id,
+        ignoredResourceCost, commanderDeploymentAllowance
+      }
+    );
     recruitCompanies(player, cardDefinition.journeyEffect.recruit);
   }
-  if (cardDefinition.journeyEffect?.kind === 'council-seat-gold') {
+  if (!skipJourney && cardDefinition.journeyEffect?.kind === 'council-seat-gold') {
     player.resources.gold += player.councilSeat
       ? cardDefinition.journeyEffect.withSeat
       : cardDefinition.journeyEffect.withoutSeat;
   }
-  if (cardDefinition.journeyEffect?.kind === 'paid-space-mithril' && hasMandatoryResourceCost(space)) {
+  if (!skipJourney && cardDefinition.journeyEffect?.kind === 'paid-space-mithril' && hasMandatoryResourceCost(space)) {
     player.resources.mithril += cardDefinition.journeyEffect.amount;
   }
-  if (cardDefinition.journeyEffect?.kind === 'gain-mithril-recruit') {
+  if (!skipJourney && cardDefinition.journeyEffect?.kind === 'gain-mithril-recruit') {
     player.resources.mithril += cardDefinition.journeyEffect.mithril;
     recruitCompanies(player, cardDefinition.journeyEffect.recruit);
   }
-  if (cardDefinition.journeyEffect?.kind === 'gain-gold-tax-richer') {
+  if (!skipJourney && cardDefinition.journeyEffect?.kind === 'gain-gold-tax-richer') {
     player.resources.gold += cardDefinition.journeyEffect.gold;
     for (const opponentUid of match.playerOrder.filter((uid) => uid !== actorUid)) {
       const opponent = match.players[opponentUid];
@@ -1441,34 +1665,34 @@ function resolveAgentEffects(
       }
     }
   }
-  if (cardDefinition.journeyEffect?.kind === 'gain-gold-optional-pay-standing') {
+  if (!skipJourney && cardDefinition.journeyEffect?.kind === 'gain-gold-optional-pay-standing') {
     player.resources.gold += cardDefinition.journeyEffect.gainGold;
   }
-  if (cardDefinition.journeyEffect?.kind === 'recruit-lose-standing') {
+  if (!skipJourney && cardDefinition.journeyEffect?.kind === 'recruit-lose-standing') {
     recruitCompanies(player, cardDefinition.journeyEffect.recruit);
   }
-  if (cardDefinition.journeyEffect?.kind === 'place-scout-optional-recall-draw') {
+  if (!skipJourney && cardDefinition.journeyEffect?.kind === 'place-scout-optional-recall-draw') {
     match.queuedMessengerMothRecall = { actorUid };
   }
-  if (cardDefinition.journeyEffect?.kind === 'reorder-draw-pile') {
+  if (!skipJourney && cardDefinition.journeyEffect?.kind === 'reorder-draw-pile') {
     match.queuedElvenForesight = { actorUid };
   }
-  if (cardDefinition.journeyEffect?.kind === 'gain-mithril-extra-battle-deploy') {
+  if (!skipJourney && cardDefinition.journeyEffect?.kind === 'gain-mithril-extra-battle-deploy') {
     player.resources.mithril += cardDefinition.journeyEffect.mithril;
   }
-  if (cardDefinition.journeyEffect?.kind === 'place-scout-connected-battle') {
+  if (!skipJourney && cardDefinition.journeyEffect?.kind === 'place-scout-connected-battle') {
     match.queuedScoutPlacementRestriction = {
       actorUid,
       postIds: battleConnectedObservationPostIds()
     };
   }
-  if (cardDefinition.journeyEffect?.kind === 'optional-pay-mithril-draw-discard') {
+  if (!skipJourney && cardDefinition.journeyEffect?.kind === 'optional-pay-mithril-draw-discard') {
     match.queuedChroniclePayment = {
       actorUid,
       definitionId: cardDefinition.id as PaidChronicleId
     };
   }
-  if (
+  if (!skipJourney &&
     cardDefinition.journeyEffect?.kind === 'draw-discard-card' ||
     cardDefinition.journeyEffect?.kind === 'draw-optional-trash'
   ) {
@@ -1484,6 +1708,12 @@ function resolveAgentEffects(
       cardInstanceIds: eligible.map((candidate) => candidate.id)
     };
   }
+  if (
+    !skipJourney &&
+    match.pendingChoice?.kind === 'commander-fate-foresight' &&
+    match.pendingChoice.resume.kind === 'agent-destination' &&
+    match.pendingChoice.resume.cardInstanceId === card.id
+  ) return;
   if (space.effect.kind === 'dwarven-caravans') {
     player.resources.provisions += space.effect.gainProvisions;
     gainStanding(match, player, 'dwarven');
@@ -1498,10 +1728,9 @@ function resolveAgentEffects(
     resolution = 'gaining 1 Shadow standing and 2 Gold';
   } else if (space.effect.kind === 'pits-isengard') {
     gainStanding(match, player, 'shadow', seekAlliesCardId);
-    const fate = match.fateDeck.shift();
-    if (fate) player.fateHand.push(fate);
+    const fate = drawFateOrOpenForesight(match, actorUid, 1, 'Pits of Isengard', { kind: 'finish-agent' });
     const recruited = recruitCompanies(player, space.effect.recruitCompanies);
-    resolution = `gaining 1 Shadow standing, drawing ${fate ? '1 Fate' : 'no Fate'}, and recruiting ${recruited} Companies`;
+    resolution = `gaining 1 Shadow standing, drawing ${fate === null || fate.length > 0 ? '1 Fate' : 'no Fate'}, and recruiting ${recruited} Companies`;
   } else if (space.effect.kind === 'hidden-paths') {
     gainStanding(match, player, 'wild', seekAlliesCardId);
     const drawn = drawOneCard(match, player.uid, 'Hidden Paths');
@@ -1520,9 +1749,8 @@ function resolveAgentEffects(
       };
     }
   } else if (space.effect.kind === 'hidden-counsel') {
-    gainStanding(match, player, 'elven', seekAlliesCardId);
-    const drawn = match.fateDeck.shift();
-    if (drawn) player.fateHand.push(drawn);
+    gainStanding(match, player, 'elven', seekAlliesCardId, hasJourneyScoutPlacement);
+    const drawn = drawFateOrOpenForesight(match, actorUid, 1, 'Hidden Counsel', { kind: 'finish-agent' });
     let transfers = 0;
     for (const opponentUid of match.playerOrder.filter((uid) => uid !== actorUid)) {
       const opponent = match.players[opponentUid];
@@ -1535,7 +1763,7 @@ function resolveAgentEffects(
       player.fateHand.push(transferred);
       transfers += 1;
     }
-    resolution = `gaining 1 Elven standing, drawing ${drawn ? '1 Fate' : 'no Fate'}, and receiving ${transfers} Fate from opponents holding four or more`;
+    resolution = `gaining 1 Elven standing, drawing ${drawn === null || drawn.length > 0 ? '1 Fate' : 'no Fate'}, and receiving ${transfers} Fate from opponents holding four or more`;
   } else if (space.effect.kind === 'mirror-galadriel') {
     gainStanding(match, player, 'elven', seekAlliesCardId, true);
     const drawn = player.drawPile.shift();
@@ -1570,9 +1798,8 @@ function resolveAgentEffects(
       };
     }
   } else if (space.effect.kind === 'hall-of-fire') {
-    const fate = match.fateDeck.shift();
-    if (fate) player.fateHand.push(fate);
-    resolution = `drawing ${fate ? '1 Fate' : 'no Fate'} and gaining 1 Influence during this round's Reveal while the Agent remains`;
+    const fate = drawFateOrOpenForesight(match, actorUid, 1, 'Hall of Fire', { kind: 'finish-agent' });
+    resolution = `drawing ${fate === null || fate.length > 0 ? '1 Fate' : 'no Fate'} and gaining 1 Influence during this round's Reveal while the Agent remains`;
   } else if (space.effect.kind === 'minas-tirith') {
     const recruited = recruitCompanies(player, space.effect.recruitCompanies);
     const drawn = drawOneCard(match, player.uid, 'Minas Tirith');
@@ -1639,10 +1866,9 @@ function resolveAgentEffects(
     resolution = 'taking a Council seat and gaining 2 Influence on every future Reveal';
   } else {
     player.resources.mithril += space.effect.repeatGainMithril;
-    const fate = match.fateDeck.shift();
-    if (fate) player.fateHand.push(fate);
+    const fate = drawFateOrOpenForesight(match, actorUid, 1, 'Seat on the White Council', { kind: 'finish-agent' });
     const recruited = recruitCompanies(player, space.effect.repeatRecruitCompanies);
-    resolution = `gaining 2 Mithril, drawing ${fate ? '1 Fate' : 'no Fate'}, and recruiting ${recruited} Companies`;
+    resolution = `gaining 2 Mithril, drawing ${fate === null || fate.length > 0 ? '1 Fate' : 'no Fate'}, and recruiting ${recruited} Companies`;
   }
   if (
     cardDefinition.journeyEffect?.kind === 'optional-pay-gold-mithril' ||
@@ -1661,15 +1887,23 @@ function resolveAgentEffects(
     if (match.pendingChoice) match.queuedChronicleStandingGain = { actorUid };
     else openChronicleStandingGain(match, actorUid);
   }
-  if (cardDefinition.journeyEffect?.kind === 'optional-trash-self' && !match.pendingChoice) {
+  const needsSeekAllies = cardDefinition.journeyEffect?.kind === 'optional-trash-self';
+  const pendingCarriesSeekAllies = match.pendingChoice && 'followupSeekAlliesCardId' in match.pendingChoice;
+  const pendingCarriesScout = match.pendingChoice && 'followupPlaceScout' in match.pendingChoice;
+  const queueSeekAllies = needsSeekAllies && !!match.pendingChoice && !pendingCarriesSeekAllies;
+  const queueScout = hasJourneyScoutPlacement && !!match.pendingChoice && !pendingCarriesScout;
+  if (queueSeekAllies || queueScout) {
+    match.queuedAgentFollowup = {
+      actorUid,
+      seekAlliesCardId: queueSeekAllies ? card.id : null,
+      placeScout: queueScout
+    };
+  } else if (needsSeekAllies && !match.pendingChoice) {
     match.pendingChoice = {
-      kind: 'seek-allies',
-      actorUid: player.uid,
-      cardInstanceId: card.id,
+      kind: 'seek-allies', actorUid: player.uid, cardInstanceId: card.id,
       options: ['trash-self', 'keep-card']
     };
-  }
-  if (hasJourneyScoutPlacement && !match.pendingChoice) {
+  } else if (hasJourneyScoutPlacement && !match.pendingChoice) {
     openScoutPlacement(match, player.uid, { followupSeekAlliesCardId: null });
   }
   if (isBattleSpace(space) && match.activeBattleId) {
@@ -1718,7 +1952,7 @@ function beginAgentResolution(
     state.match!.activity.push(`${actorName} sends Token of Command to ${space.name} and chooses whether ${ringName} resolves before or after the destination.`);
     return;
   }
-  resolveAgentEffects(state, actorName, actorUid, card, space, ignoredResourceCost);
+  resolveAgentEffects(state.match!, actorName, actorUid, card, space, ignoredResourceCost);
   if (!state.match!.pendingChoice) finishAgentAction(state.match!, actorUid);
 }
 
@@ -1922,6 +2156,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         pending.kind !== 'divided-counsel-response' &&
         pending.kind !== 'battle-standing' &&
         pending.kind !== 'battle-fate-keep' &&
+        pending.kind !== 'commander-fate-foresight' &&
         !(pending.kind === 'elven-favor' && pending.resumeBattleStanding) &&
         currentPlayerUid(state) !== event.actorUid
       ) ||
@@ -1929,6 +2164,34 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       !pending.options.some((option) => option === choice)
     ) return 'illegal choice resolution';
     const player = state.match.players[event.actorUid];
+    if (pending.kind === 'commander-fate-foresight') {
+      if (!choice.startsWith('take-fate:')) return 'illegal choice resolution';
+      const chosenId = choice.slice('take-fate:'.length);
+      const currentTop = state.match.fateDeck.slice(0, pending.fateIds.length);
+      if (
+        pending.fateIds.length !== 2 ||
+        currentTop.length !== pending.fateIds.length ||
+        currentTop.some((fate, index) => fate.id !== pending.fateIds[index])
+      ) return 'illegal choice resolution';
+      const chosenIndex = currentTop.findIndex((fate) => fate.id === chosenId);
+      if (chosenIndex < 0) return 'illegal choice resolution';
+      const unchosen = currentTop[chosenIndex === 0 ? 1 : 0];
+      const [chosen] = currentTop.splice(chosenIndex, 1);
+      state.match.fateDeck.splice(0, pending.fateIds.length);
+      state.match.fateDeck.push(unchosen);
+      const additional = state.match.fateDeck.splice(0, pending.remainingDraws);
+      const drawn = [chosen, ...additional];
+      player.fateHand.push(...drawn);
+      state.match.pendingChoice = null;
+      state.match.activity.push(`${actor.displayName} takes one private Fate card with Foresight and puts the other on the bottom of the Fate deck.`);
+      resumeFateDraw(state.match, {
+        actorUid: event.actorUid,
+        count: 1 + pending.remainingDraws,
+        source: pending.source,
+        resume: pending.resume
+      }, drawn);
+      return null;
+    }
     if (pending.kind === 'critical-defense') {
       if (choice === 'deploy-defender') {
         if (player.companies.supply < 1) return 'illegal choice resolution';
@@ -1955,17 +2218,17 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
             spaceId: space.id,
             ignoredResourceCost: pending.ignoredResourceCost
           })) {
-            resolveAgentEffects(state, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
+            resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
             if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
           }
         } else {
           applyTheodenRing(state.match, event.actorUid);
-          resolveAgentEffects(state, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost, 1);
+          resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost, 1);
           if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
         }
       } else {
         state.match.queuedCommanderRing = { actorUid: event.actorUid };
-        resolveAgentEffects(state, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
+        resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
         if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
       }
       return null;
@@ -1982,7 +2245,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         const card = player.journey.find((candidate) => candidate.id === pending.resumeSpace!.cardInstanceId);
         const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === pending.resumeSpace!.spaceId);
         if (!card || card.definitionId !== 'token-of-command' || !space) return 'illegal choice resolution';
-        resolveAgentEffects(state, actor.displayName, event.actorUid, card, space, pending.resumeSpace.ignoredResourceCost);
+        resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.resumeSpace.ignoredResourceCost);
         if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
       } else {
         finishAgentAction(state.match, event.actorUid);
@@ -2174,16 +2437,22 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         return 'illegal choice resolution';
       }
       if (choice === 'pay-master-fate') {
-        if (player.resources.gold < 2) return 'illegal choice resolution';
-        const fate = state.match.fateDeck.shift();
-        if (!fate) return 'illegal choice resolution';
+        if (player.resources.gold < 2 || state.match.fateDeck.length < 1) return 'illegal choice resolution';
         player.resources.gold -= 2;
-        player.fateHand.push(fate);
-        state.match.activity.push(`${actor.displayName} pays 2 Gold and privately draws 1 Fate with Master of Lake-town.`);
+        state.match.pendingChoice = null;
+        const request: QueuedFateDraw = {
+          actorUid: event.actorUid,
+          count: 1,
+          source: 'Master of Lake-town',
+          resume: { kind: 'master-muster', actorName: actor.displayName, remainingCardInstanceIds: pending.remainingCardInstanceIds }
+        };
+        const drawn = drawFateOrOpenForesight(state.match, request.actorUid, request.count, request.source, request.resume);
+        if (!drawn) return null;
+        state.match.activity.push(`${actor.displayName} pays 2 Gold and privately draws ${drawn.length} Fate with Master of Lake-town.`);
       } else {
         state.match.activity.push(`${actor.displayName} keeps their Gold for this Master of Lake-town.`);
+        state.match.pendingChoice = null;
       }
-      state.match.pendingChoice = null;
       openMasterMusterChoice(state.match, event.actorUid, pending.remainingCardInstanceIds);
       return null;
     }
@@ -2468,10 +2737,18 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         const discarded = player.fateHand.shift();
         if (!discarded) return 'illegal choice resolution';
         state.match.fateDiscard.push(discarded);
-        const drawn = state.match.fateDeck.shift();
-        if (drawn) player.fateHand.push(drawn);
+        state.match.pendingChoice = null;
+        const request: QueuedFateDraw = {
+          actorUid: event.actorUid,
+          count: 1,
+          source: 'Secret Bargain',
+          resume: { kind: 'secret-bargain-recall', actorName: actor.displayName }
+        };
+        const drawn = drawFateOrOpenForesight(state.match, request.actorUid, request.count, request.source, request.resume);
+        if (!drawn) return null;
         state.match.activity.push(`${actor.displayName} cycles one Fate card through the public discard.`);
       } else {
+        state.match.pendingChoice = null;
         state.match.activity.push(`${actor.displayName} keeps their Fate cards.`);
       }
       beginSecretBargainRecall(state.match, event.actorUid);
@@ -2525,31 +2802,15 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       if (discardedIndex < 0) return 'illegal choice resolution';
       const [discarded] = player.fateHand.splice(discardedIndex, 1);
       state.match.fateDiscard.push(discarded);
+      state.match.pendingChoice = null;
       state.match.activity.push(`${actor.displayName} keeps one of the two Fate cards granted by Elven favor and discards the other.`);
-      if (pending.followupPlaceScout) {
-        if (!openScoutPlacement(state.match, player.uid, {
-          followupSeekAlliesCardId: pending.followupSeekAlliesCardId
-        })) {
-          if (pending.followupSeekAlliesCardId) {
-            state.match.pendingChoice = {
-              kind: 'seek-allies', actorUid: player.uid, cardInstanceId: pending.followupSeekAlliesCardId,
-              options: ['trash-self', 'keep-card']
-            };
-          } else if (pending.resumeBattleStanding) continueBattleRewardChoicesOrRecall(state.match);
-          else finishAgentAction(state.match, event.actorUid);
-        }
-      } else if (pending.followupSeekAlliesCardId) {
-        state.match.pendingChoice = {
-          kind: 'seek-allies',
-          actorUid: player.uid,
-          cardInstanceId: pending.followupSeekAlliesCardId,
-          options: ['trash-self', 'keep-card']
-        };
-      } else {
-        state.match.pendingChoice = null;
-        if (pending.resumeBattleStanding) continueBattleRewardChoicesOrRecall(state.match);
-        else finishAgentAction(state.match, event.actorUid);
-      }
+      continueAfterElvenFavor(
+        state.match,
+        event.actorUid,
+        pending.followupSeekAlliesCardId,
+        pending.followupPlaceScout,
+        pending.resumeBattleStanding ?? false
+      );
       return null;
     }
     if (pending.kind === 'muster-free-peoples') {
@@ -2675,30 +2936,20 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     player.revealedSwords = player.muster.reduce((total, card) =>
       total + (MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === card.definitionId)?.muster.swords ?? 0), 0);
     const palantirFateDraws = player.muster.filter((card) => card.definitionId === 'palantir-glimpse').length;
-    let palantirFateDrawn = 0;
-    for (let index = 0; index < palantirFateDraws; index += 1) {
-      const fate = state.match.fateDeck.shift();
-      if (!fate) break;
-      player.fateHand.push(fate);
-      palantirFateDrawn += 1;
-    }
     state.match.turnMode = 'reveal';
     state.match.activity.push(`${actor.displayName} Reveals ${player.muster.length} cards for ${player.revealInfluence} Influence and ${player.revealedSwords} swords.`);
     if (palantirFateDraws > 0) {
-      state.match.activity.push(`${actor.displayName} privately draws ${palantirFateDrawn} Fate with ${palantirFateDraws} ${palantirFateDraws === 1 ? 'Palantír Glimpse' : 'Palantír Glimpses'}.`);
+      const request: QueuedFateDraw = {
+        actorUid: event.actorUid,
+        count: palantirFateDraws,
+        source: 'Palantír Glimpse',
+        resume: { kind: 'reveal-muster', actorName: actor.displayName, palantirFateDraws }
+      };
+      const drawn = drawFateOrOpenForesight(state.match, request.actorUid, request.count, request.source, request.resume);
+      if (!drawn) return null;
+      state.match.activity.push(`${actor.displayName} privately draws ${drawn.length} Fate with ${palantirFateDraws} ${palantirFateDraws === 1 ? 'Palantír Glimpse' : 'Palantír Glimpses'}.`);
     }
-    const openedGoblinChoice = openGoblinMusterChoice(
-      state.match,
-      event.actorUid,
-      player.muster.filter((card) => card.definitionId === 'goblin-informer').map((card) => card.id)
-    );
-    if (!openedGoblinChoice) {
-      openMasterMusterChoice(
-        state.match,
-        event.actorUid,
-        player.muster.filter((card) => card.definitionId === 'master-lake-town').map((card) => card.id)
-      );
-    }
+    openRevealMusterChoices(state.match, event.actorUid);
     return null;
   }
 

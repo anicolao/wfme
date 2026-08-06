@@ -7,7 +7,7 @@ test('A Chance Meeting draws, privately discards, and resumes the same Agent tur
   test.setTimeout(300_000);
   const steps = new TestStepHelper(testInfo);
   const table = await startPlotTable(browser, page, testInfo, steps, 'chance-9', { phone: 'ACMPH', desktop: 'ACMDS' });
-  const { seats, accepted, converged, currentSeat, row } = table;
+  const { seats, accepted, converged, currentSeat, row, commanderForesightPending, resolveCommanderForesight } = table;
 
   try {
     const fateHolder = await currentSeat();
@@ -17,17 +17,15 @@ test('A Chance Meeting draws, privately discards, and resumes the same Agent tur
     await steps.gesture(fateHolder.page, 'enter-hall', `${fateHolder.name} enters Hall of Fire`, async () => {
       await fateHolder.page.getByTestId('space-hall-fire').click(); accepted.value += 1;
     }, [
-      { spec: 'Every observer sees one private Fate card and the public Hall occupation', check: async () => {
+      { spec: 'Every observer sees the public Hall occupation while the Fate draw is interrupted', check: async () => {
         for (const observer of seats) {
-          await expect(row(observer, fateHolder.name)).toContainText('Fate1');
           await expect(observer.page.getByTestId('space-hall-fire')).toContainText(fateHolder.name);
         }
       } },
-      { spec: 'No observer learns the private Fate identity', check: async () => {
-        for (const observer of seats.filter((seat) => seat !== fateHolder)) await expect(observer.page.getByText('A Chance Meeting')).toHaveCount(0);
-      } },
+      ...commanderForesightPending(fateHolder, 0, 'A Chance Meeting'),
       converged(accepted.value + 1)
     ]);
+    await resolveCommanderForesight(fateHolder, 'choose-chance-foresight', 'A Chance Meeting');
 
     for (let other = 0; other < 2; other += 1) {
       const actor = await currentSeat();

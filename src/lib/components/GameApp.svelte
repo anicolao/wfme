@@ -135,7 +135,9 @@
         ? 'Aragorn selected. The Line Unbroken and Andúril Aflame are active.'
         : commanderId === 'theoden'
           ? 'Théoden selected. Forth Eorlingas and Ride Now are active.'
-          : 'Commander identity selected. This Commander’s powers are not active yet.';
+          : commanderId === 'galadriel'
+            ? 'Galadriel selected. Foresight is active; Mirror Unveiled is not active yet.'
+            : 'Commander identity selected. This Commander’s powers are not active yet.';
     } finally {
       busy = false;
     }
@@ -368,7 +370,7 @@
           <section aria-labelledby="commander-title">
             <div class="section-heading">
               <div><p class="eyebrow">Power rollout</p><h2 id="commander-title">Choose your Commander</h2></div>
-              <p>Both of Aragorn’s and Théoden’s printed powers are active. Every other Commander power remains visibly inactive until its complete tracer arrives.</p>
+              <p>Both of Aragorn’s and Théoden’s printed powers and Galadriel’s Foresight are active. Every other Commander power remains visibly inactive until its complete tracer arrives.</p>
             </div>
             <div class="commanders">
               {#each COMMANDERS as commander}
@@ -380,7 +382,7 @@
                   aria-pressed={localPlayer.commander === commander.id}
                   onclick={() => void chooseCommander(commander.id)}
                 >
-                  <strong>{commander.name}</strong><span>{commander.epithet}</span><span>{commander.id === 'aragorn' ? 'Powers active · The Line Unbroken · Andúril Aflame' : commander.id === 'theoden' ? 'Powers active · Forth Eorlingas · Ride Now' : 'Powers inactive'}</span>
+                  <strong>{commander.name}</strong><span>{commander.epithet}</span><span>{commander.id === 'aragorn' ? 'Powers active · The Line Unbroken · Andúril Aflame' : commander.id === 'theoden' ? 'Powers active · Forth Eorlingas · Ride Now' : commander.id === 'galadriel' ? '1/2 active · Foresight' : 'Powers inactive'}</span>
                 </button>
               {/each}
             </div>

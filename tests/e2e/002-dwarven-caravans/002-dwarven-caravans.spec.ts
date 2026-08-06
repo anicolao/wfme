@@ -84,11 +84,16 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
     const commanderChoices = ['Aragorn', 'Galadriel', 'Gandalf'];
     for (const [index, seat] of seats.entries()) {
       const commander = commanderChoices[index];
+      const commanderStatus = commander === 'Aragorn'
+        ? 'Powers active · The Line Unbroken · Andúril Aflame'
+        : commander === 'Galadriel'
+          ? '1/2 active · Foresight'
+          : 'Powers inactive';
       await steps.gesture(seat.page, `seat-${index + 1}-commander`, `${seat.name} claims ${commander}`,
         () => seat.page.getByRole('button', { name: new RegExp(`^${commander}`) }).click(),
         [
           { spec: `${commander} is selected for ${seat.name}`, check: async () => await expect(seat.page.getByRole('button', { name: new RegExp(`^${commander}`) })).toHaveAttribute('aria-pressed', 'true') },
-          { spec: commander === 'Aragorn' ? 'Both of Aragorn’s implemented powers are visibly active' : 'Unimplemented Commander powers remain visibly inactive', check: async () => await expect(seat.page.getByRole('button', { name: new RegExp(`^${commander}`) })).toContainText(commander === 'Aragorn' ? 'Powers active · The Line Unbroken · Andúril Aflame' : 'Powers inactive') },
+          { spec: commander === 'Galadriel' ? 'Galadriel’s Foresight is visibly active while Mirror Unveiled remains inactive' : commander === 'Aragorn' ? 'Both of Aragorn’s implemented powers are visibly active' : 'Unimplemented Commander powers remain visibly inactive', check: async () => await expect(seat.page.getByRole('button', { name: new RegExp(`^${commander}`) })).toContainText(commanderStatus) },
           convergedEvents(4 + index * 2)
         ]
       );

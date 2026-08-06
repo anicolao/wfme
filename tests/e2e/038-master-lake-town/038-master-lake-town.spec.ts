@@ -7,7 +7,7 @@ test('Master of Lake-town gains Gold and later buys one private Fate during Reve
   test.setTimeout(900_000);
   const steps = new TestStepHelper(testInfo);
   const table = await startPlotTable(browser, page, testInfo, steps, 'master-e2e-6', { phone: 'MASTP', desktop: 'MASTD' });
-  const { seats, accepted, converged, currentSeat } = table;
+  const { seats, accepted, converged, currentSeat, commanderForesightPending, resolveCommanderForesight } = table;
   let gestureNumber = 0;
   let journeyPlayed = false;
   let musterPaid = false;
@@ -52,10 +52,13 @@ test('Master of Lake-town gains Gold and later buys one private Fate during Reve
 
   try {
     const buyer = await currentSeat();
+    const openingFate = await playerValue(seats[0], buyer, 'Fate');
     await chooseCard(buyer, /^Armed Escort/, 'select-hall-escort', `${buyer.name} selects Armed Escort`, 'space-hall-fire');
     await placeAgent(buyer, 'space-hall-fire', 'take-hall-fire', `${buyer.name} takes a seat in the Hall of Fire`, [
-      { spec: 'The real Council destination provides its private Fate and Reveal bonus', check: async () => await expect(buyer.page.getByTestId('activity-log')).toContainText(`${buyer.name} sends an Agent to Hall of Fire`) }
+      { spec: 'The real Council destination is occupied and its Fate draw pauses at Foresight', check: async () => await expect(buyer.page.getByTestId('space-hall-fire')).toContainText(buyer.name) },
+      ...commanderForesightPending(buyer, openingFate)
     ]);
+    await resolveCommanderForesight(buyer, 'choose-opening-master-foresight');
 
     for (let index = 0; index < 2; index += 1) {
       const other = await currentSeat();
@@ -134,15 +137,21 @@ test('Master of Lake-town gains Gold and later buys one private Fate during Reve
         await steps.gesture(buyer.page, `pay-master-fate-${gestureNumber}`, `${buyer.name} pays the Master for one Fate card`, async () => {
           await buyer.page.getByRole('button', { name: 'Pay 2 Gold · draw 1 Fate' }).click(); accepted.value += 1;
         }, [
-          { spec: 'Exactly two Gold are spent and one private physical Fate card is drawn', check: async () => {
+          { spec: 'Exactly two Gold are spent before the private Fate choice resolves', check: async () => {
             for (const observer of seats) {
               await expect.poll(() => playerValue(observer, buyer, 'Gold'), { timeout: 2_000 }).toBe(goldBefore - 2);
-              await expect.poll(() => playerValue(observer, buyer, 'Fate'), { timeout: 2_000 }).toBe(fateBefore + 1);
             }
-            await expect(buyer.page.getByTestId('pending-choice')).toHaveCount(0);
             await expect(buyer.page.getByTestId('reveal-panel')).toBeVisible();
           } },
+          ...commanderForesightPending(buyer, fateBefore),
           converged(accepted.value + 1)
+        ]);
+        await resolveCommanderForesight(buyer, `choose-master-paid-foresight-${gestureNumber}`, undefined, 1, [
+          { spec: 'The paid physical Fate enters the private hand and Reveal resumes', check: async () => {
+            for (const observer of seats) await expect.poll(() => playerValue(observer, buyer, 'Fate'), { timeout: 2_000 }).toBe(fateBefore + 1);
+            await expect(buyer.page.getByTestId('pending-choice')).toHaveCount(0);
+            await expect(buyer.page.getByTestId('reveal-panel')).toBeVisible();
+          } }
         ]);
         musterPaid = true;
         await finishReveal(buyer);

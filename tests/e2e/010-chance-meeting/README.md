@@ -238,111 +238,127 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 **Verifications:**
 
-- [x] Every observer sees one private Fate card and the public Hall occupation
-- [x] No observer learns the private Fate identity
+- [x] Every observer sees the public Hall occupation while the Fate draw is interrupted
+- [x] The Fate draw pauses at Galadriel’s once-per-round Foresight without drawing early
+- [x] Only Galadriel can identify and choose either exact Fate option
 - [x] Every connected browser replays 11 accepted events with no diagnostics
+
+---
+
+## Rin resolves Foresight and takes A Chance Meeting
+
+![Phone: Rin resolves Foresight and takes A Chance Meeting](./screenshots/019-choose-chance-foresight-phone.png)
+
+![Desktop: Rin resolves Foresight and takes A Chance Meeting](./screenshots/019-choose-chance-foresight-desktop.png)
+
+**Verifications:**
+
+- [x] Exactly 1 private Fate card enters the acting hand
+- [x] The unchosen exact Fate card goes to the deck bottom without entering the public discard
+- [x] The private Commander choice closes before the interrupted effect continues
+- [x] Every connected browser replays 12 accepted events with no diagnostics
 
 ---
 
 ## Mara Reveals
 
-![Phone: Mara Reveals](./screenshots/019-other-reveal-1-phone.png)
+![Phone: Mara Reveals](./screenshots/020-other-reveal-1-phone.png)
 
-![Desktop: Mara Reveals](./screenshots/019-other-reveal-1-desktop.png)
+![Desktop: Mara Reveals](./screenshots/020-other-reveal-1-desktop.png)
 
 **Verifications:**
 
 - [x] The actual hand becomes the public Muster row
-- [x] Every connected browser replays 12 accepted events with no diagnostics
+- [x] Every connected browser replays 13 accepted events with no diagnostics
 
 ---
 
 ## Mara finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/020-other-finish-1-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/021-other-finish-1-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/020-other-finish-1-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/021-other-finish-1-desktop.png)
 
 **Verifications:**
 
 - [x] Authority advances without exposing the Fate identity
-- [x] Every connected browser replays 13 accepted events with no diagnostics
+- [x] Every connected browser replays 14 accepted events with no diagnostics
 
 ---
 
 ## Pip Reveals
 
-![Phone: Pip Reveals](./screenshots/021-other-reveal-2-phone.png)
+![Phone: Pip Reveals](./screenshots/022-other-reveal-2-phone.png)
 
-![Desktop: Pip Reveals](./screenshots/021-other-reveal-2-desktop.png)
+![Desktop: Pip Reveals](./screenshots/022-other-reveal-2-desktop.png)
 
 **Verifications:**
 
 - [x] The actual hand becomes the public Muster row
-- [x] Every connected browser replays 14 accepted events with no diagnostics
+- [x] Every connected browser replays 15 accepted events with no diagnostics
 
 ---
 
 ## Pip finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/022-other-finish-2-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/023-other-finish-2-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/022-other-finish-2-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/023-other-finish-2-desktop.png)
 
 **Verifications:**
 
 - [x] Authority advances without exposing the Fate identity
-- [x] Every connected browser replays 15 accepted events with no diagnostics
+- [x] Every connected browser replays 16 accepted events with no diagnostics
 
 ---
 
 ## Rin plays A Chance Meeting
 
-![Phone: Rin plays A Chance Meeting](./screenshots/023-play-chance-meeting-phone.png)
+![Phone: Rin plays A Chance Meeting](./screenshots/024-play-chance-meeting-phone.png)
 
-![Desktop: Rin plays A Chance Meeting](./screenshots/023-play-chance-meeting-desktop.png)
+![Desktop: Rin plays A Chance Meeting](./screenshots/024-play-chance-meeting-desktop.png)
 
 **Verifications:**
 
 - [x] The card enters the public Fate discard and opens a private discard choice
 - [x] The owner sees one additional card while observers see only the public Fate count
-- [x] Every connected browser replays 16 accepted events with no diagnostics
+- [x] Every connected browser replays 17 accepted events with no diagnostics
 
 ---
 
 ## Rin reloads during the private discard
 
-![Phone: Rin reloads during the private discard](./screenshots/024-reload-pending-discard-phone.png)
+![Phone: Rin reloads during the private discard](./screenshots/025-reload-pending-discard-phone.png)
 
-![Desktop: Rin reloads during the private discard](./screenshots/024-reload-pending-discard-desktop.png)
+![Desktop: Rin reloads during the private discard](./screenshots/025-reload-pending-discard-desktop.png)
 
 **Verifications:**
 
 - [x] The authorized private choice survives immutable replay
 - [x] The resulting hand still contains the drawn card
-- [x] Every connected browser replays 16 accepted events with no diagnostics
+- [x] Every connected browser replays 17 accepted events with no diagnostics
 
 ---
 
 ## Rin discards Rallying Words
 
-![Phone: Rin discards Rallying Words](./screenshots/025-discard-private-card-phone.png)
+![Phone: Rin discards Rallying Words](./screenshots/026-discard-private-card-phone.png)
 
-![Desktop: Rin discards Rallying Words](./screenshots/025-discard-private-card-desktop.png)
+![Desktop: Rin discards Rallying Words](./screenshots/026-discard-private-card-desktop.png)
 
 **Verifications:**
 
 - [x] The hand returns to its prior size and the ordered choice closes
 - [x] The same player resumes the same Agent turn
-- [x] Every connected browser replays 17 accepted events with no diagnostics
+- [x] Every connected browser replays 18 accepted events with no diagnostics
 
 ---
 
 ## Rin selects The Open Road after Plot resolution
 
-![Phone: Rin selects The Open Road after Plot resolution](./screenshots/026-select-resumed-card-phone.png)
+![Phone: Rin selects The Open Road after Plot resolution](./screenshots/027-select-resumed-card-phone.png)
 
-![Desktop: Rin selects The Open Road after Plot resolution](./screenshots/026-select-resumed-card-desktop.png)
+![Desktop: Rin selects The Open Road after Plot resolution](./screenshots/027-select-resumed-card-desktop.png)
 
 **Verifications:**
 
@@ -352,13 +368,13 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Rin continues to Take Up a War Effort
 
-![Phone: Rin continues to Take Up a War Effort](./screenshots/027-continue-agent-turn-phone.png)
+![Phone: Rin continues to Take Up a War Effort](./screenshots/028-continue-agent-turn-phone.png)
 
-![Desktop: Rin continues to Take Up a War Effort](./screenshots/027-continue-agent-turn-desktop.png)
+![Desktop: Rin continues to Take Up a War Effort](./screenshots/028-continue-agent-turn-desktop.png)
 
 **Verifications:**
 
 - [x] The same turn spends the remaining Agent and resolves its board reward
-- [x] Every connected browser replays 18 accepted events with no diagnostics
+- [x] Every connected browser replays 19 accepted events with no diagnostics
 
 ---

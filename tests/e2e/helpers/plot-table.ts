@@ -30,6 +30,76 @@ export async function startPlotTable(
   });
   const currentSeat = async () => waitForCurrentSeat(seats);
   const row = (observer: PlotSeat, name: string) => observer.page.locator('.players article').filter({ hasText: name });
+  const commanderForesightPending = (
+    actor: PlotSeat,
+    expectedFateCount: number,
+    expectedFateName?: string
+  ): Verification[] => [
+    {
+      spec: 'The Fate draw pauses at Galadriel’s once-per-round Foresight without drawing early',
+      check: async () => {
+        for (const observer of seats) {
+          await expect(row(observer, actor.name).getByText('Fate', { exact: true }).locator('..')).toContainText(String(expectedFateCount));
+          await expect(observer.page.getByRole('heading', { name: 'Which Fate does Galadriel foresee?' })).toBeVisible();
+        }
+      }
+    },
+    {
+      spec: 'Only Galadriel can identify and choose either exact Fate option',
+      check: async () => {
+        const actorOptions = actor.page.getByTestId('pending-choice').getByRole('button', { name: /^Take / });
+        await expect(actorOptions).toHaveCount(2);
+        if (expectedFateName) {
+          await expect(actor.page.getByRole('button', { name: `Take ${expectedFateName}`, exact: true })).toBeEnabled();
+        }
+        for (const observer of seats.filter((seat) => seat !== actor)) {
+          for (const ordinal of [1, 2]) {
+            await expect(observer.page.getByRole('button', { name: `Private Fate option ${ordinal}`, exact: true })).toBeDisabled();
+          }
+          if (expectedFateName) await expect(observer.page.getByText(expectedFateName, { exact: true })).toHaveCount(0);
+        }
+      }
+    }
+  ];
+  const resolveCommanderForesight = async (
+    actor: PlotSeat,
+    id: string,
+    desiredFateName?: string,
+    drawCount = 1,
+    continuationVerifications: Verification[] = []
+  ) => {
+    const fateCounter = row(actor, actor.name).getByText('Fate', { exact: true }).locator('..');
+    const fateBeforeText = await fateCounter.textContent();
+    const fateBefore = Number(fateBeforeText?.match(/Fate\s*(\d+)/)?.[1] ?? Number.NaN);
+    const discardText = await actor.page.getByTestId('fate-discard').textContent();
+    const discardBefore = Number(discardText?.match(/(\d+) cards/)?.[1] ?? Number.NaN);
+    expect(Number.isFinite(fateBefore)).toBe(true);
+    expect(Number.isFinite(discardBefore)).toBe(true);
+    const option = desiredFateName
+      ? actor.page.getByRole('button', { name: `Take ${desiredFateName}`, exact: true })
+      : actor.page.getByTestId('pending-choice').getByRole('button', { name: /^Take / }).first();
+    const optionText = (await option.textContent())?.trim() ?? 'a private Fate card';
+    await steps.gesture(actor.page, id, `${actor.name} resolves Foresight and takes ${optionText.replace(/^Take /, '')}`, async () => {
+      await option.click(); accepted.value += 1;
+    }, [
+      { spec: `Exactly ${drawCount} private Fate ${drawCount === 1 ? 'card enters' : 'cards enter'} the acting hand`, check: async () => {
+        for (const observer of seats) {
+          await expect(row(observer, actor.name).getByText('Fate', { exact: true }).locator('..')).toContainText(String(fateBefore + drawCount));
+        }
+      } },
+      { spec: 'The unchosen exact Fate card goes to the deck bottom without entering the public discard', check: async () => {
+        for (const observer of seats) {
+          await expect(observer.page.getByTestId('fate-discard')).toContainText(`${discardBefore} cards`);
+          await expect(observer.page.getByTestId('activity-log')).toContainText('puts the other on the bottom of the Fate deck');
+        }
+      } },
+      { spec: 'The private Commander choice closes before the interrupted effect continues', check: async () => {
+        for (const observer of seats) await expect(observer.page.getByRole('heading', { name: 'Which Fate does Galadriel foresee?' })).toHaveCount(0);
+      } },
+      ...continuationVerifications,
+      converged(accepted.value + 1)
+    ]);
+  };
 
   await openFirebaseClients(seats.map((seat) => seat.page));
   await steps.gesture(page, 'host-name', 'Mara enters a table name', () => page.getByLabel('Display name').fill('Mara'), [
@@ -81,6 +151,8 @@ export async function startPlotTable(
     converged,
     currentSeat,
     row,
+    commanderForesightPending,
+    resolveCommanderForesight,
     close: async () => {
       await guestAContext.close();
       await guestBContext.close();

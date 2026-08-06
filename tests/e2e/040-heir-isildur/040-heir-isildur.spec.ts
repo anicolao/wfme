@@ -7,7 +7,7 @@ test('Heir of Isildur rewards only a low faction and Reveals five Influence', as
   test.setTimeout(900_000);
   const steps = new TestStepHelper(testInfo);
   const table = await startPlotTable(browser, page, testInfo, steps, 'chronicle-heir-isildur-16', { phone: 'HEIRP', desktop: 'HEIRD' });
-  const { seats, accepted, converged, currentSeat } = table;
+  const { seats, accepted, converged, currentSeat, commanderForesightPending, resolveCommanderForesight } = table;
   let gestureNumber = 0;
   let shadowPrepared = false;
   let journeyPlayed = false;
@@ -152,20 +152,27 @@ test('Heir of Isildur rewards only a low faction and Reveals five Influence', as
           elven: await playerValue(seats[0], buyer, 'Elven'),
           wild: await playerValue(seats[0], buyer, 'Wild')
         };
+        const fateBefore = await playerValue(seats[0], buyer, 'Fate');
         await chooseCard(buyer, /^Heir of Isildur/, 'select-heir', `${buyer.name} selects Heir of Isildur`, 'space-hall-fire');
         await placeAgent(buyer, 'space-hall-fire', 'play-heir', `${buyer.name} sends the Heir to Hall of Fire`, [
-          { spec: 'Only factions currently at one standing or less are offered', check: async () => {
-            await expect(buyer.page.getByRole('heading', { name: 'Which low faction gains standing?' })).toBeVisible();
-            await expect(buyer.page.getByRole('button', { name: 'Gain 1 shadow standing' })).toHaveCount(0);
-            await expect(buyer.page.getByRole('button', { name: /^Gain 1 .* standing$/ })).toHaveCount(3);
-          } },
+          ...commanderForesightPending(buyer, fateBefore),
           { spec: 'The Journey does not change standing before its owner chooses', check: async () => {
             for (const observer of seats) {
               await expect.poll(() => playerValue(observer, buyer, 'Shadow'), { timeout: 2_000 }).toBe(standingsBefore.shadow);
               await expect.poll(() => playerValue(observer, buyer, 'Dwarven'), { timeout: 2_000 }).toBe(standingsBefore.dwarven);
             }
           } },
-          { spec: 'Observers see the ordered choice but cannot answer it', check: async () => {
+          { spec: 'The Heir’s standing choice waits behind the earlier printed Fate effect', check: async () => {
+            for (const observer of seats) await expect(observer.page.getByRole('heading', { name: 'Which low faction gains standing?' })).toHaveCount(0);
+          } }
+        ]);
+        await resolveCommanderForesight(buyer, `choose-heir-foresight-${gestureNumber}`, undefined, 1, [
+          { spec: 'After Foresight, only factions currently at one standing or less are offered', check: async () => {
+            await expect(buyer.page.getByRole('heading', { name: 'Which low faction gains standing?' })).toBeVisible();
+            await expect(buyer.page.getByRole('button', { name: 'Gain 1 shadow standing' })).toHaveCount(0);
+            await expect(buyer.page.getByRole('button', { name: /^Gain 1 .* standing$/ })).toHaveCount(3);
+          } },
+          { spec: 'Observers see the resumed ordered choice but cannot answer it', check: async () => {
             for (const observer of seats.filter((seat) => seat !== buyer)) {
               const choices = observer.page.getByRole('button', { name: /^Gain 1 .* standing$/ });
               await expect(choices).toHaveCount(3);

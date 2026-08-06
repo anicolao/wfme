@@ -7,7 +7,7 @@ test('Keeper of Oaths rewards two Alliances earned through ordinary play', async
   test.setTimeout(450_000);
   const steps = new TestStepHelper(testInfo);
   const table = await startPlotTable(browser, page, testInfo, steps, 'keeper-4', { phone: 'KEEPP', desktop: 'KEEPD' });
-  const { seats, accepted, converged, currentSeat, row } = table;
+  const { seats, accepted, converged, currentSeat, row, commanderForesightPending, resolveCommanderForesight } = table;
   let gestureNumber = 0;
 
   const count = async (observer: PlotSeat, name: string, label: string) => Number(
@@ -41,11 +41,10 @@ test('Keeper of Oaths rewards two Alliances earned through ordinary play', async
     await steps.gesture(keeper.page, 'draw-keeper', `${keeper.name} draws private Fate at Hall of Fire`, async () => {
       await keeper.page.getByTestId('space-hall-fire').click(); accepted.value += 1;
     }, [
-      { spec: 'Only the public Fate count is shared before Endgame', check: async () => {
-        for (const observer of seats) await expect(row(observer, keeper.name).getByText('Fate', { exact: true }).locator('..')).toContainText('1');
-      } },
+      ...commanderForesightPending(keeper, 0, 'Keeper of Oaths'),
       converged(accepted.value + 1)
     ]);
+    await resolveCommanderForesight(keeper, 'choose-keeper-foresight', 'Keeper of Oaths');
 
     for (let guard = 0; guard < 160; guard += 1) {
       if (await page.getByTestId('endgame-window').isVisible().catch(() => false)) break;

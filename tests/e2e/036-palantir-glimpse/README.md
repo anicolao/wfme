@@ -561,237 +561,255 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] The public Muster row replaces only the acting human’s private hand
-- [x] Palantír Glimpse contributes 2 Influence and privately draws exactly one Fate
+- [x] Palantír Glimpse contributes exactly 2 Influence before its Fate choice
+- [x] The Fate draw pauses at Galadriel’s once-per-round Foresight without drawing early
+- [x] Only Galadriel can identify and choose either exact Fate option
 - [x] Every connected browser replays 33 accepted events with no diagnostics
 
 ---
 
-## Rin finishes Reveal
+## Rin resolves Foresight and takes Divided Counsel
 
-![Phone: Rin finishes Reveal](./screenshots/044-finish-28-phone.png)
+![Phone: Rin resolves Foresight and takes Divided Counsel](./screenshots/044-choose-palantir-foresight-27-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/044-finish-28-desktop.png)
+![Desktop: Rin resolves Foresight and takes Divided Counsel](./screenshots/044-choose-palantir-foresight-27-desktop.png)
 
 **Verifications:**
 
-- [x] The Muster row closes and canonical authority advances
+- [x] Exactly 1 private Fate card enters the acting hand
+- [x] The unchosen exact Fate card goes to the deck bottom without entering the public discard
+- [x] The private Commander choice closes before the interrupted effect continues
+- [x] The exact Palantír Fate draw completes and the Reveal remains open
 - [x] Every connected browser replays 34 accepted events with no diagnostics
 
 ---
 
-## Mara Reveals the real remaining hand
+## Rin finishes Reveal
 
-![Phone: Mara Reveals the real remaining hand](./screenshots/045-reveal-29-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/045-finish-28-phone.png)
 
-![Desktop: Mara Reveals the real remaining hand](./screenshots/045-reveal-29-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/045-finish-28-desktop.png)
 
 **Verifications:**
 
-- [x] The public Muster row replaces only the acting human’s private hand
+- [x] The Muster row closes and canonical authority advances
 - [x] Every connected browser replays 35 accepted events with no diagnostics
 
 ---
 
-## Mara finishes Reveal
+## Mara Reveals the real remaining hand
 
-![Phone: Mara finishes Reveal](./screenshots/046-finish-30-phone.png)
+![Phone: Mara Reveals the real remaining hand](./screenshots/046-reveal-29-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/046-finish-30-desktop.png)
+![Desktop: Mara Reveals the real remaining hand](./screenshots/046-reveal-29-desktop.png)
 
 **Verifications:**
 
-- [x] The Muster row closes and canonical authority advances
+- [x] The public Muster row replaces only the acting human’s private hand
 - [x] Every connected browser replays 36 accepted events with no diagnostics
 
 ---
 
-## Rin Reveals the real remaining hand
+## Mara finishes Reveal
 
-![Phone: Rin Reveals the real remaining hand](./screenshots/047-reveal-31-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/047-finish-30-phone.png)
 
-![Desktop: Rin Reveals the real remaining hand](./screenshots/047-reveal-31-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/047-finish-30-desktop.png)
 
 **Verifications:**
 
-- [x] The public Muster row replaces only the acting human’s private hand
+- [x] The Muster row closes and canonical authority advances
 - [x] Every connected browser replays 37 accepted events with no diagnostics
 
 ---
 
+## Rin Reveals the real remaining hand
+
+![Phone: Rin Reveals the real remaining hand](./screenshots/048-reveal-31-phone.png)
+
+![Desktop: Rin Reveals the real remaining hand](./screenshots/048-reveal-31-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row replaces only the acting human’s private hand
+- [x] Every connected browser replays 38 accepted events with no diagnostics
+
+---
+
 ## Rin finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/048-finish-32-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/049-finish-32-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/048-finish-32-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/049-finish-32-desktop.png)
 
 **Verifications:**
 
 - [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 38 accepted events with no diagnostics
+- [x] Every connected browser replays 39 accepted events with no diagnostics
 
 ---
 
 ## Pip Reveals the real remaining hand
 
-![Phone: Pip Reveals the real remaining hand](./screenshots/049-reveal-33-phone.png)
+![Phone: Pip Reveals the real remaining hand](./screenshots/050-reveal-33-phone.png)
 
-![Desktop: Pip Reveals the real remaining hand](./screenshots/049-reveal-33-desktop.png)
+![Desktop: Pip Reveals the real remaining hand](./screenshots/050-reveal-33-desktop.png)
 
 **Verifications:**
 
 - [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 39 accepted events with no diagnostics
+- [x] Every connected browser replays 40 accepted events with no diagnostics
 
 ---
 
 ## Pip finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/050-finish-34-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/051-finish-34-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/050-finish-34-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/051-finish-34-desktop.png)
 
 **Verifications:**
 
 - [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 40 accepted events with no diagnostics
+- [x] Every connected browser replays 41 accepted events with no diagnostics
 
 ---
 
 ## Rin Reveals the real remaining hand
 
-![Phone: Rin Reveals the real remaining hand](./screenshots/051-reveal-35-phone.png)
+![Phone: Rin Reveals the real remaining hand](./screenshots/052-reveal-35-phone.png)
 
-![Desktop: Rin Reveals the real remaining hand](./screenshots/051-reveal-35-desktop.png)
+![Desktop: Rin Reveals the real remaining hand](./screenshots/052-reveal-35-desktop.png)
 
 **Verifications:**
 
 - [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 41 accepted events with no diagnostics
+- [x] Every connected browser replays 42 accepted events with no diagnostics
 
 ---
 
 ## Rin finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/052-finish-36-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/053-finish-36-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/052-finish-36-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/053-finish-36-desktop.png)
 
 **Verifications:**
 
 - [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 42 accepted events with no diagnostics
-
----
-
-## Pip Reveals the real remaining hand
-
-![Phone: Pip Reveals the real remaining hand](./screenshots/053-reveal-37-phone.png)
-
-![Desktop: Pip Reveals the real remaining hand](./screenshots/053-reveal-37-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row replaces only the acting human’s private hand
 - [x] Every connected browser replays 43 accepted events with no diagnostics
 
 ---
 
+## Pip Reveals the real remaining hand
+
+![Phone: Pip Reveals the real remaining hand](./screenshots/054-reveal-37-phone.png)
+
+![Desktop: Pip Reveals the real remaining hand](./screenshots/054-reveal-37-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row replaces only the acting human’s private hand
+- [x] Every connected browser replays 44 accepted events with no diagnostics
+
+---
+
 ## Pip finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/054-finish-38-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/055-finish-38-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/054-finish-38-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/055-finish-38-desktop.png)
 
 **Verifications:**
 
 - [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 44 accepted events with no diagnostics
+- [x] Every connected browser replays 45 accepted events with no diagnostics
 
 ---
 
 ## Mara Reveals the real remaining hand
 
-![Phone: Mara Reveals the real remaining hand](./screenshots/055-reveal-39-phone.png)
+![Phone: Mara Reveals the real remaining hand](./screenshots/056-reveal-39-phone.png)
 
-![Desktop: Mara Reveals the real remaining hand](./screenshots/055-reveal-39-desktop.png)
+![Desktop: Mara Reveals the real remaining hand](./screenshots/056-reveal-39-desktop.png)
 
 **Verifications:**
 
 - [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 45 accepted events with no diagnostics
+- [x] Every connected browser replays 46 accepted events with no diagnostics
 
 ---
 
 ## Mara finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/056-finish-40-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/057-finish-40-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/056-finish-40-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/057-finish-40-desktop.png)
 
 **Verifications:**
 
 - [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 46 accepted events with no diagnostics
+- [x] Every connected browser replays 47 accepted events with no diagnostics
 
 ---
 
 ## Pip Reveals the real remaining hand
 
-![Phone: Pip Reveals the real remaining hand](./screenshots/057-reveal-41-phone.png)
+![Phone: Pip Reveals the real remaining hand](./screenshots/058-reveal-41-phone.png)
 
-![Desktop: Pip Reveals the real remaining hand](./screenshots/057-reveal-41-desktop.png)
+![Desktop: Pip Reveals the real remaining hand](./screenshots/058-reveal-41-desktop.png)
 
 **Verifications:**
 
 - [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 47 accepted events with no diagnostics
+- [x] Every connected browser replays 48 accepted events with no diagnostics
 
 ---
 
 ## Pip finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/058-finish-42-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/059-finish-42-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/058-finish-42-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/059-finish-42-desktop.png)
 
 **Verifications:**
 
 - [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 48 accepted events with no diagnostics
+- [x] Every connected browser replays 49 accepted events with no diagnostics
 
 ---
 
 ## Mara Reveals the real remaining hand
 
-![Phone: Mara Reveals the real remaining hand](./screenshots/059-reveal-43-phone.png)
+![Phone: Mara Reveals the real remaining hand](./screenshots/060-reveal-43-phone.png)
 
-![Desktop: Mara Reveals the real remaining hand](./screenshots/059-reveal-43-desktop.png)
+![Desktop: Mara Reveals the real remaining hand](./screenshots/060-reveal-43-desktop.png)
 
 **Verifications:**
 
 - [x] The public Muster row replaces only the acting human’s private hand
-- [x] Every connected browser replays 49 accepted events with no diagnostics
+- [x] Every connected browser replays 50 accepted events with no diagnostics
 
 ---
 
 ## Mara finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/060-finish-44-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/061-finish-44-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/060-finish-44-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/061-finish-44-desktop.png)
 
 **Verifications:**
 
 - [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 50 accepted events with no diagnostics
+- [x] Every connected browser replays 51 accepted events with no diagnostics
 
 ---
 
 ## Rin selects Reconnaissance to secure Mithril
 
-![Phone: Rin selects Reconnaissance to secure Mithril](./screenshots/061-select-edoras-card-45-phone.png)
+![Phone: Rin selects Reconnaissance to secure Mithril](./screenshots/062-select-edoras-card-45-phone.png)
 
-![Desktop: Rin selects Reconnaissance to secure Mithril](./screenshots/061-select-edoras-card-45-desktop.png)
+![Desktop: Rin selects Reconnaissance to secure Mithril](./screenshots/062-select-edoras-card-45-desktop.png)
 
 **Verifications:**
 
@@ -801,48 +819,48 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Rin sends an Agent to Edoras
 
-![Phone: Rin sends an Agent to Edoras](./screenshots/062-gain-palantir-mithril-46-phone.png)
+![Phone: Rin sends an Agent to Edoras](./screenshots/063-gain-palantir-mithril-46-phone.png)
 
-![Desktop: Rin sends an Agent to Edoras](./screenshots/062-gain-palantir-mithril-46-desktop.png)
+![Desktop: Rin sends an Agent to Edoras](./screenshots/063-gain-palantir-mithril-46-desktop.png)
 
 **Verifications:**
 
 - [x] Edoras gains at least one public Mithril without changing the Palantír card
-- [x] Every connected browser replays 51 accepted events with no diagnostics
+- [x] Every connected browser replays 52 accepted events with no diagnostics
 
 ---
 
 ## Rin places the card’s Scout at Orthanc's Eye
 
-![Phone: Rin places the card’s Scout at Orthanc's Eye](./screenshots/063-place-edoras-scout-47-phone.png)
+![Phone: Rin places the card’s Scout at Orthanc's Eye](./screenshots/064-place-edoras-scout-47-phone.png)
 
-![Desktop: Rin places the card’s Scout at Orthanc's Eye](./screenshots/063-place-edoras-scout-47-desktop.png)
+![Desktop: Rin places the card’s Scout at Orthanc's Eye](./screenshots/064-place-edoras-scout-47-desktop.png)
 
 **Verifications:**
 
 - [x] The finite Scout resolves before Battle deployment
-- [x] Every connected browser replays 52 accepted events with no diagnostics
+- [x] Every connected browser replays 53 accepted events with no diagnostics
 
 ---
 
 ## Rin leaves Companies in garrison
 
-![Phone: Rin leaves Companies in garrison](./screenshots/064-finish-edoras-deployment-48-phone.png)
+![Phone: Rin leaves Companies in garrison](./screenshots/065-finish-edoras-deployment-48-phone.png)
 
-![Desktop: Rin leaves Companies in garrison](./screenshots/064-finish-edoras-deployment-48-desktop.png)
+![Desktop: Rin leaves Companies in garrison](./screenshots/065-finish-edoras-deployment-48-desktop.png)
 
 **Verifications:**
 
 - [x] The complete Edoras Agent turn closes after its real deployment choice
-- [x] Every connected browser replays 53 accepted events with no diagnostics
+- [x] Every connected browser replays 54 accepted events with no diagnostics
 
 ---
 
 ## Rin selects Palantír Glimpse
 
-![Phone: Rin selects Palantír Glimpse](./screenshots/065-select-palantir-49-phone.png)
+![Phone: Rin selects Palantír Glimpse](./screenshots/066-select-palantir-49-phone.png)
 
-![Desktop: Rin selects Palantír Glimpse](./screenshots/065-select-palantir-49-desktop.png)
+![Desktop: Rin selects Palantír Glimpse](./screenshots/066-select-palantir-49-desktop.png)
 
 **Verifications:**
 
@@ -852,67 +870,67 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Rin looks through the Palantír at Tribute to the Shadow
 
-![Phone: Rin looks through the Palantír at Tribute to the Shadow](./screenshots/066-play-palantir-50-phone.png)
+![Phone: Rin looks through the Palantír at Tribute to the Shadow](./screenshots/067-play-palantir-50-phone.png)
 
-![Desktop: Rin looks through the Palantír at Tribute to the Shadow](./screenshots/066-play-palantir-50-desktop.png)
+![Desktop: Rin looks through the Palantír at Tribute to the Shadow](./screenshots/067-play-palantir-50-desktop.png)
 
 **Verifications:**
 
 - [x] The connected Scout offers its ordered intelligence choice before the destination and Palantír resolve
-- [x] Every connected browser replays 54 accepted events with no diagnostics
+- [x] Every connected browser replays 55 accepted events with no diagnostics
 
 ---
 
 ## Rin leaves the connected Scout in place
 
-![Phone: Rin leaves the connected Scout in place](./screenshots/067-decline-palantir-intelligence-51-phone.png)
+![Phone: Rin leaves the connected Scout in place](./screenshots/068-decline-palantir-intelligence-51-phone.png)
 
-![Desktop: Rin leaves the connected Scout in place](./screenshots/067-decline-palantir-intelligence-51-desktop.png)
+![Desktop: Rin leaves the connected Scout in place](./screenshots/068-decline-palantir-intelligence-51-desktop.png)
 
 **Verifications:**
 
 - [x] The destination then resolves and offers the affordable one-Mithril conversion
 - [x] Observers see the ordered decision but cannot pay for another player
-- [x] Every connected browser replays 55 accepted events with no diagnostics
+- [x] Every connected browser replays 56 accepted events with no diagnostics
 
 ---
 
 ## Rin pays one Mithril for the glimpse
 
-![Phone: Rin pays one Mithril for the glimpse](./screenshots/068-pay-palantir-52-phone.png)
+![Phone: Rin pays one Mithril for the glimpse](./screenshots/069-pay-palantir-52-phone.png)
 
-![Desktop: Rin pays one Mithril for the glimpse](./screenshots/068-pay-palantir-52-desktop.png)
+![Desktop: Rin pays one Mithril for the glimpse](./screenshots/069-pay-palantir-52-desktop.png)
 
 **Verifications:**
 
 - [x] The owner privately draws exactly two cards and must discard one
 - [x] Other humans see only disabled private-card choices
-- [x] Every connected browser replays 56 accepted events with no diagnostics
+- [x] Every connected browser replays 57 accepted events with no diagnostics
 
 ---
 
 ## Rin discards Seek Allies
 
-![Phone: Rin discards Seek Allies](./screenshots/069-discard-palantir-53-phone.png)
+![Phone: Rin discards Seek Allies](./screenshots/070-discard-palantir-53-phone.png)
 
-![Desktop: Rin discards Seek Allies](./screenshots/069-discard-palantir-53-desktop.png)
+![Desktop: Rin discards Seek Allies](./screenshots/070-discard-palantir-53-desktop.png)
 
 **Verifications:**
 
 - [x] Exactly one chosen private card enters discard and the Agent turn advances
-- [x] Every connected browser replays 57 accepted events with no diagnostics
+- [x] Every connected browser replays 58 accepted events with no diagnostics
 
 ---
 
 ## Rin reloads the Palantír outcome
 
-![Phone: Rin reloads the Palantír outcome](./screenshots/070-reload-palantir-glimpse-phone.png)
+![Phone: Rin reloads the Palantír outcome](./screenshots/071-reload-palantir-glimpse-phone.png)
 
-![Desktop: Rin reloads the Palantír outcome](./screenshots/070-reload-palantir-glimpse-desktop.png)
+![Desktop: Rin reloads the Palantír outcome](./screenshots/071-reload-palantir-glimpse-desktop.png)
 
 **Verifications:**
 
 - [x] Replay preserves the Muster Fate draw, paid Journey, discard, destination, and authority
-- [x] Every connected browser replays 57 accepted events with no diagnostics
+- [x] Every connected browser replays 58 accepted events with no diagnostics
 
 ---

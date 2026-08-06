@@ -10,7 +10,7 @@ function readyRoom(seed = 'road-2') {
     createEvent('player/joined', 'guest-a', 1, { displayName: 'Rin' }, 2),
     createEvent('player/joined', 'guest-b', 1, { displayName: 'Pip' }, 3),
     createEvent('player/commander-selected', 'host', 2, { commanderId: 'aragorn' }, 4),
-    createEvent('player/commander-selected', 'guest-a', 2, { commanderId: 'galadriel' }, 5),
+    createEvent('player/commander-selected', 'guest-a', 2, { commanderId: 'saruman' }, 5),
     createEvent('player/commander-selected', 'guest-b', 2, { commanderId: 'gandalf' }, 6),
     createEvent('player/ready', 'host', 3, { ready: true }, 7),
     createEvent('player/ready', 'guest-a', 3, { ready: true }, 8),
@@ -186,6 +186,78 @@ describe('integrated Agent placement replay', () => {
     expect(reduceGame([...setup, placement, spaceFirst, createEvent('choice/resolved', 'host', 7, { choice: 'standing-elven' }, 13)])).toEqual(state);
   });
 
+  it('lets Galadriel privately choose one of the top two Fate cards once per round', () => {
+    const setup = readyRoom('gal-17');
+    setup[4] = createEvent('player/commander-selected', 'guest-a', 2, { commanderId: 'galadriel' }, 5);
+    const before = reduceGame(setup);
+    expect(currentPlayerUid(before)).toBe('guest-a');
+    const actor = 'guest-a';
+    const player = before.match!.players[actor];
+    const hallCard = player.hand.find((card) => card.definitionId === 'armed-escort')!;
+    const originalTop = before.match!.fateDeck.slice(0, 3);
+    const fateCount = before.match!.fateDeck.length;
+    const placement = createEvent('agent/placed', actor, 5, {
+      cardInstanceId: hallCard.id,
+      spaceId: 'hall-fire'
+    }, 11);
+    const awaiting = reduceGame([...setup, placement]);
+    expect(awaiting.diagnostics).toEqual([]);
+    expect(awaiting.match!.pendingChoice).toMatchObject({
+      kind: 'commander-fate-foresight',
+      actorUid: actor,
+      fateIds: originalTop.slice(0, 2).map((fate) => fate.id),
+      remainingDraws: 0,
+      source: 'Hall of Fire',
+      options: originalTop.slice(0, 2).map((fate) => `take-fate:${fate.id}`)
+    });
+    expect(awaiting.match!.players[actor].fateHand).toEqual([]);
+    expect(awaiting.match!.players[actor].commanderPersistentUsedThisRound).toBe(true);
+    expect(awaiting.match!.fateDeck).toEqual(before.match!.fateDeck);
+
+    const unauthorizedChoice = `take-fate:${originalTop[1].id}`;
+    const unauthorized = reduceGame([
+      ...setup,
+      placement,
+      createEvent('choice/resolved', 'host', 5, { choice: unauthorizedChoice }, 12)
+    ]);
+    expect(unauthorized.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(unauthorized.match!.pendingChoice).toEqual(awaiting.match!.pendingChoice);
+    expect(unauthorized.match!.fateDeck).toEqual(before.match!.fateDeck);
+
+    const choice = createEvent('choice/resolved', actor, 6, { choice: unauthorizedChoice }, 12);
+    let after = reduceGame([...setup, placement, choice]);
+    expect(after.diagnostics).toEqual([]);
+    expect(after.match!.players[actor].fateHand).toEqual([originalTop[1]]);
+    expect(after.match!.fateDeck).toHaveLength(fateCount - 1);
+    expect(after.match!.fateDeck[0]).toEqual(originalTop[2]);
+    expect(after.match!.fateDeck.at(-1)).toEqual(originalTop[0]);
+    expect(after.match!.pendingChoice).toBeNull();
+    expect(currentPlayerUid(after)).toBe('host');
+
+    const stream = [...setup, placement, choice];
+    stream.push(createEvent('turn/revealed', 'host', 5, {}, 13));
+    stream.push(createEvent('reveal/finished', 'host', 6, {}, 14));
+    stream.push(createEvent('turn/revealed', 'guest-b', 5, {}, 15));
+    stream.push(createEvent('reveal/finished', 'guest-b', 6, {}, 16));
+    after = reduceGame(stream);
+    expect(currentPlayerUid(after)).toBe(actor);
+    const hiddenCounselCard = after.match!.players[actor].hand.find((card) => card.definitionId === 'diplomatic-mission')!;
+    const secondDraw = after.match!.fateDeck[0];
+    const handBeforeSecondDraw = after.match!.players[actor].fateHand.length;
+    stream.push(createEvent('agent/placed', actor, 7, {
+      cardInstanceId: hiddenCounselCard.id,
+      spaceId: 'hidden-counsel'
+    }, 17));
+    after = reduceGame(stream);
+    expect(after.diagnostics).toEqual([]);
+    expect(after.match!.pendingChoice).toBeNull();
+    expect(after.match!.players[actor].fateHand).toHaveLength(handBeforeSecondDraw + 1);
+    expect(after.match!.players[actor].fateHand).toContainEqual(secondDraw);
+    expect(after.match!.players[actor].commanderPersistentUsedThisRound).toBe(true);
+    expect(after.match!.fateDeck.at(-1)).toEqual(originalTop[0]);
+    expect(reduceGame(stream)).toEqual(after);
+  });
+
   it('resolves Diplomatic Mission at Dwarven Caravans and advances the real turn', () => {
     const events = readyRoom();
     const before = reduceGame(events);
@@ -320,6 +392,93 @@ describe('integrated Agent placement replay', () => {
     expect(resolved.match!.fateDiscard).toHaveLength(1);
     expect(new Set(allFate.map((fate) => fate.id)).size).toBe(30);
     expect(allFate).toHaveLength(30);
+  });
+
+  it('nests Galadriel’s Foresight inside an Elven draw-two favor and refreshes it after Recall', () => {
+    const stream = readyRoom('elven-favor');
+    const preliminary = reduceGame(stream);
+    const target = preliminary.match!.playerOrder[0];
+    const commanderEventIndex = stream.findIndex((event) => event.type === 'player/commander-selected' && event.actorUid === target);
+    stream[commanderEventIndex] = createEvent(
+      'player/commander-selected',
+      target,
+      stream[commanderEventIndex].clientSeq,
+      { commanderId: 'galadriel' },
+      stream[commanderEventIndex].createdAtMillis
+    );
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    const foresightRounds = new Set<number>();
+    let timestamp = 11;
+
+    for (let step = 0; step < 500; step += 1) {
+      const state = reduceGame(stream);
+      if (state.match!.players[target].standing.elven >= 4) break;
+      const current = currentPlayerUid(state)!;
+      const match = state.match!;
+      const player = match.players[current];
+      const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+        sequences[uid] += 1;
+        stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+      };
+      if (match.pendingChoice?.kind === 'commander-fate-foresight') {
+        foresightRounds.add(match.round);
+        append(match.pendingChoice.actorUid, 'choice/resolved', { choice: match.pendingChoice.options[0] });
+      } else if (match.pendingChoice?.kind === 'seek-allies') {
+        append(match.pendingChoice.actorUid, 'choice/resolved', { choice: 'keep-card' });
+      } else if (match.turnMode === 'reveal') append(current, 'reveal/finished', {});
+      else {
+        const factionCard = current === target
+          ? player.hand.find((card) => card.definitionId === 'diplomatic-mission' || card.definitionId === 'seek-allies')
+          : undefined;
+        if (factionCard && !match.boardAgents['hidden-counsel'] && player.availableAgents > 0) {
+          append(current, 'agent/placed', { cardInstanceId: factionCard.id, spaceId: 'hidden-counsel' });
+        } else append(current, 'turn/revealed', {});
+      }
+    }
+
+    let pending = reduceGame(stream);
+    expect(pending.diagnostics).toEqual([]);
+    expect(pending.match!.players[target].standing.elven).toBe(4);
+    expect(pending.match!.pendingChoice?.kind).toBe('commander-fate-foresight');
+    if (pending.match!.pendingChoice?.kind !== 'commander-fate-foresight') throw new Error('Galadriel Foresight must interrupt the Elven favor');
+    foresightRounds.add(pending.match!.round);
+    expect(foresightRounds.size).toBeGreaterThan(1);
+    const originalTop = pending.match!.fateDeck.slice(0, 3);
+    const fateCount = pending.match!.fateDeck.length;
+    const handCount = pending.match!.players[target].fateHand.length;
+    const foresightChoice = `take-fate:${originalTop[1].id}`;
+    sequences[target] += 1;
+    stream.push(createEvent('choice/resolved', target, sequences[target], { choice: foresightChoice }, timestamp++));
+    const afterForesight = reduceGame(stream);
+    expect(afterForesight.diagnostics).toEqual([]);
+    expect(afterForesight.match!.pendingChoice).toMatchObject({
+      kind: 'elven-favor',
+      actorUid: target,
+      drawnFateIds: [originalTop[1].id, originalTop[2].id]
+    });
+    expect(afterForesight.match!.fateDeck.at(-1)).toEqual(originalTop[0]);
+    expect(afterForesight.match!.players[target].fateHand).toHaveLength(handCount + 2);
+    if (afterForesight.match!.pendingChoice?.kind !== 'elven-favor') throw new Error('Elven keep-one must follow Foresight');
+    sequences[target] += 1;
+    stream.push(createEvent('choice/resolved', target, sequences[target], {
+      choice: `keep:${originalTop[1].id}`
+    }, timestamp));
+    const resolved = reduceGame(stream);
+    const allFate = [
+      ...resolved.match!.fateDeck,
+      ...resolved.match!.fateDiscard,
+      ...Object.values(resolved.match!.players).flatMap((player) => player.fateHand)
+    ];
+    expect(resolved.diagnostics).toEqual([]);
+    expect(resolved.match!.pendingChoice).toBeNull();
+    expect(resolved.match!.players[target].fateHand).toHaveLength(handCount + 2);
+    expect(resolved.match!.players[target].fateHand).toContainEqual(originalTop[1]);
+    expect(resolved.match!.fateDiscard).toContainEqual(originalTop[2]);
+    expect(resolved.match!.fateDeck).toHaveLength(fateCount - 3);
+    expect(resolved.match!.fateDeck.at(-1)).toEqual(originalTop[0]);
+    expect(allFate).toHaveLength(30);
+    expect(new Set(allFate.map((fate) => fate.id)).size).toBe(30);
+    expect(reduceGame(stream)).toEqual(resolved);
   });
 
   it('draws a private card and applies the disabled-module reward at Take Up a War Effort', () => {
@@ -718,7 +877,8 @@ describe('integrated Agent placement replay', () => {
       minimumDrawPile = 0,
       minimumSeedCandidate = 0,
       minimumScoutCount = prepareScout ? 1 : 0,
-      minimumMithril = 0
+      minimumMithril = 0,
+      commander: 'galadriel' | null = null
     ) => {
       const definition = CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!;
       let completed: { events: ReturnType<typeof readyRoom>; seed: string } | null = null;
@@ -733,6 +893,22 @@ describe('integrated Agent placement replay', () => {
           let attemptState = reduceGame(attemptEvents);
           if (attemptState.diagnostics.length > 0) continue;
           const attemptActor = currentPlayerUid(attemptState)!;
+          if (commander) {
+            const commanderIndex = attemptEvents.findIndex((event) =>
+              event.type === 'player/commander-selected' && event.actorUid === attemptActor
+            );
+            const commanderEvent = attemptEvents[commanderIndex];
+            if (!commanderEvent) continue;
+            attemptEvents[commanderIndex] = createEvent(
+              'player/commander-selected',
+              attemptActor,
+              commanderEvent.clientSeq,
+              { commanderId: commander },
+              commanderEvent.createdAtMillis
+            );
+            attemptState = reduceGame(attemptEvents);
+            if (attemptState.diagnostics.length > 0) continue;
+          }
           const attemptSequences = Object.fromEntries(['host', 'guest-a', 'guest-b'].map((uid) => [uid,
             Math.max(...attemptEvents.filter((event) => event.actorUid === uid).map((event) => event.clientSeq))
           ]));
@@ -968,12 +1144,27 @@ describe('integrated Agent placement replay', () => {
     expect(afterEagle.match!.players[eagle.actor].companies.garrison).toBe(eagleGarrison + 2);
     expect(afterEagle.match!.players[eagle.actor].hand).toHaveLength(eagleHand + 1);
 
-    const lady = reachAcquiredCard('lady-golden-wood');
+    const lady = reachAcquiredCard('lady-golden-wood', 0, false, 0, 0, 0, 0, 'galadriel');
     const ladyFate = lady.before.match!.players[lady.actor].fateHand.length;
+    const ladyFateTop = lady.before.match!.fateDeck.slice(0, 3);
     lady.append(lady.actor, 'agent/placed', { cardInstanceId: lady.acquired.id, spaceId: 'hidden-counsel' });
     let afterLady = reduceGame(lady.stream);
     expect(afterLady.diagnostics).toEqual([]);
+    expect(afterLady.match!.players[lady.actor].fateHand).toHaveLength(ladyFate);
+    expect(afterLady.match!.players[lady.actor].standing.elven).toBe(lady.before.match!.players[lady.actor].standing.elven);
+    expect(afterLady.match!.pendingChoice).toMatchObject({
+      kind: 'commander-fate-foresight',
+      actorUid: lady.actor,
+      source: 'Lady of the Golden Wood'
+    });
+    expect(afterLady.match!.boardScouts).toEqual(lady.before.match!.boardScouts);
+    lady.append(lady.actor, 'choice/resolved', { choice: `take-fate:${ladyFateTop[1].id}` });
+    afterLady = reduceGame(lady.stream);
+    expect(afterLady.diagnostics).toEqual([]);
     expect(afterLady.match!.players[lady.actor].fateHand).toHaveLength(ladyFate + 2);
+    expect(afterLady.match!.players[lady.actor].fateHand).toContainEqual(ladyFateTop[1]);
+    expect(afterLady.match!.players[lady.actor].fateHand).toContainEqual(ladyFateTop[2]);
+    expect(afterLady.match!.fateDeck.at(-1)).toEqual(ladyFateTop[0]);
     expect(afterLady.match!.pendingChoice).toMatchObject({ kind: 'place-scout', actorUid: lady.actor });
     const ladyPost = OBSERVATION_POSTS.find((post) => !afterLady.match!.boardScouts[post.id])!;
     lady.append(lady.actor, 'scout/placed', { postId: ladyPost.id });

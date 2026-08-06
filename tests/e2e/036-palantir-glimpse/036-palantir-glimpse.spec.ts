@@ -7,7 +7,7 @@ test('Palantír Glimpse pays for a private draw and draws Fate during Muster', a
   test.setTimeout(900_000);
   const steps = new TestStepHelper(testInfo);
   const table = await startPlotTable(browser, page, testInfo, steps, 'chronicle-palantir-glimpse-23', { phone: 'PALAP', desktop: 'PALAD' });
-  const { seats, accepted, converged, currentSeat } = table;
+  const { seats, accepted, converged, currentSeat, commanderForesightPending, resolveCommanderForesight } = table;
   let gestureNumber = 0;
   let mustered = false;
   let mithrilReady = false;
@@ -142,13 +142,19 @@ test('Palantír Glimpse pays for a private draw and draws Fate during Muster', a
       if (buyerHasPalantir && !mustered) {
         const fateBefore = await playerValue(seats[0], buyer, 'Fate');
         await reveal(buyer, [{
-          spec: 'Palantír Glimpse contributes 2 Influence and privately draws exactly one Fate',
+          spec: 'Palantír Glimpse contributes exactly 2 Influence before its Fate choice',
           check: async () => {
             const article = buyer.page.getByTestId('reveal-panel').getByText('Palantír Glimpse', { exact: true }).locator('..');
             await expect(article).toContainText('2 Influence · draw 1 Fate');
+          }
+        }, ...commanderForesightPending(buyer, fateBefore)]);
+        await resolveCommanderForesight(buyer, `choose-palantir-foresight-${gestureNumber}`, undefined, 1, [{
+          spec: 'The exact Palantír Fate draw completes and the Reveal remains open',
+          check: async () => {
             for (const observer of seats) {
               await expect(observer.page.locator('aside.players article').filter({ hasText: buyer.name }).getByText('Fate', { exact: true }).locator('..')).toContainText(String(fateBefore + 1));
             }
+            await expect(buyer.page.getByTestId('reveal-panel')).toBeVisible();
           }
         }]);
         mustered = true;

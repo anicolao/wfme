@@ -793,258 +793,276 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 **Verifications:**
 
-- [x] Only factions currently at one standing or less are offered
+- [x] The Fate draw pauses at Galadriel’s once-per-round Foresight without drawing early
+- [x] Only Galadriel can identify and choose either exact Fate option
 - [x] The Journey does not change standing before its owner chooses
-- [x] Observers see the ordered choice but cannot answer it
+- [x] The Heir’s standing choice waits behind the earlier printed Fate effect
 - [x] Every connected browser replays 49 accepted events with no diagnostics
+
+---
+
+## Rin resolves Foresight and takes Keeper of Oaths
+
+![Phone: Rin resolves Foresight and takes Keeper of Oaths](./screenshots/062-choose-heir-foresight-45-phone.png)
+
+![Desktop: Rin resolves Foresight and takes Keeper of Oaths](./screenshots/062-choose-heir-foresight-45-desktop.png)
+
+**Verifications:**
+
+- [x] Exactly 1 private Fate card enters the acting hand
+- [x] The unchosen exact Fate card goes to the deck bottom without entering the public discard
+- [x] The private Commander choice closes before the interrupted effect continues
+- [x] After Foresight, only factions currently at one standing or less are offered
+- [x] Observers see the resumed ordered choice but cannot answer it
+- [x] Every connected browser replays 50 accepted events with no diagnostics
 
 ---
 
 ## Rin reloads during the Heir’s standing choice
 
-![Phone: Rin reloads during the Heir’s standing choice](./screenshots/062-reload-heir-choice-phone.png)
+![Phone: Rin reloads during the Heir’s standing choice](./screenshots/063-reload-heir-choice-phone.png)
 
-![Desktop: Rin reloads during the Heir’s standing choice](./screenshots/062-reload-heir-choice-desktop.png)
+![Desktop: Rin reloads during the Heir’s standing choice](./screenshots/063-reload-heir-choice-desktop.png)
 
 **Verifications:**
 
 - [x] Immutable replay preserves the exact eligible choice set
-- [x] Every connected browser replays 49 accepted events with no diagnostics
+- [x] Every connected browser replays 50 accepted events with no diagnostics
 
 ---
 
 ## Rin grants the Heir’s standing to the Dwarven faction
 
-![Phone: Rin grants the Heir’s standing to the Dwarven faction](./screenshots/063-gain-dwarven-standing-46-phone.png)
+![Phone: Rin grants the Heir’s standing to the Dwarven faction](./screenshots/064-gain-dwarven-standing-46-phone.png)
 
-![Desktop: Rin grants the Heir’s standing to the Dwarven faction](./screenshots/063-gain-dwarven-standing-46-desktop.png)
+![Desktop: Rin grants the Heir’s standing to the Dwarven faction](./screenshots/064-gain-dwarven-standing-46-desktop.png)
 
 **Verifications:**
 
 - [x] Dwarven standing rises by exactly one while ineligible Shadow remains unchanged
 - [x] The ordered choice closes and canonical authority advances
-- [x] Every connected browser replays 50 accepted events with no diagnostics
-
----
-
-## Mara Reveals the real remaining hand
-
-![Phone: Mara Reveals the real remaining hand](./screenshots/064-reveal-47-phone.png)
-
-![Desktop: Mara Reveals the real remaining hand](./screenshots/064-reveal-47-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a public Muster row
 - [x] Every connected browser replays 51 accepted events with no diagnostics
 
 ---
 
-## Mara finishes Reveal
+## Mara Reveals the real remaining hand
 
-![Phone: Mara finishes Reveal](./screenshots/065-finish-48-phone.png)
+![Phone: Mara Reveals the real remaining hand](./screenshots/065-reveal-47-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/065-finish-48-desktop.png)
+![Desktop: Mara Reveals the real remaining hand](./screenshots/065-reveal-47-desktop.png)
 
 **Verifications:**
 
-- [x] The Muster row closes and canonical authority advances
+- [x] The acting human exposes a public Muster row
 - [x] Every connected browser replays 52 accepted events with no diagnostics
 
 ---
 
-## Rin Reveals the real remaining hand
+## Mara finishes Reveal
 
-![Phone: Rin Reveals the real remaining hand](./screenshots/066-reveal-49-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/066-finish-48-phone.png)
 
-![Desktop: Rin Reveals the real remaining hand](./screenshots/066-reveal-49-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/066-finish-48-desktop.png)
 
 **Verifications:**
 
-- [x] The acting human exposes a public Muster row
+- [x] The Muster row closes and canonical authority advances
 - [x] Every connected browser replays 53 accepted events with no diagnostics
 
 ---
 
-## Rin finishes Reveal
+## Rin Reveals the real remaining hand
 
-![Phone: Rin finishes Reveal](./screenshots/067-finish-50-phone.png)
+![Phone: Rin Reveals the real remaining hand](./screenshots/067-reveal-49-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/067-finish-50-desktop.png)
+![Desktop: Rin Reveals the real remaining hand](./screenshots/067-reveal-49-desktop.png)
 
 **Verifications:**
 
-- [x] The Muster row closes and canonical authority advances
+- [x] The acting human exposes a public Muster row
 - [x] Every connected browser replays 54 accepted events with no diagnostics
 
 ---
 
+## Rin finishes Reveal
+
+![Phone: Rin finishes Reveal](./screenshots/068-finish-50-phone.png)
+
+![Desktop: Rin finishes Reveal](./screenshots/068-finish-50-desktop.png)
+
+**Verifications:**
+
+- [x] The Muster row closes and canonical authority advances
+- [x] Every connected browser replays 55 accepted events with no diagnostics
+
+---
+
 ## Rin Reveals the real remaining hand
 
-![Phone: Rin Reveals the real remaining hand](./screenshots/068-reveal-51-phone.png)
+![Phone: Rin Reveals the real remaining hand](./screenshots/069-reveal-51-phone.png)
 
-![Desktop: Rin Reveals the real remaining hand](./screenshots/068-reveal-51-desktop.png)
+![Desktop: Rin Reveals the real remaining hand](./screenshots/069-reveal-51-desktop.png)
 
 **Verifications:**
 
 - [x] The acting human exposes a public Muster row
-- [x] Every connected browser replays 55 accepted events with no diagnostics
+- [x] Every connected browser replays 56 accepted events with no diagnostics
 
 ---
 
 ## Rin finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/069-finish-52-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/070-finish-52-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/069-finish-52-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/070-finish-52-desktop.png)
 
 **Verifications:**
 
 - [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 56 accepted events with no diagnostics
-
----
-
-## Mara Reveals the real remaining hand
-
-![Phone: Mara Reveals the real remaining hand](./screenshots/070-reveal-53-phone.png)
-
-![Desktop: Mara Reveals the real remaining hand](./screenshots/070-reveal-53-desktop.png)
-
-**Verifications:**
-
-- [x] The acting human exposes a public Muster row
 - [x] Every connected browser replays 57 accepted events with no diagnostics
 
 ---
 
+## Mara Reveals the real remaining hand
+
+![Phone: Mara Reveals the real remaining hand](./screenshots/071-reveal-53-phone.png)
+
+![Desktop: Mara Reveals the real remaining hand](./screenshots/071-reveal-53-desktop.png)
+
+**Verifications:**
+
+- [x] The acting human exposes a public Muster row
+- [x] Every connected browser replays 58 accepted events with no diagnostics
+
+---
+
 ## Mara finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/071-finish-54-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/072-finish-54-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/071-finish-54-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/072-finish-54-desktop.png)
 
 **Verifications:**
 
 - [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 58 accepted events with no diagnostics
+- [x] Every connected browser replays 59 accepted events with no diagnostics
 
 ---
 
 ## Pip Reveals the real remaining hand
 
-![Phone: Pip Reveals the real remaining hand](./screenshots/072-reveal-55-phone.png)
+![Phone: Pip Reveals the real remaining hand](./screenshots/073-reveal-55-phone.png)
 
-![Desktop: Pip Reveals the real remaining hand](./screenshots/072-reveal-55-desktop.png)
+![Desktop: Pip Reveals the real remaining hand](./screenshots/073-reveal-55-desktop.png)
 
 **Verifications:**
 
 - [x] The acting human exposes a public Muster row
-- [x] Every connected browser replays 59 accepted events with no diagnostics
+- [x] Every connected browser replays 60 accepted events with no diagnostics
 
 ---
 
 ## Pip finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/073-finish-56-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/074-finish-56-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/073-finish-56-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/074-finish-56-desktop.png)
 
 **Verifications:**
 
 - [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 60 accepted events with no diagnostics
+- [x] Every connected browser replays 61 accepted events with no diagnostics
 
 ---
 
 ## Mara Reveals the real remaining hand
 
-![Phone: Mara Reveals the real remaining hand](./screenshots/074-reveal-57-phone.png)
+![Phone: Mara Reveals the real remaining hand](./screenshots/075-reveal-57-phone.png)
 
-![Desktop: Mara Reveals the real remaining hand](./screenshots/074-reveal-57-desktop.png)
+![Desktop: Mara Reveals the real remaining hand](./screenshots/075-reveal-57-desktop.png)
 
 **Verifications:**
 
 - [x] The acting human exposes a public Muster row
-- [x] Every connected browser replays 61 accepted events with no diagnostics
+- [x] Every connected browser replays 62 accepted events with no diagnostics
 
 ---
 
 ## Mara finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/075-finish-58-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/076-finish-58-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/075-finish-58-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/076-finish-58-desktop.png)
 
 **Verifications:**
 
 - [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 62 accepted events with no diagnostics
+- [x] Every connected browser replays 63 accepted events with no diagnostics
 
 ---
 
 ## Pip Reveals the real remaining hand
 
-![Phone: Pip Reveals the real remaining hand](./screenshots/076-reveal-59-phone.png)
+![Phone: Pip Reveals the real remaining hand](./screenshots/077-reveal-59-phone.png)
 
-![Desktop: Pip Reveals the real remaining hand](./screenshots/076-reveal-59-desktop.png)
+![Desktop: Pip Reveals the real remaining hand](./screenshots/077-reveal-59-desktop.png)
 
 **Verifications:**
 
 - [x] The acting human exposes a public Muster row
-- [x] Every connected browser replays 63 accepted events with no diagnostics
+- [x] Every connected browser replays 64 accepted events with no diagnostics
 
 ---
 
 ## Pip finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/077-finish-60-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/078-finish-60-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/077-finish-60-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/078-finish-60-desktop.png)
 
 **Verifications:**
 
 - [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 64 accepted events with no diagnostics
+- [x] Every connected browser replays 65 accepted events with no diagnostics
 
 ---
 
 ## Rin Reveals the real remaining hand
 
-![Phone: Rin Reveals the real remaining hand](./screenshots/078-reveal-61-phone.png)
+![Phone: Rin Reveals the real remaining hand](./screenshots/079-reveal-61-phone.png)
 
-![Desktop: Rin Reveals the real remaining hand](./screenshots/078-reveal-61-desktop.png)
+![Desktop: Rin Reveals the real remaining hand](./screenshots/079-reveal-61-desktop.png)
 
 **Verifications:**
 
 - [x] The acting human exposes a public Muster row
 - [x] The same physical Heir later contributes exactly five Influence and two swords
-- [x] Every connected browser replays 65 accepted events with no diagnostics
+- [x] Every connected browser replays 66 accepted events with no diagnostics
 
 ---
 
 ## Rin finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/079-finish-62-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/080-finish-62-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/079-finish-62-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/080-finish-62-desktop.png)
 
 **Verifications:**
 
 - [x] The Muster row closes and canonical authority advances
-- [x] Every connected browser replays 66 accepted events with no diagnostics
+- [x] Every connected browser replays 67 accepted events with no diagnostics
 
 ---
 
 ## Rin reloads the Heir’s completed Chronicle
 
-![Phone: Rin reloads the Heir’s completed Chronicle](./screenshots/080-reload-heir-isildur-phone.png)
+![Phone: Rin reloads the Heir’s completed Chronicle](./screenshots/081-reload-heir-isildur-phone.png)
 
-![Desktop: Rin reloads the Heir’s completed Chronicle](./screenshots/080-reload-heir-isildur-desktop.png)
+![Desktop: Rin reloads the Heir’s completed Chronicle](./screenshots/081-reload-heir-isildur-desktop.png)
 
 **Verifications:**
 
 - [x] Replay preserves the eight-cost acquisition, low-faction choice, exact Muster, and authority
-- [x] Every connected browser replays 66 accepted events with no diagnostics
+- [x] Every connected browser replays 67 accepted events with no diagnostics
 
 ---

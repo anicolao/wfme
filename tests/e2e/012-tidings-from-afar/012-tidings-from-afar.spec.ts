@@ -7,7 +7,7 @@ test('Tidings from Afar draws two, privately top-decks one, and resumes the Agen
   test.setTimeout(300_000);
   const steps = new TestStepHelper(testInfo);
   const table = await startPlotTable(browser, page, testInfo, steps, 'tidings-12', { phone: 'TIDPH', desktop: 'TIDDS' });
-  const { seats, accepted, converged, currentSeat, row } = table;
+  const { seats, accepted, converged, currentSeat, row, commanderForesightPending, resolveCommanderForesight } = table;
 
   try {
     const fateHolder = await currentSeat();
@@ -17,17 +17,15 @@ test('Tidings from Afar draws two, privately top-decks one, and resumes the Agen
     await steps.gesture(fateHolder.page, 'enter-hall', `${fateHolder.name} enters Hall of Fire`, async () => {
       await fateHolder.page.getByTestId('space-hall-fire').click(); accepted.value += 1;
     }, [
-      { spec: 'Every observer sees one private Fate card and the public Hall occupation', check: async () => {
+      { spec: 'Every observer sees the public Hall occupation while the Fate draw is interrupted', check: async () => {
         for (const observer of seats) {
-          await expect(row(observer, fateHolder.name)).toContainText('Fate1');
           await expect(observer.page.getByTestId('space-hall-fire')).toContainText(fateHolder.name);
         }
       } },
-      { spec: 'No observer learns the private Fate identity', check: async () => {
-        for (const observer of seats.filter((seat) => seat !== fateHolder)) await expect(observer.page.getByText('Tidings from Afar')).toHaveCount(0);
-      } },
+      ...commanderForesightPending(fateHolder, 0, 'Tidings from Afar'),
       converged(accepted.value + 1)
     ]);
+    await resolveCommanderForesight(fateHolder, 'choose-tidings-foresight', 'Tidings from Afar');
 
     for (let other = 0; other < 2; other += 1) {
       const actor = await currentSeat();

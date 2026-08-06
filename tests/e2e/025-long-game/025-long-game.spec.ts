@@ -7,7 +7,7 @@ test('The Long Game rewards four five-cost Chronicle cards acquired through ordi
   test.setTimeout(600_000);
   const steps = new TestStepHelper(testInfo);
   const table = await startPlotTable(browser, page, testInfo, steps, 'catalog-proof-201', { phone: 'LONGP', desktop: 'LONGD' });
-  const { seats, accepted, converged, currentSeat, row } = table;
+  const { seats, accepted, converged, currentSeat, row, commanderForesightPending, resolveCommanderForesight } = table;
   let gestureNumber = 0;
   let highCostBought = 0;
   let ladyBought = false;
@@ -46,12 +46,10 @@ test('The Long Game rewards four five-cost Chronicle cards acquired through ordi
     await steps.gesture(strategist.page, 'draw-long-game', `${strategist.name} draws private Fate at Hall of Fire`, async () => {
       await strategist.page.getByTestId('space-hall-fire').click(); accepted.value += 1;
     }, [
-      { spec: 'Every observer sees one Fate card but not its identity', check: async () => {
-        for (const observer of seats) await expect(row(observer, strategist.name).getByText('Fate', { exact: true }).locator('..')).toContainText('1');
-        for (const observer of seats.filter((seat) => seat !== strategist)) await expect(observer.page.getByText('The Long Game')).toHaveCount(0);
-      } },
+      ...commanderForesightPending(strategist, 0, 'The Long Game'),
       converged(accepted.value + 1)
     ]);
+    await resolveCommanderForesight(strategist, 'choose-long-game-foresight', 'The Long Game');
 
     for (let guard = 0; guard < 220; guard += 1) {
       if (await page.getByTestId('endgame-window').isVisible().catch(() => false)) break;
@@ -76,14 +74,20 @@ test('The Long Game rewards four five-cost Chronicle cards acquired through ordi
         await steps.gesture(strategist.page, `play-lady-${gestureNumber}`, `${strategist.name} sends the Lady to Hidden Counsel`, async () => {
           await strategist.page.getByTestId('space-hidden-counsel').click(); accepted.value += 1;
         }, [
-          { spec: 'Lady and Hidden Counsel each draw one private Fate card', check: async () => {
-            for (const observer of seats) await expect(row(observer, strategist.name).getByText('Fate', { exact: true }).locator('..')).toContainText(String(fateBefore + 2));
-          } },
-          { spec: 'Her ordered Scout placement remains with the strategist', check: async () => {
-            await expect(strategist.page.getByRole('heading', { name: 'Choose an empty post for the Scout.' })).toBeVisible();
-            await expect(strategist.page.locator('[data-testid^="post-"]:enabled').first()).toBeVisible();
+          ...commanderForesightPending(strategist, fateBefore),
+          { spec: 'The destination and Scout placement wait behind the Lady’s printed Fate effect', check: async () => {
+            await expect(strategist.page.getByRole('heading', { name: 'Choose an empty post for the Scout.' })).toHaveCount(0);
           } },
           converged(accepted.value + 1)
+        ]);
+        await resolveCommanderForesight(strategist, `choose-lady-foresight-${gestureNumber}`, undefined, 2, [
+          { spec: 'Lady and Hidden Counsel finish as two private Fate draws before the Scout', check: async () => {
+            for (const observer of seats) await expect(row(observer, strategist.name).getByText('Fate', { exact: true }).locator('..')).toContainText(String(fateBefore + 2));
+          } },
+          { spec: 'Her ordered Scout placement resumes with the strategist', check: async () => {
+            await expect(strategist.page.getByRole('heading', { name: 'Choose an empty post for the Scout.' })).toBeVisible();
+            await expect(strategist.page.locator('[data-testid^="post-"]:enabled').first()).toBeVisible();
+          } }
         ]);
         const post = strategist.page.locator('[data-testid^="post-"]:enabled').first();
         const postId = await post.getAttribute('data-testid');
