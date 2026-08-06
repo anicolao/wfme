@@ -105,11 +105,15 @@ test('Grey Pilgrim and Lore of Imladris are acquired, drawn, and resolved by the
     }
 
     gestureNumber += 1;
+    const selectedCard = targetButton(buyer, name);
+    const scroll = await buyer.page.evaluate(() => ({ x: scrollX, y: scrollY }));
     await steps.gesture(buyer.page, `select-${gestureNumber}`, `${buyer.name} selects ${name}`, async () => {
-      await targetButton(buyer, name).click();
+      await selectedCard.click();
+      await selectedCard.evaluate((element) => element.scrollIntoView({ block: 'center', inline: 'center' }));
     }, [
       { spec: 'Only destinations matching the final printed placement icons become actionable', check: async () => await expect(buyer.page.getByTestId(`space-${space}`)).toBeEnabled() }
     ]);
+    await buyer.page.evaluate(({ x, y }) => scrollTo(x, y), scroll);
 
     gestureNumber += 1;
     await steps.gesture(buyer.page, `place-${gestureNumber}`, `${buyer.name} plays ${name} on the production board`, async () => {
