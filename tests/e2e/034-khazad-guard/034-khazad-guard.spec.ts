@@ -41,7 +41,7 @@ test('Khazad Guard musters and deploys a third veteran Company at Battle', async
     const buyer = await currentSeat();
     for (const observer of seats) {
       await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 49');
-      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('54 / 54');
+      await expect(observer.page.getByTestId('chronicle-row').getByRole('button')).toHaveCount(5);
     }
 
     await reveal(buyer);

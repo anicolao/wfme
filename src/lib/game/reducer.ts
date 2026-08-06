@@ -128,12 +128,25 @@ export type MatchState = {
   } | null;
   queuedChronicleStandingLoss: { actorUid: string } | null;
   queuedChronicleStandingGain: { actorUid: string } | null;
+  queuedCommanderRing: { actorUid: string } | null;
   queuedMessengerMothRecall: { actorUid: string } | null;
   queuedElvenForesight: { actorUid: string } | null;
   queuedScoutPlacementRestriction: { actorUid: string; postIds: readonly string[] } | null;
   queuedBattleDeployment: { actorUid: string; spaceId: string; additionalGarrisonAllowance: number } | null;
   pendingBattleRewardChoices: Array<{ kind: 'standing' | 'place-scout' | 'fate-keep-one'; actorUid: string }>;
   pendingChoice: null | {
+    kind: 'token-command-order';
+    actorUid: string;
+    cardInstanceId: string;
+    spaceId: string;
+    ignoredResourceCost: boolean;
+    options: readonly ['ring-first', 'space-first'];
+  } | {
+    kind: 'commander-ring-standing';
+    actorUid: string;
+    resumeSpace: { cardInstanceId: string; spaceId: string; ignoredResourceCost: boolean } | null;
+    options: readonly `standing-${FactionId}`[];
+  } | {
     kind: 'chronicle-payment';
     actorUid: string;
     definitionId: PaidChronicleId;
@@ -514,6 +527,7 @@ function createMatch(state: GameState, seed: string, epoch: number): MatchState 
     queuedChronicleCardChoice: null,
     queuedChronicleStandingLoss: null,
     queuedChronicleStandingGain: null,
+    queuedCommanderRing: null,
     queuedMessengerMothRecall: null,
     queuedElvenForesight: null,
     queuedScoutPlacementRestriction: null,
@@ -547,6 +561,7 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
   const card = player.hand.find((candidate) => candidate.id === cardInstanceId);
   const definition = card && AGENT_CARD_DEFINITIONS.find((candidate) => candidate.id === card.definitionId);
   if (!definition) return [];
+  if (card?.definitionId === 'token-of-command' && state.players.find((candidate) => candidate.uid === actorUid)?.commander !== 'aragorn') return [];
   const ownedScoutCount = Object.values(match.boardScouts).filter((uid) => uid === actorUid).length;
   const canUsePaths = definition.journeyEffect?.kind === 'recall-scout-ignore-space-cost' && ownedScoutCount > 0;
   return BOARD_SPACE_DEFINITIONS.filter((space) => {
@@ -973,6 +988,20 @@ function openChronicleStandingGain(match: MatchState, actorUid: string): boolean
   return true;
 }
 
+function openAragornRing(
+  match: MatchState,
+  actorUid: string,
+  resumeSpace: { cardInstanceId: string; spaceId: string; ignoredResourceCost: boolean } | null
+): boolean {
+  const options = eligibleHeirStandingOptions(match.players[actorUid]);
+  if (options.length === 0) {
+    match.activity.push('Andúril Aflame finds no faction at 1 or less standing.');
+    return false;
+  }
+  match.pendingChoice = { kind: 'commander-ring-standing', actorUid, resumeSpace, options };
+  return true;
+}
+
 function permutations<T>(values: readonly T[]): T[][] {
   if (values.length < 2) return [values.slice()];
   return values.flatMap((value, index) =>
@@ -1026,6 +1055,12 @@ function finishAgentAction(match: MatchState, actorUid: string): void {
   if (queued?.actorUid === actorUid) {
     match.queuedBattleDeployment = null;
     openBattleDeployment(match, actorUid, queued.spaceId, queued.additionalGarrisonAllowance);
+    if (match.pendingChoice) return;
+  }
+  const queuedRing = match.queuedCommanderRing;
+  if (queuedRing?.actorUid === actorUid) {
+    match.queuedCommanderRing = null;
+    if (openAragornRing(match, actorUid, null)) return;
   }
   if (!match.pendingChoice) advanceToNextAgentPlayer(match);
 }
@@ -1596,6 +1631,30 @@ function resolveAgentEffects(
   match.activity.push(`${actorName} sends an Agent to ${space.name}, ${resolution}.`);
 }
 
+function beginAgentResolution(
+  state: GameState,
+  actorName: string,
+  actorUid: string,
+  card: CardInstance,
+  space: (typeof BOARD_SPACE_DEFINITIONS)[number],
+  ignoredResourceCost = false
+): void {
+  if (card.definitionId === 'token-of-command') {
+    state.match!.pendingChoice = {
+      kind: 'token-command-order',
+      actorUid,
+      cardInstanceId: card.id,
+      spaceId: space.id,
+      ignoredResourceCost,
+      options: ['ring-first', 'space-first']
+    };
+    state.match!.activity.push(`${actorName} sends Token of Command to ${space.name} and chooses whether Andúril Aflame resolves before or after the destination.`);
+    return;
+  }
+  resolveAgentEffects(state, actorName, actorUid, card, space, ignoredResourceCost);
+  if (!state.match!.pendingChoice) finishAgentAction(state.match!, actorUid);
+}
+
 function continuePlacedAgent(
   state: GameState,
   actorName: string,
@@ -1636,8 +1695,7 @@ function continuePlacedAgent(
     match.activity.push(`${actorName} places an Agent at ${space.name} and may gather intelligence before resolving it.`);
     return;
   }
-  resolveAgentEffects(state, actorName, actorUid, card, space, ignoredResourceCost);
-  if (!match.pendingChoice) finishAgentAction(match, actorUid);
+  beginAgentResolution(state, actorName, actorUid, card, space, ignoredResourceCost);
 }
 
 function applyEvent(state: GameState, event: GameEvent): string | null {
@@ -1814,6 +1872,46 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         state.match.activity.push(`${actor.displayName} declines to deploy a defending Company at ${BOARD_SPACE_DEFINITIONS.find((space) => space.id === pending.locationId)?.name}.`);
       }
       state.match.pendingChoice = null;
+      return null;
+    }
+    if (pending.kind === 'token-command-order') {
+      const card = player.journey.find((candidate) => candidate.id === pending.cardInstanceId);
+      const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === pending.spaceId);
+      if (!card || card.definitionId !== 'token-of-command' || !space) return 'illegal choice resolution';
+      state.match.pendingChoice = null;
+      if (choice === 'ring-first') {
+        if (!openAragornRing(state.match, event.actorUid, {
+          cardInstanceId: card.id,
+          spaceId: space.id,
+          ignoredResourceCost: pending.ignoredResourceCost
+        })) {
+          resolveAgentEffects(state, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
+          if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
+        }
+      } else {
+        state.match.queuedCommanderRing = { actorUid: event.actorUid };
+        resolveAgentEffects(state, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
+        if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
+      }
+      return null;
+    }
+    if (pending.kind === 'commander-ring-standing') {
+      const faction = choice.slice('standing-'.length) as FactionId;
+      if (!(['shadow', 'dwarven', 'elven', 'wild'] as const).includes(faction) || player.standing[faction] > 1) {
+        return 'illegal choice resolution';
+      }
+      gainStanding(state.match, player, faction);
+      state.match.pendingChoice = null;
+      state.match.activity.push(`${actor.displayName} gains 1 ${faction} standing with Andúril Aflame.`);
+      if (pending.resumeSpace) {
+        const card = player.journey.find((candidate) => candidate.id === pending.resumeSpace!.cardInstanceId);
+        const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === pending.resumeSpace!.spaceId);
+        if (!card || card.definitionId !== 'token-of-command' || !space) return 'illegal choice resolution';
+        resolveAgentEffects(state, actor.displayName, event.actorUid, card, space, pending.resumeSpace.ignoredResourceCost);
+        if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
+      } else {
+        finishAgentAction(state.match, event.actorUid);
+      }
       return null;
     }
     if (pending.kind === 'chronicle-paths-cost') {
@@ -2341,8 +2439,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === pending.spaceId);
       if (!card || !space) return 'illegal choice resolution';
       state.match.pendingChoice = null;
-      resolveAgentEffects(state, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
-      if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
+      beginAgentResolution(state, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
       return null;
     }
     if (pending.kind === 'elven-favor') {

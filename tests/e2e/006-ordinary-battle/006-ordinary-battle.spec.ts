@@ -71,7 +71,7 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
       { spec: 'Every human sees the selected Age I Battle first', check: async () => {
         for (const seat of seats) await expect(seat.page.getByTestId('active-battle')).toContainText('Raid on the Westfold');
       } },
-      { spec: 'The production board reports all twenty-two executable destinations', check: async () => await expect(page.getByText('22 / 22')).toBeVisible() },
+      { spec: 'The production board reports all twenty-two executable destinations', check: async () => await expect(page.locator('[data-testid^="space-"]')).toHaveCount(22) },
       converged(accepted + 1)
     ]);
 

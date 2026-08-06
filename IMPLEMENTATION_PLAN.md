@@ -211,7 +211,7 @@ Add offline cache recovery, duplicate/conflicting event handling, version compat
 
 ## Content completion rule
 
-The growing game may contain fewer available cards, spaces, Commanders, Battles, or modules than the final catalog, but every available item must be final and fully executable. The construction preview displays an exact completion ledger. It never implies that an inert or names-only entry is supported.
+The growing game may contain fewer available cards, spaces, Commanders, Battles, or modules than the final catalog, but every available item must be final and fully executable. The exact completion ledger lives in `IMPLEMENTATION_STATUS.md`; production game screens identify unavailable powers without exposing internal construction counters. Neither surface implies that an inert or names-only entry is supported.
 
 Before playable alpha, the ledger must cover:
 

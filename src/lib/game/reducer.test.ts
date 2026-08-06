@@ -101,6 +101,91 @@ describe('integrated Agent placement replay', () => {
     expect(rejectedFate.match!.fateDiscard).toEqual([]);
   });
 
+  it('lets Aragorn order Andúril Aflame before or after the destination and rejects inactive Rings', () => {
+    const setup = readyRoom('aragorn-ring-11');
+    const started = reduceGame(setup);
+    expect(currentPlayerUid(started)).toBe('host');
+    const token = started.match!.players.host.hand.find((card) => card.definitionId === 'token-of-command')!;
+    expect(token).toBeDefined();
+    expect(legalAgentSpaces(started, 'host', token.id)).toContain('take-war-effort');
+
+    const inactiveSetup = setup.map((event) => event.type !== 'player/commander-selected'
+      ? event
+      : event.actorUid === 'host'
+        ? createEvent('player/commander-selected', 'host', 2, { commanderId: 'galadriel' }, 4)
+        : event.actorUid === 'guest-a'
+          ? createEvent('player/commander-selected', 'guest-a', 2, { commanderId: 'aragorn' }, 5)
+          : event);
+    const inactive = reduceGame(inactiveSetup);
+    const inactiveToken = inactive.match!.players.host.hand.find((card) => card.definitionId === 'token-of-command')!;
+    expect(legalAgentSpaces(inactive, 'host', inactiveToken.id)).toEqual([]);
+
+    const placement = createEvent('agent/placed', 'host', 5, {
+      cardInstanceId: token.id,
+      spaceId: 'take-war-effort'
+    }, 11);
+    const awaitingOrder = reduceGame([...setup, placement]);
+    expect(awaitingOrder.match!.pendingChoice).toEqual({
+      kind: 'token-command-order',
+      actorUid: 'host',
+      cardInstanceId: token.id,
+      spaceId: 'take-war-effort',
+      ignoredResourceCost: false,
+      options: ['ring-first', 'space-first']
+    });
+    expect(awaitingOrder.match!.players.host.resources.gold).toBe(0);
+
+    const unauthorized = reduceGame([
+      ...setup,
+      placement,
+      createEvent('choice/resolved', 'guest-a', 4, { choice: 'ring-first' }, 12)
+    ]);
+    expect(unauthorized.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(unauthorized.match!.pendingChoice).toEqual(awaitingOrder.match!.pendingChoice);
+    expect(unauthorized.match!.players.host.resources.gold).toBe(0);
+
+    const ringFirst = createEvent('choice/resolved', 'host', 6, { choice: 'ring-first' }, 12);
+    let state = reduceGame([...setup, placement, ringFirst]);
+    expect(state.match!.pendingChoice).toMatchObject({
+      kind: 'commander-ring-standing',
+      actorUid: 'host',
+      options: ['standing-shadow', 'standing-dwarven', 'standing-elven', 'standing-wild']
+    });
+    expect(state.match!.players.host.resources.gold).toBe(0);
+    state = reduceGame([
+      ...setup,
+      placement,
+      ringFirst,
+      createEvent('choice/resolved', 'host', 7, { choice: 'standing-dwarven' }, 13)
+    ]);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.players.host.standing.dwarven).toBe(1);
+    expect(state.match!.players.host.resources.gold).toBe(2);
+    expect(state.match!.pendingChoice).toBeNull();
+    expect(currentPlayerUid(state)).not.toBe('host');
+
+    const spaceFirst = createEvent('choice/resolved', 'host', 6, { choice: 'space-first' }, 12);
+    state = reduceGame([...setup, placement, spaceFirst]);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.players.host.resources.gold).toBe(2);
+    expect(state.match!.pendingChoice).toMatchObject({
+      kind: 'commander-ring-standing',
+      actorUid: 'host',
+      resumeSpace: null
+    });
+    state = reduceGame([
+      ...setup,
+      placement,
+      spaceFirst,
+      createEvent('choice/resolved', 'host', 7, { choice: 'standing-elven' }, 13)
+    ]);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.players.host.standing.elven).toBe(1);
+    expect(state.match!.players.host.resources.gold).toBe(2);
+    expect(currentPlayerUid(state)).not.toBe('host');
+    expect(reduceGame([...setup, placement, spaceFirst, createEvent('choice/resolved', 'host', 7, { choice: 'standing-elven' }, 13)])).toEqual(state);
+  });
+
   it('resolves Diplomatic Mission at Dwarven Caravans and advances the real turn', () => {
     const events = readyRoom();
     const before = reduceGame(events);

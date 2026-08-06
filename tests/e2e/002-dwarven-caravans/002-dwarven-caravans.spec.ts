@@ -88,7 +88,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
         () => seat.page.getByRole('button', { name: new RegExp(`^${commander}`) }).click(),
         [
           { spec: `${commander} is selected for ${seat.name}`, check: async () => await expect(seat.page.getByRole('button', { name: new RegExp(`^${commander}`) })).toHaveAttribute('aria-pressed', 'true') },
-          { spec: 'Commander powers are visibly identified as inactive', check: async () => await expect(seat.page.getByText('Commander powers are explicitly inactive')).toBeVisible() },
+          { spec: commander === 'Aragorn' ? 'Aragorn’s implemented Ring is visibly active' : 'Unimplemented Commander powers remain visibly inactive', check: async () => await expect(seat.page.getByRole('button', { name: new RegExp(`^${commander}`) })).toContainText(commander === 'Aragorn' ? 'Ring active · Andúril Aflame' : 'Powers inactive') },
           convergedEvents(4 + index * 2)
         ]
       );
@@ -118,7 +118,7 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
         } },
         { spec: 'All 22 final board destinations are structurally present', check: async () => await expect(page.locator('.spaces button')).toHaveCount(22) },
         { spec: 'All twenty-two complete destinations are advertised as playable', check: async () => {
-          await expect(page.getByText('Playable spaces').locator('..').getByText('22 / 22')).toBeVisible();
+          await expect(page.locator('[data-testid^="space-"]')).toHaveCount(22);
           await expect(page.getByTestId('space-dwarven-caravans')).toContainText('+1 standing');
           await expect(page.getByTestId('space-tribute-shadow')).toContainText('+1 standing');
         } },

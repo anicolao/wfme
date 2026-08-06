@@ -10,12 +10,12 @@ This is the construction ledger for the one canonical game at the repository roo
 | Seeded match and private opening hands | 1 / 1 | Reducer conservation tests and the three-seat browser journey |
 | Board destinations | 22 / 22 executable; 17 / 22 current focused browser proofs | Every printed destination has reducer behavior; Captain of the Host plus Pits, Deep Roads, Hidden Paths, and Ranger Mustering need new finite-match browser tracers after retiring their pre-Endgame marathon |
 | Starting card instances | 10 / 10 | Exact deterministic deck composition and conservation |
-| Starting cards with executable Agent boxes | 5 / 7 definitions | Diplomatic Mission, The Open Road, Armed Escort, Seek Allies, and Reconnaissance |
+| Starting cards with executable Agent boxes | 6 / 7 definitions | Diplomatic Mission, The Open Road, Armed Escort, Seek Allies, Reconnaissance, and Token of Command; Rallying Words has no printed Agent box |
 | Observation posts | 9 / 9 structure; placement, intelligence, and infiltration live | Exact named connections, finite Scout supply, multi-Agent occupation, both recall timings, authority, and replay |
 | Starting cards with executable Muster boxes | 7 / 7 definitions | Public Reveal totals and card-instance conservation |
 | Reserve cards | 1 / 2 definitions | Muster the Host cost, finite supply, discard destination, reshuffle, and later Agent use are executable |
-| Commander identities | 8 / 8 | Unique lobby identities, explicitly power-free |
-| Commander powers | 0 / 16 | No power text is presented as active |
+| Commander identities | 8 / 8 | Unique lobby identities; only fully implemented powers are presented as active |
+| Commander powers | 1 / 16 | Aragorn's Andúril Aflame Ring ability is active through Token of Command; every other power remains visibly inactive |
 | Fate physical instances | 30 / 30; effects 30 / 30 | Deterministically shuffled deck, private hands, public discard, keep-one choice, deterministic transfer and cycle, conservation, and replay; all six Plot, six Combat, and three Endgame definitions are complete, including their exact prerequisites and rewards |
 | Battle cards | 16 / 16 | Every Battle has final setup, Standard, exact ranked rewards, ownership/discard, ordered choices, and cleanup |
 | Chronicle cards | 54 / 54 instances; 27 / 27 definitions | Every listed definition through Heir of Isildur has executable placement icons, Journey and Muster boxes, costs, physical copies, public Row acquisition, immediate refill, deterministic reshuffle, and later draw |
@@ -57,6 +57,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | Take Up a War Effort draw and disabled-module +2 Gold | card-zone conservation test | gestures 016–017 validate private draw and public reward |
 | Armed Escort + Muster ordered recruitment and optional payment | pending-choice legality and conservation tests | gestures 024–027 validate actor, observers, and replay |
 | Seek Allies optional self-trash and permanent Trash zone | choice authorization and keep/trash branch tests | gestures 060–063 validate ordering, privacy, convergence, and replay |
+| Aragorn's Andúril Aflame Ring ability | Token of Command is restricted to Aragorn while other Ring abilities are inactive; the owner chooses Ring-before-destination or destination-before-Ring; only factions at standing one or less are legal; threshold effects, queued destination resolution, authorization, rollback, conservation, and replay are deterministic | `041-aragorn-ring` has three humans select exact Commanders, play the physical Token through a matching board icon, choose Ring-first by click, reload the pending faction authority, gain Dwarven standing by click, and only then receive the queued draw and Gold on phone and desktop |
 | Reconnaissance and persistent Scout placement | post legality, finite supply, authorization, and replay tests | gestures 079–082 validate the genuine draw, all nine connections, ordered placement, convergence, and reload |
 | Scout Gather Intelligence timing | recall/decline branches, pre-effect ordering, draw, conservation, and replay tests | gestures 088–091 validate persistence, actor-only choice, two ordered draws, convergence, and reload |
 | Scout infiltration into an occupied space | matching-icon legality, required connected recall, multi-Agent conservation, and illegal-intent tests | `003-scout-infiltration` gestures 024–027 validate the blocker, explicit recall, shared occupation, observer convergence, and reload |
@@ -100,4 +101,4 @@ This is the construction ledger for the one canonical game at the repository roo
 
 ## Next accepted tracer
 
-Tracer 7 now includes the complete Chronicle market, all Fate timings, deterministic final scoring, finished-game history, stale-command protection, and a unanimous clean rematch epoch. The next base-game tracers activate Token of Command and the sixteen Commander powers one complete timing at a time, then finish the remaining Reserve and focused board-space proofs before the optional War Effort module.
+Tracer 7 now includes the complete Chronicle market, all Fate timings, deterministic final scoring, finished-game history, stale-command protection, and a unanimous clean rematch epoch. Token of Command and Aragorn's Andúril Aflame are the first complete Commander-power tracer. The next base-game tracers activate each remaining persistent or Ring power one complete timing at a time, then finish the remaining Reserve and focused board-space proofs before the optional War Effort module.

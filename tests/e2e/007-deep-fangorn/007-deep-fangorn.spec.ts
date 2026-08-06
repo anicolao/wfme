@@ -74,7 +74,7 @@ test('Ent-draught breaches the Dam and summons reward-doubling Ents', async ({ b
           await expect(seat.page.getByTestId('active-battle')).toContainText('Raid on the Westfold');
         }
       } },
-      { spec: 'The complete printed board exposes twenty-two executable destinations', check: async () => await expect(page.getByText('22 / 22')).toBeVisible() },
+      { spec: 'The complete printed board exposes twenty-two executable destinations', check: async () => await expect(page.locator('[data-testid^="space-"]')).toHaveCount(22) },
       converged(accepted + 1)
     ]);
 

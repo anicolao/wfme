@@ -71,7 +71,7 @@ export async function startPlotTable(
   await steps.gesture(page, 'start-match', 'Mara starts the Plot Fate match', async () => {
     await page.getByRole('button', { name: 'Start seeded match' }).click(); accepted.value += 1;
   }, [{ spec: 'Every human reaches the complete production board', check: async () => {
-    for (const seat of seats) await expect(seat.page.getByText('22 / 22')).toBeVisible();
+    for (const seat of seats) await expect(seat.page.locator('[data-testid^="space-"]')).toHaveCount(22);
   } }, converged(accepted.value + 1)]);
 
   return {

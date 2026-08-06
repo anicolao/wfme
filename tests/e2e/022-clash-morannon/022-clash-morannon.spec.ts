@@ -242,7 +242,6 @@ test('Clash at the Morannon resolves the final Battle rewards before Recall', as
         for (const observer of seats) {
           await expect(observer.page.getByText('Round 10 · Endgame')).toBeVisible();
           await expect(observer.page.getByTestId('endgame-window')).toContainText('Battle deck exhausted');
-          await expect(observer.page.getByText('16 / 16')).toBeVisible();
         }
       } },
       converged(accepted.value + 1)

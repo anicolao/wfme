@@ -51,7 +51,6 @@
   $: selectedDefinitionId = localMatch?.hand.find((card) => card.id === selectedCardId)?.definitionId;
   $: selectedIsImplemented = AGENT_CARD_DEFINITIONS.some((card) => card.id === selectedDefinitionId);
   $: selectedName = selectedDefinitionId ? cardName(selectedDefinitionId) : '';
-  $: reviewedChronicleInstances = CHRONICLE_CARD_DEFINITIONS.reduce((total, definition) => total + definition.copies, 0);
 
   function battleRewardText(reward: (typeof BATTLE_CARD_DEFINITIONS)[number]['rewards'][number]): string {
     return [
@@ -135,14 +134,6 @@
         {/if}
       </p>
     </div>
-    <dl class="ledger" aria-label="Construction capability ledger">
-      <div><dt>Playable spaces</dt><dd>22 / 22</dd></div>
-      <div><dt>Starting Agent boxes</dt><dd>5 / 7</dd></div>
-      <div><dt>Chronicle cards</dt><dd>{reviewedChronicleInstances} / 54</dd></div>
-      <div><dt>Fate effects</dt><dd>30 / 30</dd></div>
-      <div><dt>Battle cards</dt><dd>{BATTLE_CARD_DEFINITIONS.length} / 16</dd></div>
-      <div><dt>Commander powers</dt><dd>0 / 16</dd></div>
-    </dl>
   </header>
 
   <dl class="alliances" aria-label="Reviewed faction Alliances">
@@ -481,7 +472,34 @@
     </section>
   {/if}
 
-  {#if game.match?.pendingChoice && game.match.pendingChoice.kind !== 'place-scout' && game.match.pendingChoice.kind !== 'fell-sorcery'}
+  {#if game.match?.pendingChoice?.kind === 'token-command-order'}
+    <section class="pending-choice" data-testid="pending-choice" aria-labelledby="token-order-title">
+      <div>
+        <p class="eyebrow">Ordered Commander choice</p>
+        <h2 id="token-order-title">When will Andúril Aflame?</h2>
+        <p>Choose whether Aragorn gains low-faction standing before or after the destination and every ordered continuation resolves.</p>
+      </div>
+      <div class="choice-actions">
+        <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid || busy} onclick={() => onResolveChoice('ring-first')}>Ring ability first</button>
+        <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid || busy} onclick={() => onResolveChoice('space-first')}>Destination first</button>
+      </div>
+    </section>
+  {:else if game.match?.pendingChoice?.kind === 'commander-ring-standing'}
+    <section class="pending-choice" data-testid="pending-choice" aria-labelledby="ring-standing-title">
+      <div>
+        <p class="eyebrow">Ordered Commander choice</p>
+        <h2 id="ring-standing-title">Which low faction answers Andúril?</h2>
+        <p>Choose a faction currently at 1 standing or less. Its normal standing threshold, Renown, and Alliance effects resolve at the chosen point in this Agent turn.</p>
+      </div>
+      <div class="choice-actions">
+        {#each game.match.pendingChoice.options as option}
+          <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid || busy} onclick={() => onResolveChoice(option)}>Gain 1 {option.slice('standing-'.length)} standing</button>
+        {/each}
+      </div>
+    </section>
+  {/if}
+
+  {#if game.match?.pendingChoice && game.match.pendingChoice.kind !== 'place-scout' && game.match.pendingChoice.kind !== 'fell-sorcery' && game.match.pendingChoice.kind !== 'token-command-order' && game.match.pendingChoice.kind !== 'commander-ring-standing'}
     <section class="pending-choice" data-testid="pending-choice" aria-labelledby="choice-title">
       <div>
         <p class="eyebrow">Ordered {game.match.pendingChoice.kind === 'critical-defense' || game.match.pendingChoice.kind === 'battle-deployment' || game.match.pendingChoice.kind === 'battle-standing' || game.match.pendingChoice.kind === 'battle-fate-keep' ? 'Battle' : game.match.pendingChoice.kind === 'plot-discard' || game.match.pendingChoice.kind === 'gifts-tokens' || game.match.pendingChoice.kind === 'tidings-afar' || game.match.pendingChoice.kind === 'long-memory' || game.match.pendingChoice.kind.startsWith('divided-counsel') ? 'Plot Fate' : game.match.pendingChoice.kind === 'chronicle-payment' || game.match.pendingChoice.kind === 'chronicle-card-choice' || game.match.pendingChoice.kind === 'chronicle-muster-scout' || game.match.pendingChoice.kind === 'chronicle-muster-fate' || game.match.pendingChoice.kind === 'chronicle-standing-loss' || game.match.pendingChoice.kind === 'chronicle-standing-gain' || game.match.pendingChoice.kind === 'chronicle-messenger-moth' || game.match.pendingChoice.kind === 'chronicle-elven-foresight' || game.match.pendingChoice.kind === 'chronicle-paths-cost' ? 'Chronicle' : game.match.pendingChoice.kind === 'fangorn-moot' ? 'Fangorn Moot' : game.match.pendingChoice.kind === 'deep-fangorn' ? 'Deep Fangorn' : game.match.pendingChoice.kind === 'entwash' ? 'Entwash' : game.match.pendingChoice.kind === 'osgiliath' ? 'Osgiliath' : game.match.pendingChoice.kind === 'great-forge' ? 'Great Forge' : game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Council' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'Ranger' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Scout' : game.match.pendingChoice.kind === 'elven-favor' ? 'Elven favor' : game.match.pendingChoice.kind.startsWith('secret-bargain') ? 'Secret Bargain' : 'Journey'} choice</p>
@@ -770,10 +788,6 @@
   .table-header h1 { margin: 0; font: 700 clamp(2.6rem, 7vw, 5.5rem)/.9 'Cormorant Garamond', serif; }
   .table-header p { max-width: 44rem; }
   .eyebrow { margin: 0 0 .35rem; color: #d6b66f; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
-  .ledger { display: flex; gap: .5rem; margin: 0; }
-  .ledger div { min-width: 8rem; padding: .65rem; color: #29291f; background: #efe3c4; border-radius: .5rem; }
-  .ledger dt { font-size: .78rem; }
-  .ledger dd { margin: .15rem 0 0; font-weight: 700; }
   .alliances { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; margin: 0 0 1rem; }
   .endgame-area { display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center; margin: 0 0 1rem; padding: 1.1rem; color: #29291f; background: #efe3c4; border: 3px solid #d6b66f; border-radius: .7rem; }
   .endgame-area h2, .endgame-area p { margin: 0; }
@@ -868,7 +882,6 @@
   .history ol { margin-bottom: 0; }
   @media (max-width: 850px) {
     .table-header { display: block; }
-    .ledger { overflow-x: auto; margin-top: .8rem; }
     .game-grid { grid-template-columns: 1fr; }
     .players { grid-template-columns: repeat(3, minmax(9rem, 1fr)); overflow-x: auto; }
     .board { grid-template-columns: 1fr 1fr; }

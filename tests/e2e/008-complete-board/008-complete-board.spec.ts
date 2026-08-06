@@ -89,7 +89,7 @@ test('three humans execute every final printed board destination', async ({ brow
       await page.getByRole('button', { name: 'Start seeded match' }).click(); accepted += 1;
     }, [
       { spec: 'Every browser reports all twenty-two destinations executable', check: async () => {
-        for (const seat of seats) await expect(seat.page.getByText('22 / 22')).toBeVisible();
+        for (const seat of seats) await expect(seat.page.locator('[data-testid^="space-"]')).toHaveCount(22);
       } },
       converged(accepted + 1)
     ]);
@@ -226,7 +226,7 @@ test('three humans execute every final printed board destination', async ({ brow
     await steps.gesture(page, 'reload-complete-board', 'Mara reloads the completed printed board', async () => {
       await reloadGameClient(page);
     }, [
-      { spec: 'All twenty-two destinations remain executable after replay', check: async () => await expect(page.getByText('22 / 22')).toBeVisible() },
+      { spec: 'All twenty-two destinations remain executable after replay', check: async () => await expect(page.locator('[data-testid^="space-"]')).toHaveCount(22) },
       { spec: 'The final destination history survives reload', check: async () => {
         await expect(page.getByTestId('activity-log')).toContainText('Archives of Rivendell');
         await expect(page.getByTestId('activity-log')).toContainText('at Osgiliath');

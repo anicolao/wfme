@@ -55,6 +55,7 @@ export type AgentCardDefinition = StartingCardIdentity & {
     | { kind: 'draw-discard-card'; draw: 1 }
     | { kind: 'draw-optional-trash'; draw: 1; includeDiscard: boolean }
     | { kind: 'gain-gold'; amount: number }
+    | { kind: 'commander-ring' }
     | { kind: 'optional-trash-self' }
     | { kind: 'place-scout'; amount: 1 };
   reviewedCapabilities: readonly ['agent-placement'];
@@ -105,6 +106,14 @@ export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
     copies: 1,
     placementIcons: ['Stronghold', 'Roads'],
     journeyEffect: { kind: 'place-scout', amount: 1 },
+    reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'token-of-command',
+    name: 'Token of Command',
+    copies: 1,
+    placementIcons: ['Council', 'Stronghold', 'Roads'],
+    journeyEffect: { kind: 'commander-ring' },
     reviewedCapabilities: ['agent-placement']
   },
   {

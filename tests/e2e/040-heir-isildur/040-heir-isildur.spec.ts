@@ -107,7 +107,7 @@ test('Heir of Isildur rewards only a low faction and Reveals five Influence', as
     await revealUntil(buyer);
     for (const observer of seats) {
       await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 49');
-      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('54 / 54');
+      await expect(observer.page.getByTestId('chronicle-row').getByRole('button')).toHaveCount(5);
     }
     await reveal(buyer, [
       { spec: 'The real five-card Muster plus the Council seat totals exactly eight Influence', check: async () => await expect(buyer.page.locator('.reveal-total strong')).toHaveText('8 Influence') }

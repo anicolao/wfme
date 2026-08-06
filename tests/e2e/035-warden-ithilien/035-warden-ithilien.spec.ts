@@ -38,7 +38,7 @@ test('Warden of Ithilien places a Scout only beside a Battle space', async ({ br
     const buyer = await currentSeat();
     for (const observer of seats) {
       await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 49');
-      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('54 / 54');
+      await expect(observer.page.getByTestId('chronicle-row').getByRole('button')).toHaveCount(5);
     }
 
     await reveal(buyer);

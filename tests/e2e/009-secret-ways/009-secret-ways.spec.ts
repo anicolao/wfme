@@ -67,7 +67,7 @@ test('Secret Ways places a Scout and resumes the same Agent turn', async ({ brow
     await steps.gesture(page, 'start-match', 'Mara starts the Plot Fate match', async () => {
       await page.getByRole('button', { name: 'Start seeded match' }).click(); accepted += 1;
     }, [{ spec: 'Every human reaches the complete production board', check: async () => {
-      for (const seat of seats) await expect(seat.page.getByText('22 / 22')).toBeVisible();
+      for (const seat of seats) await expect(seat.page.locator('[data-testid^="space-"]')).toHaveCount(22);
     } }, converged(accepted + 1)]);
 
     const fateHolder = await currentSeat();

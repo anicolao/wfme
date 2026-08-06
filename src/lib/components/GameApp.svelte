@@ -127,7 +127,7 @@
     busy = true;
     try {
       await append('player/commander-selected', { commanderId });
-      message = 'Commander identity selected. Powers are not active in Tracer 1.';
+      message = commanderId === 'aragorn' ? 'Aragorn selected. Andúril Aflame is active through Token of Command.' : 'Commander identity selected. This Commander’s powers are not active yet.';
     } finally {
       busy = false;
     }
@@ -359,8 +359,8 @@
         {#if localPlayer}
           <section aria-labelledby="commander-title">
             <div class="section-heading">
-              <div><p class="eyebrow">Identity only</p><h2 id="commander-title">Choose your Commander</h2></div>
-              <p>Commander powers are explicitly inactive in this tracer and will arrive as separate capabilities.</p>
+              <div><p class="eyebrow">Power rollout</p><h2 id="commander-title">Choose your Commander</h2></div>
+              <p>Aragorn’s Andúril Aflame Ring ability is active. Every other printed power remains visibly inactive until its complete tracer arrives.</p>
             </div>
             <div class="commanders">
               {#each COMMANDERS as commander}
@@ -372,7 +372,7 @@
                   aria-pressed={localPlayer.commander === commander.id}
                   onclick={() => void chooseCommander(commander.id)}
                 >
-                  <strong>{commander.name}</strong><span>{commander.epithet}</span>
+                  <strong>{commander.name}</strong><span>{commander.epithet}</span><span>{commander.id === 'aragorn' ? 'Ring active · Andúril Aflame' : 'Powers inactive'}</span>
                 </button>
               {/each}
             </div>

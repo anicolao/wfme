@@ -127,7 +127,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] Aragorn is selected for Mara
-- [x] Commander powers are visibly identified as inactive
+- [x] Aragorn’s implemented Ring is visibly active
 - [x] Every connected replay has accepted exactly 4 events with no diagnostics
 
 ---
@@ -155,7 +155,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] Galadriel is selected for Rin
-- [x] Commander powers are visibly identified as inactive
+- [x] Unimplemented Commander powers remain visibly inactive
 - [x] Every connected replay has accepted exactly 6 events with no diagnostics
 
 ---
@@ -183,7 +183,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] Gandalf is selected for Pip
-- [x] Commander powers are visibly identified as inactive
+- [x] Unimplemented Commander powers remain visibly inactive
 - [x] Every connected replay has accepted exactly 8 events with no diagnostics
 
 ---
