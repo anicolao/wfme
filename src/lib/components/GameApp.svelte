@@ -37,7 +37,9 @@
     repository = createGameRepository(db, code, activeUid);
     unsubscribe = repository.subscribe(
       (events) => {
+        const previousEpoch = game.match?.epoch;
         game = reduceGame(events);
+        if (previousEpoch && game.match?.epoch !== previousEpoch) scrollTo(0, 0);
         backendStatus = 'ready';
         if (selectedCardId && !game.match?.players[activeUid]?.hand.some((card) => card.id === selectedCardId)) {
           selectedCardId = '';
@@ -53,7 +55,7 @@
   async function append(type: GameEventType, payload: Record<string, unknown>) {
     if (!repository) throw new Error('No room repository is attached');
     await repository.append(
-      createEvent(type, activeUid, repository.nextSequence(), payload)
+      createEvent(type, activeUid, repository.nextSequence(), payload, Date.now(), game.match?.epoch ?? 1)
     );
   }
 
@@ -240,6 +242,16 @@
     }
   }
 
+  async function toggleRematchReady() {
+    busy = true;
+    try {
+      await append('match/rematch-ready', { ready: !game.rematchReadyUids.includes(activeUid) });
+      message = 'Rematch readiness committed to the shared Chronicle.';
+    } finally {
+      busy = false;
+    }
+  }
+
   async function playFate(cardInstanceId: string) {
     busy = true;
     try {
@@ -302,6 +314,7 @@
       onPassBattle={passBattle}
       onPassEndgame={passEndgame}
       onPlayFate={playFate}
+      onToggleRematchReady={toggleRematchReady}
     />
   {:else}
     <section class="lobby" aria-labelledby="lobby-title">

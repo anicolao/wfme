@@ -21,7 +21,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | Chronicle cards | 54 / 54 instances; 27 / 27 definitions | Every listed definition through Heir of Isildur has executable placement icons, Journey and Muster boxes, costs, physical copies, public Row acquisition, immediate refill, deterministic reshuffle, and later draw |
 | War Effort and Rival content | 0 | Introduced only with the tracer that makes each item executable |
 | Round phases | Agent, Reveal, ordinary Battle, Riches, Recall, Endgame, finished | Combat passing, ranked resolution, all three Riches pools, both Ent summon spaces, doubled rewards, cleanup, redraw, first-player rotation, deck-exhaustion Endgame turns, and final scoring are live |
-| Complete matches | Final scoring 1 / 1; rematch 0 / 1 | Three humans can exhaust the production Battle deck, pass Endgame clockwise, agree on the deterministic winner or shared victory, inspect every tiebreak, and reload the finished result |
+| Complete matches | Final scoring 1 / 1; history 1 / 1; rematch 1 / 1 | Three humans can exhaust the production Battle deck, pass Endgame clockwise, agree on the deterministic winner or shared victory, inspect every tiebreak, reload the finished result, retain it in room history, unanimously start a clean epoch-two match, and reload that rematch |
 
 ## Implemented rules coverage
 
@@ -100,4 +100,4 @@ This is the construction ledger for the one canonical game at the repository roo
 
 ## Next accepted tracer
 
-Tracer 7 now includes the complete Chronicle market through Heir of Isildur. All Fate timings are complete. Finished-game history and rematch epoch remain their own integrated tracer.
+Tracer 7 now includes the complete Chronicle market, all Fate timings, deterministic final scoring, finished-game history, stale-command protection, and a unanimous clean rematch epoch. The next base-game tracers activate Token of Command and the sixteen Commander powers one complete timing at a time, then finish the remaining Reserve and focused board-space proofs before the optional War Effort module.

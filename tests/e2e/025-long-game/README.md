@@ -1,6 +1,6 @@
 # Test: Lady of the Golden Wood and The Long Game
 
-Three isolated humans draw The Long Game privately, use ordinary Reveals to acquire four physical five-cost Chronicle cards, draw and play Lady of the Golden Wood through her final Elven icons, Fate draw, and Scout choice, reach Endgame, gain exactly one Renown through the now-satisfied ownership condition, pass to final scoring, and reload the deterministic result.
+Three isolated humans draw The Long Game privately, use ordinary Reveals to acquire four physical five-cost Chronicle cards, draw and play Lady of the Golden Wood through her final Elven icons, Fate draw, and Scout choice, reach Endgame, gain exactly one Renown through the now-satisfied ownership condition, pass to final scoring, reload the deterministic result, preserve its detailed room history, and unanimously begin and reload a clean epoch-two rematch.
 
 Every numbered frame is captured only after its listed semantic validations pass. The phone and desktop images prove the same gesture at both required viewports.
 
@@ -1418,5 +1418,57 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] Replay reproduces the Chronicle-backed final result
 - [x] Every connected browser replays 98 accepted events with no diagnostics
+
+---
+
+## Mara readies for a rematch
+
+![Phone: Mara readies for a rematch](./screenshots/108-ready-rematch-1-phone.png)
+
+![Desktop: Mara readies for a rematch](./screenshots/108-ready-rematch-1-desktop.png)
+
+**Verifications:**
+
+- [x] Every browser records this Commander as ready while the finished result remains
+- [x] Every connected browser replays 99 accepted events with no diagnostics
+
+---
+
+## Rin readies for a rematch
+
+![Phone: Rin readies for a rematch](./screenshots/109-ready-rematch-2-phone.png)
+
+![Desktop: Rin readies for a rematch](./screenshots/109-ready-rematch-2-desktop.png)
+
+**Verifications:**
+
+- [x] Every browser records this Commander as ready while the finished result remains
+- [x] Every connected browser replays 100 accepted events with no diagnostics
+
+---
+
+## Pip readies for a rematch
+
+![Phone: Pip readies for a rematch](./screenshots/110-ready-rematch-3-phone.png)
+
+![Desktop: Pip readies for a rematch](./screenshots/110-ready-rematch-3-desktop.png)
+
+**Verifications:**
+
+- [x] The final readiness starts a clean second match automatically
+- [x] Every connected browser replays 101 accepted events with no diagnostics
+
+---
+
+## Rin reloads the clean rematch
+
+![Phone: Rin reloads the clean rematch](./screenshots/111-reload-rematch-phone.png)
+
+![Desktop: Rin reloads the clean rematch](./screenshots/111-reload-rematch-desktop.png)
+
+**Verifications:**
+
+- [x] Replay restores Match 2 and the immutable finished-match record together
+- [x] Every connected browser replays 101 accepted events with no diagnostics
 
 ---

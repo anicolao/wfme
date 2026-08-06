@@ -30,6 +30,7 @@
   export let onPassBattle: () => void;
   export let onPassEndgame: () => void;
   export let onPlayFate: (cardInstanceId: string) => void;
+  export let onToggleRematchReady: () => void;
   let selectedScoutRecall = '';
   let selectedInfiltrationSpace = '';
 
@@ -124,7 +125,7 @@
 <section class="table" aria-labelledby="table-title">
   <header class="table-header">
     <div>
-      <p class="eyebrow">Round {game.match?.round ?? 1} · {game.phase === 'finished' ? 'Finished match' : game.match?.turnMode === 'endgame' ? 'Endgame' : game.match?.turnMode === 'reveal' ? 'Reveal turn' : game.match?.turnMode === 'battle' ? 'Combat Fate' : 'Agent turns'}</p>
+      <p class="eyebrow">{game.match && game.match.epoch > 1 ? `Match ${game.match.epoch} · ` : ''}Round {game.match?.round ?? 1} · {game.phase === 'finished' ? 'Finished match' : game.match?.turnMode === 'endgame' ? 'Endgame' : game.match?.turnMode === 'reveal' ? 'Reveal turn' : game.match?.turnMode === 'battle' ? 'Combat Fate' : 'Agent turns'}</p>
       <h1 id="table-title">The living board</h1>
       <p>
         {#if game.match?.finalResult}
@@ -186,6 +187,40 @@
         {/each}
         <button type="button" data-testid="pass-endgame" disabled={currentUid !== localUid || busy} onclick={onPassEndgame}>Pass Endgame</button>
       </div>
+    </section>
+  {/if}
+
+  {#if game.phase === 'finished'}
+    <section class="rematch-panel" data-testid="rematch-panel" aria-labelledby="rematch-title">
+      <div>
+        <p class="eyebrow">Same fellowship · fresh campaign</p>
+        <h2 id="rematch-title">Return to Middle-earth?</h2>
+        <p>The next match begins automatically with a new deterministic seed after every Commander is ready.</p>
+      </div>
+      <ul aria-label="Rematch readiness">
+        {#each game.players as player}
+          <li data-testid={`rematch-ready-${player.uid}`}><strong>{player.displayName}</strong><span>{game.rematchReadyUids.includes(player.uid) ? 'Ready' : 'Deciding'}</span></li>
+        {/each}
+      </ul>
+      <button type="button" data-testid="ready-rematch" disabled={busy} onclick={onToggleRematchReady}>
+        {game.rematchReadyUids.includes(localUid) ? 'Withdraw rematch readiness' : 'Ready for rematch'}
+      </button>
+    </section>
+  {/if}
+
+  {#if game.finishedMatches.length > 0}
+    <section class="match-history" data-testid="match-history" aria-labelledby="match-history-title">
+      <p class="eyebrow">Immutable room record</p>
+      <h2 id="match-history-title">Finished matches</h2>
+      <ol>
+        {#each game.finishedMatches as finished}
+          <li>
+            <strong>Match {finished.epoch} · {finished.winnerUids.map((uid) => game.players.find((player) => player.uid === uid)?.displayName).join(' and ')} {finished.winnerUids.length === 1 ? 'won' : 'shared victory'}</strong>
+            <span>Seed {finished.seed} · {finished.trigger === 'renown' ? '10 Renown' : 'Battle deck exhausted'}</span>
+            <span>{finished.standings.map((standing) => `#${standing.rank} ${game.players.find((player) => player.uid === standing.uid)?.displayName}: ${standing.renown} Renown, ${standing.mithril} Mithril, ${standing.gold} Gold, ${standing.provisions} Provisions, ${standing.totalStanding} standing`).join(' · ')}</span>
+          </li>
+        {/each}
+      </ol>
     </section>
   {/if}
 
@@ -744,6 +779,15 @@
   .endgame-area h2, .endgame-area p { margin: 0; }
   .endgame-area .eyebrow { margin-bottom: .35rem; color: #6d452d; }
   .endgame-area.final { grid-template-columns: minmax(15rem, .8fr) minmax(20rem, 1.2fr); }
+  .rematch-panel, .match-history { margin: 0 0 1rem; padding: 1.1rem; color: #29291f; background: #efe3c4; border-radius: .7rem; }
+  .rematch-panel { display: grid; grid-template-columns: minmax(16rem, 1fr) minmax(14rem, .75fr) auto; gap: 1rem; align-items: center; border: 3px solid #d6b66f; }
+  .rematch-panel h2, .rematch-panel p, .match-history h2, .match-history p { margin: 0; }
+  .rematch-panel .eyebrow, .match-history .eyebrow { margin-bottom: .35rem; color: #6d452d; }
+  .rematch-panel ul, .match-history ol { display: grid; gap: .4rem; margin: 0; padding: 0; list-style: none; }
+  .rematch-panel li { display: flex; justify-content: space-between; gap: 1rem; padding: .45rem .6rem; background: #dfd2b6; border-radius: .4rem; }
+  .rematch-panel button { min-height: 48px; padding: .6rem .8rem; color: #fff; background: #6d452d; border: 0; border-radius: .4rem; font-weight: 700; cursor: pointer; }
+  .match-history li { display: grid; gap: .25rem; padding: .7rem; background: #dfd2b6; border-radius: .4rem; }
+  .match-history li span:last-child { font-size: .9rem; }
   .final-standings { display: grid; gap: .4rem; margin: 0; padding: 0; list-style: none; }
   .final-standings li { display: grid; grid-template-columns: minmax(9rem, .55fr) 1fr; gap: .5rem; padding: .55rem; background: #dfd2b6; border-radius: .4rem; }
   .alliances div { padding: .55rem .7rem; color: #29291f; background: #d8dfc7; border-radius: .5rem; }
@@ -832,7 +876,7 @@
     .critical-control { grid-template-columns: 1fr; }
   }
   @media (max-width: 520px) {
-    .endgame-area, .endgame-area.final { grid-template-columns: minmax(0, 1fr); }
+    .endgame-area, .endgame-area.final, .rematch-panel { grid-template-columns: minmax(0, 1fr); }
     .endgame-area button { width: 100%; }
     .final-standings li { grid-template-columns: minmax(0, 1fr); }
     .board { grid-template-columns: 1fr; max-height: 34rem; overflow-y: auto; }

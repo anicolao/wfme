@@ -85,7 +85,13 @@ export type FinalResult = {
   standings: FinalStanding[];
 };
 
+export type FinishedMatch = FinalResult & {
+  epoch: number;
+  seed: string;
+};
+
 export type MatchState = {
+  epoch: number;
   seed: string;
   round: number;
   playerOrder: string[];
@@ -337,6 +343,8 @@ export type GameState = {
   phase: 'lobby' | 'playing' | 'finished';
   players: LobbyPlayer[];
   match: MatchState | null;
+  finishedMatches: FinishedMatch[];
+  rematchReadyUids: string[];
   diagnostics: string[];
   eventCount: number;
 };
@@ -347,6 +355,8 @@ export const EMPTY_GAME: GameState = {
   phase: 'lobby',
   players: [],
   match: null,
+  finishedMatches: [],
+  rematchReadyUids: [],
   diagnostics: [],
   eventCount: 0
 };
@@ -358,10 +368,10 @@ function displayName(payload: Record<string, unknown>): string | null {
   return trimmed.length >= 1 && trimmed.length <= 32 ? trimmed : null;
 }
 
-function startingDeck(uid: string, seat: number, seed: string): CardInstance[] {
+function startingDeck(uid: string, seat: number, seed: string, epoch: number): CardInstance[] {
   const instances = STARTING_CARD_IDENTITIES.flatMap((definition) =>
     Array.from({ length: definition.copies }, (_, index) => ({
-      id: `${uid}:starting:${definition.id}:${index + 1}`,
+      id: `match-${epoch}:${uid}:starting:${definition.id}:${index + 1}`,
       definitionId: definition.id
     }))
   );
@@ -379,14 +389,14 @@ function battleDeck(seed: string): string[] {
   return selectedByAge.map((battle) => battle.id);
 }
 
-function createMatch(state: GameState, seed: string): MatchState {
+function createMatch(state: GameState, seed: string, epoch: number): MatchState {
   const playerOrder = shuffled(
     state.players.map((player) => player.uid),
     `${seed}:player-order`
   );
   const players = Object.fromEntries(
     state.players.map((player) => {
-      const deck = startingDeck(player.uid, player.seat, seed);
+      const deck = startingDeck(player.uid, player.seat, seed, epoch);
       return [
         player.uid,
         {
@@ -423,23 +433,24 @@ function createMatch(state: GameState, seed: string): MatchState {
   const chronicleExtensions = CHRONICLE_CARD_DEFINITIONS.filter((definition) => definition.incrementalDeckInsertion);
   const chronicleInstances = shuffled(chronicleFoundation.flatMap((definition) =>
     Array.from({ length: definition.copies }, (_, index) => ({
-      id: `chronicle:${definition.id}:${index + 1}`,
+      id: `match-${epoch}:chronicle:${definition.id}:${index + 1}`,
       definitionId: definition.id
     }))
   ), `${seed}:chronicle-deck`);
   for (const instance of chronicleExtensions.flatMap((definition) =>
     Array.from({ length: definition.copies }, (_, index) => ({
-      id: `chronicle:${definition.id}:${index + 1}`,
+      id: `match-${epoch}:chronicle:${definition.id}:${index + 1}`,
       definitionId: definition.id
     })))) {
     const insertionPoints = shuffled(
       Array.from({ length: chronicleInstances.length + 1 }, (_, index) => index),
-      `${seed}:chronicle-insertion:${instance.id}`
+      `${seed}:chronicle-insertion:${instance.id.replace(/^match-\d+:/, '')}`
     );
     chronicleInstances.splice(insertionPoints[0], 0, instance);
   }
   const selectedBattles = battleDeck(seed);
   return {
+    epoch,
     seed,
     round: 1,
     playerOrder,
@@ -450,7 +461,7 @@ function createMatch(state: GameState, seed: string): MatchState {
     boardAgents: {},
     boardScouts: {},
     fateDeck: shuffled(Array.from({ length: 30 }, (_, index) => ({
-      id: `fate:${index + 1}`,
+      id: `match-${epoch}:fate:${index + 1}`,
       definitionId: index < 2
         ? 'sudden-charge'
         : index === 18 || index === 22
@@ -1665,6 +1676,12 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
   const actor = state.players.find((player) => player.uid === event.actorUid);
   if (!actor) return 'actor has no seat';
 
+  if (
+    state.match &&
+    !['player/commander-selected', 'player/ready', 'match/started'].includes(event.type) &&
+    event.payload.matchEpoch !== state.match.epoch
+  ) return 'stale match epoch';
+
   if (event.type === 'player/commander-selected') {
     const requested = commanderId(event.payload.commanderId);
     if (
@@ -1695,7 +1712,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       typeof seed !== 'string' ||
       seed.trim().length < 3
     ) return 'invalid match start';
-    state.match = createMatch(state, seed.trim());
+    state.match = createMatch(state, seed.trim(), 1);
     state.phase = 'playing';
     return null;
   }
@@ -2551,7 +2568,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     state.match.reserveSupply[definition.id] -= 1;
     player.revealInfluence -= definition.cost;
     player.renown += definition.onAcquireRenown;
-    player.discardPile.push({ id: `reserve:${definition.id}:${copy}`, definitionId: definition.id });
+    player.discardPile.push({ id: `match-${state.match.epoch}:reserve:${definition.id}:${copy}`, definitionId: definition.id });
     state.match.activity.push(`${actor.displayName} acquires ${definition.name} for ${definition.cost} Influence.`);
     return null;
   }
@@ -2611,9 +2628,34 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     state.match.activity.push(`${actor.displayName} passes in Endgame.`);
     if (state.match.consecutiveEndgamePasses >= state.match.playerOrder.length) {
       finishEndgame(state.match);
+      state.finishedMatches.push({
+        epoch: state.match.epoch,
+        seed: state.match.seed,
+        ...structuredClone(state.match.finalResult!)
+      });
+      state.rematchReadyUids = [];
       state.phase = 'finished';
     } else {
       state.match.currentPlayerIndex = (state.match.currentPlayerIndex + 1) % state.match.playerOrder.length;
+    }
+    return null;
+  }
+
+  if (event.type === 'match/rematch-ready') {
+    const ready = event.payload.ready;
+    if (state.phase !== 'finished' || !state.match?.finalResult || typeof ready !== 'boolean') {
+      return 'invalid rematch readiness';
+    }
+    state.rematchReadyUids = ready
+      ? [...new Set([...state.rematchReadyUids, event.actorUid])]
+      : state.rematchReadyUids.filter((uid) => uid !== event.actorUid);
+    state.match.activity.push(`${actor.displayName} ${ready ? 'is ready' : 'is no longer ready'} for a rematch.`);
+    if (state.players.every((player) => state.rematchReadyUids.includes(player.uid))) {
+      const nextEpoch = state.match.epoch + 1;
+      const nextSeed = `${state.match.seed}:rematch-${nextEpoch}`;
+      state.match = createMatch(state, nextSeed, nextEpoch);
+      state.rematchReadyUids = [];
+      state.phase = 'playing';
     }
     return null;
   }

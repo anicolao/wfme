@@ -201,7 +201,11 @@ test('The Long Game rewards four five-cost Chronicle cards acquired through ordi
       }, [
         { spec: pass < seats.length - 1 ? 'Endgame authority advances after the pass' : 'Three consecutive passes record the final result', check: async () => {
           if (pass < seats.length - 1) await expect(actor.page.locator('footer')).not.toContainText(`Current actor ${actor.name}`);
-          else for (const observer of seats) await expect(observer.page.getByTestId('final-result')).toContainText(strategist.name);
+          else for (const observer of seats) {
+            await expect(observer.page.getByTestId('final-result')).toContainText(strategist.name);
+            await expect(observer.page.getByTestId('match-history')).toContainText(`Match 1 · ${strategist.name} won`);
+            await expect(observer.page.getByTestId('rematch-panel')).toBeVisible();
+          }
         } },
         converged(accepted.value + 1)
       ]);
@@ -213,13 +217,60 @@ test('The Long Game rewards four five-cost Chronicle cards acquired through ordi
       { spec: 'Replay reproduces the Chronicle-backed final result', check: async () => {
         await expect(strategist.page.getByRole('heading', { name: 'Victory in Middle-earth' })).toBeVisible();
         await expect(strategist.page.getByTestId('final-result')).toContainText(strategist.name);
+        await expect(strategist.page.getByTestId('match-history')).toContainText('Seed catalog-proof-201');
+        await expect(strategist.page.getByRole('button', { name: 'Ready for rematch' })).toBeEnabled();
+      } },
+      converged(accepted.value)
+    ]);
+
+    for (const [index, seat] of seats.entries()) {
+      await steps.gesture(seat.page, `ready-rematch-${index + 1}`, `${seat.name} readies for a rematch`, async () => {
+        await seat.page.getByRole('button', { name: 'Ready for rematch' }).click(); accepted.value += 1;
+      }, [
+        { spec: index < seats.length - 1 ? 'Every browser records this Commander as ready while the finished result remains' : 'The final readiness starts a clean second match automatically', check: async () => {
+          if (index < seats.length - 1) {
+            for (const observer of seats) {
+              await expect(observer.page.getByTestId('rematch-panel').getByRole('listitem').filter({ hasText: seat.name })).toContainText('Ready');
+              await expect(observer.page.getByTestId('final-result')).toBeVisible();
+            }
+          } else {
+            for (const observer of seats) {
+              await expect(observer.page.getByText('Match 2 · Round 1 · Agent turns')).toBeVisible();
+              await expect(observer.page.getByTestId('final-result')).toHaveCount(0);
+              await expect(observer.page.getByTestId('rematch-panel')).toHaveCount(0);
+              await expect(observer.page.getByTestId('match-history')).toContainText(`Match 1 · ${strategist.name} won`);
+              await expect(observer.page.getByTestId('match-history')).toContainText('Seed catalog-proof-201');
+              for (const player of seats) {
+                const clean = row(observer, player.name);
+                await expect(clean.getByText('Hand', { exact: true }).locator('..')).toContainText('5');
+                await expect(clean.getByText('Agents', { exact: true }).locator('..')).toContainText('2');
+                await expect(clean.getByText('Provision', { exact: true }).locator('..')).toContainText('1');
+                await expect(clean.getByText('Gold', { exact: true }).locator('..')).toContainText('0');
+                await expect(clean.getByText('Mithril', { exact: true }).locator('..')).toContainText('0');
+                await expect(clean.getByText('Renown', { exact: true }).locator('..')).toContainText('0');
+              }
+            }
+          }
+        } },
+        converged(accepted.value + 1)
+      ]);
+    }
+
+    await steps.gesture(strategist.page, 'reload-rematch', `${strategist.name} reloads the clean rematch`, async () => {
+      await reloadGameClient(strategist.page);
+    }, [
+      { spec: 'Replay restores Match 2 and the immutable finished-match record together', check: async () => {
+        await expect(strategist.page.getByText('Match 2 · Round 1 · Agent turns')).toBeVisible();
+        await expect(strategist.page.getByTestId('private-hand').getByRole('button')).toHaveCount(5);
+        await expect(strategist.page.getByTestId('match-history')).toContainText(`Match 1 · ${strategist.name} won`);
+        await expect(strategist.page.getByTestId('match-history')).toContainText('Seed catalog-proof-201');
       } },
       converged(accepted.value)
     ]);
 
     steps.generateDocs(
       'Lady of the Golden Wood and The Long Game',
-      'Three isolated humans draw The Long Game privately, use ordinary Reveals to acquire four physical five-cost Chronicle cards, draw and play Lady of the Golden Wood through her final Elven icons, Fate draw, and Scout choice, reach Endgame, gain exactly one Renown through the now-satisfied ownership condition, pass to final scoring, and reload the deterministic result.'
+      'Three isolated humans draw The Long Game privately, use ordinary Reveals to acquire four physical five-cost Chronicle cards, draw and play Lady of the Golden Wood through her final Elven icons, Fate draw, and Scout choice, reach Endgame, gain exactly one Renown through the now-satisfied ownership condition, pass to final scoring, reload the deterministic result, preserve its detailed room history, and unanimously begin and reload a clean epoch-two rematch.'
     );
   } finally {
     await table.close();

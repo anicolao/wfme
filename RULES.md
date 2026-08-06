@@ -374,6 +374,8 @@ Break ties in this order:
 4. most total faction standing;
 5. shared victory.
 
+Record the final standings, winning condition, seed, and every tiebreak in the room's finished-match history. The same seated players may then ready for a rematch. When every player is ready, begin a fresh setup with a new deterministic seed: reset all cards, pieces, resources, standing, Alliances, Battles, and round state, while retaining the immutable record of earlier matches in that room.
+
 ## 17. Fate cards
 
 Keep Fate cards facedown in a hand separate from deck cards.

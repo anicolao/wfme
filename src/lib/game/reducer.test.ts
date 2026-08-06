@@ -80,7 +80,7 @@ describe('integrated Agent placement replay', () => {
     }
     const expectedFoundationOrder = shuffled(CHRONICLE_CARD_DEFINITIONS
       .filter((definition) => !definition.incrementalDeckInsertion)
-      .flatMap((definition) => Array.from({ length: definition.copies }, (_, index) => `chronicle:${definition.id}:${index + 1}`)),
+      .flatMap((definition) => Array.from({ length: definition.copies }, (_, index) => `match-1:chronicle:${definition.id}:${index + 1}`)),
     'road-2:chronicle-deck');
     const incrementalDefinitionIds = new Set<string>(CHRONICLE_CARD_DEFINITIONS
       .filter((definition) => definition.incrementalDeckInsertion)
@@ -96,7 +96,7 @@ describe('integrated Agent placement replay', () => {
     expect(BATTLE_CARD_DEFINITIONS.filter((battle) => !selectedBattleIds.includes(battle.id))).toHaveLength(6);
     const otherSetup = reduceGame(readyRoom('ten-battle-selection'));
     expect([otherSetup.match!.activeBattleId!, ...otherSetup.match!.battleDeck]).not.toEqual(selectedBattleIds);
-    const rejectedFate = reduceGame([...readyRoom(), createEvent('fate/played', currentPlayerUid(first)!, 5, { cardInstanceId: 'fate:1' }, 11)]);
+    const rejectedFate = reduceGame([...readyRoom(), createEvent('fate/played', currentPlayerUid(first)!, 5, { cardInstanceId: 'match-1:fate:1' }, 11)]);
     expect(rejectedFate.diagnostics.at(-1)).toContain('illegal Fate play');
     expect(rejectedFate.match!.fateDiscard).toEqual([]);
   });
@@ -537,7 +537,7 @@ describe('integrated Agent placement replay', () => {
     expect(acquired.match!.reserveSupply['muster-host']).toBe(7);
     expect(acquired.match!.players[dwarfActor].revealInfluence).toBe(2);
     expect(acquired.match!.players[dwarfActor].discardPile).toContainEqual({
-      id: 'reserve:muster-host:1', definitionId: 'muster-host'
+      id: 'match-1:reserve:muster-host:1', definitionId: 'muster-host'
     });
 
     const firstFinish = createEvent('reveal/finished', dwarfActor, 8, {}, 18);
@@ -1152,7 +1152,7 @@ describe('integrated Agent placement replay', () => {
     const legalMothChoice = moth.stream.at(-1)!;
     const declinedMoth = reduceGame([
       ...moth.stream.slice(0, -1),
-      { ...legalMothChoice, payload: { choice: 'decline-moth-recall' } }
+      { ...legalMothChoice, payload: { choice: 'decline-moth-recall', matchEpoch: 1 } }
     ]);
     expect(declinedMoth.diagnostics).toEqual([]);
     expect(declinedMoth.match!.boardScouts['old-south-road']).toBe(moth.actor);
@@ -3888,6 +3888,47 @@ describe('integrated Agent placement replay', () => {
         totalStanding: 0
       }))
     });
+    expect(state.finishedMatches).toEqual([{
+      epoch: 1,
+      seed: 'endgame-shared-victory',
+      ...state.match!.finalResult!
+    }]);
+
+    const firstFinishedState = structuredClone(state);
+    for (const [index, player] of state.players.entries()) {
+      append(player.uid, 'match/rematch-ready', { ready: true });
+      state = reduceGame(stream);
+      expect(state.diagnostics).toEqual([]);
+      expect(state.phase).toBe(index < state.players.length - 1 ? 'finished' : 'playing');
+    }
+    expect(state.match!.epoch).toBe(2);
+    expect(state.match!.seed).toBe('endgame-shared-victory:rematch-2');
+    expect(state.match!.round).toBe(1);
+    expect(state.match!.finalResult).toBeNull();
+    expect(state.finishedMatches).toEqual(firstFinishedState.finishedMatches);
+    expect(state.rematchReadyUids).toEqual([]);
+    for (const player of Object.values(state.match!.players)) {
+      expect(player.renown).toBe(0);
+      expect(player.resources).toEqual({ gold: 0, mithril: 0, provisions: 1 });
+      expect(player.companies).toEqual({ supply: 9, garrison: 3 });
+      expect(player.hand).toHaveLength(5);
+      expect([...player.hand, ...player.drawPile].every((card) => card.id.startsWith('match-2:'))).toBe(true);
+    }
+
+    const rematchActor = currentPlayerUid(state)!;
+    const stale = reduceGame([
+      ...stream,
+      createEvent('turn/revealed', rematchActor, sequences[rematchActor] + 1, {}, timestamp, 1)
+    ]);
+    expect(stale.diagnostics.at(-1)).toContain('stale match epoch');
+    expect(stale.match).toEqual(state.match);
+
+    sequences[rematchActor] += 1;
+    stream.push(createEvent('turn/revealed', rematchActor, sequences[rematchActor], {}, timestamp++, 2));
+    state = reduceGame(stream);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.turnMode).toBe('reveal');
+    expect(state.match!.epoch).toBe(2);
     expect(reduceGame(stream)).toEqual(state);
   });
 

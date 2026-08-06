@@ -76,6 +76,8 @@ The UI asks selectors for legal commands and explanations. The reducer validates
 
 Invalid events add a deterministic diagnostic and leave game state byte-for-byte unchanged. A valid event never partially applies. Concurrent valid-looking events are ordered canonically; only the first still legal event applies.
 
+Every match-scoped command carries the current match epoch. A unanimous rematch advances the epoch, derives a fresh deterministic seed, and creates new epoch-qualified physical card IDs. Delayed commands from an earlier epoch are rejected without mutation. Final results are projected into an immutable room-level history before the current match is replaced.
+
 ## Hidden information and trust
 
 Hands, Fate cards, deck order, and unrevealed choices are hidden in the normal interface but readable from the trusted-client Firestore stream. The lobby and README must disclose that boundary. Security Rules cannot make a client-held shuffle seed secret.

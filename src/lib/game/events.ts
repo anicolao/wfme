@@ -15,7 +15,8 @@ export type GameEventType =
   | 'scout/placed'
   | 'fate/played'
   | 'battle/passed'
-  | 'endgame/passed';
+  | 'endgame/passed'
+  | 'match/rematch-ready';
 
 export type GameEvent = {
   id: string;
@@ -33,12 +34,13 @@ export function createEvent(
   actorUid: string,
   clientSeq: number,
   payload: Record<string, unknown>,
-  createdAtMillis = Date.now()
+  createdAtMillis = Date.now(),
+  matchEpoch = 1
 ): GameEvent {
   return {
     id: `${actorUid}-${String(clientSeq).padStart(6, '0')}`,
     type,
-    payload,
+    payload: { ...payload, matchEpoch },
     actorUid,
     clientSeq,
     createdAtMillis,
