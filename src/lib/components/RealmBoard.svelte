@@ -54,7 +54,7 @@
   $: tokenCommander = game.match?.pendingChoice?.kind === 'token-command-order'
     ? game.match.players[game.match.pendingChoice.actorUid]?.commander
     : undefined;
-  $: tokenRingName = tokenCommander === 'theoden' ? 'Ride Now' : tokenCommander === 'galadriel' ? 'Mirror Unveiled' : 'Andúril Aflame';
+  $: tokenRingName = tokenCommander === 'theoden' ? 'Ride Now' : tokenCommander === 'galadriel' ? 'Mirror Unveiled' : tokenCommander === 'gandalf' ? 'Kindle Courage' : 'Andúril Aflame';
 
   function battleRewardText(reward: (typeof BATTLE_CARD_DEFINITIONS)[number]['rewards'][number]): string {
     return [
@@ -481,7 +481,7 @@
       <div>
         <p class="eyebrow">Ordered Commander choice</p>
         <h2 id="token-order-title">When will {tokenRingName}?</h2>
-        <p>{tokenCommander === 'theoden' ? 'Choose whether Théoden gains Provision and one additional garrison deployment before or after the board space. Deployment follows both effects.' : tokenCommander === 'galadriel' ? 'Choose whether Galadriel places a Scout and checks for two different observation posts before or after the board space.' : 'Choose whether Aragorn gains low-faction standing before or after the board space. Deployment follows both effects.'}</p>
+        <p>{tokenCommander === 'theoden' ? 'Choose whether Théoden gains Provision and one additional garrison deployment before or after the board space. Deployment follows both effects.' : tokenCommander === 'galadriel' ? 'Choose whether Galadriel places a Scout and checks for two different observation posts before or after the board space.' : tokenCommander === 'gandalf' ? 'Choose whether Gandalf draws Fate or checks his relative garrison before or after the board space.' : 'Choose whether Aragorn gains low-faction standing before or after the board space. Deployment follows both effects.'}</p>
       </div>
       <div class="choice-actions">
         <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid || busy} onclick={() => onResolveChoice('ring-first')}>Ring ability first</button>
@@ -499,6 +499,20 @@
         {#each game.match.pendingChoice.options as option}
           <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid || busy} onclick={() => onResolveChoice(option)}>Gain 1 {option.slice('standing-'.length)} standing</button>
         {/each}
+      </div>
+    </section>
+  {:else if game.match?.pendingChoice?.kind === 'commander-ring-gandalf'}
+    <section class="pending-choice" data-testid="pending-choice" aria-labelledby="ring-gandalf-title">
+      <div>
+        <p class="eyebrow">Ordered Commander choice</p>
+        <h2 id="ring-gandalf-title">How will Gandalf kindle courage?</h2>
+        <p>Draw one private Fate card, or recruit two finite Companies only while Gandalf has fewer Companies in his garrison than every opponent.</p>
+      </div>
+      <div class="choice-actions">
+        <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid || busy} onclick={() => onResolveChoice('gandalf-draw-fate')}>Draw 1 Fate</button>
+        {#if game.match.pendingChoice.options.includes('gandalf-recruit')}
+          <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid || busy} onclick={() => onResolveChoice('gandalf-recruit')}>Recruit 2 Companies</button>
+        {/if}
       </div>
     </section>
   {/if}
@@ -522,7 +536,7 @@
     </section>
   {/if}
 
-  {#if game.match?.pendingChoice && game.match.pendingChoice.kind !== 'place-scout' && game.match.pendingChoice.kind !== 'fell-sorcery' && game.match.pendingChoice.kind !== 'token-command-order' && game.match.pendingChoice.kind !== 'commander-ring-standing' && game.match.pendingChoice.kind !== 'commander-fate-foresight'}
+  {#if game.match?.pendingChoice && game.match.pendingChoice.kind !== 'place-scout' && game.match.pendingChoice.kind !== 'fell-sorcery' && game.match.pendingChoice.kind !== 'token-command-order' && game.match.pendingChoice.kind !== 'commander-ring-standing' && game.match.pendingChoice.kind !== 'commander-ring-gandalf' && game.match.pendingChoice.kind !== 'commander-fate-foresight'}
     <section class="pending-choice" data-testid="pending-choice" aria-labelledby="choice-title">
       <div>
         <p class="eyebrow">Ordered {game.match.pendingChoice.kind === 'critical-defense' || game.match.pendingChoice.kind === 'battle-deployment' || game.match.pendingChoice.kind === 'battle-standing' || game.match.pendingChoice.kind === 'battle-fate-keep' ? 'Battle' : game.match.pendingChoice.kind === 'plot-discard' || game.match.pendingChoice.kind === 'gifts-tokens' || game.match.pendingChoice.kind === 'tidings-afar' || game.match.pendingChoice.kind === 'long-memory' || game.match.pendingChoice.kind.startsWith('divided-counsel') ? 'Plot Fate' : game.match.pendingChoice.kind === 'chronicle-payment' || game.match.pendingChoice.kind === 'chronicle-card-choice' || game.match.pendingChoice.kind === 'chronicle-muster-scout' || game.match.pendingChoice.kind === 'chronicle-muster-fate' || game.match.pendingChoice.kind === 'chronicle-standing-loss' || game.match.pendingChoice.kind === 'chronicle-standing-gain' || game.match.pendingChoice.kind === 'chronicle-messenger-moth' || game.match.pendingChoice.kind === 'chronicle-elven-foresight' || game.match.pendingChoice.kind === 'chronicle-paths-cost' ? 'Chronicle' : game.match.pendingChoice.kind === 'fangorn-moot' ? 'Fangorn Moot' : game.match.pendingChoice.kind === 'deep-fangorn' ? 'Deep Fangorn' : game.match.pendingChoice.kind === 'entwash' ? 'Entwash' : game.match.pendingChoice.kind === 'osgiliath' ? 'Osgiliath' : game.match.pendingChoice.kind === 'great-forge' ? 'Great Forge' : game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Council' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'Ranger' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Scout' : game.match.pendingChoice.kind === 'elven-favor' ? 'Elven favor' : game.match.pendingChoice.kind.startsWith('secret-bargain') ? 'Secret Bargain' : 'Journey'} choice</p>

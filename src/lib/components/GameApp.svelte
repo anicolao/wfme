@@ -138,7 +138,7 @@
           : commanderId === 'galadriel'
             ? 'Galadriel selected. Foresight and Mirror Unveiled are active.'
             : commanderId === 'gandalf'
-              ? 'Gandalf selected. A Wizard Is Never Late is active; Kindle Courage is inactive.'
+              ? 'Gandalf selected. A Wizard Is Never Late and Kindle Courage are active.'
               : 'Commander identity selected. This Commander’s powers are not active yet.';
     } finally {
       busy = false;
@@ -372,7 +372,7 @@
           <section aria-labelledby="commander-title">
             <div class="section-heading">
               <div><p class="eyebrow">Power rollout</p><h2 id="commander-title">Choose your Commander</h2></div>
-              <p>Both printed powers for Aragorn, Théoden, and Galadriel are active. Gandalf’s A Wizard Is Never Late is active; every remaining Commander power stays visibly inactive until its complete tracer arrives.</p>
+              <p>Both printed powers for Aragorn, Théoden, Galadriel, and Gandalf are active. Every remaining Commander power stays visibly inactive until its complete tracer arrives.</p>
             </div>
             <div class="commanders">
               {#each COMMANDERS as commander}
@@ -384,7 +384,7 @@
                   aria-pressed={localPlayer.commander === commander.id}
                   onclick={() => void chooseCommander(commander.id)}
                 >
-                  <strong>{commander.name}</strong><span>{commander.epithet}</span><span>{commander.id === 'aragorn' ? 'Powers active · The Line Unbroken · Andúril Aflame' : commander.id === 'theoden' ? 'Powers active · Forth Eorlingas · Ride Now' : commander.id === 'galadriel' ? 'Powers active · Foresight · Mirror Unveiled' : commander.id === 'gandalf' ? '1/2 active · A Wizard Is Never Late' : 'Powers inactive'}</span>
+                  <strong>{commander.name}</strong><span>{commander.epithet}</span><span>{commander.id === 'aragorn' ? 'Powers active · The Line Unbroken · Andúril Aflame' : commander.id === 'theoden' ? 'Powers active · Forth Eorlingas · Ride Now' : commander.id === 'galadriel' ? 'Powers active · Foresight · Mirror Unveiled' : commander.id === 'gandalf' ? 'Powers active · A Wizard Is Never Late · Kindle Courage' : 'Powers inactive'}</span>
                 </button>
               {/each}
             </div>

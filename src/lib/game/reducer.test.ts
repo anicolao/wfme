@@ -2729,6 +2729,122 @@ describe('integrated Agent placement replay', () => {
     expect(reduceGame(recalledStream)).toEqual(recalled);
   });
 
+  it('lets Gandalf choose Kindle Courage in either order and offers recruitment only with the smallest garrison', () => {
+    const gandalfRoom = () => {
+      const events = readyRoom('gandalf-kindle-1');
+      events[3] = createEvent('player/commander-selected', 'host', 2, { commanderId: 'gandalf' }, 4);
+      events[4] = createEvent('player/commander-selected', 'guest-a', 2, { commanderId: 'aragorn' }, 5);
+      events[5] = createEvent('player/commander-selected', 'guest-b', 2, { commanderId: 'galadriel' }, 6);
+      return events;
+    };
+
+    const equalSetup = gandalfRoom();
+    const equalStarted = reduceGame(equalSetup);
+    expect(currentPlayerUid(equalStarted)).toBe('host');
+    const equalToken = equalStarted.match!.players.host.hand.find((card) => card.definitionId === 'token-of-command')!;
+    expect(legalAgentSpaces(equalStarted, 'host', equalToken.id)).toContain('take-war-effort');
+    const equalPlacement = createEvent('agent/placed', 'host', 5, {
+      cardInstanceId: equalToken.id,
+      spaceId: 'take-war-effort'
+    }, 11);
+    const equalOrder = createEvent('choice/resolved', 'host', 6, { choice: 'ring-first' }, 12);
+    const equalChoice = reduceGame([...equalSetup, equalPlacement, equalOrder]);
+    expect(equalChoice.diagnostics).toEqual([]);
+    expect(equalChoice.match!.pendingChoice).toEqual({
+      kind: 'commander-ring-gandalf',
+      actorUid: 'host',
+      resumeSpace: {
+        cardInstanceId: equalToken.id,
+        spaceId: 'take-war-effort',
+        ignoredResourceCost: false
+      },
+      options: ['gandalf-draw-fate']
+    });
+
+    const illegalRecruitment = reduceGame([
+      ...equalSetup,
+      equalPlacement,
+      equalOrder,
+      createEvent('choice/resolved', 'host', 7, { choice: 'gandalf-recruit' }, 13)
+    ]);
+    expect(illegalRecruitment.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(illegalRecruitment.match!.pendingChoice).toEqual(equalChoice.match!.pendingChoice);
+    expect(illegalRecruitment.match!.players.host.companies).toEqual({ supply: 9, garrison: 3 });
+
+    const fateEvent = createEvent('choice/resolved', 'host', 7, { choice: 'gandalf-draw-fate' }, 13);
+    const fateChoice = reduceGame([...equalSetup, equalPlacement, equalOrder, fateEvent]);
+    expect(fateChoice.diagnostics).toEqual([]);
+    expect(fateChoice.match!.players.host.fateHand).toHaveLength(1);
+    expect(fateChoice.match!.fateDeck).toHaveLength(29);
+    expect(fateChoice.match!.players.host.resources.gold).toBe(2);
+    expect(fateChoice.match!.pendingChoice).toBeNull();
+    expect(fateChoice.match!.activity.findIndex((entry) => entry.includes('draws 1 private Fate with Kindle Courage')))
+      .toBeLessThan(fateChoice.match!.activity.findIndex((entry) => entry.includes('sends an Agent to Take Up a War Effort')));
+
+    const lowSetup = gandalfRoom();
+    const lowStarted = reduceGame(lowSetup);
+    const escort = lowStarted.match!.players.host.hand.find((card) => card.definitionId === 'armed-escort')!;
+    const firstPlacement = createEvent('agent/placed', 'host', 5, {
+      cardInstanceId: escort.id,
+      spaceId: 'minas-tirith'
+    }, 11);
+    const throughLowGarrison = [
+      ...lowSetup,
+      firstPlacement,
+      createEvent('choice/resolved', 'host', 6, { choice: 'deploy:4' }, 12),
+      createEvent('turn/revealed', 'guest-b', 4, {}, 13),
+      createEvent('reveal/finished', 'guest-b', 5, {}, 14),
+      createEvent('turn/revealed', 'guest-a', 4, {}, 15),
+      createEvent('reveal/finished', 'guest-a', 5, {}, 16)
+    ];
+    const beforeLowRing = reduceGame(throughLowGarrison);
+    expect(beforeLowRing.diagnostics).toEqual([]);
+    expect(currentPlayerUid(beforeLowRing)).toBe('host');
+    expect(beforeLowRing.match!.players.host.companies.garrison).toBe(1);
+    expect(beforeLowRing.match!.players['guest-a'].companies.garrison).toBe(3);
+    expect(beforeLowRing.match!.players['guest-b'].companies.garrison).toBe(3);
+    const lowToken = beforeLowRing.match!.players.host.hand.find((card) => card.definitionId === 'token-of-command')!;
+    const lowPlacement = createEvent('agent/placed', 'host', 7, {
+      cardInstanceId: lowToken.id,
+      spaceId: 'take-war-effort'
+    }, 17);
+    const lowOrder = createEvent('choice/resolved', 'host', 8, { choice: 'ring-first' }, 18);
+    const lowChoice = reduceGame([...throughLowGarrison, lowPlacement, lowOrder]);
+    expect(lowChoice.diagnostics).toEqual([]);
+    expect(lowChoice.match!.pendingChoice).toMatchObject({
+      kind: 'commander-ring-gandalf',
+      actorUid: 'host',
+      options: ['gandalf-draw-fate', 'gandalf-recruit']
+    });
+
+    const recruitEvent = createEvent('choice/resolved', 'host', 9, { choice: 'gandalf-recruit' }, 19);
+    const recruited = reduceGame([...throughLowGarrison, lowPlacement, lowOrder, recruitEvent]);
+    expect(recruited.diagnostics).toEqual([]);
+    expect(recruited.match!.players.host.companies).toEqual({ supply: 5, garrison: 3 });
+    expect(recruited.match!.players.host.fateHand).toEqual([]);
+    expect(recruited.match!.players.host.resources.gold).toBe(2);
+    expect(recruited.match!.activity).toContain('Gandalf recruits 2 Companies with Kindle Courage.');
+
+    const musterPlacement = createEvent('agent/placed', 'host', 7, {
+      cardInstanceId: lowToken.id,
+      spaceId: 'muster-free-peoples'
+    }, 17);
+    const spaceFirst = createEvent('choice/resolved', 'host', 8, { choice: 'space-first' }, 18);
+    const destinationFirst = reduceGame([...throughLowGarrison, musterPlacement, spaceFirst]);
+    expect(destinationFirst.diagnostics).toEqual([]);
+    expect(destinationFirst.match!.players.host.companies.garrison).toBe(3);
+    expect(destinationFirst.match!.pendingChoice).toEqual({
+      kind: 'commander-ring-gandalf',
+      actorUid: 'host',
+      resumeSpace: null,
+      options: ['gandalf-draw-fate']
+    });
+    expect(destinationFirst.match!.activity.findIndex((entry) => entry.includes('sends an Agent to Muster the Free Peoples')))
+      .toBeLessThan(destinationFirst.match!.activity.findIndex((entry) => entry.includes('kindles courage')));
+
+    expect(reduceGame([...throughLowGarrison, lowPlacement, lowOrder, recruitEvent])).toEqual(recruited);
+  });
+
   it('pays for a Council seat, adds Reveal Influence, and resolves a repeat Fate visit', () => {
     let stream = readyRoom('council-economy');
     let sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };

@@ -197,6 +197,11 @@ export type MatchState = {
     resumeSpace: { cardInstanceId: string; spaceId: string; ignoredResourceCost: boolean } | null;
     options: readonly `standing-${FactionId}`[];
   } | {
+    kind: 'commander-ring-gandalf';
+    actorUid: string;
+    resumeSpace: { cardInstanceId: string; spaceId: string; ignoredResourceCost: boolean } | null;
+    options: readonly ('gandalf-draw-fate' | 'gandalf-recruit')[];
+  } | {
     kind: 'chronicle-payment';
     actorUid: string;
     definitionId: PaidChronicleId;
@@ -619,7 +624,7 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
   if (!definition) return [];
   if (
     card?.definitionId === 'token-of-command' &&
-    !(['aragorn', 'theoden', 'galadriel'] as const).includes(state.players.find((candidate) => candidate.uid === actorUid)?.commander as 'aragorn' | 'theoden' | 'galadriel')
+    !(['aragorn', 'theoden', 'galadriel', 'gandalf'] as const).includes(state.players.find((candidate) => candidate.uid === actorUid)?.commander as 'aragorn' | 'theoden' | 'galadriel' | 'gandalf')
   ) return [];
   const ownedScoutCount = Object.values(match.boardScouts).filter((uid) => uid === actorUid).length;
   const canUsePaths = definition.journeyEffect?.kind === 'recall-scout-ignore-space-cost' && ownedScoutCount > 0;
@@ -1117,6 +1122,30 @@ function openGaladrielRing(
   return false;
 }
 
+function openGandalfRing(
+  match: MatchState,
+  actorUid: string,
+  resumeSpace: { cardInstanceId: string; spaceId: string; ignoredResourceCost: boolean } | null
+): void {
+  const player = match.players[actorUid];
+  const hasStrictlyFewerGarrisonCompanies = match.playerOrder
+    .filter((uid) => uid !== actorUid)
+    .every((uid) => player.companies.garrison < match.players[uid].companies.garrison);
+  const options: ('gandalf-draw-fate' | 'gandalf-recruit')[] = ['gandalf-draw-fate'];
+  if (hasStrictlyFewerGarrisonCompanies) options.push('gandalf-recruit');
+  match.pendingChoice = {
+    kind: 'commander-ring-gandalf',
+    actorUid,
+    resumeSpace,
+    options
+  };
+  match.activity.push(
+    hasStrictlyFewerGarrisonCompanies
+      ? 'Gandalf kindles courage and may draw 1 Fate or recruit 2 Companies.'
+      : 'Gandalf kindles courage and may draw 1 Fate; his garrison is not smaller than every opponent’s.'
+  );
+}
+
 function permutations<T>(values: readonly T[]): T[][] {
   if (values.length < 2) return [values.slice()];
   return values.flatMap((value, index) =>
@@ -1363,6 +1392,9 @@ function finishAgentAction(match: MatchState, actorUid: string): void {
       }
     } else if (match.players[actorUid].commander === 'galadriel') {
       if (openGaladrielRing(match, actorUid, null)) return;
+    } else if (match.players[actorUid].commander === 'gandalf') {
+      openGandalfRing(match, actorUid, null);
+      return;
     }
   }
   const queued = match.queuedBattleDeployment;
@@ -1992,7 +2024,13 @@ function beginAgentResolution(
 ): void {
   if (card.definitionId === 'token-of-command') {
     const commander = state.match!.players[actorUid].commander;
-    const ringName = commander === 'theoden' ? 'Ride Now' : commander === 'galadriel' ? 'Mirror Unveiled' : 'Andúril Aflame';
+    const ringName = commander === 'theoden'
+      ? 'Ride Now'
+      : commander === 'galadriel'
+        ? 'Mirror Unveiled'
+        : commander === 'gandalf'
+          ? 'Kindle Courage'
+          : 'Andúril Aflame';
     state.match!.pendingChoice = {
       kind: 'token-command-order',
       actorUid,
@@ -2261,7 +2299,9 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === pending.spaceId);
       if (!card || card.definitionId !== 'token-of-command' || !space) return 'illegal choice resolution';
       const commander = player.commander;
-      if (commander !== 'aragorn' && commander !== 'theoden' && commander !== 'galadriel') return 'illegal choice resolution';
+      if (commander !== 'aragorn' && commander !== 'theoden' && commander !== 'galadriel' && commander !== 'gandalf') {
+        return 'illegal choice resolution';
+      }
       state.match.pendingChoice = null;
       if (choice === 'ring-first') {
         if (commander === 'aragorn') {
@@ -2277,18 +2317,52 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
           applyTheodenRing(state.match, event.actorUid);
           resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost, 1);
           if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
-        } else if (!openGaladrielRing(state.match, event.actorUid, {
-          cardInstanceId: card.id,
-          spaceId: space.id,
-          ignoredResourceCost: pending.ignoredResourceCost
-        })) {
-          resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
-          if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
+        } else if (commander === 'galadriel') {
+          if (!openGaladrielRing(state.match, event.actorUid, {
+            cardInstanceId: card.id,
+            spaceId: space.id,
+            ignoredResourceCost: pending.ignoredResourceCost
+          })) {
+            resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
+            if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
+          }
+        } else {
+          openGandalfRing(state.match, event.actorUid, {
+            cardInstanceId: card.id,
+            spaceId: space.id,
+            ignoredResourceCost: pending.ignoredResourceCost
+          });
         }
       } else {
         state.match.queuedCommanderRing = { actorUid: event.actorUid };
         resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
         if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
+      }
+      return null;
+    }
+    if (pending.kind === 'commander-ring-gandalf') {
+      state.match.pendingChoice = null;
+      if (choice === 'gandalf-draw-fate') {
+        const drawn = drawFateOrOpenForesight(
+          state.match,
+          event.actorUid,
+          1,
+          'Kindle Courage',
+          { kind: 'finish-agent' }
+        );
+        state.match.activity.push(`Gandalf draws ${drawn?.length ? '1 private Fate' : 'no Fate'} with Kindle Courage.`);
+      } else {
+        const recruited = recruitCompanies(player, 2);
+        state.match.activity.push(`Gandalf recruits ${recruited} ${recruited === 1 ? 'Company' : 'Companies'} with Kindle Courage.`);
+      }
+      if (pending.resumeSpace) {
+        const card = player.journey.find((candidate) => candidate.id === pending.resumeSpace!.cardInstanceId);
+        const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === pending.resumeSpace!.spaceId);
+        if (!card || card.definitionId !== 'token-of-command' || !space) return 'illegal choice resolution';
+        resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.resumeSpace.ignoredResourceCost);
+        if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
+      } else {
+        finishAgentAction(state.match, event.actorUid);
       }
       return null;
     }
