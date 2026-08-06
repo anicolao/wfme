@@ -110,6 +110,22 @@ test('The Long Game rewards four five-cost Chronicle cards acquired through ordi
         ]);
       }
 
+      if (await actor.page.getByRole('heading', { name: 'Pay the Master for a Fate card?' }).isVisible().catch(() => false)) {
+        const goldBefore = await count(seats[0], actor.name, 'Gold');
+        gestureNumber += 1;
+        await steps.gesture(actor.page, `decline-master-${gestureNumber}`, `${actor.name} keeps the Gold offered to the Master`, async () => {
+          await actor.page.getByRole('button', { name: 'Keep the Gold' }).click(); accepted.value += 1;
+        }, [
+          { spec: 'The optional Master payment closes without changing public Gold', check: async () => {
+            for (const observer of seats) {
+              await expect(observer.page.getByRole('heading', { name: 'Pay the Master for a Fate card?' })).toHaveCount(0);
+              await expect(row(observer, actor.name).getByText('Gold', { exact: true }).locator('..')).toContainText(String(goldBefore));
+            }
+          } },
+          converged(accepted.value + 1)
+        ]);
+      }
+
       if (highCostBought < 4 || !ladyBought) {
         for (let purchase = 0; purchase < 12 && (highCostBought < 4 || !ladyBought); purchase += 1) {
           const neededLady = actor === strategist && !ladyBought

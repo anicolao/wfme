@@ -52,7 +52,7 @@ export type AgentCardDefinition = StartingCardIdentity & {
     | { kind: 'recall-scout-ignore-space-cost' }
     | { kind: 'draw-discard-card'; draw: 1 }
     | { kind: 'draw-optional-trash'; draw: 1; includeDiscard: boolean }
-    | { kind: 'gain-gold'; amount: 1 }
+    | { kind: 'gain-gold'; amount: number }
     | { kind: 'optional-trash-self' }
     | { kind: 'place-scout'; amount: 1 };
   reviewedCapabilities: readonly ['agent-placement'];
@@ -296,6 +296,14 @@ export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
     placementIcons: ['Roads', 'Scout'],
     journeyEffect: { kind: 'recall-scout-ignore-space-cost' },
     reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'master-lake-town',
+    name: 'Master of Lake-town',
+    copies: 2,
+    placementIcons: ['Council', 'Roads'],
+    journeyEffect: { kind: 'gain-gold', amount: 3 },
+    reviewedCapabilities: ['agent-placement']
   }
 ];
 
@@ -355,7 +363,8 @@ export const MUSTER_CARD_DEFINITIONS: readonly MusterCardDefinition[] = [
   { id: 'khazad-guard', name: 'Khazad Guard', muster: { influence: 1, swords: 2 } },
   { id: 'warden-ithilien', name: 'Warden of Ithilien', muster: { influence: 2, swords: 1 } },
   { id: 'palantir-glimpse', name: 'Palantír Glimpse', muster: { influence: 2, swords: 0 } },
-  { id: 'paths-dead', name: 'Paths of the Dead', muster: { influence: 1, swords: 2 } }
+  { id: 'paths-dead', name: 'Paths of the Dead', muster: { influence: 1, swords: 2 } },
+  { id: 'master-lake-town', name: 'Master of Lake-town', muster: { influence: 3, swords: 0 } }
 ];
 
 export type ReserveCardId = 'muster-host';
@@ -398,7 +407,8 @@ export type ChronicleCardId =
   | 'khazad-guard'
   | 'warden-ithilien'
   | 'palantir-glimpse'
-  | 'paths-dead';
+  | 'paths-dead'
+  | 'master-lake-town';
 
 export type ChronicleCardDefinition = {
   id: ChronicleCardId;
@@ -563,6 +573,14 @@ export const CHRONICLE_CARD_DEFINITIONS: readonly ChronicleCardDefinition[] = [
     id: 'paths-dead', name: 'Paths of the Dead', copies: 2, cost: 4,
     placementIcons: ['Roads', 'Scout'], journeyText: "Recall 1 Scout to ignore this space's resource cost",
     muster: { influence: 1, swords: 2 },
+    incrementalDeckInsertion: true,
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'master-lake-town', name: 'Master of Lake-town', copies: 2, cost: 5,
+    placementIcons: ['Council', 'Roads'], journeyText: 'Gain 3 Gold',
+    muster: { influence: 3, swords: 0 },
+    musterText: '3 Influence · you may pay 2 Gold to draw 1 Fate',
     incrementalDeckInsertion: true,
     reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
   }

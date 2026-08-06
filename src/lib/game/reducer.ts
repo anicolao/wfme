@@ -145,6 +145,12 @@ export type MatchState = {
     postIds: readonly string[];
     options: readonly string[];
   } | {
+    kind: 'chronicle-muster-fate';
+    actorUid: string;
+    cardInstanceId: string;
+    remainingCardInstanceIds: readonly string[];
+    options: readonly ('pay-master-fate' | 'decline-master-fate')[];
+  } | {
     kind: 'chronicle-standing-loss';
     actorUid: string;
     options: readonly `lose-standing-${FactionId}`[];
@@ -890,6 +896,29 @@ function openGoblinMusterChoice(
     remainingCardInstanceIds,
     postIds,
     options: [...postIds.map((postId) => `recall-scout:${postId}`), 'decline-scout-recall']
+  };
+  return true;
+}
+
+function openMasterMusterChoice(
+  match: MatchState,
+  actorUid: string,
+  cardInstanceIds: readonly string[]
+): boolean {
+  const [cardInstanceId, ...remainingCardInstanceIds] = cardInstanceIds;
+  if (!cardInstanceId) return false;
+  const player = match.players[actorUid];
+  if (!player.muster.some((card) => card.id === cardInstanceId && card.definitionId === 'master-lake-town')) {
+    return false;
+  }
+  const options: ('pay-master-fate' | 'decline-master-fate')[] = ['decline-master-fate'];
+  if (player.resources.gold >= 2 && match.fateDeck.length > 0) options.unshift('pay-master-fate');
+  match.pendingChoice = {
+    kind: 'chronicle-muster-fate',
+    actorUid,
+    cardInstanceId,
+    remainingCardInstanceIds,
+    options
   };
   return true;
 }
@@ -1889,7 +1918,31 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         state.match.activity.push(`${actor.displayName} leaves every Scout in place for this Goblin Informer.`);
       }
       state.match.pendingChoice = null;
-      openGoblinMusterChoice(state.match, event.actorUid, pending.remainingCardInstanceIds);
+      if (!openGoblinMusterChoice(state.match, event.actorUid, pending.remainingCardInstanceIds)) {
+        openMasterMusterChoice(
+          state.match,
+          event.actorUid,
+          player.muster.filter((card) => card.definitionId === 'master-lake-town').map((card) => card.id)
+        );
+      }
+      return null;
+    }
+    if (pending.kind === 'chronicle-muster-fate') {
+      if (!player.muster.some((card) => card.id === pending.cardInstanceId && card.definitionId === 'master-lake-town')) {
+        return 'illegal choice resolution';
+      }
+      if (choice === 'pay-master-fate') {
+        if (player.resources.gold < 2) return 'illegal choice resolution';
+        const fate = state.match.fateDeck.shift();
+        if (!fate) return 'illegal choice resolution';
+        player.resources.gold -= 2;
+        player.fateHand.push(fate);
+        state.match.activity.push(`${actor.displayName} pays 2 Gold and privately draws 1 Fate with Master of Lake-town.`);
+      } else {
+        state.match.activity.push(`${actor.displayName} keeps their Gold for this Master of Lake-town.`);
+      }
+      state.match.pendingChoice = null;
+      openMasterMusterChoice(state.match, event.actorUid, pending.remainingCardInstanceIds);
       return null;
     }
     if (pending.kind === 'plot-discard') {
@@ -2393,11 +2446,18 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     if (palantirFateDraws > 0) {
       state.match.activity.push(`${actor.displayName} privately draws ${palantirFateDrawn} Fate with ${palantirFateDraws} ${palantirFateDraws === 1 ? 'Palantír Glimpse' : 'Palantír Glimpses'}.`);
     }
-    openGoblinMusterChoice(
+    const openedGoblinChoice = openGoblinMusterChoice(
       state.match,
       event.actorUid,
       player.muster.filter((card) => card.definitionId === 'goblin-informer').map((card) => card.id)
     );
+    if (!openedGoblinChoice) {
+      openMasterMusterChoice(
+        state.match,
+        event.actorUid,
+        player.muster.filter((card) => card.definitionId === 'master-lake-town').map((card) => card.id)
+      );
+    }
     return null;
   }
 

@@ -38,8 +38,8 @@ test('Elven Foresight privately orders three exact cards and controls the next d
   try {
     const buyer = await currentSeat();
     for (const observer of seats) {
-      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 43');
-      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('48 / 54');
+      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 45');
+      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('50 / 54');
     }
 
     await reveal(buyer);
@@ -50,7 +50,7 @@ test('Elven Foresight privately orders three exact cards and controls the next d
     }, [
       { spec: 'The exact physical four-Influence card enters discard and its Row position refills', check: async () => {
         await expect(buyer.page.getByTestId('activity-log')).toContainText(`${buyer.name} acquires Elven Foresight`);
-        await expect(buyer.page.getByTestId('chronicle-market')).toContainText('deck 42');
+        await expect(buyer.page.getByTestId('chronicle-market')).toContainText('deck 44');
       } },
       converged(accepted.value + 1)
     ]);

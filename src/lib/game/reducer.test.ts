@@ -72,9 +72,9 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'keeper-oaths')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'the-long-game')).toHaveLength(2);
     expect(first.match!.chronicleRow).toHaveLength(5);
-    expect(first.match!.chronicleDeck).toHaveLength(43);
+    expect(first.match!.chronicleDeck).toHaveLength(45);
     const chronicleInstances = [...first.match!.chronicleRow, ...first.match!.chronicleDeck];
-    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(48);
+    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(50);
     for (const definition of CHRONICLE_CARD_DEFINITIONS) {
       expect(chronicleInstances.filter((card) => card.definitionId === definition.id)).toHaveLength(2);
     }
@@ -708,7 +708,7 @@ describe('integrated Agent placement replay', () => {
       expect(state.diagnostics).toEqual([]);
       expect(state.match!.players[actor].revealInfluence).toBe(influenceBefore - definition.cost);
       expect(state.match!.players[actor].discardPile).toContainEqual(offered);
-      expect(state.match!.chronicleDeck).toHaveLength(42);
+      expect(state.match!.chronicleDeck).toHaveLength(44);
       expect(state.match!.chronicleRow).toHaveLength(5);
       expect(state.match!.chronicleRow).toContainEqual(refill);
 
@@ -1450,6 +1450,101 @@ describe('integrated Agent placement replay', () => {
     expect(afterFreePaths.match!.players[freePaths.actor].resources.provisions).toBe(freePathsResources.provisions);
     expect(afterFreePaths.match!.players[freePaths.actor].resources.mithril).toBe(freePathsResources.mithril);
 
+    const masterJourney = reachAcquiredCard('master-lake-town');
+    const masterJourneyPlayer = masterJourney.before.match!.players[masterJourney.actor];
+    const masterGoldBefore = masterJourneyPlayer.resources.gold;
+    expect(legalAgentSpaces(masterJourney.before, masterJourney.actor, masterJourney.acquired.id)).toContain('hall-fire');
+    masterJourney.append(masterJourney.actor, 'agent/placed', {
+      cardInstanceId: masterJourney.acquired.id,
+      spaceId: 'hall-fire'
+    });
+    const afterMasterJourney = reduceGame(masterJourney.stream);
+    expect(afterMasterJourney.diagnostics).toEqual([]);
+    expect(afterMasterJourney.match!.players[masterJourney.actor].resources.gold).toBe(masterGoldBefore + 3);
+    expect(afterMasterJourney.match!.players[masterJourney.actor].journey).toContainEqual(masterJourney.acquired);
+    expect(afterMasterJourney.match!.pendingChoice).toBeNull();
+
+    const masterMuster = reachAcquiredCard('master-lake-town');
+    let beforeMasterMuster = masterMuster.before;
+    if (beforeMasterMuster.match!.players[masterMuster.actor].resources.gold < 2) {
+      const fundingCard = beforeMasterMuster.match!.players[masterMuster.actor].hand.find((card) =>
+        card.definitionId === 'the-open-road' && legalAgentSpaces(beforeMasterMuster, masterMuster.actor, card.id).includes('take-war-effort')
+      );
+      expect(fundingCard).toBeDefined();
+      masterMuster.append(masterMuster.actor, 'agent/placed', {
+        cardInstanceId: fundingCard!.id,
+        spaceId: 'take-war-effort'
+      });
+      beforeMasterMuster = reduceGame(masterMuster.stream);
+      while (currentPlayerUid(beforeMasterMuster) !== masterMuster.actor) {
+        const current = currentPlayerUid(beforeMasterMuster)!;
+        masterMuster.append(current, 'turn/revealed', {});
+        masterMuster.append(current, 'reveal/finished', {});
+        beforeMasterMuster = reduceGame(masterMuster.stream);
+      }
+    }
+    const masterMusterPlayer = beforeMasterMuster.match!.players[masterMuster.actor];
+    const masterMusterGold = masterMusterPlayer.resources.gold;
+    const masterMusterFate = masterMusterPlayer.fateHand.length;
+    const masterMusterFateDeck = beforeMasterMuster.match!.fateDeck.length;
+    const masterPrintedInfluence = masterMusterPlayer.hand.reduce((total, card) =>
+      total + (MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === card.definitionId)?.muster.influence ?? 0), 0
+    );
+    masterMuster.append(masterMuster.actor, 'turn/revealed', {});
+    let afterMasterMuster = reduceGame(masterMuster.stream);
+    expect(afterMasterMuster.diagnostics).toEqual([]);
+    expect(afterMasterMuster.match!.players[masterMuster.actor].revealInfluence).toBe(masterPrintedInfluence);
+    expect(afterMasterMuster.match!.pendingChoice).toEqual({
+      kind: 'chronicle-muster-fate',
+      actorUid: masterMuster.actor,
+      cardInstanceId: masterMuster.acquired.id,
+      remainingCardInstanceIds: [],
+      options: ['pay-master-fate', 'decline-master-fate']
+    });
+    const unauthorizedMasterActor = afterMasterMuster.match!.playerOrder.find((uid) => uid !== masterMuster.actor)!;
+    masterMuster.append(unauthorizedMasterActor, 'choice/resolved', { choice: 'pay-master-fate' });
+    const unauthorizedMaster = reduceGame(masterMuster.stream);
+    expect(unauthorizedMaster.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(unauthorizedMaster.match!.players[masterMuster.actor].resources.gold).toBe(masterMusterGold);
+    expect(unauthorizedMaster.match!.players[masterMuster.actor].fateHand).toHaveLength(masterMusterFate);
+    masterMuster.stream.pop();
+    masterMuster.append(masterMuster.actor, 'choice/resolved', { choice: 'pay-master-fate' });
+    afterMasterMuster = reduceGame(masterMuster.stream);
+    expect(afterMasterMuster.diagnostics).toEqual([]);
+    expect(afterMasterMuster.match!.players[masterMuster.actor].resources.gold).toBe(masterMusterGold - 2);
+    expect(afterMasterMuster.match!.players[masterMuster.actor].fateHand).toHaveLength(masterMusterFate + 1);
+    expect(afterMasterMuster.match!.fateDeck).toHaveLength(masterMusterFateDeck - 1);
+    expect(afterMasterMuster.match!.pendingChoice).toBeNull();
+    expect(afterMasterMuster.match!.activity.at(-1)).toContain('pays 2 Gold and privately draws 1 Fate with Master of Lake-town');
+
+    const declinedMaster = reachAcquiredCard('master-lake-town');
+    const declinedMasterPlayer = declinedMaster.before.match!.players[declinedMaster.actor];
+    const declinedMasterGold = declinedMasterPlayer.resources.gold;
+    const declinedMasterFate = declinedMasterPlayer.fateHand.length;
+    expect(declinedMasterGold).toBeLessThan(2);
+    declinedMaster.append(declinedMaster.actor, 'turn/revealed', {});
+    const awaitingDeclinedMaster = reduceGame(declinedMaster.stream);
+    expect(awaitingDeclinedMaster.diagnostics).toEqual([]);
+    expect(awaitingDeclinedMaster.match!.pendingChoice).toEqual({
+      kind: 'chronicle-muster-fate',
+      actorUid: declinedMaster.actor,
+      cardInstanceId: declinedMaster.acquired.id,
+      remainingCardInstanceIds: [],
+      options: ['decline-master-fate']
+    });
+    declinedMaster.append(declinedMaster.actor, 'choice/resolved', { choice: 'pay-master-fate' });
+    const rejectedDeclinedMaster = reduceGame(declinedMaster.stream);
+    expect(rejectedDeclinedMaster.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(rejectedDeclinedMaster.match!.players[declinedMaster.actor].resources.gold).toBe(declinedMasterGold);
+    expect(rejectedDeclinedMaster.match!.players[declinedMaster.actor].fateHand).toHaveLength(declinedMasterFate);
+    declinedMaster.stream.pop();
+    declinedMaster.append(declinedMaster.actor, 'choice/resolved', { choice: 'decline-master-fate' });
+    const afterDeclinedMaster = reduceGame(declinedMaster.stream);
+    expect(afterDeclinedMaster.diagnostics).toEqual([]);
+    expect(afterDeclinedMaster.match!.players[declinedMaster.actor].resources.gold).toBe(declinedMasterGold);
+    expect(afterDeclinedMaster.match!.players[declinedMaster.actor].fateHand).toHaveLength(declinedMasterFate);
+    expect(afterDeclinedMaster.match!.pendingChoice).toBeNull();
+
     const informerMuster = reachAcquiredCard('goblin-informer', 0, true);
     const informerScout = reduceGame(informerMuster.stream);
     expect(informerScout.match!.boardScouts['old-south-road']).toBe(informerMuster.actor);
@@ -1534,7 +1629,8 @@ describe('integrated Agent placement replay', () => {
       'orcish-muster': { influence: 0, swords: 2 },
       'elven-foresight': { influence: 3, swords: 0 },
       'palantir-glimpse': { influence: 2, swords: 0 },
-      'paths-dead': { influence: 1, swords: 2 }
+      'paths-dead': { influence: 1, swords: 2 },
+      'master-lake-town': { influence: 3, swords: 0 }
     } as const;
     for (const [definitionId, printed] of Object.entries(economyMuster)) {
       expect(MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === definitionId)?.muster).toEqual(printed);
@@ -2704,7 +2800,7 @@ describe('integrated Agent placement replay', () => {
     const rowBefore = [...state.match!.chronicleRow];
     const deckBefore = [...state.match!.chronicleDeck];
     const affordable = (definitionId: string) => CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!.cost <= 3;
-    expect(deckBefore).toHaveLength(43);
+    expect(deckBefore).toHaveLength(45);
     append(actor, 'fate/played', { cardInstanceId: fate.id });
     const awaitingChoice = reduceGame(stream);
     expect(awaitingChoice.match!.pendingChoice).toEqual({
@@ -3869,6 +3965,7 @@ describe('integrated Agent placement replay', () => {
         append('scout/placed', { postId: post.id });
       } else if (pending?.kind === 'seek-allies') append('choice/resolved', { choice: 'keep-card' });
       else if (pending?.kind === 'gather-intelligence') append('choice/resolved', { choice: 'decline-intelligence' });
+      else if (pending?.kind === 'chronicle-muster-fate') append('choice/resolved', { choice: 'decline-master-fate' });
       else if (match.turnMode === 'reveal') {
         if (current === longGameUid && highCostOwned().length < 4) {
           const affordableHigh = match.chronicleRow.find((instance) => {

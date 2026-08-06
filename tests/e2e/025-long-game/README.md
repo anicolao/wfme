@@ -578,16 +578,16 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin acquires Voice of Orthanc
+## Rin acquires Uruk-hai Captain
 
-![Phone: Rin acquires Voice of Orthanc](./screenshots/044-acquire-26-phone.png)
+![Phone: Rin acquires Uruk-hai Captain](./screenshots/044-acquire-26-phone.png)
 
-![Desktop: Rin acquires Voice of Orthanc](./screenshots/044-acquire-26-desktop.png)
+![Desktop: Rin acquires Uruk-hai Captain](./screenshots/044-acquire-26-desktop.png)
 
 **Verifications:**
 
 - [x] The Row immediately refills after the legal purchase
-- [x] The public log records five-cost card 3 of four
+- [x] Another legal purchase cycles the shared market toward the ownership condition
 - [x] Every connected browser replays 37 accepted events with no diagnostics
 
 ---
@@ -618,91 +618,91 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip acquires Lore of Imladris
-
-![Phone: Pip acquires Lore of Imladris](./screenshots/047-acquire-29-phone.png)
-
-![Desktop: Pip acquires Lore of Imladris](./screenshots/047-acquire-29-desktop.png)
-
-**Verifications:**
-
-- [x] The Row immediately refills after the legal purchase
-- [x] Another legal purchase cycles the shared market toward the ownership condition
-- [x] Every connected browser replays 40 accepted events with no diagnostics
-
----
-
 ## Pip finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/048-finish-30-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/047-finish-29-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/048-finish-30-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/047-finish-29-desktop.png)
 
 **Verifications:**
 
 - [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 41 accepted events with no diagnostics
+- [x] Every connected browser replays 40 accepted events with no diagnostics
 
 ---
 
 ## Rin Reveals the remaining hand
 
-![Phone: Rin Reveals the remaining hand](./screenshots/049-reveal-31-phone.png)
+![Phone: Rin Reveals the remaining hand](./screenshots/048-reveal-30-phone.png)
 
-![Desktop: Rin Reveals the remaining hand](./screenshots/049-reveal-31-desktop.png)
+![Desktop: Rin Reveals the remaining hand](./screenshots/048-reveal-30-desktop.png)
 
 **Verifications:**
 
 - [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 42 accepted events with no diagnostics
+- [x] Every connected browser replays 41 accepted events with no diagnostics
 
 ---
 
-## Rin acquires Warden of Ithilien
+## Rin acquires Voice of Orthanc
 
-![Phone: Rin acquires Warden of Ithilien](./screenshots/050-acquire-32-phone.png)
+![Phone: Rin acquires Voice of Orthanc](./screenshots/049-acquire-31-phone.png)
 
-![Desktop: Rin acquires Warden of Ithilien](./screenshots/050-acquire-32-desktop.png)
+![Desktop: Rin acquires Voice of Orthanc](./screenshots/049-acquire-31-desktop.png)
 
 **Verifications:**
 
 - [x] The Row immediately refills after the legal purchase
-- [x] Another legal purchase cycles the shared market toward the ownership condition
-- [x] Every connected browser replays 43 accepted events with no diagnostics
+- [x] The public log records five-cost card 3 of four
+- [x] Every connected browser replays 42 accepted events with no diagnostics
 
 ---
 
 ## Rin finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/051-finish-33-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/050-finish-32-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/051-finish-33-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/050-finish-32-desktop.png)
 
 **Verifications:**
 
 - [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 44 accepted events with no diagnostics
+- [x] Every connected browser replays 43 accepted events with no diagnostics
 
 ---
 
 ## Pip Reveals the remaining hand
 
-![Phone: Pip Reveals the remaining hand](./screenshots/052-reveal-34-phone.png)
+![Phone: Pip Reveals the remaining hand](./screenshots/051-reveal-33-phone.png)
 
-![Desktop: Pip Reveals the remaining hand](./screenshots/052-reveal-34-desktop.png)
+![Desktop: Pip Reveals the remaining hand](./screenshots/051-reveal-33-desktop.png)
 
 **Verifications:**
 
 - [x] A real public Muster row replaces the private hand
+- [x] Every connected browser replays 44 accepted events with no diagnostics
+
+---
+
+## Pip acquires Lore of Imladris
+
+![Phone: Pip acquires Lore of Imladris](./screenshots/052-acquire-34-phone.png)
+
+![Desktop: Pip acquires Lore of Imladris](./screenshots/052-acquire-34-desktop.png)
+
+**Verifications:**
+
+- [x] The Row immediately refills after the legal purchase
+- [x] Another legal purchase cycles the shared market toward the ownership condition
 - [x] Every connected browser replays 45 accepted events with no diagnostics
 
 ---
 
-## Pip acquires Uruk-hai Captain
+## Pip acquires Warden of Ithilien
 
-![Phone: Pip acquires Uruk-hai Captain](./screenshots/053-acquire-35-phone.png)
+![Phone: Pip acquires Warden of Ithilien](./screenshots/053-acquire-35-phone.png)
 
-![Desktop: Pip acquires Uruk-hai Captain](./screenshots/053-acquire-35-desktop.png)
+![Desktop: Pip acquires Warden of Ithilien](./screenshots/053-acquire-35-desktop.png)
 
 **Verifications:**
 
@@ -712,91 +712,91 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip acquires Delving Expedition
-
-![Phone: Pip acquires Delving Expedition](./screenshots/054-acquire-36-phone.png)
-
-![Desktop: Pip acquires Delving Expedition](./screenshots/054-acquire-36-desktop.png)
-
-**Verifications:**
-
-- [x] The Row immediately refills after the legal purchase
-- [x] Another legal purchase cycles the shared market toward the ownership condition
-- [x] Every connected browser replays 47 accepted events with no diagnostics
-
----
-
 ## Pip finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/055-finish-37-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/054-finish-36-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/055-finish-37-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/054-finish-36-desktop.png)
 
 **Verifications:**
 
 - [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 48 accepted events with no diagnostics
+- [x] Every connected browser replays 47 accepted events with no diagnostics
 
 ---
 
 ## Mara Reveals the remaining hand
 
-![Phone: Mara Reveals the remaining hand](./screenshots/056-reveal-38-phone.png)
+![Phone: Mara Reveals the remaining hand](./screenshots/055-reveal-37-phone.png)
 
-![Desktop: Mara Reveals the remaining hand](./screenshots/056-reveal-38-desktop.png)
+![Desktop: Mara Reveals the remaining hand](./screenshots/055-reveal-37-desktop.png)
 
 **Verifications:**
 
 - [x] A real public Muster row replaces the private hand
-- [x] Every connected browser replays 49 accepted events with no diagnostics
+- [x] Every connected browser replays 48 accepted events with no diagnostics
 
 ---
 
-## Mara acquires Ranger of the North
+## Mara acquires Uruk-hai Captain
 
-![Phone: Mara acquires Ranger of the North](./screenshots/057-acquire-39-phone.png)
+![Phone: Mara acquires Uruk-hai Captain](./screenshots/056-acquire-38-phone.png)
 
-![Desktop: Mara acquires Ranger of the North](./screenshots/057-acquire-39-desktop.png)
+![Desktop: Mara acquires Uruk-hai Captain](./screenshots/056-acquire-38-desktop.png)
 
 **Verifications:**
 
 - [x] The Row immediately refills after the legal purchase
 - [x] Another legal purchase cycles the shared market toward the ownership condition
-- [x] Every connected browser replays 50 accepted events with no diagnostics
+- [x] Every connected browser replays 49 accepted events with no diagnostics
 
 ---
 
 ## Mara finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/058-finish-40-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/057-finish-39-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/058-finish-40-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/057-finish-39-desktop.png)
 
 **Verifications:**
 
 - [x] The Reveal closes and ordinary authority advances
-- [x] Every connected browser replays 51 accepted events with no diagnostics
+- [x] Every connected browser replays 50 accepted events with no diagnostics
 
 ---
 
 ## Pip Reveals the remaining hand
 
-![Phone: Pip Reveals the remaining hand](./screenshots/059-reveal-41-phone.png)
+![Phone: Pip Reveals the remaining hand](./screenshots/058-reveal-40-phone.png)
 
-![Desktop: Pip Reveals the remaining hand](./screenshots/059-reveal-41-desktop.png)
+![Desktop: Pip Reveals the remaining hand](./screenshots/058-reveal-40-desktop.png)
 
 **Verifications:**
 
 - [x] A real public Muster row replaces the private hand
+- [x] Every connected browser replays 51 accepted events with no diagnostics
+
+---
+
+## Pip acquires Delving Expedition
+
+![Phone: Pip acquires Delving Expedition](./screenshots/059-acquire-41-phone.png)
+
+![Desktop: Pip acquires Delving Expedition](./screenshots/059-acquire-41-desktop.png)
+
+**Verifications:**
+
+- [x] The Row immediately refills after the legal purchase
+- [x] Another legal purchase cycles the shared market toward the ownership condition
 - [x] Every connected browser replays 52 accepted events with no diagnostics
 
 ---
 
-## Pip acquires Captain of Gondor
+## Pip acquires Ranger of the North
 
-![Phone: Pip acquires Captain of Gondor](./screenshots/060-acquire-42-phone.png)
+![Phone: Pip acquires Ranger of the North](./screenshots/060-acquire-42-phone.png)
 
-![Desktop: Pip acquires Captain of Gondor](./screenshots/060-acquire-42-desktop.png)
+![Desktop: Pip acquires Ranger of the North](./screenshots/060-acquire-42-desktop.png)
 
 **Verifications:**
 
@@ -832,11 +832,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara acquires Uruk-hai Captain
+## Mara acquires Captain of Gondor
 
-![Phone: Mara acquires Uruk-hai Captain](./screenshots/063-acquire-45-phone.png)
+![Phone: Mara acquires Captain of Gondor](./screenshots/063-acquire-45-phone.png)
 
-![Desktop: Mara acquires Uruk-hai Captain](./screenshots/063-acquire-45-desktop.png)
+![Desktop: Mara acquires Captain of Gondor](./screenshots/063-acquire-45-desktop.png)
 
 **Verifications:**
 
