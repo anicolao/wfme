@@ -1,6 +1,6 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import { TestStepHelper, type Verification } from '../helpers/test-step-helper';
-import { openFirebaseClients, reloadGameClient } from '../helpers/firebase-readiness';
+import { openFirebaseClients, reloadGameClient, waitForCurrentSeat } from '../helpers/firebase-readiness';
 
 type Seat = { name: string; page: Page; context?: BrowserContext };
 
@@ -22,10 +22,7 @@ test('three humans deploy, Reveal, pass, and resolve an ordinary Battle', async 
       for (const seat of observers) await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${expected} accepted events · 0 replay diagnostics`, { timeout: 2_000 });
     }
   });
-  const currentSeat = async () => {
-    for (const seat of seats) if ((await seat.page.locator('footer').textContent())?.includes(`Current actor ${seat.name}`)) return seat;
-    throw new Error('No current human is visible');
-  };
+  const currentSeat = async () => waitForCurrentSeat(seats);
 
   try {
     await openFirebaseClients(seats.map((seat) => seat.page));

@@ -1,6 +1,6 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import { TestStepHelper, type Verification } from '../helpers/test-step-helper';
-import { openFirebaseClients, reloadGameClient } from '../helpers/firebase-readiness';
+import { openFirebaseClients, reloadGameClient, waitForCurrentSeat } from '../helpers/firebase-readiness';
 
 type Seat = { name: string; page: Page; context?: BrowserContext };
 
@@ -22,12 +22,7 @@ test('Ent-draught breaches the Dam and summons reward-doubling Ents', async ({ b
       for (const seat of seats) await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 2_000 });
     }
   });
-  const currentSeat = async () => {
-    const name = ((await page.locator('footer').textContent())?.match(/Current actor ([^·]+)/)?.[1] ?? '').trim();
-    const seat = seats.find((candidate) => candidate.name === name);
-    if (!seat) throw new Error(`No browser seat for current actor ${name}`);
-    return seat;
-  };
+  const currentSeat = async () => waitForCurrentSeat(seats);
   const row = (seat: Seat, name = seat.name) => seat.page.locator('.players article').filter({ hasText: name });
   const numberFrom = async (seat: Seat, label: string) => Number((await row(seat).getByText(label, { exact: true }).locator('..').textContent())?.match(/(\d+)/)?.[1] ?? '-1');
 

@@ -25,7 +25,7 @@ if arbitrary_waits=$(rg -n --glob '*.ts' 'waitForTimeout\s*\(' tests/e2e); then
   failed=1
 fi
 
-if timer_waits=$(rg -n -P --glob '*.ts' --glob '!global-setup.ts' '(^|[^[:alnum:]_.])setTimeout\s*\(|globalThis\.setTimeout\s*\(' tests/e2e); then
+if timer_waits=$(rg -n -P --glob '*.ts' '(^|[^[:alnum:]_.])setTimeout\s*\(|globalThis\.setTimeout\s*\(' tests/e2e); then
   echo 'Timer-based E2E waits are forbidden:' >&2
   echo "$timer_waits" >&2
   failed=1
@@ -45,12 +45,29 @@ while IFS= read -r timeout_match; do
     echo "E2E event wait exceeds ${max_event_wait_ms} ms: ${timeout_match}" >&2
     failed=1
   fi
-done < <(rg -n -o --glob '*.ts' --glob '!global-setup.ts' 'timeout\s*:\s*\K[0-9][0-9_]*' tests/e2e -P || true)
+done < <(rg -n -o --glob '*.ts' 'timeout\s*:\s*\K[0-9][0-9_]*' tests/e2e -P || true)
 
-timeout_properties=$(rg -n --glob '*.ts' --glob '!global-setup.ts' 'timeout\s*:' tests/e2e || true)
+timeout_properties=$(rg -n --glob '*.ts' 'timeout\s*:' tests/e2e || true)
 if nonliteral_timeouts=$(printf '%s\n' "$timeout_properties" | rg -v 'timeout\s*:\s*[0-9]'); then
   echo 'E2E event waits must use a literal timeout so the 2,000 ms ceiling is auditable:' >&2
   echo "$nonliteral_timeouts" >&2
+  failed=1
+fi
+
+while IFS= read -r timeout_match; do
+  [[ -z "$timeout_match" ]] && continue
+  raw_value=${timeout_match##*:}
+  numeric_value=${raw_value//_/}
+  if (( numeric_value > max_event_wait_ms )); then
+    echo "E2E AbortSignal wait exceeds ${max_event_wait_ms} ms: ${timeout_match}" >&2
+    failed=1
+  fi
+done < <(rg -n -o --glob '*.ts' 'AbortSignal\.timeout\(\s*\K[0-9][0-9_]*' tests/e2e -P || true)
+
+abort_timeouts=$(rg -n --glob '*.ts' 'AbortSignal\.timeout\(' tests/e2e || true)
+if nonliteral_abort_timeouts=$(printf '%s\n' "$abort_timeouts" | rg -v 'AbortSignal\.timeout\(\s*[0-9]'); then
+  echo 'E2E AbortSignal waits must use a literal timeout so the 2,000 ms ceiling is auditable:' >&2
+  echo "$nonliteral_abort_timeouts" >&2
   failed=1
 fi
 

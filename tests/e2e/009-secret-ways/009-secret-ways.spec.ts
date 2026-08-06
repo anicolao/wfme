@@ -1,6 +1,6 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import { TestStepHelper, type Verification } from '../helpers/test-step-helper';
-import { openFirebaseClients, reloadGameClient } from '../helpers/firebase-readiness';
+import { openFirebaseClients, reloadGameClient, waitForCurrentSeat } from '../helpers/firebase-readiness';
 
 type Seat = { name: string; page: Page; context?: BrowserContext };
 
@@ -22,12 +22,7 @@ test('Secret Ways places a Scout and resumes the same Agent turn', async ({ brow
       for (const seat of observers) await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 2_000 });
     }
   });
-  const currentSeat = async () => {
-    const footer = await page.locator('footer').textContent();
-    const seat = seats.find((candidate) => footer?.includes(`Current actor ${candidate.name}`));
-    if (!seat) throw new Error(`No current human in ${footer}`);
-    return seat;
-  };
+  const currentSeat = async () => waitForCurrentSeat(seats);
   const row = (observer: Seat, name: string) => observer.page.locator('.players article').filter({ hasText: name });
 
   try {

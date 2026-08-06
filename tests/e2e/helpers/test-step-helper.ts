@@ -25,9 +25,18 @@ export class TestStepHelper {
 
   async observe(page: Page, id: string, description: string, verifications: Verification[]) {
     for (const verification of verifications) await verification.check();
+    await expect(page.locator('main.game-shell')).toHaveAttribute('data-busy', 'false', {
+      timeout: 2_000
+    });
     const index = String(this.steps.length).padStart(3, '0');
     const safeId = id.replaceAll('_', '-');
-    await expect(page).toHaveScreenshot(`${index}-${safeId}-${this.testInfo.project.name}`, { timeout: 2_000 });
+    const screenshot = await page.screenshot({
+      animations: 'disabled',
+      caret: 'hide',
+      scale: 'css',
+      timeout: 2_000
+    });
+    expect(screenshot).toMatchSnapshot(`${index}-${safeId}-${this.testInfo.project.name}`, { maxDiffPixels: 0 });
     this.steps.push({ id: `${index}-${safeId}`, description, specs: verifications.map(({ spec }) => spec) });
   }
 

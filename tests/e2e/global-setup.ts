@@ -2,7 +2,15 @@ import { deleteApp, initializeApp } from 'firebase/app';
 import { connectAuthEmulator, getAuth, signInAnonymously } from 'firebase/auth';
 import { connectFirestoreEmulator, doc, getFirestore, serverTimestamp, setDoc, terminate } from 'firebase/firestore';
 
-const preflightTimeout = 120_000;
+async function withinEventDeadline<T>(label: string, operation: Promise<T>): Promise<T> {
+  const deadline = AbortSignal.timeout(2_000);
+  const expired = new Promise<never>((_, reject) => {
+    deadline.addEventListener('abort', () => reject(new Error(`${label} exceeded 2,000 ms`)), {
+      once: true
+    });
+  });
+  return await Promise.race([operation, expired]);
+}
 
 export default async function globalSetup() {
   const app = initializeApp({
@@ -18,32 +26,22 @@ export default async function globalSetup() {
   const db = getFirestore(app);
   connectFirestoreEmulator(db, '127.0.0.1', 8190);
 
-  let timeout: ReturnType<typeof setTimeout> | undefined;
   try {
-    const preflight = async () => {
-      const credential = await signInAnonymously(auth);
-      const actorUid = credential.user.uid;
-      await setDoc(doc(db, 'games', 'WARM1', 'events', `${actorUid}-1`), {
-        id: `${actorUid}-1`,
-        type: 'game/created',
-        payload: { roomCode: 'WARM1', displayName: 'E2E preflight' },
-        actorUid,
-        clientSeq: 1,
-        createdAtMillis: 1,
-        schemaVersion: 2,
-        reducerVersion: 'integrated-tracer-v1',
-        roomCode: 'WARM1',
-        committedAt: serverTimestamp()
-      });
-    };
-    await Promise.race([
-      preflight(),
-      new Promise<never>((_, reject) => {
-        timeout = setTimeout(() => reject(new Error('Firebase E2E preflight exceeded 120 seconds')), preflightTimeout);
-      })
-    ]);
+    const credential = await withinEventDeadline('Firebase Auth preflight', signInAnonymously(auth));
+    const actorUid = credential.user.uid;
+    await withinEventDeadline('Firestore write preflight', setDoc(doc(db, 'games', 'WARM1', 'events', `${actorUid}-1`), {
+      id: `${actorUid}-1`,
+      type: 'game/created',
+      payload: { roomCode: 'WARM1', displayName: 'E2E preflight' },
+      actorUid,
+      clientSeq: 1,
+      createdAtMillis: 1,
+      schemaVersion: 2,
+      reducerVersion: 'integrated-tracer-v1',
+      roomCode: 'WARM1',
+      committedAt: serverTimestamp()
+    }));
   } finally {
-    if (timeout) clearTimeout(timeout);
     await terminate(db);
     await deleteApp(app);
   }

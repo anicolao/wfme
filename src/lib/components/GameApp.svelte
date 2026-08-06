@@ -281,7 +281,7 @@
   <meta name="description" content="Create or join a live War for Middle-earth construction match." />
 </svelte:head>
 
-<main class="game-shell">
+<main class="game-shell" data-busy={busy}>
   <div class="connection" data-testid="firebase-status" class:error={backendStatus === 'error'}>
     <span></span>
     {backendStatus === 'connecting' ? 'Connecting to Firebase…' : backendStatus === 'syncing' ? 'Synchronizing game…' : backendStatus === 'ready' ? 'Live Firebase ready' : 'Backend unavailable'}

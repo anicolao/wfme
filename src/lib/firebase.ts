@@ -39,6 +39,7 @@ export async function initializeFirebase(): Promise<FirebaseServices> {
       Number(import.meta.env.VITE_FIRESTORE_EMULATOR_PORT ?? '8190')
     );
   }
+  await auth.authStateReady();
   if (!auth.currentUser) await signInAnonymously(auth);
   services = { auth, db };
   return services;

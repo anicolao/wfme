@@ -1,6 +1,6 @@
 import { expect, type Browser, type BrowserContext, type Page, type TestInfo } from '@playwright/test';
 import { TestStepHelper, type Verification } from './test-step-helper';
-import { openFirebaseClients } from './firebase-readiness';
+import { openFirebaseClients, waitForCurrentSeat } from './firebase-readiness';
 
 export type PlotSeat = { name: string; page: Page; context?: BrowserContext };
 
@@ -27,12 +27,7 @@ export async function startPlotTable(
       for (const seat of observers) await expect(seat.page.getByTestId('replay-health')).toHaveText(` · ${count} accepted events · 0 replay diagnostics`, { timeout: 2_000 });
     }
   });
-  const currentSeat = async () => {
-    const footer = await page.locator('footer').textContent();
-    const seat = seats.find((candidate) => footer?.includes(`Current actor ${candidate.name}`));
-    if (!seat) throw new Error(`No current human in ${footer}`);
-    return seat;
-  };
+  const currentSeat = async () => waitForCurrentSeat(seats);
   const row = (observer: PlotSeat, name: string) => observer.page.locator('.players article').filter({ hasText: name });
 
   await openFirebaseClients(seats.map((seat) => seat.page));
