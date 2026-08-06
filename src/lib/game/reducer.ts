@@ -1346,6 +1346,15 @@ function resolveAgentEffects(
   const match = state.match!;
   const player = match.players[actorUid];
   const cardDefinition = AGENT_CARD_DEFINITIONS.find((candidate) => candidate.id === card.definitionId)!;
+  if (
+    isBattleSpace(space) &&
+    player.commander === 'theoden' &&
+    !player.commanderPersistentUsedThisRound
+  ) {
+    player.commanderPersistentUsedThisRound = true;
+    const recruited = recruitCompanies(player, 1);
+    match.activity.push(`Théoden's Forth Eorlingas recruits ${recruited} Company${recruited === 1 ? '' : 'ies'}.`);
+  }
   const seekAlliesCardId = cardDefinition.journeyEffect?.kind === 'optional-trash-self' ? card.id : null;
   const hasJourneyScoutPlacement = cardDefinition.journeyEffect?.kind === 'place-scout'
     || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout'

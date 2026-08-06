@@ -2151,6 +2151,100 @@ describe('integrated Agent placement replay', () => {
     expect(otherCommander.match!.activity).not.toContain("Aragorn's Line Unbroken recruits 1 Company.");
   });
 
+  it('recruits through Théoden’s Forth Eorlingas only on the first Battle-space Agent each round', () => {
+    const setup = readyRoom('theoden-forth-3');
+    setup[3] = createEvent('player/commander-selected', 'host', 2, { commanderId: 'theoden' }, 4);
+    const started = reduceGame(setup);
+    expect(currentPlayerUid(started)).toBe('host');
+
+    const nonBattleCard = started.match!.players.host.hand.find((card) => card.definitionId === 'reconnaissance')!;
+    const nonBattle = reduceGame([
+      ...setup,
+      createEvent('agent/placed', 'host', 5, { cardInstanceId: nonBattleCard.id, spaceId: 'take-war-effort' }, 11)
+    ]);
+    expect(nonBattle.diagnostics).toEqual([]);
+    expect(nonBattle.match!.players.host.commanderPersistentUsedThisRound).toBe(false);
+    expect(nonBattle.match!.players.host.companies).toEqual({ supply: 9, garrison: 3 });
+    expect(nonBattle.match!.activity).not.toContain("Théoden's Forth Eorlingas recruits 1 Company.");
+
+    const firstEscort = started.match!.players.host.hand.find((card) => card.definitionId === 'armed-escort')!;
+    const firstPlacement = createEvent('agent/placed', 'host', 5, {
+      cardInstanceId: firstEscort.id,
+      spaceId: 'minas-tirith'
+    }, 11);
+    const firstTrigger = reduceGame([...setup, firstPlacement]);
+    expect(firstTrigger.diagnostics).toEqual([]);
+    expect(firstTrigger.match!.players.host.commanderPersistentUsedThisRound).toBe(true);
+    expect(firstTrigger.match!.players.host.companies).toEqual({ supply: 6, garrison: 6 });
+    expect(firstTrigger.match!.activity.filter((entry) => entry.includes('Forth Eorlingas'))).toEqual([
+      "Théoden's Forth Eorlingas recruits 1 Company."
+    ]);
+
+    const throughFirstDeployment = [
+      ...setup,
+      firstPlacement,
+      createEvent('choice/resolved', 'host', 6, { choice: 'deploy:0' }, 12),
+      createEvent('turn/revealed', 'guest-a', 4, {}, 13),
+      createEvent('reveal/finished', 'guest-a', 5, {}, 14),
+      createEvent('turn/revealed', 'guest-b', 4, {}, 15),
+      createEvent('reveal/finished', 'guest-b', 5, {}, 16)
+    ];
+    const beforeSecond = reduceGame(throughFirstDeployment);
+    expect(currentPlayerUid(beforeSecond)).toBe('host');
+    const secondEscort = beforeSecond.match!.players.host.hand.find((card) => card.definitionId === 'armed-escort')!;
+    const secondPlacement = createEvent('agent/placed', 'host', 7, {
+      cardInstanceId: secondEscort.id,
+      spaceId: 'osgiliath'
+    }, 17);
+    const secondBattleSpace = reduceGame([...throughFirstDeployment, secondPlacement]);
+    expect(secondBattleSpace.diagnostics).toEqual([]);
+    expect(secondBattleSpace.match!.players.host.companies).toEqual({ supply: 5, garrison: 7 });
+    expect(secondBattleSpace.match!.activity.filter((entry) => entry.includes('Forth Eorlingas'))).toHaveLength(1);
+
+    const roundTwoStream = [
+      ...throughFirstDeployment,
+      secondPlacement,
+      createEvent('choice/resolved', 'host', 8, { choice: 'pay-0-mithril' }, 18),
+      createEvent('choice/resolved', 'host', 9, { choice: 'deploy:0' }, 19),
+      createEvent('turn/revealed', 'host', 10, {}, 20),
+      createEvent('reveal/finished', 'host', 11, {}, 21),
+      createEvent('turn/revealed', 'guest-a', 6, {}, 22),
+      createEvent('reveal/finished', 'guest-a', 7, {}, 23),
+      createEvent('turn/revealed', 'guest-b', 6, {}, 24),
+      createEvent('reveal/finished', 'guest-b', 7, {}, 25)
+    ];
+    const refreshed = reduceGame(roundTwoStream);
+    expect(refreshed.diagnostics).toEqual([]);
+    expect(refreshed.match!.round).toBe(2);
+    expect(currentPlayerUid(refreshed)).toBe('host');
+    expect(refreshed.match!.players.host.commanderPersistentUsedThisRound).toBe(false);
+    const refreshedEscort = refreshed.match!.players.host.hand.find((card) => card.definitionId === 'armed-escort')!;
+    const refreshedTrigger = reduceGame([
+      ...roundTwoStream,
+      createEvent('agent/placed', 'host', 12, { cardInstanceId: refreshedEscort.id, spaceId: 'minas-tirith' }, 26)
+    ]);
+    expect(refreshedTrigger.diagnostics).toEqual([]);
+    expect(refreshedTrigger.match!.players.host.commanderPersistentUsedThisRound).toBe(true);
+    expect(refreshedTrigger.match!.activity.filter((entry) => entry.includes('Forth Eorlingas'))).toHaveLength(2);
+
+    const aragornSetup = readyRoom('theoden-forth-3');
+    const aragornStarted = reduceGame(aragornSetup);
+    const aragornEscort = aragornStarted.match!.players.host.hand.find((card) => card.definitionId === 'armed-escort')!;
+    const otherCommander = reduceGame([
+      ...aragornSetup,
+      createEvent('agent/placed', 'host', 5, { cardInstanceId: aragornEscort.id, spaceId: 'minas-tirith' }, 11)
+    ]);
+    expect(otherCommander.diagnostics).toEqual([]);
+    expect(otherCommander.match!.players.host.companies).toEqual({ supply: 7, garrison: 5 });
+    expect(otherCommander.match!.players.host.commanderPersistentUsedThisRound).toBe(false);
+    expect(otherCommander.match!.activity.some((entry) => entry.includes('Forth Eorlingas'))).toBe(false);
+
+    expect(reduceGame([...roundTwoStream, createEvent('agent/placed', 'host', 12, {
+      cardInstanceId: refreshedEscort.id,
+      spaceId: 'minas-tirith'
+    }, 26)])).toEqual(refreshedTrigger);
+  });
+
   it('pays for a Council seat, adds Reveal Influence, and resolves a repeat Fate visit', () => {
     let stream = readyRoom('council-economy');
     let sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };

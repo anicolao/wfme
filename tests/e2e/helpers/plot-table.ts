@@ -10,7 +10,8 @@ export async function startPlotTable(
   testInfo: TestInfo,
   steps: TestStepHelper,
   seed: string,
-  roomCodes: { phone: string; desktop: string }
+  roomCodes: { phone: string; desktop: string },
+  commanders: readonly [string, string, string] = ['Aragorn', 'Galadriel', 'Gandalf']
 ) {
   const viewport = page.viewportSize() ?? { width: 1280, height: 960 };
   const guestAContext = await browser.newContext({ baseURL: 'http://127.0.0.1:5189', viewport, reducedMotion: 'reduce', serviceWorkers: 'block' });
@@ -55,7 +56,7 @@ export async function startPlotTable(
     } }, converged(accepted.value + 1, seats.slice(0, index + 2))]);
   }
   for (const [index, seat] of seats.entries()) {
-    const commander = ['Aragorn', 'Galadriel', 'Gandalf'][index];
+    const commander = commanders[index];
     await steps.gesture(seat.page, `commander-${index + 1}`, `${seat.name} selects ${commander}`, async () => {
       await seat.page.getByRole('button', { name: new RegExp(`^${commander}`) }).click(); accepted.value += 1;
     }, [{ spec: 'The unique identity is public', check: async () => await expect(seat.page.getByRole('button', { name: new RegExp(`^${commander}`) })).toHaveAttribute('aria-pressed', 'true') }, converged(accepted.value + 1)]);
