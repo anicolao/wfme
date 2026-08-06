@@ -54,7 +54,7 @@
   $: tokenCommander = game.match?.pendingChoice?.kind === 'token-command-order'
     ? game.match.players[game.match.pendingChoice.actorUid]?.commander
     : undefined;
-  $: tokenRingName = tokenCommander === 'theoden' ? 'Ride Now' : 'Andúril Aflame';
+  $: tokenRingName = tokenCommander === 'theoden' ? 'Ride Now' : tokenCommander === 'galadriel' ? 'Mirror Unveiled' : 'Andúril Aflame';
 
   function battleRewardText(reward: (typeof BATTLE_CARD_DEFINITIONS)[number]['rewards'][number]): string {
     return [
@@ -428,7 +428,7 @@
   <section class="scout-network" data-testid="scout-network" aria-labelledby="scout-title">
     <div>
       <p class="eyebrow">Observation network · 9 posts</p>
-      <h2 id="scout-title">{game.match?.pendingChoice?.kind === 'place-scout' ? (selectedScoutRecall ? 'Choose the Scout’s new post.' : game.match.pendingChoice.allowedPostIds ? 'Choose a post connected to a Battle space.' : 'Choose an empty post for the Scout.') : 'Scouts watch the roads.'}</h2>
+      <h2 id="scout-title">{game.match?.pendingChoice?.kind === 'place-scout' ? (selectedScoutRecall ? 'Choose the Scout’s new post.' : game.match.pendingChoice.commanderRingResumeSpace !== undefined ? 'Where will Mirror Unveiled place Galadriel’s Scout?' : game.match.pendingChoice.allowedPostIds ? 'Choose a post connected to a Battle space.' : 'Choose an empty post for the Scout.') : 'Scouts watch the roads.'}</h2>
     </div>
     <div class="posts">
       {#each OBSERVATION_POSTS as post}
@@ -481,7 +481,7 @@
       <div>
         <p class="eyebrow">Ordered Commander choice</p>
         <h2 id="token-order-title">When will {tokenRingName}?</h2>
-        <p>{tokenCommander === 'theoden' ? 'Choose whether Théoden gains Provision and one additional garrison deployment before or after the board space. Deployment follows both effects.' : 'Choose whether Aragorn gains low-faction standing before or after the board space. Deployment follows both effects.'}</p>
+        <p>{tokenCommander === 'theoden' ? 'Choose whether Théoden gains Provision and one additional garrison deployment before or after the board space. Deployment follows both effects.' : tokenCommander === 'galadriel' ? 'Choose whether Galadriel places a Scout and checks for two different observation posts before or after the board space.' : 'Choose whether Aragorn gains low-faction standing before or after the board space. Deployment follows both effects.'}</p>
       </div>
       <div class="choice-actions">
         <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid || busy} onclick={() => onResolveChoice('ring-first')}>Ring ability first</button>

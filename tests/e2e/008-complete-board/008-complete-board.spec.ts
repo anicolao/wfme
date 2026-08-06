@@ -98,10 +98,42 @@ test('three humans execute every final printed board destination', async ({ brow
     let forgeComplete = false;
     let archivesComplete = false;
     let osgiliathComplete = false;
+    let pendingTokenDestination: {
+      spaceId: string;
+      provisionsBefore: number;
+      handBefore: number;
+      mithrilBefore: number;
+      goldBefore: number;
+    } | null = null;
     for (let guard = 0; guard < 500 && !(forgeComplete && archivesComplete && osgiliathComplete); guard += 1) {
       const actor = await currentSeat();
       const pending = actor.page.getByTestId('pending-choice');
       if (await pending.isVisible().catch(() => false)) {
+        if (await actor.page.getByRole('heading', { name: 'When will Mirror Unveiled?' }).isVisible().catch(() => false)) {
+          if (!pendingTokenDestination) throw new Error('Mirror Unveiled opened without a queued destination proof');
+          const destination = pendingTokenDestination;
+          await steps.gesture(actor.page, `token-destination-first-${guard}`, `${actor.name} resolves the printed destination before Mirror Unveiled`, async () => {
+            await actor.page.getByRole('button', { name: 'Destination first' }).click(); accepted += 1;
+          }, [
+            { spec: 'The ordered Commander prompt closes after the real destination-first click', check: async () => await expect(actor.page.getByRole('heading', { name: 'When will Mirror Unveiled?' })).toHaveCount(0) },
+            ...(destination.spaceId === 'great-forge' ? [
+              { spec: 'Great Forge now charges 3 Mithril and grants 5 Gold at the chosen point in the order', check: async () => {
+                await expect(playerRow(actor, actor.name).getByText('Mithril', { exact: true }).locator('..')).toContainText(String(destination.mithrilBefore - 3));
+                await expect(playerRow(actor, actor.name).getByText('Gold', { exact: true }).locator('..')).toContainText(String(destination.goldBefore + 5));
+              } }
+            ] : destination.spaceId === 'archives-rivendell' ? [
+              { spec: 'Archives now charges 2 Provisions and leaves one extra card in hand at the chosen point in the order', check: async () => {
+                await expect(playerRow(actor, actor.name).getByText('Provision', { exact: true }).locator('..')).toContainText(String(destination.provisionsBefore - 2));
+                await expect(playerRow(actor, actor.name).getByText('Hand', { exact: true }).locator('..')).toContainText(String(destination.handBefore + 1));
+              } }
+            ] : [
+              { spec: 'Osgiliath opens its printed river-crossing choice before the Ring ability', check: async () => await expect(actor.page.getByRole('heading', { name: 'How much Mithril will cross the river?' })).toBeVisible() }
+            ]),
+            converged(accepted + 1)
+          ]);
+          pendingTokenDestination = null;
+          continue;
+        }
         if (await actor.page.getByRole('heading', { name: 'How much Mithril will cross the river?' }).isVisible().catch(() => false)) {
           const goldBefore = await resource(actor, 'Gold');
           await steps.gesture(actor.page, 'osgiliath-free-crossing', `${actor.name} takes Osgiliath's free crossing`, async () => {
@@ -196,6 +228,17 @@ test('three humans execute every final printed board destination', async ({ brow
       const handBefore = await resource(actor, 'Hand');
       const mithrilBefore = await resource(actor, 'Mithril');
       const goldBefore = await resource(actor, 'Gold');
+      const selectedCardName = (await selected.locator('strong').textContent())?.trim() ?? '';
+      const usesCommanderRing = selectedCardName === 'Token of Command';
+      if (usesCommanderRing) {
+        pendingTokenDestination = {
+          spaceId: desiredSpace,
+          provisionsBefore,
+          handBefore,
+          mithrilBefore,
+          goldBefore
+        };
+      }
       await steps.gesture(actor.page, `enter-${desiredSpace}-${guard}`, `${actor.name} enters ${desiredSpace}`, async () => {
         await actor.page.getByTestId(`space-${desiredSpace}`).click(); accepted += 1;
       }, [
@@ -203,13 +246,21 @@ test('three humans execute every final printed board destination', async ({ brow
           for (const observer of seats) await expect(observer.page.getByTestId(`space-${desiredSpace}`)).toContainText(actor.name);
         } },
         { spec: 'The placement is accepted by every immutable replay', check: async () => await expect(actor.page.getByTestId('replay-health')).toContainText('0 replay diagnostics') },
-        ...(desiredSpace === 'archives-rivendell' ? [
+        ...(usesCommanderRing ? [
+          { spec: 'Token of Command pays the printed entry cost, then pauses before resolving the destination reward', check: async () => {
+            await expect(actor.page.getByRole('heading', { name: 'When will Mirror Unveiled?' })).toBeVisible();
+            await expect(playerRow(actor, actor.name).getByText('Provision', { exact: true }).locator('..')).toContainText(String(provisionsBefore - (desiredSpace === 'archives-rivendell' ? 2 : 0)));
+            await expect(playerRow(actor, actor.name).getByText('Hand', { exact: true }).locator('..')).toContainText(String(handBefore - 1));
+            await expect(playerRow(actor, actor.name).getByText('Mithril', { exact: true }).locator('..')).toContainText(String(mithrilBefore - (desiredSpace === 'great-forge' ? 3 : 0)));
+            await expect(playerRow(actor, actor.name).getByText('Gold', { exact: true }).locator('..')).toContainText(String(goldBefore));
+          } }
+        ] : desiredSpace === 'archives-rivendell' ? [
           { spec: 'Archives charges exactly 2 Provisions and the two draws leave one extra card in hand after placement', check: async () => {
             await expect(playerRow(actor, actor.name).getByText('Provision', { exact: true }).locator('..')).toContainText(String(provisionsBefore - 2));
             await expect(playerRow(actor, actor.name).getByText('Hand', { exact: true }).locator('..')).toContainText(String(handBefore + 1));
           } }
         ] : []),
-        ...(desiredSpace === 'great-forge' ? [
+        ...(!usesCommanderRing && desiredSpace === 'great-forge' ? [
           { spec: 'Great Forge charges 3 Mithril and grants 5 Gold before its faction choice', check: async () => {
             await expect(playerRow(actor, actor.name).getByText('Mithril', { exact: true }).locator('..')).toContainText(String(mithrilBefore - 3));
             await expect(playerRow(actor, actor.name).getByText('Gold', { exact: true }).locator('..')).toContainText(String(goldBefore + 5));

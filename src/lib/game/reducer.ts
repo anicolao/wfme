@@ -338,6 +338,7 @@ export type MatchState = {
     actorUid: string;
     followupSeekAlliesCardId: string | null;
     allowedPostIds: readonly string[] | null;
+    commanderRingResumeSpace?: { cardInstanceId: string; spaceId: string; ignoredResourceCost: boolean } | null;
     resumeTurn?: 'agent' | 'reveal';
     resumeBattleReward?: boolean;
     options: readonly [];
@@ -618,7 +619,7 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
   if (!definition) return [];
   if (
     card?.definitionId === 'token-of-command' &&
-    !(['aragorn', 'theoden'] as const).includes(state.players.find((candidate) => candidate.uid === actorUid)?.commander as 'aragorn' | 'theoden')
+    !(['aragorn', 'theoden', 'galadriel'] as const).includes(state.players.find((candidate) => candidate.uid === actorUid)?.commander as 'aragorn' | 'theoden' | 'galadriel')
   ) return [];
   const ownedScoutCount = Object.values(match.boardScouts).filter((uid) => uid === actorUid).length;
   const canUsePaths = definition.journeyEffect?.kind === 'recall-scout-ignore-space-cost' && ownedScoutCount > 0;
@@ -826,6 +827,7 @@ function openScoutPlacement(
   actorUid: string,
   continuation: {
     followupSeekAlliesCardId: string | null;
+    commanderRingResumeSpace?: { cardInstanceId: string; spaceId: string; ignoredResourceCost: boolean } | null;
     resumeTurn?: 'agent' | 'reveal';
     resumeBattleReward?: boolean;
   }
@@ -1065,6 +1067,37 @@ function openAragornRing(
 function applyTheodenRing(match: MatchState, actorUid: string): void {
   match.players[actorUid].resources.provisions += 1;
   match.activity.push('Théoden gains 1 Provision with Ride Now.');
+}
+
+function resolveGaladrielRingDraw(match: MatchState, actorUid: string): void {
+  const observationPostCount = OBSERVATION_POSTS.filter(
+    (post) => match.boardScouts[post.id] === actorUid
+  ).length;
+  const drawn = observationPostCount >= 2
+    ? drawOneCard(match, actorUid, 'Mirror Unveiled')
+    : undefined;
+  match.activity.push(
+    observationPostCount >= 2
+      ? `Galadriel draws ${drawn ? '1 card' : 'no card'} with Mirror Unveiled because her Scouts watch ${observationPostCount} different observation posts.`
+      : `Galadriel does not draw with Mirror Unveiled because her Scouts watch only ${observationPostCount} observation post${observationPostCount === 1 ? '' : 's'}.`
+  );
+}
+
+function openGaladrielRing(
+  match: MatchState,
+  actorUid: string,
+  resumeSpace: { cardInstanceId: string; spaceId: string; ignoredResourceCost: boolean } | null
+): boolean {
+  const opened = openScoutPlacement(match, actorUid, {
+    followupSeekAlliesCardId: null,
+    commanderRingResumeSpace: resumeSpace
+  });
+  if (opened) {
+    match.activity.push('Galadriel unveils the Mirror and must place 1 Scout before checking its vision.');
+    return true;
+  }
+  resolveGaladrielRingDraw(match, actorUid);
+  return false;
 }
 
 function permutations<T>(values: readonly T[]): T[][] {
@@ -1311,6 +1344,8 @@ function finishAgentAction(match: MatchState, actorUid: string): void {
         match.queuedBattleDeployment.additionalGarrisonAllowance += 1;
         match.queuedBattleDeployment.additionalGarrisonSource = 'Ride Now';
       }
+    } else if (match.players[actorUid].commander === 'galadriel') {
+      if (openGaladrielRing(match, actorUid, null)) return;
     }
   }
   const queued = match.queuedBattleDeployment;
@@ -1940,7 +1975,7 @@ function beginAgentResolution(
 ): void {
   if (card.definitionId === 'token-of-command') {
     const commander = state.match!.players[actorUid].commander;
-    const ringName = commander === 'theoden' ? 'Ride Now' : 'Andúril Aflame';
+    const ringName = commander === 'theoden' ? 'Ride Now' : commander === 'galadriel' ? 'Mirror Unveiled' : 'Andúril Aflame';
     state.match!.pendingChoice = {
       kind: 'token-command-order',
       actorUid,
@@ -2209,7 +2244,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === pending.spaceId);
       if (!card || card.definitionId !== 'token-of-command' || !space) return 'illegal choice resolution';
       const commander = player.commander;
-      if (commander !== 'aragorn' && commander !== 'theoden') return 'illegal choice resolution';
+      if (commander !== 'aragorn' && commander !== 'theoden' && commander !== 'galadriel') return 'illegal choice resolution';
       state.match.pendingChoice = null;
       if (choice === 'ring-first') {
         if (commander === 'aragorn') {
@@ -2221,9 +2256,16 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
             resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
             if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
           }
-        } else {
+        } else if (commander === 'theoden') {
           applyTheodenRing(state.match, event.actorUid);
           resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost, 1);
+          if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
+        } else if (!openGaladrielRing(state.match, event.actorUid, {
+          cardInstanceId: card.id,
+          spaceId: space.id,
+          ignoredResourceCost: pending.ignoredResourceCost
+        })) {
+          resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
           if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
         }
       } else {
@@ -2879,6 +2921,25 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     player.scouts.supply -= 1;
     state.match.boardScouts[postId] = event.actorUid;
     state.match.activity.push(`${actor.displayName} places a Scout at ${OBSERVATION_POSTS.find((post) => post.id === postId)!.name}.`);
+    if (pending.commanderRingResumeSpace !== undefined) {
+      resolveGaladrielRingDraw(state.match, event.actorUid);
+      state.match.pendingChoice = null;
+      if (pending.commanderRingResumeSpace) {
+        const card = player.journey.find((candidate) => candidate.id === pending.commanderRingResumeSpace!.cardInstanceId);
+        const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === pending.commanderRingResumeSpace!.spaceId);
+        if (!card || card.definitionId !== 'token-of-command' || !space) return 'illegal Scout placement';
+        resolveAgentEffects(
+          state.match,
+          actor.displayName,
+          event.actorUid,
+          card,
+          space,
+          pending.commanderRingResumeSpace.ignoredResourceCost
+        );
+      }
+      if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
+      return null;
+    }
     if (state.match.queuedMessengerMothRecall?.actorUid === event.actorUid) {
       state.match.queuedMessengerMothRecall = null;
       const postIds = OBSERVATION_POSTS

@@ -1035,30 +1035,32 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin tests Reconnaissance for great-forge
-
-![Phone: Rin tests Reconnaissance for great-forge](./screenshots/082-select-great-forge-29-2-phone.png)
-
-![Desktop: Rin tests Reconnaissance for great-forge](./screenshots/082-select-great-forge-29-2-desktop.png)
-
-**Verifications:**
-
-- [x] The card is selected by a real click and its legal board highlights update
-
----
-
 ## Rin enters great-forge
 
-![Phone: Rin enters great-forge](./screenshots/083-enter-great-forge-29-phone.png)
+![Phone: Rin enters great-forge](./screenshots/082-enter-great-forge-29-phone.png)
 
-![Desktop: Rin enters great-forge](./screenshots/083-enter-great-forge-29-desktop.png)
+![Desktop: Rin enters great-forge](./screenshots/082-enter-great-forge-29-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees the named Agent on the chosen printed destination
 - [x] The placement is accepted by every immutable replay
-- [x] Great Forge charges 3 Mithril and grants 5 Gold before its faction choice
+- [x] Token of Command pays the printed entry cost, then pauses before resolving the destination reward
 - [x] Every connected browser replays 40 accepted events with no diagnostics
+
+---
+
+## Rin resolves the printed destination before Mirror Unveiled
+
+![Phone: Rin resolves the printed destination before Mirror Unveiled](./screenshots/083-token-destination-first-30-phone.png)
+
+![Desktop: Rin resolves the printed destination before Mirror Unveiled](./screenshots/083-token-destination-first-30-desktop.png)
+
+**Verifications:**
+
+- [x] The ordered Commander prompt closes after the real destination-first click
+- [x] Great Forge now charges 3 Mithril and grants 5 Gold at the chosen point in the order
+- [x] Every connected browser replays 41 accepted events with no diagnostics
 
 ---
 
@@ -1072,7 +1074,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] The chosen faction standing rises exactly once
 - [x] The Chronicle records the completed Great Forge choice
-- [x] Every connected browser replays 41 accepted events with no diagnostics
+- [x] Every connected browser replays 42 accepted events with no diagnostics
 
 ---
 
@@ -1086,6 +1088,6 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] All twenty-two destinations remain executable after replay
 - [x] The final destination history survives reload
-- [x] Every connected browser replays 41 accepted events with no diagnostics
+- [x] Every connected browser replays 42 accepted events with no diagnostics
 
 ---

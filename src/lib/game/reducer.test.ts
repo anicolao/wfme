@@ -112,7 +112,7 @@ describe('integrated Agent placement replay', () => {
     const inactiveSetup = setup.map((event) => event.type !== 'player/commander-selected'
       ? event
       : event.actorUid === 'host'
-        ? createEvent('player/commander-selected', 'host', 2, { commanderId: 'galadriel' }, 4)
+        ? createEvent('player/commander-selected', 'host', 2, { commanderId: 'saruman' }, 4)
         : event.actorUid === 'guest-a'
           ? createEvent('player/commander-selected', 'guest-a', 2, { commanderId: 'aragorn' }, 5)
           : event);
@@ -184,6 +184,119 @@ describe('integrated Agent placement replay', () => {
     expect(state.match!.players.host.resources.gold).toBe(2);
     expect(currentPlayerUid(state)).not.toBe('host');
     expect(reduceGame([...setup, placement, spaceFirst, createEvent('choice/resolved', 'host', 7, { choice: 'standing-elven' }, 13)])).toEqual(state);
+  });
+
+  it('lets Galadriel place a finite Scout and draw only when Mirror Unveiled watches two posts', () => {
+    const setup = readyRoom('galadriel-mirror-1');
+    setup[3] = createEvent('player/commander-selected', 'host', 2, { commanderId: 'galadriel' }, 4);
+    const started = reduceGame(setup);
+    const actor = 'host';
+    expect(currentPlayerUid(started)).toBe(actor);
+    expect(started.match!.players[actor].hand.map((card) => card.definitionId)).toEqual(expect.arrayContaining([
+      'reconnaissance', 'token-of-command'
+    ]));
+    const openingToken = started.match!.players[actor].hand.find((card) => card.definitionId === 'token-of-command')!;
+    const onePostMirror = [
+      ...setup,
+      createEvent('agent/placed', actor, 5, { cardInstanceId: openingToken.id, spaceId: 'take-war-effort' }, 11),
+      createEvent('choice/resolved', actor, 6, { choice: 'ring-first' }, 12),
+      createEvent('scout/placed', actor, 7, { postId: 'redhorn-pass' }, 13)
+    ];
+    const belowThreshold = reduceGame(onePostMirror);
+    expect(belowThreshold.diagnostics).toEqual([]);
+    expect(belowThreshold.match!.players[actor].hand).toHaveLength(5);
+    expect(belowThreshold.match!.players[actor].scouts.supply).toBe(2);
+    expect(belowThreshold.match!.players[actor].resources.gold).toBe(2);
+    expect(belowThreshold.match!.activity).toContain('Galadriel does not draw with Mirror Unveiled because her Scouts watch only 1 observation post.');
+    expect(belowThreshold.match!.activity.some((entry) => entry.includes('draws 1 card with Mirror Unveiled'))).toBe(false);
+    expect(currentPlayerUid(belowThreshold)).not.toBe(actor);
+
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const events = [...setup];
+    const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      sequences[uid] += 1;
+      events.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+    };
+
+    const reconnaissance = started.match!.players[actor].hand.find((card) => card.definitionId === 'reconnaissance')!;
+    append(actor, 'agent/placed', { cardInstanceId: reconnaissance.id, spaceId: 'take-war-effort' });
+    let state = reduceGame(events);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.pendingChoice).toMatchObject({ kind: 'place-scout', actorUid: actor });
+    append(actor, 'scout/placed', { postId: 'redhorn-pass' });
+    state = reduceGame(events);
+    expect(state.match!.boardScouts['redhorn-pass']).toBe(actor);
+    expect(state.match!.players[actor].scouts.supply).toBe(2);
+    expect(state.match!.players[actor].hand).toHaveLength(5);
+
+    for (const otherUid of state.match!.playerOrder.filter((uid) => uid !== actor)) {
+      append(otherUid, 'turn/revealed', {});
+      append(otherUid, 'reveal/finished', {});
+    }
+    state = reduceGame(events);
+    expect(currentPlayerUid(state)).toBe(actor);
+    const token = state.match!.players[actor].hand.find((card) => card.definitionId === 'token-of-command')!;
+    expect(legalAgentSpaces(state, actor, token.id)).toContain('minas-tirith');
+    const beforeTokenEvents = [...events];
+    const tokenSequence = sequences[actor] + 1;
+    append(actor, 'agent/placed', { cardInstanceId: token.id, spaceId: 'minas-tirith' });
+    append(actor, 'choice/resolved', { choice: 'ring-first' });
+    state = reduceGame(events);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.pendingChoice).toMatchObject({
+      kind: 'place-scout',
+      actorUid: actor,
+      commanderRingResumeSpace: {
+        cardInstanceId: token.id,
+        spaceId: 'minas-tirith',
+        ignoredResourceCost: false
+      }
+    });
+    expect(state.match!.players[actor].hand).toHaveLength(4);
+    expect(state.match!.players[actor].companies).toEqual({ supply: 9, garrison: 3 });
+
+    const unauthorized = reduceGame([
+      ...events,
+      createEvent('scout/placed', state.match!.playerOrder.find((uid) => uid !== actor)!, 99, { postId: 'northern-eaves' }, timestamp)
+    ]);
+    expect(unauthorized.diagnostics.at(-1)).toContain('illegal Scout placement');
+    expect(unauthorized.match!.boardScouts['northern-eaves']).toBeUndefined();
+
+    append(actor, 'scout/placed', { postId: 'northern-eaves' });
+    state = reduceGame(events);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.players[actor].scouts.supply).toBe(1);
+    expect(Object.values(state.match!.boardScouts).filter((uid) => uid === actor)).toHaveLength(2);
+    expect(state.match!.players[actor].hand).toHaveLength(6);
+    expect(state.match!.players[actor].companies).toEqual({ supply: 8, garrison: 4 });
+    expect(state.match!.pendingChoice).toMatchObject({ kind: 'battle-deployment', actorUid: actor });
+    expect(state.match!.activity).toContain('Galadriel draws 1 card with Mirror Unveiled because her Scouts watch 2 different observation posts.');
+    expect(state.match!.activity.findIndex((entry) => entry.includes('draws 1 card with Mirror Unveiled')))
+      .toBeLessThan(state.match!.activity.findIndex((entry) => entry.includes('sends an Agent to Minas Tirith')));
+    expect(reduceGame(events)).toEqual(state);
+
+    const spaceFirstEvents = [
+      ...beforeTokenEvents,
+      createEvent('agent/placed', actor, tokenSequence, { cardInstanceId: token.id, spaceId: 'minas-tirith' }, timestamp - 3),
+      createEvent('choice/resolved', actor, tokenSequence + 1, { choice: 'space-first' }, timestamp - 2)
+    ];
+    let spaceFirst = reduceGame(spaceFirstEvents);
+    expect(spaceFirst.diagnostics).toEqual([]);
+    expect(spaceFirst.match!.pendingChoice).toMatchObject({
+      kind: 'place-scout',
+      actorUid: actor,
+      commanderRingResumeSpace: null
+    });
+    expect(spaceFirst.match!.players[actor].hand).toHaveLength(5);
+    expect(spaceFirst.match!.players[actor].companies).toEqual({ supply: 8, garrison: 4 });
+    spaceFirstEvents.push(createEvent('scout/placed', actor, tokenSequence + 2, { postId: 'northern-eaves' }, timestamp - 1));
+    spaceFirst = reduceGame(spaceFirstEvents);
+    expect(spaceFirst.diagnostics).toEqual([]);
+    expect(spaceFirst.match!.players[actor].hand).toHaveLength(6);
+    expect(spaceFirst.match!.pendingChoice).toMatchObject({ kind: 'battle-deployment', actorUid: actor });
+    expect(spaceFirst.match!.activity.findIndex((entry) => entry.includes('draws 1 card with Mirror Unveiled')))
+      .toBeGreaterThan(spaceFirst.match!.activity.findIndex((entry) => entry.includes('sends an Agent to Minas Tirith')));
   });
 
   it('lets Galadriel privately choose one of the top two Fate cards once per round', () => {

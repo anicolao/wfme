@@ -155,7 +155,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] Galadriel is selected for Rin
-- [x] Galadriel’s Foresight is visibly active while Mirror Unveiled remains inactive
+- [x] Both of Galadriel’s implemented powers are visibly active
 - [x] Every connected replay has accepted exactly 6 events with no diagnostics
 
 ---
