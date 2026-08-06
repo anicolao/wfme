@@ -2655,6 +2655,80 @@ describe('integrated Agent placement replay', () => {
     expect(reduceGame([...setup, placement, spaceFirst])).toEqual(state);
   });
 
+  it('draws through Gandalf’s A Wizard Is Never Late at the exact acquisition boundary and refreshes after Recall', () => {
+    const setup = readyRoom('gandalf-unit-1');
+    const started = reduceGame(setup);
+    expect(currentPlayerUid(started)).toBe('guest-b');
+    expect(started.match!.players['guest-b'].commander).toBe('gandalf');
+    const eagle = started.match!.chronicleRow.find((card) => card.definitionId === 'eagle-misty-mountains')!;
+    expect(eagle).toBeDefined();
+
+    const reveal = createEvent('turn/revealed', 'guest-b', 4, {}, 11);
+    const revealed = reduceGame([...setup, reveal]);
+    expect(revealed.match!.players['guest-b'].revealInfluence).toBe(6);
+    const acquiredEvent = createEvent('card/acquired', 'guest-b', 5, {
+      definitionId: eagle.definitionId,
+      cardInstanceId: eagle.id
+    }, 12);
+    const acquired = reduceGame([...setup, reveal, acquiredEvent]);
+    const gandalf = acquired.match!.players['guest-b'];
+    expect(acquired.diagnostics).toEqual([]);
+    expect(gandalf.revealInfluence).toBe(1);
+    expect(gandalf.discardPile).toContainEqual(eagle);
+    expect(gandalf.hand).toHaveLength(1);
+    expect(gandalf.drawPile).toHaveLength(4);
+    expect(gandalf.commanderPersistentUsedThisRound).toBe(true);
+    expect(acquired.match!.activity.filter((entry) => entry.includes('A Wizard Is Never Late'))).toEqual([
+      'Gandalf draws 1 card with A Wizard Is Never Late after acquiring a card costing at least 5 Influence.'
+    ]);
+
+    const lowCostSetup = readyRoom('gandalf-unit-1');
+    const lowCostStarted = reduceGame(lowCostSetup);
+    const ranger = lowCostStarted.match!.chronicleRow.find((card) => card.definitionId === 'ranger-north')!;
+    const lowCost = reduceGame([
+      ...lowCostSetup,
+      createEvent('turn/revealed', 'guest-b', 4, {}, 11),
+      createEvent('card/acquired', 'guest-b', 5, {
+        definitionId: ranger.definitionId,
+        cardInstanceId: ranger.id
+      }, 12)
+    ]);
+    expect(lowCost.diagnostics).toEqual([]);
+    expect(lowCost.match!.players['guest-b'].hand).toEqual([]);
+    expect(lowCost.match!.players['guest-b'].drawPile).toHaveLength(5);
+    expect(lowCost.match!.players['guest-b'].commanderPersistentUsedThisRound).toBe(false);
+    expect(lowCost.match!.activity.some((entry) => entry.includes('A Wizard Is Never Late'))).toBe(false);
+
+    const otherCommanderSetup = readyRoom('gandalf-unit-1');
+    otherCommanderSetup[5] = createEvent('player/commander-selected', 'guest-b', 2, { commanderId: 'eowyn' }, 6);
+    const otherCommander = reduceGame([
+      ...otherCommanderSetup,
+      reveal,
+      acquiredEvent
+    ]);
+    expect(otherCommander.diagnostics).toEqual([]);
+    expect(otherCommander.match!.players['guest-b'].hand).toEqual([]);
+    expect(otherCommander.match!.players['guest-b'].drawPile).toHaveLength(5);
+    expect(otherCommander.match!.players['guest-b'].commanderPersistentUsedThisRound).toBe(false);
+    expect(otherCommander.match!.activity.some((entry) => entry.includes('A Wizard Is Never Late'))).toBe(false);
+
+    const recalledStream = [
+      ...setup,
+      reveal,
+      acquiredEvent,
+      createEvent('reveal/finished', 'guest-b', 6, {}, 13),
+      createEvent('turn/revealed', 'guest-a', 4, {}, 14),
+      createEvent('reveal/finished', 'guest-a', 5, {}, 15),
+      createEvent('turn/revealed', 'host', 5, {}, 16),
+      createEvent('reveal/finished', 'host', 6, {}, 17)
+    ];
+    const recalled = reduceGame(recalledStream);
+    expect(recalled.diagnostics).toEqual([]);
+    expect(recalled.match!.round).toBe(2);
+    expect(recalled.match!.players['guest-b'].commanderPersistentUsedThisRound).toBe(false);
+    expect(reduceGame(recalledStream)).toEqual(recalled);
+  });
+
   it('pays for a Council seat, adds Reveal Influence, and resolves a repeat Fate visit', () => {
     let stream = readyRoom('council-economy');
     let sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };

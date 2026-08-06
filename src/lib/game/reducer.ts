@@ -700,6 +700,23 @@ function drawOneCard(match: MatchState, uid: string, reason: string): CardInstan
   return drawn;
 }
 
+function resolveGandalfHighCostAcquisition(match: MatchState, player: MatchPlayer, cost: number): void {
+  if (
+    cost < 5 ||
+    player.commander !== 'gandalf' ||
+    player.commanderPersistentUsedThisRound
+  ) {
+    return;
+  }
+  player.commanderPersistentUsedThisRound = true;
+  const drawn = drawOneCard(match, player.uid, 'A Wizard Is Never Late');
+  match.activity.push(
+    drawn
+      ? 'Gandalf draws 1 card with A Wizard Is Never Late after acquiring a card costing at least 5 Influence.'
+      : 'A Wizard Is Never Late finds no card for Gandalf to draw after the high-cost acquisition.'
+  );
+}
+
 function recallAndBeginNextRound(match: MatchState): void {
   if (Object.values(match.players).some((player) => player.renown >= 10) || match.battleDeck.length === 0) {
     match.turnMode = 'endgame';
@@ -3042,6 +3059,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       const refill = state.match.chronicleDeck.shift();
       if (refill) state.match.chronicleRow.splice(chronicleIndex, 0, refill);
       state.match.activity.push(`${actor.displayName} acquires ${definition.name} from the Chronicle Row for ${definition.cost} Influence${refill ? ' and refills its place' : ''}.`);
+      resolveGandalfHighCostAcquisition(state.match, player, definition.cost);
       return null;
     }
     const definition = RESERVE_CARD_DEFINITIONS.find((card) => card.id === definitionId);
@@ -3054,6 +3072,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     player.renown += definition.onAcquireRenown;
     player.discardPile.push({ id: `match-${state.match.epoch}:reserve:${definition.id}:${copy}`, definitionId: definition.id });
     state.match.activity.push(`${actor.displayName} acquires ${definition.name} for ${definition.cost} Influence.`);
+    resolveGandalfHighCostAcquisition(state.match, player, definition.cost);
     return null;
   }
 

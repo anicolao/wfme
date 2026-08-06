@@ -88,12 +88,12 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
         ? 'Powers active · The Line Unbroken · Andúril Aflame'
         : commander === 'Galadriel'
           ? 'Powers active · Foresight · Mirror Unveiled'
-          : 'Powers inactive';
+          : '1/2 active · A Wizard Is Never Late';
       await steps.gesture(seat.page, `seat-${index + 1}-commander`, `${seat.name} claims ${commander}`,
         () => seat.page.getByRole('button', { name: new RegExp(`^${commander}`) }).click(),
         [
           { spec: `${commander} is selected for ${seat.name}`, check: async () => await expect(seat.page.getByRole('button', { name: new RegExp(`^${commander}`) })).toHaveAttribute('aria-pressed', 'true') },
-          { spec: commander === 'Galadriel' ? 'Both of Galadriel’s implemented powers are visibly active' : commander === 'Aragorn' ? 'Both of Aragorn’s implemented powers are visibly active' : 'Unimplemented Commander powers remain visibly inactive', check: async () => await expect(seat.page.getByRole('button', { name: new RegExp(`^${commander}`) })).toContainText(commanderStatus) },
+          { spec: commander === 'Galadriel' ? 'Both of Galadriel’s implemented powers are visibly active' : commander === 'Aragorn' ? 'Both of Aragorn’s implemented powers are visibly active' : 'Gandalf’s implemented power is visibly active while Kindle Courage remains unavailable', check: async () => await expect(seat.page.getByRole('button', { name: new RegExp(`^${commander}`) })).toContainText(commanderStatus) },
           convergedEvents(4 + index * 2)
         ]
       );

@@ -183,7 +183,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] Gandalf is selected for Pip
-- [x] Unimplemented Commander powers remain visibly inactive
+- [x] Gandalf’s implemented power is visibly active while Kindle Courage remains unavailable
 - [x] Every connected replay has accepted exactly 8 events with no diagnostics
 
 ---
