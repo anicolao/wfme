@@ -33,11 +33,14 @@ test('three humans execute every final printed board destination', async ({ brow
       const card = cards.nth(index);
       if (await card.isDisabled()) continue;
       const cardName = (await card.locator('strong').textContent())?.trim() ?? `card ${index + 1}`;
+      const scroll = await seat.page.evaluate(() => ({ x: scrollX, y: scrollY }));
       await steps.gesture(seat.page, `select-${spaceId}-${guard}-${index}`, `${seat.name} tests ${cardName} for ${spaceId}`, async () => {
         await card.click();
+        await card.evaluate((element) => element.scrollIntoView({ block: 'center', inline: 'center' }));
       }, [
         { spec: 'The card is selected by a real click and its legal board highlights update', check: async () => await expect(card).toHaveAttribute('aria-pressed', 'true') }
       ]);
+      await seat.page.evaluate(({ x, y }) => scrollTo(x, y), scroll);
       if (await seat.page.getByTestId(`space-${spaceId}`).isEnabled()) return card;
     }
     return null;
