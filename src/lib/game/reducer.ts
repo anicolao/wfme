@@ -203,6 +203,12 @@ export type MatchState = {
     resumeSpace: { cardInstanceId: string; spaceId: string; ignoredResourceCost: boolean } | null;
     options: readonly ('gandalf-draw-fate' | 'gandalf-recruit')[];
   } | {
+    kind: 'commander-ring-eowyn';
+    actorUid: string;
+    resumeSpace: { cardInstanceId: string; spaceId: string; ignoredResourceCost: boolean } | null;
+    cardInstanceIds: readonly string[];
+    options: readonly string[];
+  } | {
     kind: 'chronicle-payment';
     actorUid: string;
     definitionId: PaidChronicleId;
@@ -626,7 +632,7 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
   if (!definition) return [];
   if (
     card?.definitionId === 'token-of-command' &&
-    !(['aragorn', 'theoden', 'galadriel', 'gandalf'] as const).includes(state.players.find((candidate) => candidate.uid === actorUid)?.commander as 'aragorn' | 'theoden' | 'galadriel' | 'gandalf')
+    !(['aragorn', 'theoden', 'galadriel', 'gandalf', 'eowyn'] as const).includes(state.players.find((candidate) => candidate.uid === actorUid)?.commander as 'aragorn' | 'theoden' | 'galadriel' | 'gandalf' | 'eowyn')
   ) return [];
   const ownedScoutCount = Object.values(match.boardScouts).filter((uid) => uid === actorUid).length;
   const canUsePaths = definition.journeyEffect?.kind === 'recall-scout-ignore-space-cost' && ownedScoutCount > 0;
@@ -1148,6 +1154,28 @@ function openGandalfRing(
   );
 }
 
+function openEowynRing(
+  match: MatchState,
+  actorUid: string,
+  resumeSpace: { cardInstanceId: string; spaceId: string; ignoredResourceCost: boolean } | null
+): boolean {
+  const player = match.players[actorUid];
+  const cardInstanceIds = [...player.hand, ...player.discardPile].map((card) => card.id);
+  if (cardInstanceIds.length === 0) {
+    match.activity.push('Éowyn finds no deed to relinquish and draws no card with Choose Deeds.');
+    return false;
+  }
+  match.pendingChoice = {
+    kind: 'commander-ring-eowyn',
+    actorUid,
+    resumeSpace,
+    cardInstanceIds,
+    options: [...cardInstanceIds.map((id) => `trash-card:${id}`), 'decline-trash']
+  };
+  match.activity.push('Éowyn may trash one private card from her hand or discard pile with Choose Deeds.');
+  return true;
+}
+
 function permutations<T>(values: readonly T[]): T[][] {
   if (values.length < 2) return [values.slice()];
   return values.flatMap((value, index) =>
@@ -1397,6 +1425,8 @@ function finishAgentAction(match: MatchState, actorUid: string): void {
     } else if (match.players[actorUid].commander === 'gandalf') {
       openGandalfRing(match, actorUid, null);
       return;
+    } else if (match.players[actorUid].commander === 'eowyn') {
+      if (openEowynRing(match, actorUid, null)) return;
     }
   }
   const queued = match.queuedBattleDeployment;
@@ -2051,7 +2081,9 @@ function beginAgentResolution(
         ? 'Mirror Unveiled'
         : commander === 'gandalf'
           ? 'Kindle Courage'
-          : 'Andúril Aflame';
+          : commander === 'eowyn'
+            ? 'Choose Deeds'
+            : 'Andúril Aflame';
     state.match!.pendingChoice = {
       kind: 'token-command-order',
       actorUid,
@@ -2320,7 +2352,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === pending.spaceId);
       if (!card || card.definitionId !== 'token-of-command' || !space) return 'illegal choice resolution';
       const commander = player.commander;
-      if (commander !== 'aragorn' && commander !== 'theoden' && commander !== 'galadriel' && commander !== 'gandalf') {
+      if (commander !== 'aragorn' && commander !== 'theoden' && commander !== 'galadriel' && commander !== 'gandalf' && commander !== 'eowyn') {
         return 'illegal choice resolution';
       }
       state.match.pendingChoice = null;
@@ -2347,12 +2379,19 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
             resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
             if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
           }
-        } else {
+        } else if (commander === 'gandalf') {
           openGandalfRing(state.match, event.actorUid, {
             cardInstanceId: card.id,
             spaceId: space.id,
             ignoredResourceCost: pending.ignoredResourceCost
           });
+        } else if (!openEowynRing(state.match, event.actorUid, {
+          cardInstanceId: card.id,
+          spaceId: space.id,
+          ignoredResourceCost: pending.ignoredResourceCost
+        })) {
+          resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
+          if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
         }
       } else {
         state.match.queuedCommanderRing = { actorUid: event.actorUid };
@@ -2376,6 +2415,34 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         const recruited = recruitCompanies(player, 2);
         state.match.activity.push(`Gandalf recruits ${recruited} ${recruited === 1 ? 'Company' : 'Companies'} with Kindle Courage.`);
       }
+      if (pending.resumeSpace) {
+        const card = player.journey.find((candidate) => candidate.id === pending.resumeSpace!.cardInstanceId);
+        const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === pending.resumeSpace!.spaceId);
+        if (!card || card.definitionId !== 'token-of-command' || !space) return 'illegal choice resolution';
+        resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.resumeSpace.ignoredResourceCost);
+        if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
+      } else {
+        finishAgentAction(state.match, event.actorUid);
+      }
+      return null;
+    }
+    if (pending.kind === 'commander-ring-eowyn') {
+      if (choice.startsWith('trash-card:')) {
+        const cardId = choice.slice('trash-card:'.length);
+        if (!pending.cardInstanceIds.includes(cardId)) return 'illegal choice resolution';
+        const handIndex = player.hand.findIndex((card) => card.id === cardId);
+        const discardIndex = player.discardPile.findIndex((card) => card.id === cardId);
+        if (handIndex < 0 && discardIndex < 0) return 'illegal choice resolution';
+        const [trashed] = handIndex >= 0
+          ? player.hand.splice(handIndex, 1)
+          : player.discardPile.splice(discardIndex, 1);
+        player.trashPile.push(trashed);
+        const drawn = drawOneCard(state.match, event.actorUid, 'Choose Deeds');
+        state.match.activity.push(`${actor.displayName} trashes one private card and draws ${drawn ? '1 card' : 'no card'} with Choose Deeds.`);
+      } else {
+        state.match.activity.push(`${actor.displayName} keeps every card and draws no card with Choose Deeds.`);
+      }
+      state.match.pendingChoice = null;
       if (pending.resumeSpace) {
         const card = player.journey.find((candidate) => candidate.id === pending.resumeSpace!.cardInstanceId);
         const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === pending.resumeSpace!.spaceId);

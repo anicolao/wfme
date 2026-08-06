@@ -2845,6 +2845,158 @@ describe('integrated Agent placement replay', () => {
     expect(reduceGame([...throughLowGarrison, lowPlacement, lowOrder, recruitEvent])).toEqual(recruited);
   });
 
+  it('lets Éowyn trash an exact hand or discard card before drawing with Choose Deeds in either order', () => {
+    const eowynRoom = (seed: string) => {
+      const events = readyRoom(seed);
+      events[3] = createEvent('player/commander-selected', 'host', 2, { commanderId: 'eowyn' }, 4);
+      return events;
+    };
+
+    const setup = eowynRoom('aragorn-ring-11');
+    const started = reduceGame(setup);
+    expect(currentPlayerUid(started)).toBe('host');
+    const token = started.match!.players.host.hand.find((card) => card.definitionId === 'token-of-command')!;
+    expect(token).toBeDefined();
+    expect(legalAgentSpaces(started, 'host', token.id)).toContain('take-war-effort');
+    const placement = createEvent('agent/placed', 'host', 5, {
+      cardInstanceId: token.id,
+      spaceId: 'take-war-effort'
+    }, 11);
+    const order = createEvent('choice/resolved', 'host', 6, { choice: 'ring-first' }, 12);
+    const awaitingTrash = reduceGame([...setup, placement, order]);
+    expect(awaitingTrash.diagnostics).toEqual([]);
+    const eligibleHandIds = awaitingTrash.match!.players.host.hand.map((card) => card.id);
+    expect(awaitingTrash.match!.pendingChoice).toEqual({
+      kind: 'commander-ring-eowyn',
+      actorUid: 'host',
+      resumeSpace: {
+        cardInstanceId: token.id,
+        spaceId: 'take-war-effort',
+        ignoredResourceCost: false
+      },
+      cardInstanceIds: eligibleHandIds,
+      options: [...eligibleHandIds.map((id) => `trash-card:${id}`), 'decline-trash']
+    });
+    expect(awaitingTrash.match!.players.host.resources.gold).toBe(0);
+
+    const unauthorized = reduceGame([
+      ...setup,
+      placement,
+      order,
+      createEvent('choice/resolved', 'guest-a', 4, { choice: `trash-card:${eligibleHandIds[0]}` }, 13)
+    ]);
+    expect(unauthorized.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(unauthorized.match!.pendingChoice).toEqual(awaitingTrash.match!.pendingChoice);
+    expect(unauthorized.match!.players.host.trashPile).toEqual([]);
+
+    const invalid = reduceGame([
+      ...setup,
+      placement,
+      order,
+      createEvent('choice/resolved', 'host', 7, { choice: 'trash-card:not-owned' }, 13)
+    ]);
+    expect(invalid.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(invalid.match!.players.host.trashPile).toEqual([]);
+
+    const trashedHandCard = awaitingTrash.match!.players.host.hand[0];
+    const trashHand = createEvent('choice/resolved', 'host', 7, { choice: `trash-card:${trashedHandCard.id}` }, 13);
+    const afterHandTrash = reduceGame([...setup, placement, order, trashHand]);
+    expect(afterHandTrash.diagnostics).toEqual([]);
+    expect(afterHandTrash.match!.players.host.trashPile).toEqual([trashedHandCard]);
+    expect(afterHandTrash.match!.players.host.hand).toHaveLength(5);
+    expect(afterHandTrash.match!.players.host.drawPile).toHaveLength(3);
+    expect(afterHandTrash.match!.players.host.resources.gold).toBe(2);
+    expect(afterHandTrash.match!.pendingChoice).toBeNull();
+    expect(currentPlayerUid(afterHandTrash)).not.toBe('host');
+    expect(afterHandTrash.match!.activity.findIndex((entry) => entry.includes('draws 1 card with Choose Deeds')))
+      .toBeLessThan(afterHandTrash.match!.activity.findIndex((entry) => entry.includes('sends an Agent to Take Up a War Effort')));
+    expect([
+      ...afterHandTrash.match!.players.host.hand,
+      ...afterHandTrash.match!.players.host.drawPile,
+      ...afterHandTrash.match!.players.host.discardPile,
+      ...afterHandTrash.match!.players.host.trashPile,
+      ...afterHandTrash.match!.players.host.journey,
+      ...afterHandTrash.match!.players.host.muster
+    ]).toHaveLength(10);
+
+    const spaceFirst = createEvent('choice/resolved', 'host', 6, { choice: 'space-first' }, 12);
+    const afterDestination = reduceGame([...setup, placement, spaceFirst]);
+    expect(afterDestination.diagnostics).toEqual([]);
+    expect(afterDestination.match!.players.host.resources.gold).toBe(2);
+    expect(afterDestination.match!.players.host.hand).toHaveLength(5);
+    expect(afterDestination.match!.pendingChoice).toMatchObject({
+      kind: 'commander-ring-eowyn',
+      actorUid: 'host',
+      resumeSpace: null
+    });
+    const declined = reduceGame([
+      ...setup,
+      placement,
+      spaceFirst,
+      createEvent('choice/resolved', 'host', 7, { choice: 'decline-trash' }, 13)
+    ]);
+    expect(declined.diagnostics).toEqual([]);
+    expect(declined.match!.players.host.hand).toHaveLength(5);
+    expect(declined.match!.players.host.drawPile).toHaveLength(4);
+    expect(declined.match!.players.host.trashPile).toEqual([]);
+    expect(declined.match!.activity.findIndex((entry) => entry.includes('sends an Agent to Take Up a War Effort')))
+      .toBeLessThan(declined.match!.activity.findIndex((entry) => entry.includes('keeps every card and draws no card with Choose Deeds')));
+
+    const discardSetup = eowynRoom('eowyn-deeds-discard-1');
+    const stream = [...discardSetup];
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    let discardState = reduceGame(stream);
+    for (let guard = 0; guard < 120; guard += 1) {
+      const actorUid = currentPlayerUid(discardState)!;
+      const actor = discardState.match!.players[actorUid];
+      if (
+        actorUid === 'host' &&
+        actor.discardPile.length > 0 &&
+        actor.hand.some((card) => card.definitionId === 'token-of-command')
+      ) break;
+      sequences[actorUid] += 1;
+      stream.push(createEvent('turn/revealed', actorUid, sequences[actorUid], {}, timestamp++));
+      discardState = reduceGame(stream);
+      expect(discardState.diagnostics).toEqual([]);
+      sequences[actorUid] += 1;
+      stream.push(createEvent('reveal/finished', actorUid, sequences[actorUid], {}, timestamp++));
+      discardState = reduceGame(stream);
+      expect(discardState.diagnostics).toEqual([]);
+    }
+    expect(currentPlayerUid(discardState)).toBe('host');
+    const discardPlayer = discardState.match!.players.host;
+    const discardToken = discardPlayer.hand.find((card) => card.definitionId === 'token-of-command')!;
+    const discardCard = discardPlayer.discardPile[0];
+    expect(discardToken).toBeDefined();
+    expect(discardCard).toBeDefined();
+    sequences.host += 1;
+    stream.push(createEvent('agent/placed', 'host', sequences.host, {
+      cardInstanceId: discardToken.id,
+      spaceId: 'hall-fire'
+    }, timestamp++));
+    sequences.host += 1;
+    stream.push(createEvent('choice/resolved', 'host', sequences.host, { choice: 'ring-first' }, timestamp++));
+    const discardChoice = reduceGame(stream);
+    expect(discardChoice.diagnostics).toEqual([]);
+    expect(discardChoice.match!.pendingChoice).toMatchObject({
+      kind: 'commander-ring-eowyn',
+      actorUid: 'host'
+    });
+    expect(discardChoice.match!.pendingChoice!.options).toContain(`trash-card:${discardCard.id}`);
+    const handBeforeDiscardTrash = discardChoice.match!.players.host.hand.length;
+    sequences.host += 1;
+    stream.push(createEvent('choice/resolved', 'host', sequences.host, { choice: `trash-card:${discardCard.id}` }, timestamp++));
+    const afterDiscardTrash = reduceGame(stream);
+    expect(afterDiscardTrash.diagnostics).toEqual([]);
+    expect(afterDiscardTrash.match!.players.host.discardPile).not.toContainEqual(discardCard);
+    expect(afterDiscardTrash.match!.players.host.trashPile).toContainEqual(discardCard);
+    expect(afterDiscardTrash.match!.players.host.hand).toHaveLength(handBeforeDiscardTrash + 1);
+    expect(afterDiscardTrash.match!.players.host.fateHand).toHaveLength(1);
+    expect(afterDiscardTrash.match!.activity).toContain('Mara trashes one private card and draws 1 card with Choose Deeds.');
+    expect(reduceGame(stream)).toEqual(afterDiscardTrash);
+  });
+
   it('pays for a Council seat, adds Reveal Influence, and resolves a repeat Fate visit', () => {
     let stream = readyRoom('council-economy');
     let sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
