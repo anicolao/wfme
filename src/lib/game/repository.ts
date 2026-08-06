@@ -24,21 +24,6 @@ export async function gameRoomExists(db: Firestore, roomCode: string): Promise<b
   return !snapshot.empty;
 }
 
-export async function waitForGameRoom(
-  db: Firestore,
-  roomCode: string,
-  attempts = 40,
-  intervalMillis = 250
-): Promise<boolean> {
-  for (let attempt = 0; attempt < attempts; attempt += 1) {
-    if (await gameRoomExists(db, roomCode)) return true;
-    if (attempt < attempts - 1) {
-      await new Promise((resolve) => setTimeout(resolve, intervalMillis));
-    }
-  }
-  return false;
-}
-
 export function createGameRepository(db: Firestore, roomCode: string, actorUid: string) {
   const events = collection(db, 'games', roomCode, 'events');
   const sequenceKey = `wfme:v2:${roomCode}:${actorUid}:sequence`;

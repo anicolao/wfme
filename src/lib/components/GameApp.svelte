@@ -8,8 +8,7 @@
     createGameRepository,
     gameRoomExists,
     normalizeRoomCode,
-    randomRoomCode,
-    waitForGameRoom
+    randomRoomCode
   } from '$lib/game/repository';
   import { currentPlayerUid, EMPTY_GAME, reduceGame, type GameState } from '$lib/game/reducer';
   import RealmBoard from './RealmBoard.svelte';
@@ -103,7 +102,7 @@
     backendStatus = 'syncing';
     message = 'Finding the room…';
     try {
-      if (!(await waitForGameRoom(db, code))) {
+      if (!(await gameRoomExists(db, code))) {
         backendStatus = 'ready';
         message = 'That room does not exist.';
         return;
