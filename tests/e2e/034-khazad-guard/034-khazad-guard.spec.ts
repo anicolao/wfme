@@ -22,7 +22,11 @@ test('Khazad Guard musters and deploys a third veteran Company at Battle', async
     await steps.gesture(actor.page, `reveal-${gestureNumber}`, `${actor.name} Reveals the real remaining hand`, async () => {
       await actor.page.getByRole('button', { name: 'Reveal remaining hand' }).click(); accepted.value += 1;
     }, [
-      { spec: 'The public Muster row replaces only the acting human’s private hand', check: async () => await expect(actor.page.getByTestId('reveal-panel')).toContainText(`${actor.name} Reveals`) },
+      { spec: 'The public Muster row replaces only the acting human’s private hand', check: async () => {
+        const panel = actor.page.getByTestId('reveal-panel');
+        await expect(panel).toContainText(`${actor.name} Reveals`);
+        await panel.scrollIntoViewIfNeeded({ timeout: 2_000 });
+      } },
       ...extra,
       converged(accepted.value + 1)
     ]);

@@ -134,7 +134,12 @@ export type MatchState = {
   queuedMessengerMothRecall: { actorUid: string } | null;
   queuedElvenForesight: { actorUid: string } | null;
   queuedScoutPlacementRestriction: { actorUid: string; postIds: readonly string[] } | null;
-  queuedBattleDeployment: { actorUid: string; spaceId: string; additionalGarrisonAllowance: number } | null;
+  queuedBattleDeployment: {
+    actorUid: string;
+    spaceId: string;
+    additionalGarrisonAllowance: number;
+    additionalGarrisonSource: 'Khazad Guard' | 'Ride Now' | null;
+  } | null;
   pendingBattleRewardChoices: Array<{ kind: 'standing' | 'place-scout' | 'fate-keep-one'; actorUid: string }>;
   pendingChoice: null | {
     kind: 'token-command-order';
@@ -250,6 +255,7 @@ export type MatchState = {
     spaceId: string;
     maximum: number;
     additionalGarrisonAllowance: number;
+    additionalGarrisonSource: 'Khazad Guard' | 'Ride Now' | null;
     options: readonly string[];
   } | {
     kind: 'ranger-mustering-trash';
@@ -565,7 +571,10 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
   const card = player.hand.find((candidate) => candidate.id === cardInstanceId);
   const definition = card && AGENT_CARD_DEFINITIONS.find((candidate) => candidate.id === card.definitionId);
   if (!definition) return [];
-  if (card?.definitionId === 'token-of-command' && state.players.find((candidate) => candidate.uid === actorUid)?.commander !== 'aragorn') return [];
+  if (
+    card?.definitionId === 'token-of-command' &&
+    !(['aragorn', 'theoden'] as const).includes(state.players.find((candidate) => candidate.uid === actorUid)?.commander as 'aragorn' | 'theoden')
+  ) return [];
   const ownedScoutCount = Object.values(match.boardScouts).filter((uid) => uid === actorUid).length;
   const canUsePaths = definition.journeyEffect?.kind === 'recall-scout-ignore-space-cost' && ownedScoutCount > 0;
   return BOARD_SPACE_DEFINITIONS.filter((space) => {
@@ -865,7 +874,8 @@ function openBattleDeployment(
   match: MatchState,
   actorUid: string,
   spaceId: string,
-  additionalGarrisonAllowance = 0
+  additionalGarrisonAllowance = 0,
+  additionalGarrisonSource: 'Khazad Guard' | 'Ride Now' | null = null
 ): boolean {
   if (!match.activeBattleId) return false;
   const player = match.players[actorUid];
@@ -873,7 +883,7 @@ function openBattleDeployment(
   const existing = player.companies.garrison - fresh;
   const maximum = fresh + Math.min(2 + additionalGarrisonAllowance, existing);
   match.pendingChoice = {
-    kind: 'battle-deployment', actorUid, spaceId, maximum, additionalGarrisonAllowance,
+    kind: 'battle-deployment', actorUid, spaceId, maximum, additionalGarrisonAllowance, additionalGarrisonSource,
     options: Array.from({ length: maximum + 1 }, (_, amount) => `deploy:${amount}`)
   };
   return true;
@@ -1007,6 +1017,11 @@ function openAragornRing(
   return true;
 }
 
+function applyTheodenRing(match: MatchState, actorUid: string): void {
+  match.players[actorUid].resources.provisions += 1;
+  match.activity.push('Théoden gains 1 Provision with Ride Now.');
+}
+
 function permutations<T>(values: readonly T[]): T[][] {
   if (values.length < 2) return [values.slice()];
   return values.flatMap((value, index) =>
@@ -1056,16 +1071,30 @@ function finishAgentAction(match: MatchState, actorUid: string): void {
     match.queuedElvenForesight = null;
     if (openElvenForesight(match, actorUid)) return;
   }
-  const queued = match.queuedBattleDeployment;
-  if (queued?.actorUid === actorUid) {
-    match.queuedBattleDeployment = null;
-    openBattleDeployment(match, actorUid, queued.spaceId, queued.additionalGarrisonAllowance);
-    if (match.pendingChoice) return;
-  }
   const queuedRing = match.queuedCommanderRing;
   if (queuedRing?.actorUid === actorUid) {
     match.queuedCommanderRing = null;
-    if (openAragornRing(match, actorUid, null)) return;
+    if (match.players[actorUid].commander === 'aragorn') {
+      if (openAragornRing(match, actorUid, null)) return;
+    } else if (match.players[actorUid].commander === 'theoden') {
+      applyTheodenRing(match, actorUid);
+      if (match.queuedBattleDeployment?.actorUid === actorUid) {
+        match.queuedBattleDeployment.additionalGarrisonAllowance += 1;
+        match.queuedBattleDeployment.additionalGarrisonSource = 'Ride Now';
+      }
+    }
+  }
+  const queued = match.queuedBattleDeployment;
+  if (queued?.actorUid === actorUid) {
+    match.queuedBattleDeployment = null;
+    openBattleDeployment(
+      match,
+      actorUid,
+      queued.spaceId,
+      queued.additionalGarrisonAllowance,
+      queued.additionalGarrisonSource
+    );
+    if (match.pendingChoice) return;
   }
   if (!match.pendingChoice) advanceToNextAgentPlayer(match);
 }
@@ -1341,7 +1370,8 @@ function resolveAgentEffects(
   actorUid: string,
   card: CardInstance,
   space: (typeof BOARD_SPACE_DEFINITIONS)[number],
-  ignoredResourceCost = false
+  ignoredResourceCost = false,
+  commanderDeploymentAllowance = 0
 ): void {
   const match = state.match!;
   const player = match.players[actorUid];
@@ -1643,13 +1673,24 @@ function resolveAgentEffects(
     openScoutPlacement(match, player.uid, { followupSeekAlliesCardId: null });
   }
   if (isBattleSpace(space) && match.activeBattleId) {
-    const additionalGarrisonAllowance = cardDefinition.journeyEffect?.kind === 'gain-mithril-extra-battle-deploy'
+    const cardDeploymentAllowance = cardDefinition.journeyEffect?.kind === 'gain-mithril-extra-battle-deploy'
       ? cardDefinition.journeyEffect.additionalGarrisonCompany
       : 0;
-    if (match.pendingChoice) {
-      match.queuedBattleDeployment = { actorUid, spaceId: space.id, additionalGarrisonAllowance };
+    const additionalGarrisonAllowance = cardDeploymentAllowance + commanderDeploymentAllowance;
+    const additionalGarrisonSource = commanderDeploymentAllowance > 0
+      ? 'Ride Now' as const
+      : cardDeploymentAllowance > 0
+        ? 'Khazad Guard' as const
+        : null;
+    if (match.pendingChoice || match.queuedCommanderRing?.actorUid === actorUid) {
+      match.queuedBattleDeployment = {
+        actorUid,
+        spaceId: space.id,
+        additionalGarrisonAllowance,
+        additionalGarrisonSource
+      };
     } else {
-      openBattleDeployment(match, actorUid, space.id, additionalGarrisonAllowance);
+      openBattleDeployment(match, actorUid, space.id, additionalGarrisonAllowance, additionalGarrisonSource);
     }
   }
   match.activity.push(`${actorName} sends an Agent to ${space.name}, ${resolution}.`);
@@ -1664,6 +1705,8 @@ function beginAgentResolution(
   ignoredResourceCost = false
 ): void {
   if (card.definitionId === 'token-of-command') {
+    const commander = state.match!.players[actorUid].commander;
+    const ringName = commander === 'theoden' ? 'Ride Now' : 'Andúril Aflame';
     state.match!.pendingChoice = {
       kind: 'token-command-order',
       actorUid,
@@ -1672,7 +1715,7 @@ function beginAgentResolution(
       ignoredResourceCost,
       options: ['ring-first', 'space-first']
     };
-    state.match!.activity.push(`${actorName} sends Token of Command to ${space.name} and chooses whether Andúril Aflame resolves before or after the destination.`);
+    state.match!.activity.push(`${actorName} sends Token of Command to ${space.name} and chooses whether ${ringName} resolves before or after the destination.`);
     return;
   }
   resolveAgentEffects(state, actorName, actorUid, card, space, ignoredResourceCost);
@@ -1902,14 +1945,22 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       const card = player.journey.find((candidate) => candidate.id === pending.cardInstanceId);
       const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === pending.spaceId);
       if (!card || card.definitionId !== 'token-of-command' || !space) return 'illegal choice resolution';
+      const commander = player.commander;
+      if (commander !== 'aragorn' && commander !== 'theoden') return 'illegal choice resolution';
       state.match.pendingChoice = null;
       if (choice === 'ring-first') {
-        if (!openAragornRing(state.match, event.actorUid, {
-          cardInstanceId: card.id,
-          spaceId: space.id,
-          ignoredResourceCost: pending.ignoredResourceCost
-        })) {
-          resolveAgentEffects(state, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
+        if (commander === 'aragorn') {
+          if (!openAragornRing(state.match, event.actorUid, {
+            cardInstanceId: card.id,
+            spaceId: space.id,
+            ignoredResourceCost: pending.ignoredResourceCost
+          })) {
+            resolveAgentEffects(state, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
+            if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
+          }
+        } else {
+          applyTheodenRing(state.match, event.actorUid);
+          resolveAgentEffects(state, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost, 1);
           if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
         }
       } else {

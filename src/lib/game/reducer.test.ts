@@ -2245,6 +2245,112 @@ describe('integrated Agent placement replay', () => {
     }, 26)])).toEqual(refreshedTrigger);
   });
 
+  it('resolves Théoden’s Ride Now in either order before its exact additional Battle deployment', () => {
+    const setup = readyRoom('aragorn-ring-11');
+    setup[3] = createEvent('player/commander-selected', 'host', 2, { commanderId: 'theoden' }, 4);
+    const started = reduceGame(setup);
+    expect(currentPlayerUid(started)).toBe('host');
+    const token = started.match!.players.host.hand.find((card) => card.definitionId === 'token-of-command')!;
+    expect(token).toBeDefined();
+    expect(legalAgentSpaces(started, 'host', token.id)).toContain('minas-tirith');
+
+    const placement = createEvent('agent/placed', 'host', 5, {
+      cardInstanceId: token.id,
+      spaceId: 'minas-tirith'
+    }, 11);
+    const awaitingOrder = reduceGame([...setup, placement]);
+    expect(awaitingOrder.diagnostics).toEqual([]);
+    expect(awaitingOrder.match!.pendingChoice).toMatchObject({
+      kind: 'token-command-order',
+      actorUid: 'host',
+      options: ['ring-first', 'space-first']
+    });
+    expect(awaitingOrder.match!.players.host.resources.provisions).toBe(1);
+    expect(awaitingOrder.match!.players.host.companies).toEqual({ supply: 9, garrison: 3 });
+
+    const unauthorized = reduceGame([
+      ...setup,
+      placement,
+      createEvent('choice/resolved', 'guest-a', 4, { choice: 'ring-first' }, 12)
+    ]);
+    expect(unauthorized.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(unauthorized.match!.pendingChoice).toEqual(awaitingOrder.match!.pendingChoice);
+
+    const ringFirst = createEvent('choice/resolved', 'host', 6, { choice: 'ring-first' }, 12);
+    let state = reduceGame([...setup, placement, ringFirst]);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.players.host.resources.provisions).toBe(2);
+    expect(state.match!.players.host.companies).toEqual({ supply: 7, garrison: 5 });
+    expect(state.match!.players.host.commanderPersistentUsedThisRound).toBe(true);
+    expect(state.match!.pendingChoice).toMatchObject({
+      kind: 'battle-deployment',
+      actorUid: 'host',
+      maximum: 5,
+      additionalGarrisonAllowance: 1,
+      additionalGarrisonSource: 'Ride Now'
+    });
+    expect(state.match!.pendingChoice?.options).toEqual([
+      'deploy:0', 'deploy:1', 'deploy:2', 'deploy:3', 'deploy:4', 'deploy:5'
+    ]);
+    expect(state.match!.activity.findIndex((entry) => entry.includes('gains 1 Provision with Ride Now')))
+      .toBeLessThan(state.match!.activity.findIndex((entry) => entry.includes('Forth Eorlingas')));
+
+    const rejected = reduceGame([
+      ...setup,
+      placement,
+      ringFirst,
+      createEvent('choice/resolved', 'host', 7, { choice: 'deploy:6' }, 13)
+    ]);
+    expect(rejected.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(rejected.match!.players.host.companies).toEqual({ supply: 7, garrison: 5 });
+    expect(rejected.match!.battleCompanies.host ?? 0).toBe(0);
+
+    const deployed = reduceGame([
+      ...setup,
+      placement,
+      ringFirst,
+      createEvent('choice/resolved', 'host', 7, { choice: 'deploy:5' }, 13)
+    ]);
+    expect(deployed.diagnostics).toEqual([]);
+    expect(deployed.match!.players.host.companies).toEqual({ supply: 7, garrison: 0 });
+    expect(deployed.match!.battleCompanies.host).toBe(5);
+    expect(currentPlayerUid(deployed)).not.toBe('host');
+
+    const spaceFirst = createEvent('choice/resolved', 'host', 6, { choice: 'space-first' }, 12);
+    state = reduceGame([...setup, placement, spaceFirst]);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.players.host.resources.provisions).toBe(2);
+    expect(state.match!.players.host.companies).toEqual({ supply: 7, garrison: 5 });
+    expect(state.match!.queuedCommanderRing).toBeNull();
+    expect(state.match!.queuedBattleDeployment).toBeNull();
+    expect(state.match!.pendingChoice).toMatchObject({
+      kind: 'battle-deployment',
+      maximum: 5,
+      additionalGarrisonAllowance: 1,
+      additionalGarrisonSource: 'Ride Now'
+    });
+    expect(state.match!.activity.findIndex((entry) => entry.includes('gains 1 Provision with Ride Now')))
+      .toBeGreaterThan(state.match!.activity.findIndex((entry) => entry.includes('sends an Agent to Minas Tirith')));
+
+    const nonBattleToken = started.match!.players.host.hand.find((card) => card.definitionId === 'token-of-command')!;
+    const nonBattlePlacement = createEvent('agent/placed', 'host', 5, {
+      cardInstanceId: nonBattleToken.id,
+      spaceId: 'take-war-effort'
+    }, 11);
+    const nonBattle = reduceGame([
+      ...setup,
+      nonBattlePlacement,
+      createEvent('choice/resolved', 'host', 6, { choice: 'space-first' }, 12)
+    ]);
+    expect(nonBattle.diagnostics).toEqual([]);
+    expect(nonBattle.match!.players.host.resources.provisions).toBe(2);
+    expect(nonBattle.match!.players.host.resources.gold).toBe(2);
+    expect(nonBattle.match!.pendingChoice).toBeNull();
+    expect(nonBattle.match!.battleCompanies.host ?? 0).toBe(0);
+
+    expect(reduceGame([...setup, placement, spaceFirst])).toEqual(state);
+  });
+
   it('pays for a Council seat, adds Reveal Influence, and resolves a repeat Fate visit', () => {
     let stream = readyRoom('council-economy');
     let sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
