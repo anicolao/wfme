@@ -48,13 +48,13 @@ async function seedEmulatorAuth(page: Page) {
 
 export async function openFirebaseClients(pages: readonly Page[]) {
   for (const page of pages) await page.emulateMedia({ reducedMotion: 'reduce' });
-  // Serialize client startup so three isolated SDK instances do not contend
-  // on slower CI hosts inside the strict two-second readiness budget.
-  for (const page of pages) {
+  // Authentication is pre-seeded per isolated page, so clients can initialize
+  // together and a multiplayer table pays one strict readiness window.
+  await Promise.all(pages.map(async (page) => {
     await seedEmulatorAuth(page);
     await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 2_000 });
     await waitForFirebase(page);
-  }
+  }));
 }
 
 export async function waitForCurrentSeat<T extends { name: string; page: Page }>(seats: readonly T[]): Promise<T> {
