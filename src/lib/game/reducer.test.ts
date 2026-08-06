@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createEvent } from './events';
 import { AGENT_CARD_DEFINITIONS, BATTLE_CARD_DEFINITIONS, CHRONICLE_CARD_DEFINITIONS, MUSTER_CARD_DEFINITIONS, OBSERVATION_POSTS } from './manifest';
-import { battleStrength, currentPlayerUid, legalAgentSpaces, reduceGame } from './reducer';
+import { battleStrength, currentPlayerUid, eligibleHeirStandingOptions, legalAgentSpaces, reduceGame } from './reducer';
 import { shuffled } from './prng';
 
 function readyRoom(seed = 'road-2') {
@@ -72,9 +72,9 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'keeper-oaths')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'the-long-game')).toHaveLength(2);
     expect(first.match!.chronicleRow).toHaveLength(5);
-    expect(first.match!.chronicleDeck).toHaveLength(47);
+    expect(first.match!.chronicleDeck).toHaveLength(49);
     const chronicleInstances = [...first.match!.chronicleRow, ...first.match!.chronicleDeck];
-    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(52);
+    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(54);
     for (const definition of CHRONICLE_CARD_DEFINITIONS) {
       expect(chronicleInstances.filter((card) => card.definitionId === definition.id)).toHaveLength(2);
     }
@@ -656,10 +656,56 @@ describe('integrated Agent placement replay', () => {
             attemptSequences[uid] += 1;
             attemptEvents.push(createEvent(type, uid, attemptSequences[uid], payload, attemptTimestamp++));
           };
-          if (definition.cost > 5) {
+          const revealOtherPlayersUntilActor = () => {
+            for (let guard = 0; guard < 4 && currentPlayerUid(attemptState) !== attemptActor; guard += 1) {
+              const current = currentPlayerUid(attemptState)!;
+              appendAttempt(current, 'turn/revealed', {});
+              appendAttempt(current, 'reveal/finished', {});
+              attemptState = reduceGame(attemptEvents);
+            }
+          };
+          if (definition.cost > 7) {
+            const firstRoad = attemptState.match!.players[attemptActor].hand.find((card) => card.definitionId === 'the-open-road');
+            const shadowCard = attemptState.match!.players[attemptActor].hand.find((card) => card.definitionId === 'diplomatic-mission');
+            if (!firstRoad || !shadowCard) continue;
+            appendAttempt(attemptActor, 'agent/placed', { cardInstanceId: firstRoad.id, spaceId: 'take-war-effort' });
+            attemptState = reduceGame(attemptEvents);
+            revealOtherPlayersUntilActor();
+            if (currentPlayerUid(attemptState) !== attemptActor) continue;
+            appendAttempt(attemptActor, 'agent/placed', { cardInstanceId: shadowCard.id, spaceId: 'tribute-shadow' });
+            appendAttempt(attemptActor, 'turn/revealed', {});
+            appendAttempt(attemptActor, 'reveal/finished', {});
+            attemptState = reduceGame(attemptEvents);
+            revealOtherPlayersUntilActor();
+            if (attemptState.match!.round !== 2 || currentPlayerUid(attemptState) !== attemptActor) continue;
+            const secondRoad = attemptState.match!.players[attemptActor].hand.find((card) => card.definitionId === 'the-open-road');
+            const councilCard = attemptState.match!.players[attemptActor].hand.find((card) => card.definitionId === 'armed-escort');
+            if (!secondRoad || !councilCard) continue;
+            appendAttempt(attemptActor, 'agent/placed', { cardInstanceId: secondRoad.id, spaceId: 'take-war-effort' });
+            attemptState = reduceGame(attemptEvents);
+            revealOtherPlayersUntilActor();
+            if (
+              currentPlayerUid(attemptState) !== attemptActor ||
+              !legalAgentSpaces(attemptState, attemptActor, councilCard.id).includes('white-council-seat')
+            ) continue;
+            appendAttempt(attemptActor, 'agent/placed', { cardInstanceId: councilCard.id, spaceId: 'white-council-seat' });
+            appendAttempt(attemptActor, 'turn/revealed', {});
+            appendAttempt(attemptActor, 'reveal/finished', {});
+            attemptState = reduceGame(attemptEvents);
+            revealOtherPlayersUntilActor();
+            if (
+              attemptState.diagnostics.length > 0 ||
+              Number(attemptState.match!.round) !== 3 ||
+              currentPlayerUid(attemptState) !== attemptActor ||
+              !attemptState.match!.players[attemptActor].councilSeat
+            ) continue;
+          } else if (definition.cost > 5) {
             const councilCard = attemptState.match!.players[attemptActor].hand.find((card) => card.definitionId === 'armed-escort');
             if (!councilCard) continue;
-            appendAttempt(attemptActor, 'agent/placed', { cardInstanceId: councilCard.id, spaceId: 'hall-fire' });
+            appendAttempt(attemptActor, 'agent/placed', {
+              cardInstanceId: councilCard.id,
+              spaceId: 'hall-fire'
+            });
             attemptState = reduceGame(attemptEvents);
             if (attemptState.diagnostics.length > 0) continue;
             while (currentPlayerUid(attemptState) !== attemptActor) {
@@ -677,7 +723,7 @@ describe('integrated Agent placement replay', () => {
             revealedAttempt.match!.chronicleRow.some((card) => card.definitionId === definitionId) &&
             revealedAttempt.match!.players[attemptActor].revealInfluence >= definition.cost &&
             revealedAttempt.match!.players[attemptActor].resources.gold >= minimumGold &&
-            (definition.cost <= 5 || revealedAttempt.match!.players[attemptActor].fateHand.some((card) =>
+            (definition.cost > 7 || definition.cost <= 5 || revealedAttempt.match!.players[attemptActor].fateHand.some((card) =>
               card.definitionId === 'chance-meeting'
             ))
           ) completed = { ...attempt, events: attemptEvents, seed };
@@ -708,7 +754,7 @@ describe('integrated Agent placement replay', () => {
       expect(state.diagnostics).toEqual([]);
       expect(state.match!.players[actor].revealInfluence).toBe(influenceBefore - definition.cost);
       expect(state.match!.players[actor].discardPile).toContainEqual(offered);
-      expect(state.match!.chronicleDeck).toHaveLength(46);
+      expect(state.match!.chronicleDeck).toHaveLength(48);
       expect(state.match!.chronicleRow).toHaveLength(5);
       expect(state.match!.chronicleRow).toContainEqual(refill);
 
@@ -1484,6 +1530,43 @@ describe('integrated Agent placement replay', () => {
     expect(afterNazgulJourney.match!.players[nazgulJourney.actor].journey).toContainEqual(nazgulJourney.acquired);
     expect(afterNazgulJourney.match!.pendingChoice).toBeNull();
 
+    expect(eligibleHeirStandingOptions({
+      standing: { shadow: 2, dwarven: 1, elven: 0, wild: 4 }
+    })).toEqual(['standing-dwarven', 'standing-elven']);
+    const heirJourney = reachAcquiredCard('heir-isildur');
+    const heirBefore = heirJourney.before.match!.players[heirJourney.actor];
+    const heirStandingBefore = structuredClone(heirBefore.standing);
+    const heirRenownBefore = heirBefore.renown;
+    expect(legalAgentSpaces(heirJourney.before, heirJourney.actor, heirJourney.acquired.id)).toContain('hall-fire');
+    heirJourney.append(heirJourney.actor, 'agent/placed', {
+      cardInstanceId: heirJourney.acquired.id,
+      spaceId: 'hall-fire'
+    });
+    let afterHeirJourney = reduceGame(heirJourney.stream);
+    const heirOptions = eligibleHeirStandingOptions({ standing: heirStandingBefore });
+    expect(afterHeirJourney.diagnostics).toEqual([]);
+    expect(afterHeirJourney.match!.pendingChoice).toEqual({
+      kind: 'chronicle-standing-gain',
+      actorUid: heirJourney.actor,
+      options: heirOptions
+    });
+    expect(afterHeirJourney.match!.players[heirJourney.actor].standing).toEqual(heirStandingBefore);
+    const unauthorizedHeirActor = afterHeirJourney.match!.playerOrder.find((uid) => uid !== heirJourney.actor)!;
+    heirJourney.append(unauthorizedHeirActor, 'choice/resolved', { choice: heirOptions[0] });
+    const unauthorizedHeir = reduceGame(heirJourney.stream);
+    expect(unauthorizedHeir.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(unauthorizedHeir.match!.players[heirJourney.actor].standing).toEqual(heirStandingBefore);
+    heirJourney.stream.pop();
+    const chosenHeirFaction = heirOptions[0].slice('standing-'.length) as keyof typeof heirStandingBefore;
+    heirJourney.append(heirJourney.actor, 'choice/resolved', { choice: heirOptions[0] });
+    afterHeirJourney = reduceGame(heirJourney.stream);
+    expect(afterHeirJourney.diagnostics).toEqual([]);
+    expect(afterHeirJourney.match!.players[heirJourney.actor].standing[chosenHeirFaction]).toBe(heirStandingBefore[chosenHeirFaction] + 1);
+    expect(afterHeirJourney.match!.players[heirJourney.actor].renown).toBe(heirRenownBefore + (heirStandingBefore[chosenHeirFaction] === 1 ? 1 : 0));
+    expect(afterHeirJourney.match!.players[heirJourney.actor].journey).toContainEqual(heirJourney.acquired);
+    expect(afterHeirJourney.match!.pendingChoice).toBeNull();
+    expect(afterHeirJourney.match!.activity).toContain(`${heirJourney.before.players.find((player) => player.uid === heirJourney.actor)!.displayName} gains 1 ${chosenHeirFaction} standing with Heir of Isildur.`);
+
     const masterMuster = reachAcquiredCard('master-lake-town');
     let beforeMasterMuster = masterMuster.before;
     if (beforeMasterMuster.match!.players[masterMuster.actor].resources.gold < 2) {
@@ -1651,7 +1734,8 @@ describe('integrated Agent placement replay', () => {
       'palantir-glimpse': { influence: 2, swords: 0 },
       'paths-dead': { influence: 1, swords: 2 },
       'master-lake-town': { influence: 3, swords: 0 },
-      'lord-nazgul': { influence: 2, swords: 4 }
+      'lord-nazgul': { influence: 2, swords: 4 },
+      'heir-isildur': { influence: 5, swords: 2 }
     } as const;
     for (const [definitionId, printed] of Object.entries(economyMuster)) {
       expect(MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === definitionId)?.muster).toEqual(printed);
@@ -1663,7 +1747,9 @@ describe('integrated Agent placement replay', () => {
       mustered.append(mustered.actor, 'turn/revealed', {});
       const afterMuster = reduceGame(mustered.stream);
       expect(afterMuster.diagnostics).toEqual([]);
-      expect(afterMuster.match!.players[mustered.actor].revealInfluence).toBe(expected.influence);
+      expect(afterMuster.match!.players[mustered.actor].revealInfluence).toBe(
+        expected.influence + (mustered.before.match!.players[mustered.actor].councilSeat ? 2 : 0)
+      );
       expect(afterMuster.match!.players[mustered.actor].revealedSwords).toBe(expected.swords);
     }
   });
@@ -2821,7 +2907,7 @@ describe('integrated Agent placement replay', () => {
     const rowBefore = [...state.match!.chronicleRow];
     const deckBefore = [...state.match!.chronicleDeck];
     const affordable = (definitionId: string) => CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!.cost <= 3;
-    expect(deckBefore).toHaveLength(47);
+    expect(deckBefore).toHaveLength(49);
     append(actor, 'fate/played', { cardInstanceId: fate.id });
     const awaitingChoice = reduceGame(stream);
     expect(awaitingChoice.match!.pendingChoice).toEqual({

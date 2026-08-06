@@ -62,8 +62,8 @@ test('Lord of the Nazgûl recruits Companies, draws private Fate, and Reveals fo
     }
 
     for (const observer of seats) {
-      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 47');
-      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('52 / 54');
+      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 49');
+      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('54 / 54');
     }
     await reveal(buyer, [
       { spec: 'Hall of Fire raises the real Muster total to exactly seven Influence', check: async () => await expect(buyer.page.locator('.reveal-total strong')).toHaveText('7 Influence') }
@@ -80,7 +80,7 @@ test('Lord of the Nazgûl recruits Companies, draws private Fate, and Reveals fo
       { spec: 'The exact seven-Influence physical card enters discard and its Row position refills', check: async () => {
         await expect(buyer.page.locator('.reveal-total strong')).toHaveText('0 Influence');
         await expect(buyer.page.getByTestId('activity-log')).toContainText(`${buyer.name} acquires Lord of the Nazgûl from the Chronicle Row for 7 Influence and refills its place.`);
-        await expect(buyer.page.getByTestId('chronicle-market')).toContainText('deck 46');
+        await expect(buyer.page.getByTestId('chronicle-market')).toContainText('deck 48');
       } },
       converged(accepted.value + 1)
     ]);

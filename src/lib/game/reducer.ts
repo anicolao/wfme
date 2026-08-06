@@ -34,7 +34,7 @@ export type FateInstance = { id: string; definitionId: string };
 
 type PaidChronicleId = 'dwarven-smith' | 'uruk-hai-captain' | 'envoy-dale' | 'palantir-glimpse';
 type HandcraftChronicleId = 'ranger-north' | 'lore-imladris' | 'grey-pilgrim' | 'palantir-glimpse';
-type FactionId = 'shadow' | 'dwarven' | 'elven' | 'wild';
+export type FactionId = 'shadow' | 'dwarven' | 'elven' | 'wild';
 
 export type MatchPlayer = {
   uid: string;
@@ -121,6 +121,7 @@ export type MatchState = {
     cardInstanceIds: string[];
   } | null;
   queuedChronicleStandingLoss: { actorUid: string } | null;
+  queuedChronicleStandingGain: { actorUid: string } | null;
   queuedMessengerMothRecall: { actorUid: string } | null;
   queuedElvenForesight: { actorUid: string } | null;
   queuedScoutPlacementRestriction: { actorUid: string; postIds: readonly string[] } | null;
@@ -154,6 +155,10 @@ export type MatchState = {
     kind: 'chronicle-standing-loss';
     actorUid: string;
     options: readonly `lose-standing-${FactionId}`[];
+  } | {
+    kind: 'chronicle-standing-gain';
+    actorUid: string;
+    options: readonly `standing-${FactionId}`[];
   } | {
     kind: 'chronicle-messenger-moth';
     actorUid: string;
@@ -497,6 +502,7 @@ function createMatch(state: GameState, seed: string): MatchState {
     queuedChroniclePayment: null,
     queuedChronicleCardChoice: null,
     queuedChronicleStandingLoss: null,
+    queuedChronicleStandingGain: null,
     queuedMessengerMothRecall: null,
     queuedElvenForesight: null,
     queuedScoutPlacementRestriction: null,
@@ -937,6 +943,25 @@ function openChronicleStandingLoss(match: MatchState, actorUid: string): boolean
   return true;
 }
 
+export function eligibleHeirStandingOptions(
+  player: Pick<MatchPlayer, 'standing'>
+): readonly `standing-${FactionId}`[] {
+  const factions: readonly FactionId[] = ['shadow', 'dwarven', 'elven', 'wild'];
+  return factions
+    .filter((faction) => player.standing[faction] <= 1)
+    .map((faction) => `standing-${faction}` as const);
+}
+
+function openChronicleStandingGain(match: MatchState, actorUid: string): boolean {
+  const options = eligibleHeirStandingOptions(match.players[actorUid]);
+  if (options.length === 0) {
+    match.activity.push(`${cardName('heir-isildur')} finds no faction at 1 standing or less.`);
+    return false;
+  }
+  match.pendingChoice = { kind: 'chronicle-standing-gain', actorUid, options };
+  return true;
+}
+
 function permutations<T>(values: readonly T[]): T[][] {
   if (values.length < 2) return [values.slice()];
   return values.flatMap((value, index) =>
@@ -975,6 +1000,11 @@ function finishAgentAction(match: MatchState, actorUid: string): void {
   if (queuedStandingLoss?.actorUid === actorUid) {
     match.queuedChronicleStandingLoss = null;
     if (openChronicleStandingLoss(match, actorUid)) return;
+  }
+  const queuedStandingGain = match.queuedChronicleStandingGain;
+  if (queuedStandingGain?.actorUid === actorUid) {
+    match.queuedChronicleStandingGain = null;
+    if (openChronicleStandingGain(match, actorUid)) return;
   }
   const queuedElvenForesight = match.queuedElvenForesight;
   if (queuedElvenForesight?.actorUid === actorUid) {
@@ -1527,6 +1557,10 @@ function resolveAgentEffects(
     if (match.pendingChoice) match.queuedChronicleStandingLoss = { actorUid };
     else openChronicleStandingLoss(match, actorUid);
   }
+  if (cardDefinition.journeyEffect?.kind === 'gain-low-faction-standing') {
+    if (match.pendingChoice) match.queuedChronicleStandingGain = { actorUid };
+    else openChronicleStandingGain(match, actorUid);
+  }
   if (cardDefinition.journeyEffect?.kind === 'optional-trash-self' && !match.pendingChoice) {
     match.pendingChoice = {
       kind: 'seek-allies',
@@ -1866,6 +1900,17 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       loseStanding(state.match, player, faction);
       state.match.pendingChoice = null;
       state.match.activity.push(`${actor.displayName} loses 1 ${faction} standing to complete Orcish Muster.`);
+      finishAgentAction(state.match, event.actorUid);
+      return null;
+    }
+    if (pending.kind === 'chronicle-standing-gain') {
+      const faction = choice.slice('standing-'.length) as FactionId;
+      if (!(['shadow', 'dwarven', 'elven', 'wild'] as const).includes(faction) || player.standing[faction] > 1) {
+        return 'illegal choice resolution';
+      }
+      gainStanding(state.match, player, faction);
+      state.match.pendingChoice = null;
+      state.match.activity.push(`${actor.displayName} gains 1 ${faction} standing with Heir of Isildur.`);
       finishAgentAction(state.match, event.actorUid);
       return null;
     }

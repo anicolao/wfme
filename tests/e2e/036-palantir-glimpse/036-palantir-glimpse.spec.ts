@@ -118,8 +118,8 @@ test('Palantír Glimpse pays for a private draw and draws Fate during Muster', a
     ]);
 
     for (const observer of seats) {
-      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 47');
-      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('52 / 54');
+      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 49');
+      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('54 / 54');
     }
     await reveal(buyer);
     const offered = buyer.page.getByTestId('chronicle-row').getByRole('button', { name: /^Palantír Glimpse/ }).first();
@@ -130,7 +130,7 @@ test('Palantír Glimpse pays for a private draw and draws Fate during Muster', a
     }, [
       { spec: 'The exact four-Influence physical card enters discard and its Row position refills', check: async () => {
         await expect(buyer.page.getByTestId('activity-log')).toContainText(`${buyer.name} acquires Palantír Glimpse`);
-        await expect(buyer.page.getByTestId('chronicle-market')).toContainText('deck 46');
+        await expect(buyer.page.getByTestId('chronicle-market')).toContainText('deck 48');
       } },
       converged(accepted.value + 1)
     ]);

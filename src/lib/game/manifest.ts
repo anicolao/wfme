@@ -51,6 +51,7 @@ export type AgentCardDefinition = StartingCardIdentity & {
     | { kind: 'place-scout-connected-battle'; amount: 1 }
     | { kind: 'optional-pay-mithril-draw-discard'; costMithril: 1; draw: 2; discard: 1 }
     | { kind: 'recall-scout-ignore-space-cost' }
+    | { kind: 'gain-low-faction-standing'; maximumStanding: 1; amount: 1 }
     | { kind: 'draw-discard-card'; draw: 1 }
     | { kind: 'draw-optional-trash'; draw: 1; includeDiscard: boolean }
     | { kind: 'gain-gold'; amount: number }
@@ -313,6 +314,14 @@ export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
     placementIcons: ['Shadow', 'Stronghold', 'Scout'],
     journeyEffect: { kind: 'draw-fate-recruit', drawFate: 1, recruit: 2 },
     reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'heir-isildur',
+    name: 'Heir of Isildur',
+    copies: 2,
+    placementIcons: ['Elven', 'Wild', 'Council', 'Stronghold'],
+    journeyEffect: { kind: 'gain-low-faction-standing', maximumStanding: 1, amount: 1 },
+    reviewedCapabilities: ['agent-placement']
   }
 ];
 
@@ -374,7 +383,8 @@ export const MUSTER_CARD_DEFINITIONS: readonly MusterCardDefinition[] = [
   { id: 'palantir-glimpse', name: 'Palantír Glimpse', muster: { influence: 2, swords: 0 } },
   { id: 'paths-dead', name: 'Paths of the Dead', muster: { influence: 1, swords: 2 } },
   { id: 'master-lake-town', name: 'Master of Lake-town', muster: { influence: 3, swords: 0 } },
-  { id: 'lord-nazgul', name: 'Lord of the Nazgûl', muster: { influence: 2, swords: 4 } }
+  { id: 'lord-nazgul', name: 'Lord of the Nazgûl', muster: { influence: 2, swords: 4 } },
+  { id: 'heir-isildur', name: 'Heir of Isildur', muster: { influence: 5, swords: 2 } }
 ];
 
 export type ReserveCardId = 'muster-host';
@@ -419,7 +429,8 @@ export type ChronicleCardId =
   | 'palantir-glimpse'
   | 'paths-dead'
   | 'master-lake-town'
-  | 'lord-nazgul';
+  | 'lord-nazgul'
+  | 'heir-isildur';
 
 export type ChronicleCardDefinition = {
   id: ChronicleCardId;
@@ -599,6 +610,13 @@ export const CHRONICLE_CARD_DEFINITIONS: readonly ChronicleCardDefinition[] = [
     id: 'lord-nazgul', name: 'Lord of the Nazgûl', copies: 2, cost: 7,
     placementIcons: ['Shadow', 'Stronghold', 'Scout'], journeyText: 'Draw 1 Fate; recruit 2 Companies',
     muster: { influence: 2, swords: 4 },
+    incrementalDeckInsertion: true,
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'heir-isildur', name: 'Heir of Isildur', copies: 2, cost: 8,
+    placementIcons: ['Elven', 'Wild', 'Council', 'Stronghold'], journeyText: 'Gain 1 standing with a faction where you have 1 or less',
+    muster: { influence: 5, swords: 2 },
     incrementalDeckInsertion: true,
     reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
   }

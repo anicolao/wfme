@@ -97,7 +97,7 @@ test('Long Memory cycles an affordable physical Chronicle card and resumes the A
         for (const observer of seats) {
           const observerMarket = observer.page.getByTestId('chronicle-row').getByRole('button');
           await expect(observerMarket).toHaveCount(5);
-          await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 47');
+          await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 49');
           for (let position = 0; position < initialInstanceIds.length; position += 1) {
             if (position === cycledPosition) await expect(observerMarket.nth(position)).not.toHaveAttribute('data-card-instance-id', cycledInstanceId!);
             else await expect(observerMarket.nth(position)).toHaveAttribute('data-card-instance-id', initialInstanceIds[position]!);

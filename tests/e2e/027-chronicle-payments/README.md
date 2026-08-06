@@ -631,11 +631,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara acquires Goblin Informer
+## Mara acquires Messenger Moth
 
-![Phone: Mara acquires Goblin Informer](./screenshots/048-acquire-32-phone.png)
+![Phone: Mara acquires Messenger Moth](./screenshots/048-acquire-32-phone.png)
 
-![Desktop: Mara acquires Goblin Informer](./screenshots/048-acquire-32-desktop.png)
+![Desktop: Mara acquires Messenger Moth](./screenshots/048-acquire-32-desktop.png)
 
 **Verifications:**
 

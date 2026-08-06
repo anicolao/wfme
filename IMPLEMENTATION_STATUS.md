@@ -18,7 +18,7 @@ This is the construction ledger for the one canonical game at the repository roo
 | Commander powers | 0 / 16 | No power text is presented as active |
 | Fate physical instances | 30 / 30; effects 30 / 30 | Deterministically shuffled deck, private hands, public discard, keep-one choice, deterministic transfer and cycle, conservation, and replay; all six Plot, six Combat, and three Endgame definitions are complete, including their exact prerequisites and rewards |
 | Battle cards | 16 / 16 | Every Battle has final setup, Standard, exact ranked rewards, ownership/discard, ordered choices, and cleanup |
-| Chronicle cards | 52 / 54 instances; 26 / 27 definitions | Every listed definition through Lord of the Nazgûl has executable placement icons, Journey and Muster boxes, costs, physical copies, public Row acquisition, immediate refill, deterministic reshuffle, and later draw |
+| Chronicle cards | 54 / 54 instances; 27 / 27 definitions | Every listed definition through Heir of Isildur has executable placement icons, Journey and Muster boxes, costs, physical copies, public Row acquisition, immediate refill, deterministic reshuffle, and later draw |
 | War Effort and Rival content | 0 | Introduced only with the tracer that makes each item executable |
 | Round phases | Agent, Reveal, ordinary Battle, Riches, Recall, Endgame, finished | Combat passing, ranked resolution, all three Riches pools, both Ent summon spaces, doubled rewards, cleanup, redraw, first-player rotation, deck-exhaustion Endgame turns, and final scoring are live |
 | Complete matches | Final scoring 1 / 1; rematch 0 / 1 | Three humans can exhaust the production Battle deck, pass Endgame clockwise, agree on the deterministic winner or shared victory, inspect every tiebreak, and reload the finished result |
@@ -100,4 +100,4 @@ This is the construction ledger for the one canonical game at the repository roo
 
 ## Next accepted tracer
 
-Tracer 7 continues with Heir of Isildur as the final Chronicle market tracer. All Fate timings are now complete. Finished-game history and rematch epoch remain their own integrated tracer.
+Tracer 7 now includes the complete Chronicle market through Heir of Isildur. All Fate timings are complete. Finished-game history and rematch epoch remain their own integrated tracer.
