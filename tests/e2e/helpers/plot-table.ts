@@ -1,6 +1,6 @@
 import { expect, type Browser, type BrowserContext, type Page, type TestInfo } from '@playwright/test';
 import { TestStepHelper, type Verification } from './test-step-helper';
-import { waitForFirebase } from './firebase-readiness';
+import { openFirebaseClients } from './firebase-readiness';
 
 export type PlotSeat = { name: string; page: Page; context?: BrowserContext };
 
@@ -35,11 +35,7 @@ export async function startPlotTable(
   };
   const row = (observer: PlotSeat, name: string) => observer.page.locator('.players article').filter({ hasText: name });
 
-  for (const seat of seats) {
-    await seat.page.emulateMedia({ reducedMotion: 'reduce' });
-    await seat.page.goto('/');
-    await waitForFirebase(seat.page);
-  }
+  await openFirebaseClients(seats.map((seat) => seat.page));
   await steps.gesture(page, 'host-name', 'Mara enters a table name', () => page.getByLabel('Display name').fill('Mara'), [
     { spec: 'The real lobby accepts the host name', check: async () => await expect(page.getByLabel('Display name')).toHaveValue('Mara') }
   ]);

@@ -1,6 +1,6 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import { TestStepHelper, type Verification } from '../helpers/test-step-helper';
-import { reloadGameClient, waitForFirebase } from '../helpers/firebase-readiness';
+import { openFirebaseClients, reloadGameClient } from '../helpers/firebase-readiness';
 
 type Seat = { name: string; page: Page; context?: BrowserContext };
 
@@ -32,11 +32,7 @@ test('Ent-draught breaches the Dam and summons reward-doubling Ents', async ({ b
   const numberFrom = async (seat: Seat, label: string) => Number((await row(seat).getByText(label, { exact: true }).locator('..').textContent())?.match(/(\d+)/)?.[1] ?? '-1');
 
   try {
-    for (const seat of seats) {
-      await seat.page.emulateMedia({ reducedMotion: 'reduce' });
-      await seat.page.goto('/');
-      await waitForFirebase(seat.page);
-    }
+    await openFirebaseClients(seats.map((seat) => seat.page));
     await steps.gesture(page, 'host-name', 'Mara enters a table name', async () => {
       await page.getByLabel('Display name').fill('Mara');
     }, [{ spec: 'The real lobby accepts the host name', check: async () => await expect(page.getByLabel('Display name')).toHaveValue('Mara') }]);
@@ -72,15 +68,15 @@ test('Ent-draught breaches the Dam and summons reward-doubling Ents', async ({ b
       } }]);
     }
     await steps.gesture(page, 'ent-seed', 'Mara chooses the published Ent journey seed', async () => {
-      await page.getByLabel('Match seed').fill('deep-fangorn');
-    }, [{ spec: 'The deterministic setup seed is visible', check: async () => await expect(page.getByLabel('Match seed')).toHaveValue('deep-fangorn') }]);
+      await page.getByLabel('Match seed').fill('deep-route-38');
+    }, [{ spec: 'The deterministic setup seed is visible', check: async () => await expect(page.getByLabel('Match seed')).toHaveValue('deep-route-38') }]);
     await steps.gesture(page, 'start-match', 'Mara starts the deterministic match', async () => {
       await page.getByRole('button', { name: 'Start seeded match' }).click(); accepted += 1;
     }, [
       { spec: 'All three browsers open the same production board and first Battle', check: async () => {
         for (const seat of seats) {
           await expect(seat.page.getByRole('heading', { name: 'The living board' })).toBeVisible();
-          await expect(seat.page.getByTestId('active-battle')).toContainText('Crossing of the Isen');
+          await expect(seat.page.getByTestId('active-battle')).toContainText('Raid on the Westfold');
         }
       } },
       { spec: 'The complete printed board exposes twenty-two executable destinations', check: async () => await expect(page.getByText('22 / 22')).toBeVisible() },
@@ -232,12 +228,17 @@ test('Ent-draught breaches the Dam and summons reward-doubling Ents', async ({ b
     const battleName = (await page.getByTestId('active-battle').getByRole('heading').textContent())!;
     const before = {
       renown: await numberFrom(target, 'Renown'), provisions: await numberFrom(target, 'Provision'),
-      gold: await numberFrom(target, 'Gold'), mithril: await numberFrom(target, 'Mithril')
+      gold: await numberFrom(target, 'Gold'), mithril: await numberFrom(target, 'Mithril'),
+      wild: await numberFrom(target, 'Wild'), garrison: await numberFrom(target, 'Garrison'),
+      supply: await numberFrom(target, 'Supply')
     };
     const expected: Record<string, Partial<typeof before>> = {
       'Wargs in the Wild': { renown: 2, provisions: 2 }, 'Battle for Osgiliath': { renown: 2 },
+      'Siege of Minas Tirith': { renown: 2 },
       'Raid on the Westfold': { provisions: 2 }, 'Skirmish at Amon Hen': { mithril: 4 },
-      'Contest for Aglarond': { renown: 2 }, "Battle of Helm's Deep": { renown: 4 }
+      'Contest for Aglarond': { renown: 2 }, "Battle of Helm's Deep": { renown: 4 },
+      'Assault on the Fords': { renown: 2, wild: 2 },
+      'Muster at Edoras': { garrison: 6, supply: -6 }
     };
     const delta = expected[battleName];
     if (!delta) throw new Error(`No doubled-reward browser expectation for ${battleName}`);
@@ -252,7 +253,7 @@ test('Ent-draught breaches the Dam and summons reward-doubling Ents', async ({ b
       } },
       { spec: 'Ents return to the bank and Battle cleanup opens round eight', check: async () => {
         for (const observer of seats) {
-          await expect(observer.page.getByText('Round 8 · Agent turns')).toBeVisible();
+          await expect(observer.page.getByText('Round 6 · Agent turns')).toBeVisible();
           await expect(observer.page.getByTestId('activity-log')).toContainText(`${battleName} is won`);
         }
       } }, converged(accepted + 1)
@@ -262,7 +263,7 @@ test('Ent-draught breaches the Dam and summons reward-doubling Ents', async ({ b
     }, [{ spec: 'The doubled reward, Dam, and Ent-draught replay without diagnostics', check: async () => {
       await expect(target.page.getByTestId('dam-status')).toContainText('Breached');
       await expect(row(target)).toContainText('Ent-draughtReady');
-      await expect(target.page.getByText('Round 8 · Agent turns')).toBeVisible();
+      await expect(target.page.getByText('Round 6 · Agent turns')).toBeVisible();
       await expect(target.page.getByTestId('replay-health')).toContainText('0 replay diagnostics');
     } }, converged(accepted)]);
 

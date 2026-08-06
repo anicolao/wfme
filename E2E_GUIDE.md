@@ -26,8 +26,8 @@ preflight, and web-server startup limits may be longer because they bound a
 process rather than wait for a game event. Never catch an actionability timeout
 to use absence as control flow: first use an immediate existence probe such as
 `locator.count()`, then inspect the existing control. `verify:static` enforces
-this policy and rejects arbitrary sleeps, longer explicit waits, and caught
-`isEnabled()`/`isDisabled()` probes.
+this policy and rejects arbitrary sleeps, timer-based waits, longer explicit
+waits, and caught `isEnabled()`/`isDisabled()` probes.
 
 ## What counts as passing
 

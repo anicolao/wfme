@@ -1,6 +1,6 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import { TestStepHelper, type Verification } from '../helpers/test-step-helper';
-import { reloadGameClient, waitForFirebase } from '../helpers/firebase-readiness';
+import { openFirebaseClients, reloadGameClient } from '../helpers/firebase-readiness';
 
 type Seat = { name: string; page: Page; context?: BrowserContext };
 
@@ -29,11 +29,7 @@ test('a Scout infiltrates a space blocked by another human', async ({ browser, p
   });
 
   try {
-    for (const seat of seats) {
-      await seat.page.emulateMedia({ reducedMotion: 'reduce' });
-      await seat.page.goto('/');
-      await waitForFirebase(seat.page);
-    }
+    await openFirebaseClients(seats.map((seat) => seat.page));
 
     await steps.gesture(page, 'host-name', 'Mara enters a table name',
       () => page.getByLabel('Display name').fill('Mara'),

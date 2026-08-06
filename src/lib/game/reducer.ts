@@ -32,8 +32,8 @@ export type CardInstance = {
 
 export type FateInstance = { id: string; definitionId: string };
 
-type PaidChronicleId = 'dwarven-smith' | 'uruk-hai-captain' | 'envoy-dale';
-type HandcraftChronicleId = 'ranger-north' | 'lore-imladris' | 'grey-pilgrim';
+type PaidChronicleId = 'dwarven-smith' | 'uruk-hai-captain' | 'envoy-dale' | 'palantir-glimpse';
+type HandcraftChronicleId = 'ranger-north' | 'lore-imladris' | 'grey-pilgrim' | 'palantir-glimpse';
 type FactionId = 'shadow' | 'dwarven' | 'elven' | 'wild';
 
 export type MatchPlayer = {
@@ -806,7 +806,10 @@ function openChroniclePayment(match: MatchState, actorUid: string, definitionId:
       ? effect.costGold
       : Number.POSITIVE_INFINITY;
   const options: ('pay-chronicle-cost' | 'decline-chronicle-cost')[] = ['decline-chronicle-cost'];
-  if (player.resources.gold >= costGold) options.unshift('pay-chronicle-cost');
+  const canPay = effect?.kind === 'optional-pay-mithril-draw-discard'
+    ? player.resources.mithril >= effect.costMithril
+    : player.resources.gold >= costGold;
+  if (canPay) options.unshift('pay-chronicle-cost');
   match.pendingChoice = { kind: 'chronicle-payment', actorUid, definitionId, options };
 }
 
@@ -821,8 +824,9 @@ function openChronicleCardChoice(
     ? [...player.hand, ...player.discardPile]
     : player.hand;
   const cardInstanceIds = eligibleIds.filter((id) => cards.some((card) => card.id === id));
-  if (definitionId === 'ranger-north' && cardInstanceIds.length === 0) return false;
-  const options = definitionId === 'ranger-north'
+  const requiresDiscard = definitionId === 'ranger-north' || definitionId === 'palantir-glimpse';
+  if (requiresDiscard && cardInstanceIds.length === 0) return false;
+  const options = requiresDiscard
     ? cardInstanceIds.map((id) => `discard-card:${id}`)
     : [...cardInstanceIds.map((id) => `trash-card:${id}`), 'decline-trash'];
   match.pendingChoice = { kind: 'chronicle-card-choice', actorUid, definitionId, cardInstanceIds, options };
@@ -1247,6 +1251,12 @@ function resolveAgentEffects(
     match.queuedScoutPlacementRestriction = {
       actorUid,
       postIds: battleConnectedObservationPostIds()
+    };
+  }
+  if (cardDefinition.journeyEffect?.kind === 'optional-pay-mithril-draw-discard') {
+    match.queuedChroniclePayment = {
+      actorUid,
+      definitionId: cardDefinition.id as PaidChronicleId
     };
   }
   if (
@@ -1700,6 +1710,18 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       const effect = AGENT_CARD_DEFINITIONS.find((definition) => definition.id === pending.definitionId)?.journeyEffect;
       state.match.pendingChoice = null;
       if (choice === 'pay-chronicle-cost') {
+        if (effect?.kind === 'optional-pay-mithril-draw-discard') {
+          if (player.resources.mithril < effect.costMithril) return 'illegal choice resolution';
+          player.resources.mithril -= effect.costMithril;
+          for (let index = 0; index < effect.draw; index += 1) {
+            drawOneCard(state.match, player.uid, cardName(pending.definitionId));
+          }
+          const eligibleIds = player.hand.map((card) => card.id);
+          state.match.activity.push(`${actor.displayName} pays ${effect.costMithril} Mithril and privately draws up to ${effect.draw} cards with Palantír Glimpse.`);
+          if (openChronicleCardChoice(state.match, event.actorUid, 'palantir-glimpse', eligibleIds)) return null;
+          finishAgentAction(state.match, event.actorUid);
+          return null;
+        }
         const costGold = effect?.kind === 'optional-pay-gold-mithril' || effect?.kind === 'optional-pay-gold-recruit'
           ? effect.costGold
           : effect?.kind === 'gain-gold-optional-pay-standing'
@@ -1725,15 +1747,15 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     }
     if (pending.kind === 'chronicle-card-choice') {
       if (choice.startsWith('discard-card:')) {
-        if (pending.definitionId !== 'ranger-north') return 'illegal choice resolution';
+        if (pending.definitionId !== 'ranger-north' && pending.definitionId !== 'palantir-glimpse') return 'illegal choice resolution';
         const cardId = choice.slice('discard-card:'.length);
         const cardIndex = player.hand.findIndex((candidate) => candidate.id === cardId);
         if (!pending.cardInstanceIds.includes(cardId) || cardIndex < 0) return 'illegal choice resolution';
         const [discarded] = player.hand.splice(cardIndex, 1);
         player.discardPile.push(discarded);
-        state.match.activity.push(`${actor.displayName} discards one private card to complete Ranger of the North.`);
+        state.match.activity.push(`${actor.displayName} discards one private card to complete ${cardName(pending.definitionId)}.`);
       } else if (choice.startsWith('trash-card:')) {
-        if (pending.definitionId === 'ranger-north') return 'illegal choice resolution';
+        if (pending.definitionId === 'ranger-north' || pending.definitionId === 'palantir-glimpse') return 'illegal choice resolution';
         const cardId = choice.slice('trash-card:'.length);
         if (!pending.cardInstanceIds.includes(cardId)) return 'illegal choice resolution';
         const handIndex = player.hand.findIndex((candidate) => candidate.id === cardId);
@@ -2311,8 +2333,19 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     }
     player.revealedSwords = player.muster.reduce((total, card) =>
       total + (MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === card.definitionId)?.muster.swords ?? 0), 0);
+    const palantirFateDraws = player.muster.filter((card) => card.definitionId === 'palantir-glimpse').length;
+    let palantirFateDrawn = 0;
+    for (let index = 0; index < palantirFateDraws; index += 1) {
+      const fate = state.match.fateDeck.shift();
+      if (!fate) break;
+      player.fateHand.push(fate);
+      palantirFateDrawn += 1;
+    }
     state.match.turnMode = 'reveal';
     state.match.activity.push(`${actor.displayName} Reveals ${player.muster.length} cards for ${player.revealInfluence} Influence and ${player.revealedSwords} swords.`);
+    if (palantirFateDraws > 0) {
+      state.match.activity.push(`${actor.displayName} privately draws ${palantirFateDrawn} Fate with ${palantirFateDraws} ${palantirFateDraws === 1 ? 'Palantír Glimpse' : 'Palantír Glimpses'}.`);
+    }
     openGoblinMusterChoice(
       state.match,
       event.actorUid,

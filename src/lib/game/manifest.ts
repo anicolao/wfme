@@ -48,6 +48,7 @@ export type AgentCardDefinition = StartingCardIdentity & {
     | { kind: 'reorder-draw-pile'; look: 3 }
     | { kind: 'gain-mithril-extra-battle-deploy'; mithril: 1; additionalGarrisonCompany: 1 }
     | { kind: 'place-scout-connected-battle'; amount: 1 }
+    | { kind: 'optional-pay-mithril-draw-discard'; costMithril: 1; draw: 2; discard: 1 }
     | { kind: 'draw-discard-card'; draw: 1 }
     | { kind: 'draw-optional-trash'; draw: 1; includeDiscard: boolean }
     | { kind: 'gain-gold'; amount: 1 }
@@ -278,6 +279,14 @@ export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
     placementIcons: ['Wild', 'Stronghold'],
     journeyEffect: { kind: 'place-scout-connected-battle', amount: 1 },
     reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'palantir-glimpse',
+    name: 'Palantír Glimpse',
+    copies: 2,
+    placementIcons: ['Elven', 'Shadow'],
+    journeyEffect: { kind: 'optional-pay-mithril-draw-discard', costMithril: 1, draw: 2, discard: 1 },
+    reviewedCapabilities: ['agent-placement']
   }
 ];
 
@@ -335,7 +344,8 @@ export const MUSTER_CARD_DEFINITIONS: readonly MusterCardDefinition[] = [
   { id: 'messenger-moth', name: 'Messenger Moth', muster: { influence: 1, swords: 0 } },
   { id: 'elven-foresight', name: 'Elven Foresight', muster: { influence: 3, swords: 0 } },
   { id: 'khazad-guard', name: 'Khazad Guard', muster: { influence: 1, swords: 2 } },
-  { id: 'warden-ithilien', name: 'Warden of Ithilien', muster: { influence: 2, swords: 1 } }
+  { id: 'warden-ithilien', name: 'Warden of Ithilien', muster: { influence: 2, swords: 1 } },
+  { id: 'palantir-glimpse', name: 'Palantír Glimpse', muster: { influence: 2, swords: 0 } }
 ];
 
 export type ReserveCardId = 'muster-host';
@@ -376,7 +386,8 @@ export type ChronicleCardId =
   | 'messenger-moth'
   | 'elven-foresight'
   | 'khazad-guard'
-  | 'warden-ithilien';
+  | 'warden-ithilien'
+  | 'palantir-glimpse';
 
 export type ChronicleCardDefinition = {
   id: ChronicleCardId;
@@ -526,6 +537,14 @@ export const CHRONICLE_CARD_DEFINITIONS: readonly ChronicleCardDefinition[] = [
     id: 'warden-ithilien', name: 'Warden of Ithilien', copies: 2, cost: 4,
     placementIcons: ['Wild', 'Stronghold'], journeyText: 'Place 1 Scout on an observation post connected to a Battle space',
     muster: { influence: 2, swords: 1 },
+    incrementalDeckInsertion: true,
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'palantir-glimpse', name: 'Palantír Glimpse', copies: 2, cost: 4,
+    placementIcons: ['Elven', 'Shadow'], journeyText: 'You may pay 1 Mithril to draw 2 cards, then discard 1 card',
+    muster: { influence: 2, swords: 0 },
+    musterText: '2 Influence · draw 1 Fate',
     incrementalDeckInsertion: true,
     reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
   }

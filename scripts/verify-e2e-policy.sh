@@ -25,6 +25,12 @@ if arbitrary_waits=$(rg -n --glob '*.ts' 'waitForTimeout\s*\(' tests/e2e); then
   failed=1
 fi
 
+if timer_waits=$(rg -n -P --glob '*.ts' --glob '!global-setup.ts' '(^|[^[:alnum:]_.])setTimeout\s*\(|globalThis\.setTimeout\s*\(' tests/e2e); then
+  echo 'Timer-based E2E waits are forbidden:' >&2
+  echo "$timer_waits" >&2
+  failed=1
+fi
+
 if caught_state_probes=$(rg -n --glob '*.ts' '\.is(Enabled|Disabled)\([^;]*\.catch\(' tests/e2e); then
   echo 'Do not catch actionability timeouts to discover optional controls; guard with locator.count() first:' >&2
   echo "$caught_state_probes" >&2

@@ -123,8 +123,8 @@ test('four economy Chronicle cards are acquired, drawn, and executed through the
   try {
     const buyer = await currentSeat();
     for (const observer of seats) {
-      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 39');
-      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('44 / 54');
+      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 41');
+      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('46 / 54');
     }
 
     for (let guard = 0; guard < 180 && played.size < TARGETS.length; guard += 1) {

@@ -210,11 +210,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip chooses a card for ranger-mustering
+## Mara chooses a card for ranger-mustering
 
-![Phone: Pip chooses a card for ranger-mustering](./screenshots/017-choose-ranger-mustering-0-phone.png)
+![Phone: Mara chooses a card for ranger-mustering](./screenshots/017-choose-ranger-mustering-0-phone.png)
 
-![Desktop: Pip chooses a card for ranger-mustering](./screenshots/017-choose-ranger-mustering-0-desktop.png)
+![Desktop: Mara chooses a card for ranger-mustering](./screenshots/017-choose-ranger-mustering-0-desktop.png)
 
 **Verifications:**
 
@@ -222,11 +222,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip visits ranger-mustering
+## Mara visits ranger-mustering
 
-![Phone: Pip visits ranger-mustering](./screenshots/018-visit-ranger-mustering-0-phone.png)
+![Phone: Mara visits ranger-mustering](./screenshots/018-visit-ranger-mustering-0-phone.png)
 
-![Desktop: Pip visits ranger-mustering](./screenshots/018-visit-ranger-mustering-0-desktop.png)
+![Desktop: Mara visits ranger-mustering](./screenshots/018-visit-ranger-mustering-0-desktop.png)
 
 **Verifications:**
 
@@ -235,11 +235,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip keeps every Ranger card
+## Mara keeps every Ranger card
 
-![Phone: Pip keeps every Ranger card](./screenshots/019-keep-ranger-1-phone.png)
+![Phone: Mara keeps every Ranger card](./screenshots/019-keep-ranger-1-phone.png)
 
-![Desktop: Pip keeps every Ranger card](./screenshots/019-keep-ranger-1-desktop.png)
+![Desktop: Mara keeps every Ranger card](./screenshots/019-keep-ranger-1-desktop.png)
 
 **Verifications:**
 
@@ -248,11 +248,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip keeps Seek Allies
+## Mara keeps Seek Allies
 
-![Phone: Pip keeps Seek Allies](./screenshots/020-keep-seek-2-phone.png)
+![Phone: Mara keeps Seek Allies](./screenshots/020-keep-seek-2-phone.png)
 
-![Desktop: Pip keeps Seek Allies](./screenshots/020-keep-seek-2-desktop.png)
+![Desktop: Mara keeps Seek Allies](./screenshots/020-keep-seek-2-desktop.png)
 
 **Verifications:**
 
@@ -261,11 +261,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip leaves Companies in garrison
+## Mara leaves Companies in garrison
 
-![Phone: Pip leaves Companies in garrison](./screenshots/021-deploy-zero-3-phone.png)
+![Phone: Mara leaves Companies in garrison](./screenshots/021-deploy-zero-3-phone.png)
 
-![Desktop: Pip leaves Companies in garrison](./screenshots/021-deploy-zero-3-desktop.png)
+![Desktop: Mara leaves Companies in garrison](./screenshots/021-deploy-zero-3-desktop.png)
 
 **Verifications:**
 
@@ -300,11 +300,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals
+## Pip Reveals
 
-![Phone: Mara Reveals](./screenshots/024-reveal-other-6-phone.png)
+![Phone: Pip Reveals](./screenshots/024-reveal-other-6-phone.png)
 
-![Desktop: Mara Reveals](./screenshots/024-reveal-other-6-desktop.png)
+![Desktop: Pip Reveals](./screenshots/024-reveal-other-6-desktop.png)
 
 **Verifications:**
 
@@ -313,11 +313,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal
+## Pip finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/025-finish-reveal-7-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/025-finish-reveal-7-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/025-finish-reveal-7-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/025-finish-reveal-7-desktop.png)
 
 **Verifications:**
 
@@ -326,50 +326,62 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals while waiting for the next Ent opportunity
+## Mara chooses a card for hidden-paths
 
-![Phone: Pip Reveals while waiting for the next Ent opportunity](./screenshots/026-reveal-target-8-phone.png)
+![Phone: Mara chooses a card for hidden-paths](./screenshots/026-choose-hidden-paths-8-phone.png)
 
-![Desktop: Pip Reveals while waiting for the next Ent opportunity](./screenshots/026-reveal-target-8-desktop.png)
+![Desktop: Mara chooses a card for hidden-paths](./screenshots/026-choose-hidden-paths-8-desktop.png)
 
 **Verifications:**
 
-- [x] The target uses the ordinary Reveal control
+- [x] The intended complete destination becomes enabled
+
+---
+
+## Mara visits hidden-paths
+
+![Phone: Mara visits hidden-paths](./screenshots/027-visit-hidden-paths-8-phone.png)
+
+![Desktop: Mara visits hidden-paths](./screenshots/027-visit-hidden-paths-8-desktop.png)
+
+**Verifications:**
+
+- [x] All observers see the synchronized Agent occupation
 - [x] Every connected browser replays 19 accepted events with no diagnostics
 
 ---
 
-## Pip finishes Reveal
+## Mara leaves Companies in garrison
 
-![Phone: Pip finishes Reveal](./screenshots/027-finish-reveal-9-phone.png)
+![Phone: Mara leaves Companies in garrison](./screenshots/028-deploy-zero-9-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/027-finish-reveal-9-desktop.png)
+![Desktop: Mara leaves Companies in garrison](./screenshots/028-deploy-zero-9-desktop.png)
 
 **Verifications:**
 
-- [x] Authority advances through the ordinary phase sequence
+- [x] No Company enters the Battle
 - [x] Every connected browser replays 20 accepted events with no diagnostics
 
 ---
 
-## Rin Reveals
+## Mara Reveals while waiting for the next Ent opportunity
 
-![Phone: Rin Reveals](./screenshots/028-reveal-other-10-phone.png)
+![Phone: Mara Reveals while waiting for the next Ent opportunity](./screenshots/029-reveal-target-10-phone.png)
 
-![Desktop: Rin Reveals](./screenshots/028-reveal-other-10-desktop.png)
+![Desktop: Mara Reveals while waiting for the next Ent opportunity](./screenshots/029-reveal-target-10-desktop.png)
 
 **Verifications:**
 
-- [x] The public Muster row names the acting human
+- [x] The target uses the ordinary Reveal control
 - [x] Every connected browser replays 21 accepted events with no diagnostics
 
 ---
 
-## Rin finishes Reveal
+## Mara finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/029-finish-reveal-11-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/030-finish-reveal-11-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/029-finish-reveal-11-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/030-finish-reveal-11-desktop.png)
 
 **Verifications:**
 
@@ -378,11 +390,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals
+## Rin Reveals
 
-![Phone: Mara Reveals](./screenshots/030-reveal-other-12-phone.png)
+![Phone: Rin Reveals](./screenshots/031-reveal-other-12-phone.png)
 
-![Desktop: Mara Reveals](./screenshots/030-reveal-other-12-desktop.png)
+![Desktop: Rin Reveals](./screenshots/031-reveal-other-12-desktop.png)
 
 **Verifications:**
 
@@ -391,11 +403,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal
+## Rin finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/031-finish-reveal-13-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/032-finish-reveal-13-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/031-finish-reveal-13-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/032-finish-reveal-13-desktop.png)
 
 **Verifications:**
 
@@ -404,49 +416,37 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip chooses a card for hidden-paths
+## Pip Reveals
 
-![Phone: Pip chooses a card for hidden-paths](./screenshots/032-choose-hidden-paths-14-phone.png)
+![Phone: Pip Reveals](./screenshots/033-reveal-other-14-phone.png)
 
-![Desktop: Pip chooses a card for hidden-paths](./screenshots/032-choose-hidden-paths-14-desktop.png)
-
-**Verifications:**
-
-- [x] The intended complete destination becomes enabled
-
----
-
-## Pip visits hidden-paths
-
-![Phone: Pip visits hidden-paths](./screenshots/033-visit-hidden-paths-14-phone.png)
-
-![Desktop: Pip visits hidden-paths](./screenshots/033-visit-hidden-paths-14-desktop.png)
+![Desktop: Pip Reveals](./screenshots/033-reveal-other-14-desktop.png)
 
 **Verifications:**
 
-- [x] All observers see the synchronized Agent occupation
+- [x] The public Muster row names the acting human
 - [x] Every connected browser replays 25 accepted events with no diagnostics
 
 ---
 
-## Pip leaves Companies in garrison
+## Pip finishes Reveal
 
-![Phone: Pip leaves Companies in garrison](./screenshots/034-deploy-zero-15-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/034-finish-reveal-15-phone.png)
 
-![Desktop: Pip leaves Companies in garrison](./screenshots/034-deploy-zero-15-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/034-finish-reveal-15-desktop.png)
 
 **Verifications:**
 
-- [x] No Company enters the Battle
+- [x] Authority advances through the ordinary phase sequence
 - [x] Every connected browser replays 26 accepted events with no diagnostics
 
 ---
 
-## Pip chooses a card for fangorn-moot
+## Mara chooses a card for fangorn-moot
 
-![Phone: Pip chooses a card for fangorn-moot](./screenshots/035-choose-fangorn-moot-16-phone.png)
+![Phone: Mara chooses a card for fangorn-moot](./screenshots/035-choose-fangorn-moot-16-phone.png)
 
-![Desktop: Pip chooses a card for fangorn-moot](./screenshots/035-choose-fangorn-moot-16-desktop.png)
+![Desktop: Mara chooses a card for fangorn-moot](./screenshots/035-choose-fangorn-moot-16-desktop.png)
 
 **Verifications:**
 
@@ -454,11 +454,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip visits fangorn-moot
+## Mara visits fangorn-moot
 
-![Phone: Pip visits fangorn-moot](./screenshots/036-visit-fangorn-moot-16-phone.png)
+![Phone: Mara visits fangorn-moot](./screenshots/036-visit-fangorn-moot-16-phone.png)
 
-![Desktop: Pip visits fangorn-moot](./screenshots/036-visit-fangorn-moot-16-desktop.png)
+![Desktop: Mara visits fangorn-moot](./screenshots/036-visit-fangorn-moot-16-desktop.png)
 
 **Verifications:**
 
@@ -467,11 +467,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip takes Ent-draught
+## Mara takes Ent-draught
 
-![Phone: Pip takes Ent-draught](./screenshots/037-take-ent-draught-phone.png)
+![Phone: Mara takes Ent-draught](./screenshots/037-take-ent-draught-phone.png)
 
-![Desktop: Pip takes Ent-draught](./screenshots/037-take-ent-draught-desktop.png)
+![Desktop: Mara takes Ent-draught](./screenshots/037-take-ent-draught-desktop.png)
 
 **Verifications:**
 
@@ -480,63 +480,75 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip leaves Companies in garrison
+## Mara places the ordered Scout
 
-![Phone: Pip leaves Companies in garrison](./screenshots/038-deploy-zero-18-phone.png)
+![Phone: Mara places the ordered Scout](./screenshots/038-place-scout-18-phone.png)
 
-![Desktop: Pip leaves Companies in garrison](./screenshots/038-deploy-zero-18-desktop.png)
+![Desktop: Mara places the ordered Scout](./screenshots/038-place-scout-18-desktop.png)
 
 **Verifications:**
 
-- [x] No Company enters the Battle
+- [x] The Scout network returns to its ordinary state
 - [x] Every connected browser replays 29 accepted events with no diagnostics
 
 ---
 
-## Pip Reveals while waiting for the next Ent opportunity
+## Mara leaves Companies in garrison
 
-![Phone: Pip Reveals while waiting for the next Ent opportunity](./screenshots/039-reveal-target-19-phone.png)
+![Phone: Mara leaves Companies in garrison](./screenshots/039-deploy-zero-19-phone.png)
 
-![Desktop: Pip Reveals while waiting for the next Ent opportunity](./screenshots/039-reveal-target-19-desktop.png)
+![Desktop: Mara leaves Companies in garrison](./screenshots/039-deploy-zero-19-desktop.png)
 
 **Verifications:**
 
-- [x] The target uses the ordinary Reveal control
+- [x] No Company enters the Battle
 - [x] Every connected browser replays 30 accepted events with no diagnostics
 
 ---
 
-## Pip finishes Reveal
+## Mara chooses a card for dwarven-caravans
 
-![Phone: Pip finishes Reveal](./screenshots/040-finish-reveal-20-phone.png)
+![Phone: Mara chooses a card for dwarven-caravans](./screenshots/040-choose-dwarven-caravans-20-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/040-finish-reveal-20-desktop.png)
+![Desktop: Mara chooses a card for dwarven-caravans](./screenshots/040-choose-dwarven-caravans-20-desktop.png)
 
 **Verifications:**
 
-- [x] Authority advances through the ordinary phase sequence
+- [x] The intended complete destination becomes enabled
+
+---
+
+## Mara visits dwarven-caravans
+
+![Phone: Mara visits dwarven-caravans](./screenshots/041-visit-dwarven-caravans-20-phone.png)
+
+![Desktop: Mara visits dwarven-caravans](./screenshots/041-visit-dwarven-caravans-20-desktop.png)
+
+**Verifications:**
+
+- [x] All observers see the synchronized Agent occupation
 - [x] Every connected browser replays 31 accepted events with no diagnostics
 
 ---
 
-## Mara Reveals
+## Mara Reveals while waiting for the next Ent opportunity
 
-![Phone: Mara Reveals](./screenshots/041-reveal-other-21-phone.png)
+![Phone: Mara Reveals while waiting for the next Ent opportunity](./screenshots/042-reveal-target-21-phone.png)
 
-![Desktop: Mara Reveals](./screenshots/041-reveal-other-21-desktop.png)
+![Desktop: Mara Reveals while waiting for the next Ent opportunity](./screenshots/042-reveal-target-21-desktop.png)
 
 **Verifications:**
 
-- [x] The public Muster row names the acting human
+- [x] The target uses the ordinary Reveal control
 - [x] Every connected browser replays 32 accepted events with no diagnostics
 
 ---
 
 ## Mara finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/042-finish-reveal-22-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/043-finish-reveal-22-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/042-finish-reveal-22-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/043-finish-reveal-22-desktop.png)
 
 **Verifications:**
 
@@ -545,11 +557,37 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip chooses a card for dwarven-caravans
+## Pip Reveals
 
-![Phone: Pip chooses a card for dwarven-caravans](./screenshots/043-choose-dwarven-caravans-23-phone.png)
+![Phone: Pip Reveals](./screenshots/044-reveal-other-23-phone.png)
 
-![Desktop: Pip chooses a card for dwarven-caravans](./screenshots/043-choose-dwarven-caravans-23-desktop.png)
+![Desktop: Pip Reveals](./screenshots/044-reveal-other-23-desktop.png)
+
+**Verifications:**
+
+- [x] The public Muster row names the acting human
+- [x] Every connected browser replays 34 accepted events with no diagnostics
+
+---
+
+## Pip finishes Reveal
+
+![Phone: Pip finishes Reveal](./screenshots/045-finish-reveal-24-phone.png)
+
+![Desktop: Pip finishes Reveal](./screenshots/045-finish-reveal-24-desktop.png)
+
+**Verifications:**
+
+- [x] Authority advances through the ordinary phase sequence
+- [x] Every connected browser replays 35 accepted events with no diagnostics
+
+---
+
+## Mara chooses a card for dwarven-caravans
+
+![Phone: Mara chooses a card for dwarven-caravans](./screenshots/046-choose-dwarven-caravans-25-phone.png)
+
+![Desktop: Mara chooses a card for dwarven-caravans](./screenshots/046-choose-dwarven-caravans-25-desktop.png)
 
 **Verifications:**
 
@@ -557,76 +595,50 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip visits dwarven-caravans
+## Mara visits dwarven-caravans
 
-![Phone: Pip visits dwarven-caravans](./screenshots/044-visit-dwarven-caravans-23-phone.png)
+![Phone: Mara visits dwarven-caravans](./screenshots/047-visit-dwarven-caravans-25-phone.png)
 
-![Desktop: Pip visits dwarven-caravans](./screenshots/044-visit-dwarven-caravans-23-desktop.png)
+![Desktop: Mara visits dwarven-caravans](./screenshots/047-visit-dwarven-caravans-25-desktop.png)
 
 **Verifications:**
 
 - [x] All observers see the synchronized Agent occupation
-- [x] Every connected browser replays 34 accepted events with no diagnostics
+- [x] Every connected browser replays 36 accepted events with no diagnostics
 
 ---
 
-## Pip keeps Seek Allies
+## Mara keeps Seek Allies
 
-![Phone: Pip keeps Seek Allies](./screenshots/045-keep-seek-24-phone.png)
+![Phone: Mara keeps Seek Allies](./screenshots/048-keep-seek-26-phone.png)
 
-![Desktop: Pip keeps Seek Allies](./screenshots/045-keep-seek-24-desktop.png)
+![Desktop: Mara keeps Seek Allies](./screenshots/048-keep-seek-26-desktop.png)
 
 **Verifications:**
 
 - [x] The ordered Journey choice closes
-- [x] Every connected browser replays 35 accepted events with no diagnostics
+- [x] Every connected browser replays 37 accepted events with no diagnostics
 
 ---
 
 ## Rin Reveals
 
-![Phone: Rin Reveals](./screenshots/046-reveal-other-25-phone.png)
+![Phone: Rin Reveals](./screenshots/049-reveal-other-27-phone.png)
 
-![Desktop: Rin Reveals](./screenshots/046-reveal-other-25-desktop.png)
+![Desktop: Rin Reveals](./screenshots/049-reveal-other-27-desktop.png)
 
 **Verifications:**
 
 - [x] The public Muster row names the acting human
-- [x] Every connected browser replays 36 accepted events with no diagnostics
+- [x] Every connected browser replays 38 accepted events with no diagnostics
 
 ---
 
 ## Rin finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/047-finish-reveal-26-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/050-finish-reveal-28-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/047-finish-reveal-26-desktop.png)
-
-**Verifications:**
-
-- [x] Authority advances through the ordinary phase sequence
-- [x] Every connected browser replays 37 accepted events with no diagnostics
-
----
-
-## Pip Reveals while waiting for the next Ent opportunity
-
-![Phone: Pip Reveals while waiting for the next Ent opportunity](./screenshots/048-reveal-target-27-phone.png)
-
-![Desktop: Pip Reveals while waiting for the next Ent opportunity](./screenshots/048-reveal-target-27-desktop.png)
-
-**Verifications:**
-
-- [x] The target uses the ordinary Reveal control
-- [x] Every connected browser replays 38 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal
-
-![Phone: Pip finishes Reveal](./screenshots/049-finish-reveal-28-phone.png)
-
-![Desktop: Pip finishes Reveal](./screenshots/049-finish-reveal-28-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/050-finish-reveal-28-desktop.png)
 
 **Verifications:**
 
@@ -635,11 +647,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip chooses a card for dwarven-caravans
+## Mara chooses a card for deep-fangorn
 
-![Phone: Pip chooses a card for dwarven-caravans](./screenshots/050-choose-dwarven-caravans-29-phone.png)
+![Phone: Mara chooses a card for deep-fangorn](./screenshots/051-choose-deep-fangorn-29-phone.png)
 
-![Desktop: Pip chooses a card for dwarven-caravans](./screenshots/050-choose-dwarven-caravans-29-desktop.png)
+![Desktop: Mara chooses a card for deep-fangorn](./screenshots/051-choose-deep-fangorn-29-desktop.png)
 
 **Verifications:**
 
@@ -647,11 +659,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip visits dwarven-caravans
+## Mara visits deep-fangorn
 
-![Phone: Pip visits dwarven-caravans](./screenshots/051-visit-dwarven-caravans-29-phone.png)
+![Phone: Mara visits deep-fangorn](./screenshots/052-visit-deep-fangorn-29-phone.png)
 
-![Desktop: Pip visits dwarven-caravans](./screenshots/051-visit-dwarven-caravans-29-desktop.png)
+![Desktop: Mara visits deep-fangorn](./screenshots/052-visit-deep-fangorn-29-desktop.png)
 
 **Verifications:**
 
@@ -660,50 +672,50 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals
+## Mara takes Mithril while the intact Dam protects the Battle
 
-![Phone: Rin Reveals](./screenshots/052-reveal-other-30-phone.png)
+![Phone: Mara takes Mithril while the intact Dam protects the Battle](./screenshots/053-choose-protected-mithril-phone.png)
 
-![Desktop: Rin Reveals](./screenshots/052-reveal-other-30-desktop.png)
+![Desktop: Mara takes Mithril while the intact Dam protects the Battle](./screenshots/053-choose-protected-mithril-desktop.png)
 
 **Verifications:**
 
-- [x] The public Muster row names the acting human
+- [x] No summon control is exposed for the protected Battle
 - [x] Every connected browser replays 41 accepted events with no diagnostics
 
 ---
 
-## Rin finishes Reveal
+## Mara leaves Companies in garrison
 
-![Phone: Rin finishes Reveal](./screenshots/053-finish-reveal-31-phone.png)
+![Phone: Mara leaves Companies in garrison](./screenshots/054-deploy-zero-31-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/053-finish-reveal-31-desktop.png)
+![Desktop: Mara leaves Companies in garrison](./screenshots/054-deploy-zero-31-desktop.png)
 
 **Verifications:**
 
-- [x] Authority advances through the ordinary phase sequence
+- [x] No Company enters the Battle
 - [x] Every connected browser replays 42 accepted events with no diagnostics
 
 ---
 
-## Mara Reveals
+## Mara Reveals while waiting for the next Ent opportunity
 
-![Phone: Mara Reveals](./screenshots/054-reveal-other-32-phone.png)
+![Phone: Mara Reveals while waiting for the next Ent opportunity](./screenshots/055-reveal-target-32-phone.png)
 
-![Desktop: Mara Reveals](./screenshots/054-reveal-other-32-desktop.png)
+![Desktop: Mara Reveals while waiting for the next Ent opportunity](./screenshots/055-reveal-target-32-desktop.png)
 
 **Verifications:**
 
-- [x] The public Muster row names the acting human
+- [x] The target uses the ordinary Reveal control
 - [x] Every connected browser replays 43 accepted events with no diagnostics
 
 ---
 
 ## Mara finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/055-finish-reveal-33-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/056-finish-reveal-33-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/055-finish-reveal-33-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/056-finish-reveal-33-desktop.png)
 
 **Verifications:**
 
@@ -712,11 +724,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip chooses a card for deep-fangorn
+## Mara chooses a card for fangorn-moot
 
-![Phone: Pip chooses a card for deep-fangorn](./screenshots/056-choose-deep-fangorn-34-phone.png)
+![Phone: Mara chooses a card for fangorn-moot](./screenshots/057-choose-fangorn-moot-34-phone.png)
 
-![Desktop: Pip chooses a card for deep-fangorn](./screenshots/056-choose-deep-fangorn-34-desktop.png)
+![Desktop: Mara chooses a card for fangorn-moot](./screenshots/057-choose-fangorn-moot-34-desktop.png)
 
 **Verifications:**
 
@@ -724,11 +736,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip visits deep-fangorn
+## Mara visits fangorn-moot
 
-![Phone: Pip visits deep-fangorn](./screenshots/057-visit-deep-fangorn-34-phone.png)
+![Phone: Mara visits fangorn-moot](./screenshots/058-visit-fangorn-moot-34-phone.png)
 
-![Desktop: Pip visits deep-fangorn](./screenshots/057-visit-deep-fangorn-34-desktop.png)
+![Desktop: Mara visits fangorn-moot](./screenshots/058-visit-fangorn-moot-34-desktop.png)
 
 **Verifications:**
 
@@ -737,115 +749,127 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip takes Mithril while the intact Dam protects the Battle
+## Mara breaches the Dam
 
-![Phone: Pip takes Mithril while the intact Dam protects the Battle](./screenshots/058-choose-protected-mithril-phone.png)
+![Phone: Mara breaches the Dam](./screenshots/059-breach-dam-phone.png)
 
-![Desktop: Pip takes Mithril while the intact Dam protects the Battle](./screenshots/058-choose-protected-mithril-desktop.png)
+![Desktop: Mara breaches the Dam](./screenshots/059-breach-dam-desktop.png)
 
 **Verifications:**
 
-- [x] No summon control is exposed for the protected Battle
+- [x] The Dam is permanently breached for every observer
 - [x] Every connected browser replays 46 accepted events with no diagnostics
 
 ---
 
-## Pip places the ordered Scout
+## Mara leaves Companies in garrison
 
-![Phone: Pip places the ordered Scout](./screenshots/059-place-scout-36-phone.png)
+![Phone: Mara leaves Companies in garrison](./screenshots/060-deploy-zero-36-phone.png)
 
-![Desktop: Pip places the ordered Scout](./screenshots/059-place-scout-36-desktop.png)
-
-**Verifications:**
-
-- [x] The Scout network returns to its ordinary state
-- [x] Every connected browser replays 47 accepted events with no diagnostics
-
----
-
-## Pip leaves Companies in garrison
-
-![Phone: Pip leaves Companies in garrison](./screenshots/060-deploy-zero-37-phone.png)
-
-![Desktop: Pip leaves Companies in garrison](./screenshots/060-deploy-zero-37-desktop.png)
+![Desktop: Mara leaves Companies in garrison](./screenshots/060-deploy-zero-36-desktop.png)
 
 **Verifications:**
 
 - [x] No Company enters the Battle
-- [x] Every connected browser replays 48 accepted events with no diagnostics
-
----
-
-## Pip Reveals while waiting for the next Ent opportunity
-
-![Phone: Pip Reveals while waiting for the next Ent opportunity](./screenshots/061-reveal-target-38-phone.png)
-
-![Desktop: Pip Reveals while waiting for the next Ent opportunity](./screenshots/061-reveal-target-38-desktop.png)
-
-**Verifications:**
-
-- [x] The target uses the ordinary Reveal control
-- [x] Every connected browser replays 49 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal
-
-![Phone: Pip finishes Reveal](./screenshots/062-finish-reveal-39-phone.png)
-
-![Desktop: Pip finishes Reveal](./screenshots/062-finish-reveal-39-desktop.png)
-
-**Verifications:**
-
-- [x] Authority advances through the ordinary phase sequence
-- [x] Every connected browser replays 50 accepted events with no diagnostics
+- [x] Every connected browser replays 47 accepted events with no diagnostics
 
 ---
 
 ## Rin Reveals
 
-![Phone: Rin Reveals](./screenshots/063-reveal-other-40-phone.png)
+![Phone: Rin Reveals](./screenshots/061-reveal-other-37-phone.png)
 
-![Desktop: Rin Reveals](./screenshots/063-reveal-other-40-desktop.png)
+![Desktop: Rin Reveals](./screenshots/061-reveal-other-37-desktop.png)
 
 **Verifications:**
 
 - [x] The public Muster row names the acting human
-- [x] Every connected browser replays 51 accepted events with no diagnostics
+- [x] Every connected browser replays 48 accepted events with no diagnostics
 
 ---
 
 ## Rin finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/064-finish-reveal-41-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/062-finish-reveal-38-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/064-finish-reveal-41-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/062-finish-reveal-38-desktop.png)
 
 **Verifications:**
 
 - [x] Authority advances through the ordinary phase sequence
-- [x] Every connected browser replays 52 accepted events with no diagnostics
+- [x] Every connected browser replays 49 accepted events with no diagnostics
 
 ---
 
-## Mara Reveals
+## Pip Reveals
 
-![Phone: Mara Reveals](./screenshots/065-reveal-other-42-phone.png)
+![Phone: Pip Reveals](./screenshots/063-reveal-other-39-phone.png)
 
-![Desktop: Mara Reveals](./screenshots/065-reveal-other-42-desktop.png)
+![Desktop: Pip Reveals](./screenshots/063-reveal-other-39-desktop.png)
 
 **Verifications:**
 
 - [x] The public Muster row names the acting human
+- [x] Every connected browser replays 50 accepted events with no diagnostics
+
+---
+
+## Pip finishes Reveal
+
+![Phone: Pip finishes Reveal](./screenshots/064-finish-reveal-40-phone.png)
+
+![Desktop: Pip finishes Reveal](./screenshots/064-finish-reveal-40-desktop.png)
+
+**Verifications:**
+
+- [x] Authority advances through the ordinary phase sequence
+- [x] Every connected browser replays 51 accepted events with no diagnostics
+
+---
+
+## Mara chooses a card for dwarven-caravans
+
+![Phone: Mara chooses a card for dwarven-caravans](./screenshots/065-choose-dwarven-caravans-41-phone.png)
+
+![Desktop: Mara chooses a card for dwarven-caravans](./screenshots/065-choose-dwarven-caravans-41-desktop.png)
+
+**Verifications:**
+
+- [x] The intended complete destination becomes enabled
+
+---
+
+## Mara visits dwarven-caravans
+
+![Phone: Mara visits dwarven-caravans](./screenshots/066-visit-dwarven-caravans-41-phone.png)
+
+![Desktop: Mara visits dwarven-caravans](./screenshots/066-visit-dwarven-caravans-41-desktop.png)
+
+**Verifications:**
+
+- [x] All observers see the synchronized Agent occupation
+- [x] Every connected browser replays 52 accepted events with no diagnostics
+
+---
+
+## Mara Reveals while waiting for the next Ent opportunity
+
+![Phone: Mara Reveals while waiting for the next Ent opportunity](./screenshots/067-reveal-target-42-phone.png)
+
+![Desktop: Mara Reveals while waiting for the next Ent opportunity](./screenshots/067-reveal-target-42-desktop.png)
+
+**Verifications:**
+
+- [x] The target uses the ordinary Reveal control
 - [x] Every connected browser replays 53 accepted events with no diagnostics
 
 ---
 
 ## Mara finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/066-finish-reveal-43-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/068-finish-reveal-43-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/066-finish-reveal-43-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/068-finish-reveal-43-desktop.png)
 
 **Verifications:**
 
@@ -854,389 +878,209 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip chooses a card for fangorn-moot
+## Rin Reveals
 
-![Phone: Pip chooses a card for fangorn-moot](./screenshots/067-choose-fangorn-moot-44-phone.png)
+![Phone: Rin Reveals](./screenshots/069-reveal-other-44-phone.png)
 
-![Desktop: Pip chooses a card for fangorn-moot](./screenshots/067-choose-fangorn-moot-44-desktop.png)
-
-**Verifications:**
-
-- [x] The intended complete destination becomes enabled
-
----
-
-## Pip visits fangorn-moot
-
-![Phone: Pip visits fangorn-moot](./screenshots/068-visit-fangorn-moot-44-phone.png)
-
-![Desktop: Pip visits fangorn-moot](./screenshots/068-visit-fangorn-moot-44-desktop.png)
+![Desktop: Rin Reveals](./screenshots/069-reveal-other-44-desktop.png)
 
 **Verifications:**
 
-- [x] All observers see the synchronized Agent occupation
+- [x] The public Muster row names the acting human
 - [x] Every connected browser replays 55 accepted events with no diagnostics
 
 ---
 
-## Pip breaches the Dam
+## Rin finishes Reveal
 
-![Phone: Pip breaches the Dam](./screenshots/069-breach-dam-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/070-finish-reveal-45-phone.png)
 
-![Desktop: Pip breaches the Dam](./screenshots/069-breach-dam-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/070-finish-reveal-45-desktop.png)
 
 **Verifications:**
 
-- [x] The Dam is permanently breached for every observer
+- [x] Authority advances through the ordinary phase sequence
 - [x] Every connected browser replays 56 accepted events with no diagnostics
 
 ---
 
-## Pip leaves Companies in garrison
+## Pip Reveals
 
-![Phone: Pip leaves Companies in garrison](./screenshots/070-deploy-zero-46-phone.png)
+![Phone: Pip Reveals](./screenshots/071-reveal-other-46-phone.png)
 
-![Desktop: Pip leaves Companies in garrison](./screenshots/070-deploy-zero-46-desktop.png)
+![Desktop: Pip Reveals](./screenshots/071-reveal-other-46-desktop.png)
 
 **Verifications:**
 
-- [x] No Company enters the Battle
+- [x] The public Muster row names the acting human
 - [x] Every connected browser replays 57 accepted events with no diagnostics
 
 ---
 
-## Pip chooses a card for dwarven-caravans
+## Pip finishes Reveal
 
-![Phone: Pip chooses a card for dwarven-caravans](./screenshots/071-choose-dwarven-caravans-47-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/072-finish-reveal-47-phone.png)
 
-![Desktop: Pip chooses a card for dwarven-caravans](./screenshots/071-choose-dwarven-caravans-47-desktop.png)
-
-**Verifications:**
-
-- [x] The intended complete destination becomes enabled
-
----
-
-## Pip visits dwarven-caravans
-
-![Phone: Pip visits dwarven-caravans](./screenshots/072-visit-dwarven-caravans-47-phone.png)
-
-![Desktop: Pip visits dwarven-caravans](./screenshots/072-visit-dwarven-caravans-47-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/072-finish-reveal-47-desktop.png)
 
 **Verifications:**
 
-- [x] All observers see the synchronized Agent occupation
+- [x] Authority advances through the ordinary phase sequence
 - [x] Every connected browser replays 58 accepted events with no diagnostics
 
 ---
 
-## Pip keeps Seek Allies
+## Mara chooses a card for dwarven-caravans
 
-![Phone: Pip keeps Seek Allies](./screenshots/073-keep-seek-48-phone.png)
+![Phone: Mara chooses a card for dwarven-caravans](./screenshots/073-choose-dwarven-caravans-48-phone.png)
 
-![Desktop: Pip keeps Seek Allies](./screenshots/073-keep-seek-48-desktop.png)
+![Desktop: Mara chooses a card for dwarven-caravans](./screenshots/073-choose-dwarven-caravans-48-desktop.png)
 
 **Verifications:**
 
-- [x] The ordered Journey choice closes
+- [x] The intended complete destination becomes enabled
+
+---
+
+## Mara visits dwarven-caravans
+
+![Phone: Mara visits dwarven-caravans](./screenshots/074-visit-dwarven-caravans-48-phone.png)
+
+![Desktop: Mara visits dwarven-caravans](./screenshots/074-visit-dwarven-caravans-48-desktop.png)
+
+**Verifications:**
+
+- [x] All observers see the synchronized Agent occupation
 - [x] Every connected browser replays 59 accepted events with no diagnostics
 
 ---
 
-## Pip Reveals while waiting for the next Ent opportunity
+## Mara keeps Seek Allies
 
-![Phone: Pip Reveals while waiting for the next Ent opportunity](./screenshots/074-reveal-target-49-phone.png)
+![Phone: Mara keeps Seek Allies](./screenshots/075-keep-seek-49-phone.png)
 
-![Desktop: Pip Reveals while waiting for the next Ent opportunity](./screenshots/074-reveal-target-49-desktop.png)
+![Desktop: Mara keeps Seek Allies](./screenshots/075-keep-seek-49-desktop.png)
 
 **Verifications:**
 
-- [x] The target uses the ordinary Reveal control
+- [x] The ordered Journey choice closes
 - [x] Every connected browser replays 60 accepted events with no diagnostics
 
 ---
 
-## Pip finishes Reveal
+## Mara chooses a card for deep-fangorn
 
-![Phone: Pip finishes Reveal](./screenshots/075-finish-reveal-50-phone.png)
+![Phone: Mara chooses a card for deep-fangorn](./screenshots/076-choose-deep-fangorn-50-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/075-finish-reveal-50-desktop.png)
+![Desktop: Mara chooses a card for deep-fangorn](./screenshots/076-choose-deep-fangorn-50-desktop.png)
 
 **Verifications:**
 
-- [x] Authority advances through the ordinary phase sequence
+- [x] The intended complete destination becomes enabled
+
+---
+
+## Mara visits deep-fangorn
+
+![Phone: Mara visits deep-fangorn](./screenshots/077-visit-deep-fangorn-50-phone.png)
+
+![Desktop: Mara visits deep-fangorn](./screenshots/077-visit-deep-fangorn-50-desktop.png)
+
+**Verifications:**
+
+- [x] All observers see the synchronized Agent occupation
 - [x] Every connected browser replays 61 accepted events with no diagnostics
 
 ---
 
-## Mara Reveals
+## Mara summons two Ents into the active Battle
 
-![Phone: Mara Reveals](./screenshots/076-reveal-other-51-phone.png)
+![Phone: Mara summons two Ents into the active Battle](./screenshots/078-summon-two-ents-phone.png)
 
-![Desktop: Mara Reveals](./screenshots/076-reveal-other-51-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row names the acting human
-- [x] Every connected browser replays 62 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal
-
-![Phone: Mara finishes Reveal](./screenshots/077-finish-reveal-52-phone.png)
-
-![Desktop: Mara finishes Reveal](./screenshots/077-finish-reveal-52-desktop.png)
-
-**Verifications:**
-
-- [x] Authority advances through the ordinary phase sequence
-- [x] Every connected browser replays 63 accepted events with no diagnostics
-
----
-
-## Pip Reveals while waiting for the next Ent opportunity
-
-![Phone: Pip Reveals while waiting for the next Ent opportunity](./screenshots/078-reveal-target-53-phone.png)
-
-![Desktop: Pip Reveals while waiting for the next Ent opportunity](./screenshots/078-reveal-target-53-desktop.png)
-
-**Verifications:**
-
-- [x] The target uses the ordinary Reveal control
-- [x] Every connected browser replays 64 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal
-
-![Phone: Pip finishes Reveal](./screenshots/079-finish-reveal-54-phone.png)
-
-![Desktop: Pip finishes Reveal](./screenshots/079-finish-reveal-54-desktop.png)
-
-**Verifications:**
-
-- [x] Authority advances through the ordinary phase sequence
-- [x] Every connected browser replays 65 accepted events with no diagnostics
-
----
-
-## Rin Reveals
-
-![Phone: Rin Reveals](./screenshots/080-reveal-other-55-phone.png)
-
-![Desktop: Rin Reveals](./screenshots/080-reveal-other-55-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row names the acting human
-- [x] Every connected browser replays 66 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/081-finish-reveal-56-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/081-finish-reveal-56-desktop.png)
-
-**Verifications:**
-
-- [x] Authority advances through the ordinary phase sequence
-- [x] Every connected browser replays 67 accepted events with no diagnostics
-
----
-
-## Pip chooses a card for dwarven-caravans
-
-![Phone: Pip chooses a card for dwarven-caravans](./screenshots/082-choose-dwarven-caravans-57-phone.png)
-
-![Desktop: Pip chooses a card for dwarven-caravans](./screenshots/082-choose-dwarven-caravans-57-desktop.png)
-
-**Verifications:**
-
-- [x] The intended complete destination becomes enabled
-
----
-
-## Pip visits dwarven-caravans
-
-![Phone: Pip visits dwarven-caravans](./screenshots/083-visit-dwarven-caravans-57-phone.png)
-
-![Desktop: Pip visits dwarven-caravans](./screenshots/083-visit-dwarven-caravans-57-desktop.png)
-
-**Verifications:**
-
-- [x] All observers see the synchronized Agent occupation
-- [x] Every connected browser replays 68 accepted events with no diagnostics
-
----
-
-## Rin Reveals
-
-![Phone: Rin Reveals](./screenshots/084-reveal-other-58-phone.png)
-
-![Desktop: Rin Reveals](./screenshots/084-reveal-other-58-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row names the acting human
-- [x] Every connected browser replays 69 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/085-finish-reveal-59-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/085-finish-reveal-59-desktop.png)
-
-**Verifications:**
-
-- [x] Authority advances through the ordinary phase sequence
-- [x] Every connected browser replays 70 accepted events with no diagnostics
-
----
-
-## Mara Reveals
-
-![Phone: Mara Reveals](./screenshots/086-reveal-other-60-phone.png)
-
-![Desktop: Mara Reveals](./screenshots/086-reveal-other-60-desktop.png)
-
-**Verifications:**
-
-- [x] The public Muster row names the acting human
-- [x] Every connected browser replays 71 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal
-
-![Phone: Mara finishes Reveal](./screenshots/087-finish-reveal-61-phone.png)
-
-![Desktop: Mara finishes Reveal](./screenshots/087-finish-reveal-61-desktop.png)
-
-**Verifications:**
-
-- [x] Authority advances through the ordinary phase sequence
-- [x] Every connected browser replays 72 accepted events with no diagnostics
-
----
-
-## Pip chooses a card for deep-fangorn
-
-![Phone: Pip chooses a card for deep-fangorn](./screenshots/088-choose-deep-fangorn-62-phone.png)
-
-![Desktop: Pip chooses a card for deep-fangorn](./screenshots/088-choose-deep-fangorn-62-desktop.png)
-
-**Verifications:**
-
-- [x] The intended complete destination becomes enabled
-
----
-
-## Pip visits deep-fangorn
-
-![Phone: Pip visits deep-fangorn](./screenshots/089-visit-deep-fangorn-62-phone.png)
-
-![Desktop: Pip visits deep-fangorn](./screenshots/089-visit-deep-fangorn-62-desktop.png)
-
-**Verifications:**
-
-- [x] All observers see the synchronized Agent occupation
-- [x] Every connected browser replays 73 accepted events with no diagnostics
-
----
-
-## Pip summons two Ents into the active Battle
-
-![Phone: Pip summons two Ents into the active Battle](./screenshots/090-summon-two-ents-phone.png)
-
-![Desktop: Pip summons two Ents into the active Battle](./screenshots/090-summon-two-ents-desktop.png)
+![Desktop: Mara summons two Ents into the active Battle](./screenshots/078-summon-two-ents-desktop.png)
 
 **Verifications:**
 
 - [x] Every observer sees two Ents and at least six unit Strength immediately
-- [x] Every connected browser replays 74 accepted events with no diagnostics
+- [x] Every connected browser replays 62 accepted events with no diagnostics
 
 ---
 
-## Pip places the ordered Scout
+## Mara places the ordered Scout
 
-![Phone: Pip places the ordered Scout](./screenshots/091-place-scout-64-phone.png)
+![Phone: Mara places the ordered Scout](./screenshots/079-place-scout-52-phone.png)
 
-![Desktop: Pip places the ordered Scout](./screenshots/091-place-scout-64-desktop.png)
+![Desktop: Mara places the ordered Scout](./screenshots/079-place-scout-52-desktop.png)
 
 **Verifications:**
 
 - [x] The Scout network returns to its ordinary state
-- [x] Every connected browser replays 75 accepted events with no diagnostics
+- [x] Every connected browser replays 63 accepted events with no diagnostics
 
 ---
 
-## Pip leaves Companies in garrison
+## Mara leaves Companies in garrison
 
-![Phone: Pip leaves Companies in garrison](./screenshots/092-deploy-zero-65-phone.png)
+![Phone: Mara leaves Companies in garrison](./screenshots/080-deploy-zero-53-phone.png)
 
-![Desktop: Pip leaves Companies in garrison](./screenshots/092-deploy-zero-65-desktop.png)
+![Desktop: Mara leaves Companies in garrison](./screenshots/080-deploy-zero-53-desktop.png)
 
 **Verifications:**
 
 - [x] The summoned Ents remain in Battle without a Company
-- [x] Every connected browser replays 76 accepted events with no diagnostics
+- [x] Every connected browser replays 64 accepted events with no diagnostics
 
 ---
 
-## Pip Reveals while waiting for the next Ent opportunity
+## Mara Reveals while waiting for the next Ent opportunity
 
-![Phone: Pip Reveals while waiting for the next Ent opportunity](./screenshots/093-reveal-target-66-phone.png)
+![Phone: Mara Reveals while waiting for the next Ent opportunity](./screenshots/081-reveal-target-54-phone.png)
 
-![Desktop: Pip Reveals while waiting for the next Ent opportunity](./screenshots/093-reveal-target-66-desktop.png)
+![Desktop: Mara Reveals while waiting for the next Ent opportunity](./screenshots/081-reveal-target-54-desktop.png)
 
 **Verifications:**
 
 - [x] The target uses the ordinary Reveal control
-- [x] Every connected browser replays 77 accepted events with no diagnostics
+- [x] Every connected browser replays 65 accepted events with no diagnostics
 
 ---
 
-## Pip finishes Reveal
+## Mara finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/094-finish-reveal-67-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/082-finish-reveal-55-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/094-finish-reveal-67-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/082-finish-reveal-55-desktop.png)
 
 **Verifications:**
 
 - [x] Authority advances through the ordinary phase sequence
-- [x] Every connected browser replays 78 accepted events with no diagnostics
+- [x] Every connected browser replays 66 accepted events with no diagnostics
 
 ---
 
-## Pip passes and resolves the Ent Battle
+## Mara passes and resolves the Ent Battle
 
-![Phone: Pip passes and resolves the Ent Battle](./screenshots/095-resolve-ent-battle-phone.png)
+![Phone: Mara passes and resolves the Ent Battle](./screenshots/083-resolve-ent-battle-phone.png)
 
-![Desktop: Pip passes and resolves the Ent Battle](./screenshots/095-resolve-ent-battle-desktop.png)
+![Desktop: Mara passes and resolves the Ent Battle](./screenshots/083-resolve-ent-battle-desktop.png)
 
 **Verifications:**
 
 - [x] The sole Ent participant receives the ranked reward exactly twice
 - [x] Ents return to the bank and Battle cleanup opens round eight
-- [x] Every connected browser replays 79 accepted events with no diagnostics
+- [x] Every connected browser replays 67 accepted events with no diagnostics
 
 ---
 
-## Pip reloads the doubled Ent reward
+## Mara reloads the doubled Ent reward
 
-![Phone: Pip reloads the doubled Ent reward](./screenshots/096-reload-ent-resolution-phone.png)
+![Phone: Mara reloads the doubled Ent reward](./screenshots/084-reload-ent-resolution-phone.png)
 
-![Desktop: Pip reloads the doubled Ent reward](./screenshots/096-reload-ent-resolution-desktop.png)
+![Desktop: Mara reloads the doubled Ent reward](./screenshots/084-reload-ent-resolution-desktop.png)
 
 **Verifications:**
 
 - [x] The doubled reward, Dam, and Ent-draught replay without diagnostics
-- [x] Every connected browser replays 79 accepted events with no diagnostics
+- [x] Every connected browser replays 67 accepted events with no diagnostics
 
 ---

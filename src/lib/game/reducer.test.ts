@@ -72,9 +72,9 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'keeper-oaths')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'the-long-game')).toHaveLength(2);
     expect(first.match!.chronicleRow).toHaveLength(5);
-    expect(first.match!.chronicleDeck).toHaveLength(39);
+    expect(first.match!.chronicleDeck).toHaveLength(41);
     const chronicleInstances = [...first.match!.chronicleRow, ...first.match!.chronicleDeck];
-    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(44);
+    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(46);
     for (const definition of CHRONICLE_CARD_DEFINITIONS) {
       expect(chronicleInstances.filter((card) => card.definitionId === definition.id)).toHaveLength(2);
     }
@@ -632,7 +632,8 @@ describe('integrated Agent placement replay', () => {
       prepareScout = false,
       minimumDrawPile = 0,
       minimumSeedCandidate = 0,
-      minimumScoutCount = prepareScout ? 1 : 0
+      minimumScoutCount = prepareScout ? 1 : 0,
+      minimumMithril = 0
     ) => {
       const definition = CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!;
       let completed: { events: ReturnType<typeof readyRoom>; seed: string } | null = null;
@@ -707,7 +708,7 @@ describe('integrated Agent placement replay', () => {
       expect(state.diagnostics).toEqual([]);
       expect(state.match!.players[actor].revealInfluence).toBe(influenceBefore - definition.cost);
       expect(state.match!.players[actor].discardPile).toContainEqual(offered);
-      expect(state.match!.chronicleDeck).toHaveLength(38);
+      expect(state.match!.chronicleDeck).toHaveLength(40);
       expect(state.match!.chronicleRow).toHaveLength(5);
       expect(state.match!.chronicleRow).toContainEqual(refill);
 
@@ -725,9 +726,36 @@ describe('integrated Agent placement replay', () => {
           state.match!.turnMode === 'agent' &&
           state.match!.players[actor].hand.some((card) => card.id === offered.id) &&
           state.match!.players[actor].drawPile.length >= minimumDrawPile &&
+          state.match!.players[actor].resources.mithril >= minimumMithril &&
+          (minimumMithril === 0 || !Object.values(state.match!.boardAgents).flat().some((occupation) => occupation.uid === actor)) &&
           Object.values(state.match!.boardScouts).filter((uid) => uid === actor).length >= minimumScoutCount
         ) break;
         const current = currentPlayerUid(state)!;
+        if (current === actor && state.match!.players[actor].resources.mithril < minimumMithril) {
+          const edorasCard = state.match!.players[actor].hand.find((card) =>
+            card.id !== offered.id && legalAgentSpaces(state, actor, card.id).includes('edoras')
+          );
+          if (edorasCard) {
+            append(actor, 'agent/placed', { cardInstanceId: edorasCard.id, spaceId: 'edoras' });
+            for (let continuation = 0; continuation < 4; continuation += 1) {
+              state = reduceGame(stream);
+              const pending = state.match!.pendingChoice;
+              if (pending?.kind === 'place-scout') {
+                const post = OBSERVATION_POSTS.find((candidate) =>
+                  !state.match!.boardScouts[candidate.id] &&
+                  (pending.allowedPostIds === null || pending.allowedPostIds.includes(candidate.id))
+                );
+                expect(post).toBeDefined();
+                append(actor, 'scout/placed', { postId: post!.id });
+              } else if (pending?.kind === 'seek-allies') {
+                append(actor, 'choice/resolved', { choice: 'keep-card' });
+              } else if (pending?.kind === 'battle-deployment') {
+                append(actor, 'choice/resolved', { choice: 'deploy:0' });
+              } else break;
+            }
+            continue;
+          }
+        }
         if (current === actor && Object.values(state.match!.boardScouts).filter((uid) => uid === actor).length < minimumScoutCount) {
           const reconnaissance = state.match!.players[actor].hand.find((card) => card.definitionId === 'reconnaissance');
           if (reconnaissance) {
@@ -746,8 +774,25 @@ describe('integrated Agent placement replay', () => {
             continue;
           }
         }
+        if (state.match!.turnMode === 'battle') {
+          append(current, 'battle/passed', {});
+          continue;
+        }
         if (state.match!.turnMode === 'endgame') break;
-        append(current, state.match!.turnMode === 'reveal' ? 'reveal/finished' : 'turn/revealed', {});
+        const nextType = state.match!.turnMode === 'reveal' ? 'reveal/finished' : 'turn/revealed';
+        const beforeAdvance = minimumMithril > 0 ? {
+          round: state.match!.round,
+          mode: state.match!.turnMode,
+          current,
+          pending: state.match!.pendingChoice?.kind ?? null,
+          revealed: state.match!.players[current].revealedThisRound,
+          agents: state.match!.players[current].availableAgents
+        } : null;
+        append(current, nextType, {});
+        if (beforeAdvance) {
+          const advanced = reduceGame(stream);
+          expect(advanced.diagnostics, JSON.stringify({ nextType, beforeAdvance })).toEqual([]);
+        }
       }
       state = reduceGame(stream);
       expect(state.diagnostics, `round ${state.match!.round}, mode ${state.match!.turnMode}, hand ${state.match!.players[actor].hand.length}, draw ${state.match!.players[actor].drawPile.length}`).toEqual([]);
@@ -1202,6 +1247,119 @@ describe('integrated Agent placement replay', () => {
     expect(afterRangerWarden.match!.boardScouts['redhorn-pass']).toBe(rangerWarden.actor);
     expect(afterRangerWarden.match!.pendingChoice).toMatchObject({ kind: 'battle-deployment', actorUid: rangerWarden.actor });
 
+    const unaffordablePalantir = reachAcquiredCard('palantir-glimpse');
+    expect(unaffordablePalantir.before.match!.players[unaffordablePalantir.actor].resources.mithril).toBe(0);
+    const unaffordableSpace = legalAgentSpaces(
+      unaffordablePalantir.before,
+      unaffordablePalantir.actor,
+      unaffordablePalantir.acquired.id
+    ).find((spaceId) => spaceId === 'tribute-shadow' || spaceId === 'hidden-counsel');
+    expect(unaffordableSpace).toBeDefined();
+    unaffordablePalantir.append(unaffordablePalantir.actor, 'agent/placed', {
+      cardInstanceId: unaffordablePalantir.acquired.id,
+      spaceId: unaffordableSpace!
+    });
+    let afterUnaffordablePalantir = reduceGame(unaffordablePalantir.stream);
+    expect(afterUnaffordablePalantir.diagnostics).toEqual([]);
+    expect(afterUnaffordablePalantir.match!.pendingChoice).toEqual({
+      kind: 'chronicle-payment',
+      actorUid: unaffordablePalantir.actor,
+      definitionId: 'palantir-glimpse',
+      options: ['decline-chronicle-cost']
+    });
+    const unaffordableHand = structuredClone(afterUnaffordablePalantir.match!.players[unaffordablePalantir.actor].hand);
+    const unaffordableDrawPile = structuredClone(afterUnaffordablePalantir.match!.players[unaffordablePalantir.actor].drawPile);
+    unaffordablePalantir.append(unaffordablePalantir.actor, 'choice/resolved', { choice: 'pay-chronicle-cost' });
+    const rejectedUnaffordablePalantir = reduceGame(unaffordablePalantir.stream);
+    expect(rejectedUnaffordablePalantir.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(rejectedUnaffordablePalantir.match!.players[unaffordablePalantir.actor].resources.mithril).toBe(0);
+    expect(rejectedUnaffordablePalantir.match!.players[unaffordablePalantir.actor].hand).toEqual(unaffordableHand);
+    expect(rejectedUnaffordablePalantir.match!.players[unaffordablePalantir.actor].drawPile).toEqual(unaffordableDrawPile);
+    unaffordablePalantir.stream.pop();
+    unaffordablePalantir.append(unaffordablePalantir.actor, 'choice/resolved', { choice: 'decline-chronicle-cost' });
+    afterUnaffordablePalantir = reduceGame(unaffordablePalantir.stream);
+    expect(afterUnaffordablePalantir.diagnostics).toEqual([]);
+    expect(afterUnaffordablePalantir.match!.pendingChoice).toBeNull();
+
+    const palantir = reachAcquiredCard('palantir-glimpse', 0, false, 2, 0, 0, 1);
+    const palantirPlayer = palantir.before.match!.players[palantir.actor];
+    const palantirMithril = palantirPlayer.resources.mithril;
+    const palantirHand = palantirPlayer.hand.length;
+    const palantirDrawPile = palantirPlayer.drawPile.length;
+    const palantirSpace = legalAgentSpaces(palantir.before, palantir.actor, palantir.acquired.id)
+      .find((spaceId) => spaceId === 'tribute-shadow' || spaceId === 'hidden-counsel');
+    expect(palantirSpace).toBeDefined();
+    palantir.append(palantir.actor, 'agent/placed', {
+      cardInstanceId: palantir.acquired.id,
+      spaceId: palantirSpace!
+    });
+    let afterPalantir = reduceGame(palantir.stream);
+    expect(afterPalantir.diagnostics).toEqual([]);
+    if (afterPalantir.match!.pendingChoice?.kind === 'gather-intelligence') {
+      expect(afterPalantir.match!.pendingChoice.actorUid).toBe(palantir.actor);
+      palantir.append(palantir.actor, 'choice/resolved', { choice: 'decline-intelligence' });
+      afterPalantir = reduceGame(palantir.stream);
+      expect(afterPalantir.diagnostics).toEqual([]);
+    }
+    expect(afterPalantir.match!.pendingChoice).toEqual({
+      kind: 'chronicle-payment',
+      actorUid: palantir.actor,
+      definitionId: 'palantir-glimpse',
+      options: ['pay-chronicle-cost', 'decline-chronicle-cost']
+    });
+    expect(afterPalantir.match!.players[palantir.actor].resources.mithril).toBe(palantirMithril);
+    const unauthorizedPalantirActor = afterPalantir.match!.playerOrder.find((uid) => uid !== palantir.actor)!;
+    palantir.append(unauthorizedPalantirActor, 'choice/resolved', { choice: 'pay-chronicle-cost' });
+    const unauthorizedPalantir = reduceGame(palantir.stream);
+    expect(unauthorizedPalantir.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(unauthorizedPalantir.match!.players[palantir.actor].resources.mithril).toBe(palantirMithril);
+    expect(unauthorizedPalantir.match!.players[palantir.actor].hand).toHaveLength(palantirHand - 1);
+    palantir.stream.pop();
+    palantir.append(palantir.actor, 'choice/resolved', { choice: 'pay-chronicle-cost' });
+    afterPalantir = reduceGame(palantir.stream);
+    expect(afterPalantir.diagnostics).toEqual([]);
+    expect(afterPalantir.match!.players[palantir.actor].resources.mithril).toBe(palantirMithril - 1);
+    expect(afterPalantir.match!.players[palantir.actor].drawPile).toHaveLength(palantirDrawPile - 2);
+    expect(afterPalantir.match!.players[palantir.actor].hand).toHaveLength(palantirHand + 1);
+    expect(afterPalantir.match!.pendingChoice).toMatchObject({
+      kind: 'chronicle-card-choice',
+      actorUid: palantir.actor,
+      definitionId: 'palantir-glimpse'
+    });
+    const palantirPending = afterPalantir.match!.pendingChoice;
+    if (palantirPending?.kind !== 'chronicle-card-choice') throw new Error('Palantír discard choice is required');
+    expect(palantirPending.options).toEqual(palantirPending.cardInstanceIds.map((id) => `discard-card:${id}`));
+    const pendingPalantirHand = structuredClone(afterPalantir.match!.players[palantir.actor].hand);
+    palantir.append(palantir.actor, 'choice/resolved', { choice: `trash-card:${palantirPending.cardInstanceIds[0]}` });
+    const rejectedPalantirDiscard = reduceGame(palantir.stream);
+    expect(rejectedPalantirDiscard.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(rejectedPalantirDiscard.match!.players[palantir.actor].hand).toEqual(pendingPalantirHand);
+    palantir.stream.pop();
+    const palantirDiscardId = palantirPending.cardInstanceIds[0];
+    palantir.append(palantir.actor, 'choice/resolved', { choice: `discard-card:${palantirDiscardId}` });
+    afterPalantir = reduceGame(palantir.stream);
+    expect(afterPalantir.diagnostics).toEqual([]);
+    expect(afterPalantir.match!.players[palantir.actor].hand).toHaveLength(palantirHand);
+    expect(afterPalantir.match!.players[palantir.actor].discardPile).toContainEqual(
+      expect.objectContaining({ id: palantirDiscardId })
+    );
+    expect(afterPalantir.match!.pendingChoice).toBeNull();
+
+    const palantirMuster = reachAcquiredCard('palantir-glimpse');
+    const palantirMusterPlayer = palantirMuster.before.match!.players[palantirMuster.actor];
+    const palantirFateBefore = palantirMusterPlayer.fateHand.length;
+    const palantirFateDeckBefore = palantirMuster.before.match!.fateDeck.length;
+    const palantirPrintedInfluence = palantirMusterPlayer.hand.reduce((total, card) =>
+      total + (MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === card.definitionId)?.muster.influence ?? 0), 0
+    );
+    palantirMuster.append(palantirMuster.actor, 'turn/revealed', {});
+    const afterPalantirMuster = reduceGame(palantirMuster.stream);
+    expect(afterPalantirMuster.diagnostics).toEqual([]);
+    expect(afterPalantirMuster.match!.players[palantirMuster.actor].revealInfluence).toBe(palantirPrintedInfluence);
+    expect(afterPalantirMuster.match!.players[palantirMuster.actor].fateHand).toHaveLength(palantirFateBefore + 1);
+    expect(afterPalantirMuster.match!.fateDeck).toHaveLength(palantirFateDeckBefore - 1);
+    expect(afterPalantirMuster.match!.activity.at(-1)).toContain('privately draws 1 Fate with 1 Palantír Glimpse');
+
     const informerMuster = reachAcquiredCard('goblin-informer', 0, true);
     const informerScout = reduceGame(informerMuster.stream);
     expect(informerScout.match!.boardScouts['old-south-road']).toBe(informerMuster.actor);
@@ -1284,7 +1442,8 @@ describe('integrated Agent placement replay', () => {
       'whispered-rumor': { influence: 1, swords: 0 },
       'goblin-informer': { influence: 0, swords: 1 },
       'orcish-muster': { influence: 0, swords: 2 },
-      'elven-foresight': { influence: 3, swords: 0 }
+      'elven-foresight': { influence: 3, swords: 0 },
+      'palantir-glimpse': { influence: 2, swords: 0 }
     } as const;
     for (const [definitionId, printed] of Object.entries(economyMuster)) {
       expect(MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === definitionId)?.muster).toEqual(printed);
@@ -2453,7 +2612,7 @@ describe('integrated Agent placement replay', () => {
     const rowBefore = [...state.match!.chronicleRow];
     const deckBefore = [...state.match!.chronicleDeck];
     const affordable = (definitionId: string) => CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!.cost <= 3;
-    expect(deckBefore).toHaveLength(39);
+    expect(deckBefore).toHaveLength(41);
     append(actor, 'fate/played', { cardInstanceId: fate.id });
     const awaitingChoice = reduceGame(stream);
     expect(awaitingChoice.match!.pendingChoice).toEqual({
@@ -3585,7 +3744,7 @@ describe('integrated Agent placement replay', () => {
   });
 
   it('plays The Long Game only after acquiring four physical five-cost Chronicle cards', () => {
-    const stream = readyRoom('long-game-25');
+    const stream = readyRoom('catalog-proof-201');
     const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
     let timestamp = 11;
     let state = reduceGame(stream);

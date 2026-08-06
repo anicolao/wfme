@@ -6,6 +6,12 @@ export async function waitForFirebase(page: Page) {
   });
 }
 
+export async function openFirebaseClients(pages: readonly Page[]) {
+  for (const page of pages) await page.emulateMedia({ reducedMotion: 'reduce' });
+  await Promise.all(pages.map((page) => page.goto('/')));
+  for (const page of pages) await waitForFirebase(page);
+}
+
 export async function reloadGameClient(page: Page) {
   const replayHealthBefore = await page.getByTestId('replay-health').textContent({
     timeout: 2_000
