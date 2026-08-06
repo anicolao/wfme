@@ -36,6 +36,7 @@ export type AgentCardDefinition = StartingCardIdentity & {
     | { kind: 'gain-provisions'; amount: number }
     | { kind: 'draw-card-battle-recruit'; draw: 1; recruit: 1 }
     | { kind: 'draw-fate-place-scout'; drawFate: 1; placeScout: 1 }
+    | { kind: 'draw-fate-recruit'; drawFate: 1; recruit: 2 }
     | { kind: 'council-seat-gold'; withSeat: 2; withoutSeat: 1 }
     | { kind: 'paid-space-mithril'; amount: 1 }
     | { kind: 'gain-mithril-recruit'; mithril: 1; recruit: 2 }
@@ -304,6 +305,14 @@ export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
     placementIcons: ['Council', 'Roads'],
     journeyEffect: { kind: 'gain-gold', amount: 3 },
     reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'lord-nazgul',
+    name: 'Lord of the Nazgûl',
+    copies: 2,
+    placementIcons: ['Shadow', 'Stronghold', 'Scout'],
+    journeyEffect: { kind: 'draw-fate-recruit', drawFate: 1, recruit: 2 },
+    reviewedCapabilities: ['agent-placement']
   }
 ];
 
@@ -364,7 +373,8 @@ export const MUSTER_CARD_DEFINITIONS: readonly MusterCardDefinition[] = [
   { id: 'warden-ithilien', name: 'Warden of Ithilien', muster: { influence: 2, swords: 1 } },
   { id: 'palantir-glimpse', name: 'Palantír Glimpse', muster: { influence: 2, swords: 0 } },
   { id: 'paths-dead', name: 'Paths of the Dead', muster: { influence: 1, swords: 2 } },
-  { id: 'master-lake-town', name: 'Master of Lake-town', muster: { influence: 3, swords: 0 } }
+  { id: 'master-lake-town', name: 'Master of Lake-town', muster: { influence: 3, swords: 0 } },
+  { id: 'lord-nazgul', name: 'Lord of the Nazgûl', muster: { influence: 2, swords: 4 } }
 ];
 
 export type ReserveCardId = 'muster-host';
@@ -408,7 +418,8 @@ export type ChronicleCardId =
   | 'warden-ithilien'
   | 'palantir-glimpse'
   | 'paths-dead'
-  | 'master-lake-town';
+  | 'master-lake-town'
+  | 'lord-nazgul';
 
 export type ChronicleCardDefinition = {
   id: ChronicleCardId;
@@ -581,6 +592,13 @@ export const CHRONICLE_CARD_DEFINITIONS: readonly ChronicleCardDefinition[] = [
     placementIcons: ['Council', 'Roads'], journeyText: 'Gain 3 Gold',
     muster: { influence: 3, swords: 0 },
     musterText: '3 Influence · you may pay 2 Gold to draw 1 Fate',
+    incrementalDeckInsertion: true,
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'lord-nazgul', name: 'Lord of the Nazgûl', copies: 2, cost: 7,
+    placementIcons: ['Shadow', 'Stronghold', 'Scout'], journeyText: 'Draw 1 Fate; recruit 2 Companies',
+    muster: { influence: 2, swords: 4 },
     incrementalDeckInsertion: true,
     reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
   }

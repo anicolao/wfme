@@ -72,9 +72,9 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'keeper-oaths')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'the-long-game')).toHaveLength(2);
     expect(first.match!.chronicleRow).toHaveLength(5);
-    expect(first.match!.chronicleDeck).toHaveLength(45);
+    expect(first.match!.chronicleDeck).toHaveLength(47);
     const chronicleInstances = [...first.match!.chronicleRow, ...first.match!.chronicleDeck];
-    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(50);
+    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(52);
     for (const definition of CHRONICLE_CARD_DEFINITIONS) {
       expect(chronicleInstances.filter((card) => card.definitionId === definition.id)).toHaveLength(2);
     }
@@ -708,7 +708,7 @@ describe('integrated Agent placement replay', () => {
       expect(state.diagnostics).toEqual([]);
       expect(state.match!.players[actor].revealInfluence).toBe(influenceBefore - definition.cost);
       expect(state.match!.players[actor].discardPile).toContainEqual(offered);
-      expect(state.match!.chronicleDeck).toHaveLength(44);
+      expect(state.match!.chronicleDeck).toHaveLength(46);
       expect(state.match!.chronicleRow).toHaveLength(5);
       expect(state.match!.chronicleRow).toContainEqual(refill);
 
@@ -1464,6 +1464,26 @@ describe('integrated Agent placement replay', () => {
     expect(afterMasterJourney.match!.players[masterJourney.actor].journey).toContainEqual(masterJourney.acquired);
     expect(afterMasterJourney.match!.pendingChoice).toBeNull();
 
+    const nazgulJourney = reachAcquiredCard('lord-nazgul');
+    const nazgulPlayer = nazgulJourney.before.match!.players[nazgulJourney.actor];
+    const nazgulFateBefore = nazgulPlayer.fateHand.length;
+    const nazgulFateDeckBefore = nazgulJourney.before.match!.fateDeck.length;
+    const nazgulGarrisonBefore = nazgulPlayer.companies.garrison;
+    const nazgulSupplyBefore = nazgulPlayer.companies.supply;
+    expect(legalAgentSpaces(nazgulJourney.before, nazgulJourney.actor, nazgulJourney.acquired.id)).toContain('tribute-shadow');
+    nazgulJourney.append(nazgulJourney.actor, 'agent/placed', {
+      cardInstanceId: nazgulJourney.acquired.id,
+      spaceId: 'tribute-shadow'
+    });
+    const afterNazgulJourney = reduceGame(nazgulJourney.stream);
+    expect(afterNazgulJourney.diagnostics).toEqual([]);
+    expect(afterNazgulJourney.match!.players[nazgulJourney.actor].fateHand).toHaveLength(nazgulFateBefore + 1);
+    expect(afterNazgulJourney.match!.fateDeck).toHaveLength(nazgulFateDeckBefore - 1);
+    expect(afterNazgulJourney.match!.players[nazgulJourney.actor].companies.garrison).toBe(nazgulGarrisonBefore + Math.min(2, nazgulSupplyBefore));
+    expect(afterNazgulJourney.match!.players[nazgulJourney.actor].companies.supply).toBe(nazgulSupplyBefore - Math.min(2, nazgulSupplyBefore));
+    expect(afterNazgulJourney.match!.players[nazgulJourney.actor].journey).toContainEqual(nazgulJourney.acquired);
+    expect(afterNazgulJourney.match!.pendingChoice).toBeNull();
+
     const masterMuster = reachAcquiredCard('master-lake-town');
     let beforeMasterMuster = masterMuster.before;
     if (beforeMasterMuster.match!.players[masterMuster.actor].resources.gold < 2) {
@@ -1630,7 +1650,8 @@ describe('integrated Agent placement replay', () => {
       'elven-foresight': { influence: 3, swords: 0 },
       'palantir-glimpse': { influence: 2, swords: 0 },
       'paths-dead': { influence: 1, swords: 2 },
-      'master-lake-town': { influence: 3, swords: 0 }
+      'master-lake-town': { influence: 3, swords: 0 },
+      'lord-nazgul': { influence: 2, swords: 4 }
     } as const;
     for (const [definitionId, printed] of Object.entries(economyMuster)) {
       expect(MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === definitionId)?.muster).toEqual(printed);
@@ -2800,7 +2821,7 @@ describe('integrated Agent placement replay', () => {
     const rowBefore = [...state.match!.chronicleRow];
     const deckBefore = [...state.match!.chronicleDeck];
     const affordable = (definitionId: string) => CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!.cost <= 3;
-    expect(deckBefore).toHaveLength(45);
+    expect(deckBefore).toHaveLength(47);
     append(actor, 'fate/played', { cardInstanceId: fate.id });
     const awaitingChoice = reduceGame(stream);
     expect(awaitingChoice.match!.pendingChoice).toEqual({

@@ -1283,6 +1283,13 @@ function resolveAgentEffects(
       if (fate) player.fateHand.push(fate);
     }
   }
+  if (cardDefinition.journeyEffect?.kind === 'draw-fate-recruit') {
+    for (let index = 0; index < cardDefinition.journeyEffect.drawFate; index += 1) {
+      const fate = match.fateDeck.shift();
+      if (fate) player.fateHand.push(fate);
+    }
+    recruitCompanies(player, cardDefinition.journeyEffect.recruit);
+  }
   if (cardDefinition.journeyEffect?.kind === 'council-seat-gold') {
     player.resources.gold += player.councilSeat
       ? cardDefinition.journeyEffect.withSeat

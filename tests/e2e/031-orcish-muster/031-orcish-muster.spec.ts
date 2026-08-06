@@ -57,8 +57,8 @@ test('Orcish Muster is acquired, Revealed, and played with its standing price', 
   try {
     const buyer = await currentSeat();
     for (const observer of seats) {
-      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 45');
-      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('50 / 54');
+      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 47');
+      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('52 / 54');
     }
 
     for (let guard = 0; guard < 140 && !played; guard += 1) {
