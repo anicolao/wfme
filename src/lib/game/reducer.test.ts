@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createEvent } from './events';
-import { BATTLE_CARD_DEFINITIONS, CHRONICLE_CARD_DEFINITIONS, MUSTER_CARD_DEFINITIONS, OBSERVATION_POSTS } from './manifest';
+import { AGENT_CARD_DEFINITIONS, BATTLE_CARD_DEFINITIONS, CHRONICLE_CARD_DEFINITIONS, MUSTER_CARD_DEFINITIONS, OBSERVATION_POSTS } from './manifest';
 import { battleStrength, currentPlayerUid, legalAgentSpaces, reduceGame } from './reducer';
 import { shuffled } from './prng';
 
@@ -72,9 +72,9 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'keeper-oaths')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'the-long-game')).toHaveLength(2);
     expect(first.match!.chronicleRow).toHaveLength(5);
-    expect(first.match!.chronicleDeck).toHaveLength(41);
+    expect(first.match!.chronicleDeck).toHaveLength(43);
     const chronicleInstances = [...first.match!.chronicleRow, ...first.match!.chronicleDeck];
-    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(46);
+    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(48);
     for (const definition of CHRONICLE_CARD_DEFINITIONS) {
       expect(chronicleInstances.filter((card) => card.definitionId === definition.id)).toHaveLength(2);
     }
@@ -708,7 +708,7 @@ describe('integrated Agent placement replay', () => {
       expect(state.diagnostics).toEqual([]);
       expect(state.match!.players[actor].revealInfluence).toBe(influenceBefore - definition.cost);
       expect(state.match!.players[actor].discardPile).toContainEqual(offered);
-      expect(state.match!.chronicleDeck).toHaveLength(40);
+      expect(state.match!.chronicleDeck).toHaveLength(42);
       expect(state.match!.chronicleRow).toHaveLength(5);
       expect(state.match!.chronicleRow).toContainEqual(refill);
 
@@ -1360,6 +1360,96 @@ describe('integrated Agent placement replay', () => {
     expect(afterPalantirMuster.match!.fateDeck).toHaveLength(palantirFateDeckBefore - 1);
     expect(afterPalantirMuster.match!.activity.at(-1)).toContain('privately draws 1 Fate with 1 Palantír Glimpse');
 
+    const paths = reachAcquiredCard('paths-dead', 0, true);
+    const pathsPlayer = paths.before.match!.players[paths.actor];
+    expect(pathsPlayer.resources.provisions).toBeLessThan(3);
+    expect(paths.before.match!.boardScouts['old-south-road']).toBe(paths.actor);
+    expect(legalAgentSpaces(paths.before, paths.actor, paths.acquired.id)).toContain('deep-fangorn');
+    const ordinaryLegalityState = structuredClone(paths.before);
+    const ordinaryRoadCard = { id: 'test:ordinary-open-road', definitionId: 'the-open-road' };
+    ordinaryLegalityState.match!.players[paths.actor].hand.push(ordinaryRoadCard);
+    expect(AGENT_CARD_DEFINITIONS.find((definition) => definition.id === ordinaryRoadCard.definitionId)?.placementIcons).toContain('Roads');
+    expect(legalAgentSpaces(ordinaryLegalityState, paths.actor, ordinaryRoadCard.id)).not.toContain('deep-fangorn');
+    expect(pathsPlayer.standing.dwarven).toBeLessThan(2);
+    expect(legalAgentSpaces(paths.before, paths.actor, paths.acquired.id)).not.toContain('great-forge');
+    const pathsProvisions = pathsPlayer.resources.provisions;
+    const pathsScoutSupply = pathsPlayer.scouts.supply;
+    paths.append(paths.actor, 'agent/placed', { cardInstanceId: paths.acquired.id, spaceId: 'deep-fangorn' });
+    let awaitingPaths = reduceGame(paths.stream);
+    expect(awaitingPaths.diagnostics).toEqual([]);
+    expect(awaitingPaths.match!.pendingChoice).toEqual({
+      kind: 'chronicle-paths-cost',
+      actorUid: paths.actor,
+      cardInstanceId: paths.acquired.id,
+      spaceId: 'deep-fangorn',
+      postIds: ['old-south-road'],
+      costResource: 'Provision',
+      costAmount: 3,
+      options: ['recall-paths:old-south-road']
+    });
+    const unauthorizedPathsActor = awaitingPaths.match!.playerOrder.find((uid) => uid !== paths.actor)!;
+    paths.append(unauthorizedPathsActor, 'choice/resolved', { choice: 'recall-paths:old-south-road' });
+    const unauthorizedPaths = reduceGame(paths.stream);
+    expect(unauthorizedPaths.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(unauthorizedPaths.match!.boardScouts['old-south-road']).toBe(paths.actor);
+    expect(unauthorizedPaths.match!.players[paths.actor].resources.provisions).toBe(pathsProvisions);
+    paths.stream.pop();
+    paths.append(paths.actor, 'choice/resolved', { choice: 'recall-paths:forged-post' });
+    const forgedPaths = reduceGame(paths.stream);
+    expect(forgedPaths.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(forgedPaths.match!.boardScouts['old-south-road']).toBe(paths.actor);
+    paths.stream.pop();
+    paths.append(paths.actor, 'choice/resolved', { choice: 'recall-paths:old-south-road' });
+    awaitingPaths = reduceGame(paths.stream);
+    expect(awaitingPaths.diagnostics).toEqual([]);
+    expect(awaitingPaths.match!.players[paths.actor].resources.provisions).toBe(pathsProvisions);
+    expect(awaitingPaths.match!.players[paths.actor].scouts.supply).toBe(pathsScoutSupply + 1);
+    expect(awaitingPaths.match!.players[paths.actor].scoutsRecalledThisRound).toBe(1);
+    expect(awaitingPaths.match!.boardScouts['old-south-road']).toBeUndefined();
+    expect(awaitingPaths.match!.pendingChoice).toMatchObject({ kind: 'deep-fangorn', actorUid: paths.actor });
+    expect(awaitingPaths.match!.activity).toContainEqual(expect.stringContaining('ignores 3 Provision'));
+    paths.append(paths.actor, 'choice/resolved', { choice: 'gain-4-mithril' });
+    const pathsDeployment = reduceGame(paths.stream);
+    expect(pathsDeployment.diagnostics).toEqual([]);
+    expect(pathsDeployment.match!.pendingChoice).toMatchObject({ kind: 'battle-deployment', actorUid: paths.actor });
+    expect(pathsDeployment.match!.activity).toContainEqual(expect.stringContaining('ignoring the 3 Provisions cost through the Paths of the Dead'));
+
+    const paidPaths = reachAcquiredCard('paths-dead', 0, true);
+    const paidPathsPlayer = paidPaths.before.match!.players[paidPaths.actor];
+    expect(paidPathsPlayer.resources.provisions).toBeGreaterThanOrEqual(1);
+    const paidPathsProvisions = paidPathsPlayer.resources.provisions;
+    paidPaths.append(paidPaths.actor, 'agent/placed', { cardInstanceId: paidPaths.acquired.id, spaceId: 'entwash' });
+    let awaitingPaidPaths = reduceGame(paidPaths.stream);
+    expect(awaitingPaidPaths.diagnostics).toEqual([]);
+    expect(awaitingPaidPaths.match!.pendingChoice).toMatchObject({
+      kind: 'chronicle-paths-cost',
+      actorUid: paidPaths.actor,
+      options: ['pay-space-cost', 'recall-paths:old-south-road']
+    });
+    paidPaths.append(paidPaths.actor, 'choice/resolved', { choice: 'pay-space-cost' });
+    awaitingPaidPaths = reduceGame(paidPaths.stream);
+    expect(awaitingPaidPaths.diagnostics).toEqual([]);
+    expect(awaitingPaidPaths.match!.players[paidPaths.actor].resources.provisions).toBe(paidPathsProvisions - 1);
+    expect(awaitingPaidPaths.match!.players[paidPaths.actor].scoutsRecalledThisRound).toBe(0);
+    expect(awaitingPaidPaths.match!.boardScouts['old-south-road']).toBe(paidPaths.actor);
+    expect(awaitingPaidPaths.match!.pendingChoice).toMatchObject({ kind: 'entwash', actorUid: paidPaths.actor });
+
+    const freePaths = reachAcquiredCard('paths-dead', 0, true);
+    const freePathsResources = structuredClone(freePaths.before.match!.players[freePaths.actor].resources);
+    const freePathsSpace = legalAgentSpaces(freePaths.before, freePaths.actor, freePaths.acquired.id)
+      .find((spaceId) => ['take-war-effort', 'osgiliath', 'edoras'].includes(spaceId));
+    expect(freePathsSpace).toBeDefined();
+    freePaths.append(freePaths.actor, 'agent/placed', { cardInstanceId: freePaths.acquired.id, spaceId: freePathsSpace! });
+    const afterFreePaths = reduceGame(freePaths.stream);
+    expect(afterFreePaths.diagnostics).toEqual([]);
+    expect(afterFreePaths.match!.pendingChoice).toMatchObject({
+      kind: 'gather-intelligence',
+      actorUid: freePaths.actor,
+      ignoredResourceCost: false
+    });
+    expect(afterFreePaths.match!.players[freePaths.actor].resources.provisions).toBe(freePathsResources.provisions);
+    expect(afterFreePaths.match!.players[freePaths.actor].resources.mithril).toBe(freePathsResources.mithril);
+
     const informerMuster = reachAcquiredCard('goblin-informer', 0, true);
     const informerScout = reduceGame(informerMuster.stream);
     expect(informerScout.match!.boardScouts['old-south-road']).toBe(informerMuster.actor);
@@ -1443,7 +1533,8 @@ describe('integrated Agent placement replay', () => {
       'goblin-informer': { influence: 0, swords: 1 },
       'orcish-muster': { influence: 0, swords: 2 },
       'elven-foresight': { influence: 3, swords: 0 },
-      'palantir-glimpse': { influence: 2, swords: 0 }
+      'palantir-glimpse': { influence: 2, swords: 0 },
+      'paths-dead': { influence: 1, swords: 2 }
     } as const;
     for (const [definitionId, printed] of Object.entries(economyMuster)) {
       expect(MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === definitionId)?.muster).toEqual(printed);
@@ -1568,6 +1659,7 @@ describe('integrated Agent placement replay', () => {
       actorUid: actor,
       cardInstanceId: intelligenceCard.id,
       spaceId: 'dwarven-caravans',
+      ignoredResourceCost: false,
       postIds: ['redhorn-pass'],
       options: ['recall:redhorn-pass', 'decline-intelligence']
     });
@@ -2612,7 +2704,7 @@ describe('integrated Agent placement replay', () => {
     const rowBefore = [...state.match!.chronicleRow];
     const deckBefore = [...state.match!.chronicleDeck];
     const affordable = (definitionId: string) => CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!.cost <= 3;
-    expect(deckBefore).toHaveLength(41);
+    expect(deckBefore).toHaveLength(43);
     append(actor, 'fate/played', { cardInstanceId: fate.id });
     const awaitingChoice = reduceGame(stream);
     expect(awaitingChoice.match!.pendingChoice).toEqual({

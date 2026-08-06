@@ -49,6 +49,7 @@ export type AgentCardDefinition = StartingCardIdentity & {
     | { kind: 'gain-mithril-extra-battle-deploy'; mithril: 1; additionalGarrisonCompany: 1 }
     | { kind: 'place-scout-connected-battle'; amount: 1 }
     | { kind: 'optional-pay-mithril-draw-discard'; costMithril: 1; draw: 2; discard: 1 }
+    | { kind: 'recall-scout-ignore-space-cost' }
     | { kind: 'draw-discard-card'; draw: 1 }
     | { kind: 'draw-optional-trash'; draw: 1; includeDiscard: boolean }
     | { kind: 'gain-gold'; amount: 1 }
@@ -287,6 +288,14 @@ export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
     placementIcons: ['Elven', 'Shadow'],
     journeyEffect: { kind: 'optional-pay-mithril-draw-discard', costMithril: 1, draw: 2, discard: 1 },
     reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'paths-dead',
+    name: 'Paths of the Dead',
+    copies: 2,
+    placementIcons: ['Roads', 'Scout'],
+    journeyEffect: { kind: 'recall-scout-ignore-space-cost' },
+    reviewedCapabilities: ['agent-placement']
   }
 ];
 
@@ -345,7 +354,8 @@ export const MUSTER_CARD_DEFINITIONS: readonly MusterCardDefinition[] = [
   { id: 'elven-foresight', name: 'Elven Foresight', muster: { influence: 3, swords: 0 } },
   { id: 'khazad-guard', name: 'Khazad Guard', muster: { influence: 1, swords: 2 } },
   { id: 'warden-ithilien', name: 'Warden of Ithilien', muster: { influence: 2, swords: 1 } },
-  { id: 'palantir-glimpse', name: 'Palantír Glimpse', muster: { influence: 2, swords: 0 } }
+  { id: 'palantir-glimpse', name: 'Palantír Glimpse', muster: { influence: 2, swords: 0 } },
+  { id: 'paths-dead', name: 'Paths of the Dead', muster: { influence: 1, swords: 2 } }
 ];
 
 export type ReserveCardId = 'muster-host';
@@ -387,7 +397,8 @@ export type ChronicleCardId =
   | 'elven-foresight'
   | 'khazad-guard'
   | 'warden-ithilien'
-  | 'palantir-glimpse';
+  | 'palantir-glimpse'
+  | 'paths-dead';
 
 export type ChronicleCardDefinition = {
   id: ChronicleCardId;
@@ -545,6 +556,13 @@ export const CHRONICLE_CARD_DEFINITIONS: readonly ChronicleCardDefinition[] = [
     placementIcons: ['Elven', 'Shadow'], journeyText: 'You may pay 1 Mithril to draw 2 cards, then discard 1 card',
     muster: { influence: 2, swords: 0 },
     musterText: '2 Influence · draw 1 Fate',
+    incrementalDeckInsertion: true,
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'paths-dead', name: 'Paths of the Dead', copies: 2, cost: 4,
+    placementIcons: ['Roads', 'Scout'], journeyText: "Recall 1 Scout to ignore this space's resource cost",
+    muster: { influence: 1, swords: 2 },
     incrementalDeckInsertion: true,
     reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
   }

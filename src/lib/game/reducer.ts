@@ -160,6 +160,15 @@ export type MatchState = {
     cardInstanceIds: readonly string[];
     options: readonly string[];
   } | {
+    kind: 'chronicle-paths-cost';
+    actorUid: string;
+    cardInstanceId: string;
+    spaceId: string;
+    postIds: readonly string[];
+    costResource: 'Gold' | 'Mithril' | 'Provision';
+    costAmount: number;
+    options: readonly string[];
+  } | {
     kind: 'critical-defense';
     actorUid: string;
     locationId: 'minas-tirith' | 'osgiliath' | 'edoras';
@@ -302,6 +311,7 @@ export type MatchState = {
     actorUid: string;
     cardInstanceId: string;
     spaceId: string;
+    ignoredResourceCost: boolean;
     postIds: readonly string[];
     options: readonly string[];
   };
@@ -514,19 +524,13 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
   const card = player.hand.find((candidate) => candidate.id === cardInstanceId);
   const definition = card && AGENT_CARD_DEFINITIONS.find((candidate) => candidate.id === card.definitionId);
   if (!definition) return [];
+  const ownedScoutCount = Object.values(match.boardScouts).filter((uid) => uid === actorUid).length;
+  const canUsePaths = definition.journeyEffect?.kind === 'recall-scout-ignore-space-cost' && ownedScoutCount > 0;
   return BOARD_SPACE_DEFINITIONS.filter((space) => {
-    if (space.effect.kind === 'white-council-seat' && player.resources.gold < space.effect.costGold) return false;
-    if (space.effect.kind === 'mirror-galadriel' && player.resources.mithril < space.effect.costMithril) return false;
-    if (space.effect.kind === 'pits-isengard' && player.resources.mithril < space.effect.costMithril) return false;
-    if (space.effect.kind === 'deep-roads' && player.resources.mithril < space.effect.costMithril) return false;
-    if (space.effect.kind === 'ranger-mustering' && player.resources.provisions < space.effect.costProvisions) return false;
-    if (space.effect.kind === 'deep-fangorn' && player.resources.provisions < space.effect.costProvisions) return false;
-    if (space.effect.kind === 'entwash' && player.resources.provisions < space.effect.costProvisions) return false;
-    if (space.effect.kind === 'archives-rivendell' && player.resources.provisions < space.effect.costProvisions) return false;
-    if (space.effect.kind === 'great-forge' && (
-      player.standing.dwarven < space.effect.requiredDwarvenStanding ||
-      player.resources.mithril < space.effect.costMithril
-    )) return false;
+    const resourceCost = mandatoryResourceCost(match, player, space);
+    const canPayCost = !resourceCost || player.resources[resourceCost.resource] >= resourceCost.amount;
+    if (!canPayCost && !canUsePaths) return false;
+    if (space.effect.kind === 'great-forge' && player.standing.dwarven < space.effect.requiredDwarvenStanding) return false;
     if (space.effect.kind === 'fangorn-moot' && player.standing.wild < space.effect.requiredWildStanding) return false;
     if (space.effect.kind === 'secret-bargain') {
       const hasOtherAgent = Object.entries(match.boardAgents).some(([, occupations]) =>
@@ -534,15 +538,11 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
       );
       if (
         player.standing.shadow < space.effect.requiredShadowStanding ||
-        player.resources.gold < space.effect.costGold ||
         !hasOtherAgent
       ) return false;
     }
     if (space.effect.kind === 'captain-host') {
-      const cost = Object.values(match.players).some((candidate) => candidate.captainUnlocked || candidate.captainAgentPending)
-        ? space.effect.laterCostGold
-        : space.effect.firstCostGold;
-      if (player.captainUnlocked || player.captainAgentPending || player.resources.gold < cost) return false;
+      if (player.captainUnlocked || player.captainAgentPending) return false;
     }
     const connectedOwnScout = OBSERVATION_POSTS.some(
       (post) => post.connectedSpaceIds.includes(space.id) && match.boardScouts[post.id] === actorUid
@@ -551,6 +551,7 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
       || (definition.placementIcons.includes('Scout') && connectedOwnScout);
     const occupants = match.boardAgents[space.id] ?? [];
     const canInfiltrate = connectedOwnScout && occupants.some((occupant) => occupant.uid !== actorUid);
+    if (occupants.length > 0 && !canPayCost && canUsePaths && ownedScoutCount < 2) return false;
     return iconMatches && (occupants.length === 0 || canInfiltrate);
   }).map((space) => space.id);
 }
@@ -771,6 +772,44 @@ function hasMandatoryResourceCost(space: (typeof BOARD_SPACE_DEFINITIONS)[number
     'secret-bargain',
     'captain-host'
   ].includes(space.effect.kind);
+}
+
+type MandatoryResourceCost = {
+  resource: 'gold' | 'mithril' | 'provisions';
+  label: 'Gold' | 'Mithril' | 'Provision';
+  amount: number;
+};
+
+function mandatoryResourceCost(
+  match: MatchState,
+  player: MatchPlayer,
+  space: (typeof BOARD_SPACE_DEFINITIONS)[number]
+): MandatoryResourceCost | null {
+  if (space.effect.kind === 'white-council-seat') return { resource: 'gold', label: 'Gold', amount: space.effect.costGold };
+  if (space.effect.kind === 'mirror-galadriel') return { resource: 'mithril', label: 'Mithril', amount: space.effect.costMithril };
+  if (space.effect.kind === 'pits-isengard') return { resource: 'mithril', label: 'Mithril', amount: space.effect.costMithril };
+  if (space.effect.kind === 'deep-roads') return { resource: 'mithril', label: 'Mithril', amount: space.effect.costMithril };
+  if (space.effect.kind === 'ranger-mustering') return { resource: 'provisions', label: 'Provision', amount: space.effect.costProvisions };
+  if (space.effect.kind === 'deep-fangorn') return { resource: 'provisions', label: 'Provision', amount: space.effect.costProvisions };
+  if (space.effect.kind === 'entwash') return { resource: 'provisions', label: 'Provision', amount: space.effect.costProvisions };
+  if (space.effect.kind === 'archives-rivendell') return { resource: 'provisions', label: 'Provision', amount: space.effect.costProvisions };
+  if (space.effect.kind === 'great-forge') return { resource: 'mithril', label: 'Mithril', amount: space.effect.costMithril };
+  if (space.effect.kind === 'secret-bargain') return { resource: 'gold', label: 'Gold', amount: space.effect.costGold };
+  if (space.effect.kind === 'captain-host') {
+    const amount = Object.values(match.players).some((candidate) => candidate.captainUnlocked || candidate.captainAgentPending)
+      ? space.effect.laterCostGold
+      : space.effect.firstCostGold;
+    return { resource: 'gold', label: 'Gold', amount };
+  }
+  return null;
+}
+
+function payMandatoryResourceCost(match: MatchState, player: MatchPlayer, space: (typeof BOARD_SPACE_DEFINITIONS)[number]): boolean {
+  const cost = mandatoryResourceCost(match, player, space);
+  if (!cost) return true;
+  if (player.resources[cost.resource] < cost.amount) return false;
+  player.resources[cost.resource] -= cost.amount;
+  return true;
 }
 
 function canSummonEnts(match: MatchState, player: MatchPlayer): boolean {
@@ -1181,7 +1220,8 @@ function resolveAgentEffects(
   actorName: string,
   actorUid: string,
   card: CardInstance,
-  space: (typeof BOARD_SPACE_DEFINITIONS)[number]
+  space: (typeof BOARD_SPACE_DEFINITIONS)[number],
+  ignoredResourceCost = false
 ): void {
   const match = state.match!;
   const player = match.players[actorUid];
@@ -1191,6 +1231,9 @@ function resolveAgentEffects(
     || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout'
     || cardDefinition.journeyEffect?.kind === 'place-scout-optional-recall-draw'
     || cardDefinition.journeyEffect?.kind === 'place-scout-connected-battle';
+  const costResolution = (printedCost: string) => ignoredResourceCost
+    ? `ignoring the ${printedCost} cost through the Paths of the Dead`
+    : `paying ${printedCost}`;
   let resolution: string;
   if (cardDefinition.journeyEffect?.kind === 'recruit-companies') {
     recruitCompanies(player, cardDefinition.journeyEffect.amount);
@@ -1371,7 +1414,7 @@ function resolveAgentEffects(
   } else if (space.effect.kind === 'archives-rivendell') {
     const recruited = recruitCompanies(player, space.effect.recruitCompanies);
     const drawn = Array.from({ length: space.effect.drawCards }, () => drawOneCard(match, player.uid, 'Archives of Rivendell')).filter(Boolean).length;
-    resolution = `paying 2 Provisions, recruiting ${recruited} Companies, drawing ${drawn} cards, and preparing forces for Battle`;
+    resolution = `${costResolution('2 Provisions')}, recruiting ${recruited} Companies, drawing ${drawn} cards, and preparing forces for Battle`;
   } else if (space.effect.kind === 'osgiliath') {
     const options: ('pay-0-mithril' | 'pay-1-mithril')[] = ['pay-0-mithril'];
     if (player.resources.mithril >= space.effect.optionalCostMithril) options.push('pay-1-mithril');
@@ -1387,7 +1430,7 @@ function resolveAgentEffects(
       followupPlaceScout: hasJourneyScoutPlacement,
       options: ['standing-shadow', 'standing-dwarven', 'standing-elven', 'standing-wild']
     };
-    resolution = 'paying 3 Mithril, gaining 5 Gold, and choosing one faction standing';
+    resolution = `${costResolution('3 Mithril')}, gaining 5 Gold, and choosing one faction standing`;
   } else if (space.effect.kind === 'fangorn-moot') {
     const options: ('take-ent-draught' | 'gain-provision-breach-dam' | 'gain-provision-leave-dam')[] = [];
     if (!player.entDraught) options.push('take-ent-draught');
@@ -1408,7 +1451,7 @@ function resolveAgentEffects(
       kind: 'deep-fangorn', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
       followupPlaceScout: hasJourneyScoutPlacement, options
     };
-    resolution = `paying 3 Provisions, taking ${riches} Riches, and choosing Mithril or Ents`;
+    resolution = `${costResolution('3 Provisions')}, taking ${riches} Riches, and choosing Mithril or Ents`;
   } else if (space.effect.kind === 'entwash') {
     const riches = match.richesMithril.entwash;
     player.resources.mithril += riches;
@@ -1419,7 +1462,7 @@ function resolveAgentEffects(
       kind: 'entwash', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
       followupPlaceScout: hasJourneyScoutPlacement, options
     };
-    resolution = `paying 1 Provision, taking ${riches} Riches, and choosing Mithril or an Ent`;
+    resolution = `${costResolution('1 Provision')}, taking ${riches} Riches, and choosing Mithril or an Ent`;
   } else if (space.effect.kind === 'edoras') {
     const riches = match.richesMithril.edoras;
     player.resources.mithril += space.effect.gainMithril + riches;
@@ -1470,6 +1513,50 @@ function resolveAgentEffects(
     }
   }
   match.activity.push(`${actorName} sends an Agent to ${space.name}, ${resolution}.`);
+}
+
+function continuePlacedAgent(
+  state: GameState,
+  actorName: string,
+  actorUid: string,
+  card: CardInstance,
+  space: (typeof BOARD_SPACE_DEFINITIONS)[number],
+  ignoredResourceCost = false
+): void {
+  const match = state.match!;
+  const player = match.players[actorUid];
+  const controllerResource = space.id === 'minas-tirith'
+    ? { locationId: 'minas-tirith' as const, resource: 'gold' as const, label: 'Gold' }
+    : space.id === 'osgiliath'
+      ? { locationId: 'osgiliath' as const, resource: 'gold' as const, label: 'Gold' }
+      : space.id === 'edoras'
+        ? { locationId: 'edoras' as const, resource: 'mithril' as const, label: 'Mithril' }
+        : null;
+  if (controllerResource) {
+    const controllerUid = match.criticalControl[controllerResource.locationId];
+    if (controllerUid) {
+      match.players[controllerUid].resources[controllerResource.resource] += 1;
+      match.activity.push(`${state.players.find((candidate) => candidate.uid === controllerUid)?.displayName ?? 'The controller'} gains 1 ${controllerResource.label} from ${space.name}.`);
+    }
+  }
+  const gatheringPosts = OBSERVATION_POSTS.filter(
+    (post) => post.connectedSpaceIds.includes(space.id) && match.boardScouts[post.id] === actorUid
+  ).map((post) => post.id);
+  if (gatheringPosts.length > 0) {
+    match.pendingChoice = {
+      kind: 'gather-intelligence',
+      actorUid,
+      cardInstanceId: card.id,
+      spaceId: space.id,
+      ignoredResourceCost,
+      postIds: gatheringPosts,
+      options: [...gatheringPosts.map((postId) => `recall:${postId}`), 'decline-intelligence']
+    };
+    match.activity.push(`${actorName} places an Agent at ${space.name} and may gather intelligence before resolving it.`);
+    return;
+  }
+  resolveAgentEffects(state, actorName, actorUid, card, space, ignoredResourceCost);
+  if (!match.pendingChoice) finishAgentAction(match, actorUid);
 }
 
 function applyEvent(state: GameState, event: GameEvent): string | null {
@@ -1556,80 +1643,12 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     ) return 'illegal Agent placement';
     const player = state.match.players[event.actorUid];
     const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === spaceId)!;
-    if (space.effect.kind === 'white-council-seat') {
-      if (player.resources.gold < space.effect.costGold) return 'illegal Agent placement';
-      player.resources.gold -= space.effect.costGold;
-    }
-    if (space.effect.kind === 'mirror-galadriel') {
-      if (player.resources.mithril < space.effect.costMithril) return 'illegal Agent placement';
-      player.resources.mithril -= space.effect.costMithril;
-    }
-    if (space.effect.kind === 'pits-isengard') {
-      if (player.resources.mithril < space.effect.costMithril) return 'illegal Agent placement';
-      player.resources.mithril -= space.effect.costMithril;
-    }
-    if (space.effect.kind === 'deep-roads') {
-      if (player.resources.mithril < space.effect.costMithril) return 'illegal Agent placement';
-      player.resources.mithril -= space.effect.costMithril;
-    }
-    if (space.effect.kind === 'ranger-mustering') {
-      if (player.resources.provisions < space.effect.costProvisions) return 'illegal Agent placement';
-      player.resources.provisions -= space.effect.costProvisions;
-    }
-    if (space.effect.kind === 'deep-fangorn') {
-      if (player.resources.provisions < space.effect.costProvisions) return 'illegal Agent placement';
-      player.resources.provisions -= space.effect.costProvisions;
-    }
-    if (space.effect.kind === 'entwash') {
-      if (player.resources.provisions < space.effect.costProvisions) return 'illegal Agent placement';
-      player.resources.provisions -= space.effect.costProvisions;
-    }
-    if (space.effect.kind === 'archives-rivendell') {
-      if (player.resources.provisions < space.effect.costProvisions) return 'illegal Agent placement';
-      player.resources.provisions -= space.effect.costProvisions;
-    }
-    if (space.effect.kind === 'great-forge') {
-      if (
-        player.standing.dwarven < space.effect.requiredDwarvenStanding ||
-        player.resources.mithril < space.effect.costMithril
-      ) return 'illegal Agent placement';
-      player.resources.mithril -= space.effect.costMithril;
-    }
-    if (space.effect.kind === 'secret-bargain') {
-      if (
-        player.standing.shadow < space.effect.requiredShadowStanding ||
-        player.resources.gold < space.effect.costGold
-      ) return 'illegal Agent placement';
-      player.resources.gold -= space.effect.costGold;
-    }
-    if (space.effect.kind === 'captain-host') {
-      const cost = Object.values(state.match.players).some((candidate) => candidate.captainUnlocked || candidate.captainAgentPending)
-        ? space.effect.laterCostGold
-        : space.effect.firstCostGold;
-      if (player.captainUnlocked || player.captainAgentPending || player.resources.gold < cost) return 'illegal Agent placement';
-      player.resources.gold -= cost;
-    }
-    if (space.id === 'minas-tirith') {
-      const controllerUid = state.match.criticalControl['minas-tirith'];
-      if (controllerUid) {
-        state.match.players[controllerUid].resources.gold += 1;
-        state.match.activity.push(`${state.players.find((candidate) => candidate.uid === controllerUid)?.displayName ?? 'The controller'} gains 1 Gold from Minas Tirith.`);
-      }
-    }
-    if (space.id === 'osgiliath') {
-      const controllerUid = state.match.criticalControl.osgiliath;
-      if (controllerUid) {
-        state.match.players[controllerUid].resources.gold += 1;
-        state.match.activity.push(`${state.players.find((candidate) => candidate.uid === controllerUid)?.displayName ?? 'The controller'} gains 1 Gold from Osgiliath.`);
-      }
-    }
-    if (space.id === 'edoras') {
-      const controllerUid = state.match.criticalControl.edoras;
-      if (controllerUid) {
-        state.match.players[controllerUid].resources.mithril += 1;
-        state.match.activity.push(`${state.players.find((candidate) => candidate.uid === controllerUid)?.displayName ?? 'The controller'} gains 1 Mithril from Edoras.`);
-      }
-    }
+    const card = player.hand.find((candidate) => candidate.id === cardInstanceId)!;
+    const cardDefinition = AGENT_CARD_DEFINITIONS.find((candidate) => candidate.id === card.definitionId)!;
+    const pathsCost = cardDefinition.journeyEffect?.kind === 'recall-scout-ignore-space-cost'
+      ? mandatoryResourceCost(state.match, player, space)
+      : null;
+    if (!pathsCost && !payMandatoryResourceCost(state.match, player, space)) return 'illegal Agent placement';
     const occupants = state.match.boardAgents[spaceId] ?? [];
     if (occupants.length > 0) {
       const post = typeof infiltrationPostId === 'string'
@@ -1648,29 +1667,33 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     } else if (infiltrationPostId !== undefined) {
       return 'illegal Agent infiltration';
     }
-    const cardIndex = player.hand.findIndex((card) => card.id === cardInstanceId);
-    const [card] = player.hand.splice(cardIndex, 1);
+    const cardIndex = player.hand.findIndex((candidate) => candidate.id === cardInstanceId);
+    player.hand.splice(cardIndex, 1);
     player.journey.push(card);
     const agentNumber = 1 + Object.values(state.match.boardAgents).flat().filter((occupation) => occupation.uid === event.actorUid).length;
     player.availableAgents -= 1;
     state.match.boardAgents[spaceId] = [...occupants, { uid: event.actorUid, agentNumber }];
-    const gatheringPosts = OBSERVATION_POSTS.filter(
-      (post) => post.connectedSpaceIds.includes(spaceId) && state.match!.boardScouts[post.id] === event.actorUid
-    ).map((post) => post.id);
-    if (gatheringPosts.length > 0) {
+    if (pathsCost) {
+      const postIds = OBSERVATION_POSTS
+        .filter((post) => state.match!.boardScouts[post.id] === event.actorUid)
+        .map((post) => post.id);
+      const options = postIds.map((postId) => `recall-paths:${postId}`);
+      if (player.resources[pathsCost.resource] >= pathsCost.amount) options.unshift('pay-space-cost');
+      if (options.length === 0) return 'illegal Agent placement';
       state.match.pendingChoice = {
-        kind: 'gather-intelligence',
+        kind: 'chronicle-paths-cost',
         actorUid: event.actorUid,
         cardInstanceId: card.id,
         spaceId,
-        postIds: gatheringPosts,
-        options: [...gatheringPosts.map((postId) => `recall:${postId}`), 'decline-intelligence']
+        postIds,
+        costResource: pathsCost.label,
+        costAmount: pathsCost.amount,
+        options
       };
-      state.match.activity.push(`${actor.displayName} places an Agent at ${space.name} and may gather intelligence before resolving it.`);
+      state.match.activity.push(`${actor.displayName} places an Agent at ${space.name} and must pay its resource cost or recall a Scout through the Paths of the Dead.`);
       return null;
     }
-    resolveAgentEffects(state, actor.displayName, event.actorUid, card, space);
-    if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
+    continuePlacedAgent(state, actor.displayName, event.actorUid, card, space);
     return null;
   }
 
@@ -1704,6 +1727,30 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         state.match.activity.push(`${actor.displayName} declines to deploy a defending Company at ${BOARD_SPACE_DEFINITIONS.find((space) => space.id === pending.locationId)?.name}.`);
       }
       state.match.pendingChoice = null;
+      return null;
+    }
+    if (pending.kind === 'chronicle-paths-cost') {
+      const card = player.journey.find((candidate) => candidate.id === pending.cardInstanceId);
+      const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === pending.spaceId);
+      if (!card || card.definitionId !== 'paths-dead' || !space) return 'illegal choice resolution';
+      let ignoredResourceCost = false;
+      if (choice === 'pay-space-cost') {
+        if (!payMandatoryResourceCost(state.match, player, space)) return 'illegal choice resolution';
+        state.match.activity.push(`${actor.displayName} pays ${pending.costAmount} ${pending.costResource} at ${space.name}.`);
+      } else if (choice.startsWith('recall-paths:')) {
+        const postId = choice.slice('recall-paths:'.length);
+        if (!pending.postIds.includes(postId) || state.match.boardScouts[postId] !== event.actorUid) {
+          return 'illegal choice resolution';
+        }
+        delete state.match.boardScouts[postId];
+        player.scouts.supply += 1;
+        player.scoutsRecalledThisRound += 1;
+        ignoredResourceCost = true;
+        const postName = OBSERVATION_POSTS.find((post) => post.id === postId)?.name ?? postId;
+        state.match.activity.push(`${actor.displayName} recalls their Scout from ${postName} through the Paths of the Dead and ignores ${pending.costAmount} ${pending.costResource}.`);
+      } else return 'illegal choice resolution';
+      state.match.pendingChoice = null;
+      continuePlacedAgent(state, actor.displayName, event.actorUid, card, space, ignoredResourceCost);
       return null;
     }
     if (pending.kind === 'chronicle-payment') {
@@ -2172,7 +2219,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === pending.spaceId);
       if (!card || !space) return 'illegal choice resolution';
       state.match.pendingChoice = null;
-      resolveAgentEffects(state, actor.displayName, event.actorUid, card, space);
+      resolveAgentEffects(state, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
       if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
       return null;
     }

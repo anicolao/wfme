@@ -1,5 +1,12 @@
 import { initializeApp } from 'firebase/app';
-import { connectAuthEmulator, getAuth, signInAnonymously, type Auth } from 'firebase/auth';
+import {
+  browserSessionPersistence,
+  connectAuthEmulator,
+  getAuth,
+  initializeAuth,
+  signInAnonymously,
+  type Auth
+} from 'firebase/auth';
 import { connectFirestoreEmulator, getFirestore, type Firestore } from 'firebase/firestore';
 import { readFirebaseConfig } from './firebase-config';
 
@@ -13,9 +20,13 @@ let services: FirebaseServices | undefined;
 export async function initializeFirebase(): Promise<FirebaseServices> {
   if (services) return services;
   const app = initializeApp(readFirebaseConfig(import.meta.env));
-  const auth = getAuth(app);
-  const db = getFirestore(app);
   const usesEmulators = import.meta.env.VITE_USE_FIREBASE_EMULATORS === 'true';
+  // E2E clients are ephemeral between browser contexts but must retain identity on
+  // reload. Session storage avoids IndexedDB startup while preserving that contract.
+  const auth = usesEmulators
+    ? initializeAuth(app, { persistence: browserSessionPersistence })
+    : getAuth(app);
+  const db = getFirestore(app);
   if (usesEmulators) {
     connectAuthEmulator(
       auth,

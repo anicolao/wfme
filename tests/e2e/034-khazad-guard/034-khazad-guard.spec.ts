@@ -40,8 +40,8 @@ test('Khazad Guard musters and deploys a third veteran Company at Battle', async
   try {
     const buyer = await currentSeat();
     for (const observer of seats) {
-      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 41');
-      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('46 / 54');
+      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 43');
+      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('48 / 54');
     }
 
     await reveal(buyer);
@@ -52,7 +52,7 @@ test('Khazad Guard musters and deploys a third veteran Company at Battle', async
     }, [
       { spec: 'The exact physical four-Influence card enters discard and its Row position refills', check: async () => {
         await expect(buyer.page.getByTestId('activity-log')).toContainText(`${buyer.name} acquires Khazad Guard`);
-        await expect(buyer.page.getByTestId('chronicle-market')).toContainText('deck 40');
+        await expect(buyer.page.getByTestId('chronicle-market')).toContainText('deck 42');
       } },
       converged(accepted.value + 1)
     ]);
