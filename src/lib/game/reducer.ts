@@ -123,6 +123,7 @@ export type MatchState = {
   queuedChronicleStandingLoss: { actorUid: string } | null;
   queuedMessengerMothRecall: { actorUid: string } | null;
   queuedElvenForesight: { actorUid: string } | null;
+  queuedScoutPlacementRestriction: { actorUid: string; postIds: readonly string[] } | null;
   queuedBattleDeployment: { actorUid: string; spaceId: string; additionalGarrisonAllowance: number } | null;
   pendingBattleRewardChoices: Array<{ kind: 'standing' | 'place-scout' | 'fate-keep-one'; actorUid: string }>;
   pendingChoice: null | {
@@ -214,6 +215,7 @@ export type MatchState = {
     actorUid: string;
     cardInstanceIds: readonly string[];
     followupSeekAlliesCardId: string | null;
+    followupPlaceScout: boolean;
     options: readonly string[];
   } | {
     kind: 'secret-bargain-fate';
@@ -245,6 +247,7 @@ export type MatchState = {
     kind: 'place-scout';
     actorUid: string;
     followupSeekAlliesCardId: string | null;
+    allowedPostIds: readonly string[] | null;
     resumeTurn?: 'agent' | 'reveal';
     resumeBattleReward?: boolean;
     options: readonly [];
@@ -480,6 +483,7 @@ function createMatch(state: GameState, seed: string): MatchState {
     queuedChronicleStandingLoss: null,
     queuedMessengerMothRecall: null,
     queuedElvenForesight: null,
+    queuedScoutPlacementRestriction: null,
     queuedBattleDeployment: null,
     pendingBattleRewardChoices: [],
     pendingChoice: null,
@@ -708,6 +712,49 @@ function recruitCompanies(player: MatchPlayer, amount: number): number {
 
 function isBattleSpace(space: (typeof BOARD_SPACE_DEFINITIONS)[number]): boolean {
   return 'battleSpace' in space.effect && space.effect.battleSpace === true;
+}
+
+function battleConnectedObservationPostIds(): string[] {
+  return OBSERVATION_POSTS
+    .filter((post) => post.connectedSpaceIds.some((spaceId) => {
+      const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === spaceId);
+      return Boolean(space && isBattleSpace(space));
+    }))
+    .map((post) => post.id);
+}
+
+function openScoutPlacement(
+  match: MatchState,
+  actorUid: string,
+  continuation: {
+    followupSeekAlliesCardId: string | null;
+    resumeTurn?: 'agent' | 'reveal';
+    resumeBattleReward?: boolean;
+  }
+): boolean {
+  const restriction = match.queuedScoutPlacementRestriction?.actorUid === actorUid
+    ? match.queuedScoutPlacementRestriction
+    : null;
+  const allowedPostIds = restriction?.postIds ?? OBSERVATION_POSTS.map((post) => post.id);
+  const player = match.players[actorUid];
+  const hasEmptyAllowedPost = allowedPostIds.some((postId) => !match.boardScouts[postId]);
+  const canRelocateToAllowedPost = player.scouts.supply < 1 && OBSERVATION_POSTS.some((post) =>
+    match.boardScouts[post.id] === actorUid && (hasEmptyAllowedPost || allowedPostIds.includes(post.id))
+  );
+  const canPlace = player.scouts.supply > 0 ? hasEmptyAllowedPost : canRelocateToAllowedPost;
+  if (restriction) match.queuedScoutPlacementRestriction = null;
+  if (!canPlace) {
+    match.activity.push(`${restriction ? 'Warden of Ithilien' : 'A Scout effect'} cannot place a Scout because no legal observation post can be opened.`);
+    return false;
+  }
+  match.pendingChoice = {
+    kind: 'place-scout',
+    actorUid,
+    allowedPostIds: restriction ? allowedPostIds : null,
+    ...continuation,
+    options: []
+  };
+  return true;
 }
 
 function hasMandatoryResourceCost(space: (typeof BOARD_SPACE_DEFINITIONS)[number]): boolean {
@@ -939,22 +986,14 @@ function continueBattleRewardChoicesOrRecall(match: MatchState): void {
     return;
   }
   if (next?.kind === 'place-scout') {
-    const player = match.players[next.actorUid];
-    const canPlace = player.scouts.supply > 0
-      ? OBSERVATION_POSTS.some((post) => !match.boardScouts[post.id])
-      : OBSERVATION_POSTS.some((post) => match.boardScouts[post.id] === next.actorUid);
-    if (!canPlace) {
+    if (!openScoutPlacement(match, next.actorUid, {
+      followupSeekAlliesCardId: null,
+      resumeBattleReward: true
+    })) {
       match.activity.push('A ranked Scout reward is lost because no observation post can be opened.');
       continueBattleRewardChoicesOrRecall(match);
       return;
     }
-    match.pendingChoice = {
-      kind: 'place-scout',
-      actorUid: next.actorUid,
-      followupSeekAlliesCardId: null,
-      resumeBattleReward: true,
-      options: []
-    };
     match.activity.push('A ranked player must place a Scout before Recall.');
     return;
   }
@@ -1144,6 +1183,10 @@ function resolveAgentEffects(
   const player = match.players[actorUid];
   const cardDefinition = AGENT_CARD_DEFINITIONS.find((candidate) => candidate.id === card.definitionId)!;
   const seekAlliesCardId = cardDefinition.journeyEffect?.kind === 'optional-trash-self' ? card.id : null;
+  const hasJourneyScoutPlacement = cardDefinition.journeyEffect?.kind === 'place-scout'
+    || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout'
+    || cardDefinition.journeyEffect?.kind === 'place-scout-optional-recall-draw'
+    || cardDefinition.journeyEffect?.kind === 'place-scout-connected-battle';
   let resolution: string;
   if (cardDefinition.journeyEffect?.kind === 'recruit-companies') {
     recruitCompanies(player, cardDefinition.journeyEffect.amount);
@@ -1200,6 +1243,12 @@ function resolveAgentEffects(
   if (cardDefinition.journeyEffect?.kind === 'gain-mithril-extra-battle-deploy') {
     player.resources.mithril += cardDefinition.journeyEffect.mithril;
   }
+  if (cardDefinition.journeyEffect?.kind === 'place-scout-connected-battle') {
+    match.queuedScoutPlacementRestriction = {
+      actorUid,
+      postIds: battleConnectedObservationPostIds()
+    };
+  }
   if (
     cardDefinition.journeyEffect?.kind === 'draw-discard-card' ||
     cardDefinition.journeyEffect?.kind === 'draw-optional-trash'
@@ -1247,6 +1296,7 @@ function resolveAgentEffects(
       match.pendingChoice = {
         kind: 'ranger-mustering-trash', actorUid: player.uid, cardInstanceIds: trashable,
         followupSeekAlliesCardId: seekAlliesCardId,
+        followupPlaceScout: hasJourneyScoutPlacement,
         options: [...trashable.map((id) => `trash-card:${id}`), 'decline-trash']
       };
     }
@@ -1273,9 +1323,7 @@ function resolveAgentEffects(
     if (drawn) player.hand.push(drawn);
     resolution = `gaining 1 Elven standing, drawing ${drawn ? '1 card' : 'no card'}, and preparing to place 1 Scout`;
     if (!match.pendingChoice) {
-      match.pendingChoice = {
-        kind: 'place-scout', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId, options: []
-      };
+      openScoutPlacement(match, player.uid, { followupSeekAlliesCardId: seekAlliesCardId });
     }
   } else if (space.effect.kind === 'secret-bargain') {
     resolution = 'preparing an optional Fate cycle, recalling another Agent, and drawing 1 card';
@@ -1319,14 +1367,14 @@ function resolveAgentEffects(
     if (player.resources.mithril >= space.effect.optionalCostMithril) options.push('pay-1-mithril');
     match.pendingChoice = {
       kind: 'osgiliath', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
-      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout' || cardDefinition.journeyEffect?.kind === 'place-scout-optional-recall-draw', options
+      followupPlaceScout: hasJourneyScoutPlacement, options
     };
     resolution = 'choosing whether to pay 1 Mithril for 2 or 4 Gold before deploying to Battle';
   } else if (space.effect.kind === 'great-forge') {
     player.resources.gold += space.effect.gainGold;
     match.pendingChoice = {
       kind: 'great-forge', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
-      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout' || cardDefinition.journeyEffect?.kind === 'place-scout-optional-recall-draw',
+      followupPlaceScout: hasJourneyScoutPlacement,
       options: ['standing-shadow', 'standing-dwarven', 'standing-elven', 'standing-wild']
     };
     resolution = 'paying 3 Mithril, gaining 5 Gold, and choosing one faction standing';
@@ -1337,7 +1385,7 @@ function resolveAgentEffects(
     options.push('gain-provision-leave-dam');
     match.pendingChoice = {
       kind: 'fangorn-moot', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
-      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout' || cardDefinition.journeyEffect?.kind === 'place-scout-optional-recall-draw', options
+      followupPlaceScout: hasJourneyScoutPlacement, options
     };
     resolution = 'calling the Moot to choose Ent-draught or the fate of the Dam';
   } else if (space.effect.kind === 'deep-fangorn') {
@@ -1348,7 +1396,7 @@ function resolveAgentEffects(
     if (canSummonEnts(match, player)) options.push('summon-2-ents');
     match.pendingChoice = {
       kind: 'deep-fangorn', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
-      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout' || cardDefinition.journeyEffect?.kind === 'place-scout-optional-recall-draw', options
+      followupPlaceScout: hasJourneyScoutPlacement, options
     };
     resolution = `paying 3 Provisions, taking ${riches} Riches, and choosing Mithril or Ents`;
   } else if (space.effect.kind === 'entwash') {
@@ -1359,7 +1407,7 @@ function resolveAgentEffects(
     if (canSummonEnts(match, player)) options.push('summon-1-ent');
     match.pendingChoice = {
       kind: 'entwash', actorUid: player.uid, followupSeekAlliesCardId: seekAlliesCardId,
-      followupPlaceScout: cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout' || cardDefinition.journeyEffect?.kind === 'place-scout-optional-recall-draw', options
+      followupPlaceScout: hasJourneyScoutPlacement, options
     };
     resolution = `paying 1 Provision, taking ${riches} Riches, and choosing Mithril or an Ent`;
   } else if (space.effect.kind === 'edoras') {
@@ -1398,13 +1446,8 @@ function resolveAgentEffects(
       options: ['trash-self', 'keep-card']
     };
   }
-  if ((cardDefinition.journeyEffect?.kind === 'place-scout' || cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout' || cardDefinition.journeyEffect?.kind === 'place-scout-optional-recall-draw') && !match.pendingChoice) {
-    match.pendingChoice = {
-      kind: 'place-scout',
-      actorUid: player.uid,
-      followupSeekAlliesCardId: null,
-      options: []
-    };
+  if (hasJourneyScoutPlacement && !match.pendingChoice) {
+    openScoutPlacement(match, player.uid, { followupSeekAlliesCardId: null });
   }
   if (isBattleSpace(space) && match.activeBattleId) {
     const additionalGarrisonAllowance = cardDefinition.journeyEffect?.kind === 'gain-mithril-extra-battle-deploy'
@@ -1903,9 +1946,9 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
           options: ['trash-self', 'keep-card']
         };
       } else if (pending.followupPlaceScout) {
-        state.match.pendingChoice = {
-          kind: 'place-scout', actorUid: player.uid, followupSeekAlliesCardId: null, options: []
-        };
+        if (!openScoutPlacement(state.match, player.uid, { followupSeekAlliesCardId: null })) {
+          finishAgentAction(state.match, event.actorUid);
+        }
       } else {
         state.match.pendingChoice = null;
         finishAgentAction(state.match, event.actorUid);
@@ -1927,9 +1970,9 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
           options: ['trash-self', 'keep-card']
         };
       } else if (pending.followupPlaceScout) {
-        state.match.pendingChoice = {
-          kind: 'place-scout', actorUid: player.uid, followupSeekAlliesCardId: null, options: []
-        };
+        if (!openScoutPlacement(state.match, player.uid, { followupSeekAlliesCardId: null })) {
+          finishAgentAction(state.match, event.actorUid);
+        }
       } else {
         state.match.pendingChoice = null;
         finishAgentAction(state.match, event.actorUid);
@@ -1951,9 +1994,9 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
           options: ['trash-self', 'keep-card']
         };
       } else if (pending.followupPlaceScout) {
-        state.match.pendingChoice = {
-          kind: 'place-scout', actorUid: player.uid, followupSeekAlliesCardId: null, options: []
-        };
+        if (!openScoutPlacement(state.match, player.uid, { followupSeekAlliesCardId: null })) {
+          finishAgentAction(state.match, event.actorUid);
+        }
       } else {
         state.match.pendingChoice = null;
         finishAgentAction(state.match, event.actorUid);
@@ -1974,9 +2017,9 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
           options: ['trash-self', 'keep-card']
         };
       } else if (pending.followupPlaceScout) {
-        state.match.pendingChoice = {
-          kind: 'place-scout', actorUid: player.uid, followupSeekAlliesCardId: null, options: []
-        };
+        if (!openScoutPlacement(state.match, player.uid, { followupSeekAlliesCardId: null })) {
+          finishAgentAction(state.match, event.actorUid);
+        }
       } else {
         state.match.pendingChoice = null;
         finishAgentAction(state.match, event.actorUid);
@@ -1999,9 +2042,9 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
           options: ['trash-self', 'keep-card']
         };
       } else if (!state.match.pendingChoice && pending.followupPlaceScout) {
-        state.match.pendingChoice = {
-          kind: 'place-scout', actorUid: player.uid, followupSeekAlliesCardId: null, options: []
-        };
+        if (!openScoutPlacement(state.match, player.uid, { followupSeekAlliesCardId: null })) {
+          finishAgentAction(state.match, event.actorUid);
+        }
       } else if (!state.match.pendingChoice) {
         finishAgentAction(state.match, event.actorUid);
       }
@@ -2046,6 +2089,10 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
           kind: 'seek-allies', actorUid: player.uid, cardInstanceId: pending.followupSeekAlliesCardId,
           options: ['trash-self', 'keep-card']
         };
+      } else if (pending.followupPlaceScout) {
+        if (!openScoutPlacement(state.match, player.uid, { followupSeekAlliesCardId: null })) {
+          finishAgentAction(state.match, event.actorUid);
+        }
       } else {
         state.match.pendingChoice = null;
         finishAgentAction(state.match, event.actorUid);
@@ -2117,10 +2164,17 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       state.match.fateDiscard.push(discarded);
       state.match.activity.push(`${actor.displayName} keeps one of the two Fate cards granted by Elven favor and discards the other.`);
       if (pending.followupPlaceScout) {
-        state.match.pendingChoice = {
-          kind: 'place-scout', actorUid: player.uid,
-          followupSeekAlliesCardId: pending.followupSeekAlliesCardId, options: []
-        };
+        if (!openScoutPlacement(state.match, player.uid, {
+          followupSeekAlliesCardId: pending.followupSeekAlliesCardId
+        })) {
+          if (pending.followupSeekAlliesCardId) {
+            state.match.pendingChoice = {
+              kind: 'seek-allies', actorUid: player.uid, cardInstanceId: pending.followupSeekAlliesCardId,
+              options: ['trash-self', 'keep-card']
+            };
+          } else if (pending.resumeBattleStanding) continueBattleRewardChoicesOrRecall(state.match);
+          else finishAgentAction(state.match, event.actorUid);
+        }
       } else if (pending.followupSeekAlliesCardId) {
         state.match.pendingChoice = {
           kind: 'seek-allies',
@@ -2183,7 +2237,8 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       pending.actorUid !== event.actorUid ||
       (!pending.resumeBattleReward && currentPlayerUid(state) !== event.actorUid) ||
       typeof postId !== 'string' ||
-      !OBSERVATION_POSTS.some((post) => post.id === postId)
+      !OBSERVATION_POSTS.some((post) => post.id === postId) ||
+      (pending.allowedPostIds !== null && !pending.allowedPostIds.includes(postId))
     ) return 'illegal Scout placement';
     const player = state.match.players[event.actorUid];
     if (player.scouts.supply < 1) {
@@ -2425,13 +2480,10 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       player.fateHand.splice(cardIndex, 1);
       state.match.fateDiscard.push(card);
       if (definition.effect.kind === 'place-scout') {
-        state.match.pendingChoice = {
-          kind: 'place-scout',
-          actorUid: event.actorUid,
+        openScoutPlacement(state.match, event.actorUid, {
           followupSeekAlliesCardId: null,
-          resumeTurn: state.match.turnMode,
-          options: []
-        };
+          resumeTurn: state.match.turnMode
+        });
         state.match.activity.push(`${actor.displayName} plays ${definition.name} during their ${state.match.turnMode === 'agent' ? 'Agent' : 'Reveal'} turn and must place 1 Scout.`);
       } else if (definition.effect.kind === 'draw-discard') {
         const resumeTurn = state.match.turnMode;

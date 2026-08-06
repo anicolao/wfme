@@ -40,8 +40,8 @@ test('Messenger Moth places one Scout and recalls only a different Scout to draw
   try {
     const buyer = await currentSeat();
     for (const observer of seats) {
-      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 37');
-      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('42 / 54');
+      await expect(observer.page.getByTestId('chronicle-market')).toContainText('deck 39');
+      await expect(observer.page.getByText('Chronicle cards').locator('..')).toContainText('44 / 54');
     }
 
     const reconnaissance = buyer.page.getByTestId('private-hand').getByRole('button', { name: /^Reconnaissance/ }).first();
@@ -78,7 +78,7 @@ test('Messenger Moth places one Scout and recalls only a different Scout to draw
     }, [
       { spec: 'The exact physical card enters discard and its Row position refills', check: async () => {
         await expect(buyer.page.getByTestId('activity-log')).toContainText(`${buyer.name} acquires Messenger Moth`);
-        await expect(buyer.page.getByTestId('chronicle-market')).toContainText('deck 36');
+        await expect(buyer.page.getByTestId('chronicle-market')).toContainText('deck 38');
       } },
       converged(accepted.value + 1)
     ]);

@@ -398,20 +398,21 @@
   <section class="scout-network" data-testid="scout-network" aria-labelledby="scout-title">
     <div>
       <p class="eyebrow">Observation network · 9 posts</p>
-      <h2 id="scout-title">{game.match?.pendingChoice?.kind === 'place-scout' ? (selectedScoutRecall ? 'Choose the Scout’s new post.' : 'Choose an empty post for the Scout.') : 'Scouts watch the roads.'}</h2>
+      <h2 id="scout-title">{game.match?.pendingChoice?.kind === 'place-scout' ? (selectedScoutRecall ? 'Choose the Scout’s new post.' : game.match.pendingChoice.allowedPostIds ? 'Choose a post connected to a Battle space.' : 'Choose an empty post for the Scout.') : 'Scouts watch the roads.'}</h2>
     </div>
     <div class="posts">
       {#each OBSERVATION_POSTS as post}
         {@const scoutUid = game.match?.boardScouts[post.id]}
         {@const scoutName = game.players.find((player) => player.uid === scoutUid)?.displayName}
         {@const placing = game.match?.pendingChoice?.kind === 'place-scout' && game.match.pendingChoice.actorUid === localUid}
+        {@const allowedDestination = game.match?.pendingChoice?.kind !== 'place-scout' || game.match.pendingChoice.allowedPostIds === null || game.match.pendingChoice.allowedPostIds.includes(post.id)}
         {@const mustRecall = (localMatch?.scouts.supply ?? 0) < 1}
         {@const choosingRecall = placing && mustRecall && !selectedScoutRecall}
         <button
           type="button"
           class:scouted={Boolean(scoutUid)}
           class:recalling={selectedScoutRecall === post.id}
-          disabled={!placing || (choosingRecall ? scoutUid !== localUid : Boolean(scoutUid) && post.id !== selectedScoutRecall)}
+          disabled={!placing || (choosingRecall ? scoutUid !== localUid : !allowedDestination || Boolean(scoutUid) && post.id !== selectedScoutRecall)}
           aria-pressed={selectedScoutRecall === post.id}
           data-testid={`post-${post.id}`}
           onclick={() => {

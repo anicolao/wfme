@@ -72,9 +72,9 @@ describe('integrated Agent placement replay', () => {
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'keeper-oaths')).toHaveLength(2);
     expect(first.match!.fateDeck.filter((card) => card.definitionId === 'the-long-game')).toHaveLength(2);
     expect(first.match!.chronicleRow).toHaveLength(5);
-    expect(first.match!.chronicleDeck).toHaveLength(37);
+    expect(first.match!.chronicleDeck).toHaveLength(39);
     const chronicleInstances = [...first.match!.chronicleRow, ...first.match!.chronicleDeck];
-    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(42);
+    expect(new Set(chronicleInstances.map((card) => card.id)).size).toBe(44);
     for (const definition of CHRONICLE_CARD_DEFINITIONS) {
       expect(chronicleInstances.filter((card) => card.definitionId === definition.id)).toHaveLength(2);
     }
@@ -82,7 +82,10 @@ describe('integrated Agent placement replay', () => {
       .filter((definition) => !definition.incrementalDeckInsertion)
       .flatMap((definition) => Array.from({ length: definition.copies }, (_, index) => `chronicle:${definition.id}:${index + 1}`)),
     'road-2:chronicle-deck');
-    expect(chronicleInstances.filter((card) => card.definitionId !== 'khazad-guard').map((card) => card.id))
+    const incrementalDefinitionIds = new Set<string>(CHRONICLE_CARD_DEFINITIONS
+      .filter((definition) => definition.incrementalDeckInsertion)
+      .map((definition) => definition.id));
+    expect(chronicleInstances.filter((card) => !incrementalDefinitionIds.has(card.definitionId)).map((card) => card.id))
       .toEqual(expectedFoundationOrder);
     const selectedBattleIds = [first.match!.activeBattleId!, ...first.match!.battleDeck];
     expect(selectedBattleIds).toHaveLength(10);
@@ -628,7 +631,8 @@ describe('integrated Agent placement replay', () => {
       minimumGold = 0,
       prepareScout = false,
       minimumDrawPile = 0,
-      minimumSeedCandidate = 0
+      minimumSeedCandidate = 0,
+      minimumScoutCount = prepareScout ? 1 : 0
     ) => {
       const definition = CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!;
       let completed: { events: ReturnType<typeof readyRoom>; seed: string } | null = null;
@@ -703,7 +707,7 @@ describe('integrated Agent placement replay', () => {
       expect(state.diagnostics).toEqual([]);
       expect(state.match!.players[actor].revealInfluence).toBe(influenceBefore - definition.cost);
       expect(state.match!.players[actor].discardPile).toContainEqual(offered);
-      expect(state.match!.chronicleDeck).toHaveLength(36);
+      expect(state.match!.chronicleDeck).toHaveLength(38);
       expect(state.match!.chronicleRow).toHaveLength(5);
       expect(state.match!.chronicleRow).toContainEqual(refill);
 
@@ -721,16 +725,23 @@ describe('integrated Agent placement replay', () => {
           state.match!.turnMode === 'agent' &&
           state.match!.players[actor].hand.some((card) => card.id === offered.id) &&
           state.match!.players[actor].drawPile.length >= minimumDrawPile &&
-          (!prepareScout || Object.values(state.match!.boardScouts).includes(actor))
+          Object.values(state.match!.boardScouts).filter((uid) => uid === actor).length >= minimumScoutCount
         ) break;
         const current = currentPlayerUid(state)!;
-        if (prepareScout && current === actor && !Object.values(state.match!.boardScouts).includes(actor)) {
+        if (current === actor && Object.values(state.match!.boardScouts).filter((uid) => uid === actor).length < minimumScoutCount) {
           const reconnaissance = state.match!.players[actor].hand.find((card) => card.definitionId === 'reconnaissance');
           if (reconnaissance) {
             append(actor, 'agent/placed', { cardInstanceId: reconnaissance.id, spaceId: 'take-war-effort' });
             state = reduceGame(stream);
             if (state.match!.pendingChoice?.kind === 'place-scout') {
-              append(actor, 'scout/placed', { postId: 'old-south-road' });
+              const preferredPostIds = minimumScoutCount === 1
+                ? ['old-south-road']
+                : OBSERVATION_POSTS.map((post) => post.id);
+              const emptyPost = OBSERVATION_POSTS.find((post) =>
+                preferredPostIds.includes(post.id) && !state.match!.boardScouts[post.id]
+              );
+              expect(emptyPost).toBeDefined();
+              append(actor, 'scout/placed', { postId: emptyPost!.id });
             }
             continue;
           }
@@ -1130,6 +1141,67 @@ describe('integrated Agent placement replay', () => {
     expect(afterKhazad.match!.battleCompanies[khazad.actor]).toBe(expectedKhazadMaximum);
     expect(afterKhazad.match!.pendingChoice).toBeNull();
 
+    const warden = reachAcquiredCard('warden-ithilien', 0, true, 0, 0, 3);
+    const wardenScoutSupply = warden.before.match!.players[warden.actor].scouts.supply;
+    expect(wardenScoutSupply).toBe(0);
+    const wardenPostsBefore = structuredClone(warden.before.match!.boardScouts);
+    const recalledPostId = OBSERVATION_POSTS.find((post) => wardenPostsBefore[post.id] === warden.actor)!.id;
+    warden.append(warden.actor, 'agent/placed', { cardInstanceId: warden.acquired.id, spaceId: 'hidden-paths' });
+    let afterWarden = reduceGame(warden.stream);
+    expect(afterWarden.diagnostics).toEqual([]);
+    expect(afterWarden.match!.pendingChoice).toMatchObject({
+      kind: 'place-scout',
+      actorUid: warden.actor,
+      allowedPostIds: ['redhorn-pass', 'last-homely-house', 'northern-eaves', 'muster-field', 'old-south-road', 'banks-entwash', 'seeing-stone-road']
+    });
+    expect(afterWarden.match!.queuedScoutPlacementRestriction).toBeNull();
+    const unauthorizedWardenActor = afterWarden.match!.playerOrder.find((uid) => uid !== warden.actor)!;
+    warden.append(unauthorizedWardenActor, 'scout/placed', { postId: 'muster-field', recallPostId: recalledPostId });
+    const unauthorizedWarden = reduceGame(warden.stream);
+    expect(unauthorizedWarden.diagnostics.at(-1)).toContain('illegal Scout placement');
+    expect(unauthorizedWarden.match!.boardScouts).toEqual(wardenPostsBefore);
+    warden.stream.pop();
+    warden.append(warden.actor, 'scout/placed', { postId: 'council-antechamber', recallPostId: recalledPostId });
+    const rejectedWarden = reduceGame(warden.stream);
+    expect(rejectedWarden.diagnostics.at(-1)).toContain('illegal Scout placement');
+    expect(rejectedWarden.match!.boardScouts).toEqual(wardenPostsBefore);
+    expect(rejectedWarden.match!.players[warden.actor].scouts.supply).toBe(0);
+    warden.stream.pop();
+    warden.append(warden.actor, 'scout/placed', { postId: 'muster-field', recallPostId: recalledPostId });
+    afterWarden = reduceGame(warden.stream);
+    expect(afterWarden.diagnostics).toEqual([]);
+    expect(afterWarden.match!.boardScouts[recalledPostId]).toBeUndefined();
+    expect(afterWarden.match!.boardScouts['muster-field']).toBe(warden.actor);
+    expect(afterWarden.match!.players[warden.actor].scouts.supply).toBe(0);
+    expect(afterWarden.match!.pendingChoice).toMatchObject({ kind: 'battle-deployment', actorUid: warden.actor });
+
+    const rangerWarden = reachAcquiredCard('warden-ithilien');
+    rangerWarden.append(rangerWarden.actor, 'agent/placed', {
+      cardInstanceId: rangerWarden.acquired.id,
+      spaceId: 'ranger-mustering'
+    });
+    let afterRangerWarden = reduceGame(rangerWarden.stream);
+    expect(afterRangerWarden.diagnostics).toEqual([]);
+    expect(afterRangerWarden.match!.pendingChoice).toMatchObject({
+      kind: 'ranger-mustering-trash',
+      actorUid: rangerWarden.actor,
+      followupPlaceScout: true
+    });
+    expect(afterRangerWarden.match!.queuedScoutPlacementRestriction).toMatchObject({ actorUid: rangerWarden.actor });
+    rangerWarden.append(rangerWarden.actor, 'choice/resolved', { choice: 'decline-trash' });
+    afterRangerWarden = reduceGame(rangerWarden.stream);
+    expect(afterRangerWarden.diagnostics).toEqual([]);
+    expect(afterRangerWarden.match!.pendingChoice).toMatchObject({
+      kind: 'place-scout',
+      actorUid: rangerWarden.actor,
+      allowedPostIds: expect.not.arrayContaining(['orthanc-eye', 'council-antechamber'])
+    });
+    rangerWarden.append(rangerWarden.actor, 'scout/placed', { postId: 'redhorn-pass' });
+    afterRangerWarden = reduceGame(rangerWarden.stream);
+    expect(afterRangerWarden.diagnostics).toEqual([]);
+    expect(afterRangerWarden.match!.boardScouts['redhorn-pass']).toBe(rangerWarden.actor);
+    expect(afterRangerWarden.match!.pendingChoice).toMatchObject({ kind: 'battle-deployment', actorUid: rangerWarden.actor });
+
     const informerMuster = reachAcquiredCard('goblin-informer', 0, true);
     const informerScout = reduceGame(informerMuster.stream);
     expect(informerScout.match!.boardScouts['old-south-road']).toBe(informerMuster.actor);
@@ -1281,7 +1353,7 @@ describe('integrated Agent placement replay', () => {
       cardInstanceId: reconnaissance.id, spaceId: 'take-war-effort'
     }, 11);
     const pending = reduceGame([...events, placement]);
-    expect(pending.match!.pendingChoice).toEqual({ kind: 'place-scout', actorUid: actor, followupSeekAlliesCardId: null, options: [] });
+    expect(pending.match!.pendingChoice).toEqual({ kind: 'place-scout', actorUid: actor, allowedPostIds: null, followupSeekAlliesCardId: null, options: [] });
     expect(pending.match!.players[actor].scouts.supply).toBe(3);
     expect(currentPlayerUid(pending)).toBe(actor);
 
@@ -2067,7 +2139,7 @@ describe('integrated Agent placement replay', () => {
     agent.stream.push(createEvent('fate/played', agent.actor, agent.sequences[agent.actor], { cardInstanceId: agentFate.id }, agent.timestamp++));
     const awaitingAgentScout = reduceGame(agent.stream);
     expect(awaitingAgentScout.match!.pendingChoice).toEqual({
-      kind: 'place-scout', actorUid: agent.actor, followupSeekAlliesCardId: null, resumeTurn: 'agent', options: []
+      kind: 'place-scout', actorUid: agent.actor, allowedPostIds: null, followupSeekAlliesCardId: null, resumeTurn: 'agent', options: []
     });
     expect(awaitingAgentScout.match!.fateDiscard.at(-1)).toEqual(agentFate);
     agent.sequences[agent.actor] += 1;
@@ -2381,7 +2453,7 @@ describe('integrated Agent placement replay', () => {
     const rowBefore = [...state.match!.chronicleRow];
     const deckBefore = [...state.match!.chronicleDeck];
     const affordable = (definitionId: string) => CHRONICLE_CARD_DEFINITIONS.find((card) => card.id === definitionId)!.cost <= 3;
-    expect(deckBefore).toHaveLength(37);
+    expect(deckBefore).toHaveLength(39);
     append(actor, 'fate/played', { cardInstanceId: fate.id });
     const awaitingChoice = reduceGame(stream);
     expect(awaitingChoice.match!.pendingChoice).toEqual({

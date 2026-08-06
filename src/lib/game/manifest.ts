@@ -47,6 +47,7 @@ export type AgentCardDefinition = StartingCardIdentity & {
     | { kind: 'place-scout-optional-recall-draw'; placeScout: 1; draw: 1 }
     | { kind: 'reorder-draw-pile'; look: 3 }
     | { kind: 'gain-mithril-extra-battle-deploy'; mithril: 1; additionalGarrisonCompany: 1 }
+    | { kind: 'place-scout-connected-battle'; amount: 1 }
     | { kind: 'draw-discard-card'; draw: 1 }
     | { kind: 'draw-optional-trash'; draw: 1; includeDiscard: boolean }
     | { kind: 'gain-gold'; amount: 1 }
@@ -269,6 +270,14 @@ export const AGENT_CARD_DEFINITIONS: readonly AgentCardDefinition[] = [
     placementIcons: ['Dwarven', 'Stronghold'],
     journeyEffect: { kind: 'gain-mithril-extra-battle-deploy', mithril: 1, additionalGarrisonCompany: 1 },
     reviewedCapabilities: ['agent-placement']
+  },
+  {
+    id: 'warden-ithilien',
+    name: 'Warden of Ithilien',
+    copies: 2,
+    placementIcons: ['Wild', 'Stronghold'],
+    journeyEffect: { kind: 'place-scout-connected-battle', amount: 1 },
+    reviewedCapabilities: ['agent-placement']
   }
 ];
 
@@ -325,7 +334,8 @@ export const MUSTER_CARD_DEFINITIONS: readonly MusterCardDefinition[] = [
   { id: 'orcish-muster', name: 'Orcish Muster', muster: { influence: 0, swords: 2 } },
   { id: 'messenger-moth', name: 'Messenger Moth', muster: { influence: 1, swords: 0 } },
   { id: 'elven-foresight', name: 'Elven Foresight', muster: { influence: 3, swords: 0 } },
-  { id: 'khazad-guard', name: 'Khazad Guard', muster: { influence: 1, swords: 2 } }
+  { id: 'khazad-guard', name: 'Khazad Guard', muster: { influence: 1, swords: 2 } },
+  { id: 'warden-ithilien', name: 'Warden of Ithilien', muster: { influence: 2, swords: 1 } }
 ];
 
 export type ReserveCardId = 'muster-host';
@@ -365,7 +375,8 @@ export type ChronicleCardId =
   | 'orcish-muster'
   | 'messenger-moth'
   | 'elven-foresight'
-  | 'khazad-guard';
+  | 'khazad-guard'
+  | 'warden-ithilien';
 
 export type ChronicleCardDefinition = {
   id: ChronicleCardId;
@@ -508,6 +519,13 @@ export const CHRONICLE_CARD_DEFINITIONS: readonly ChronicleCardDefinition[] = [
     id: 'khazad-guard', name: 'Khazad Guard', copies: 2, cost: 4,
     placementIcons: ['Dwarven', 'Stronghold'], journeyText: 'Gain 1 Mithril; at a Battle space, you may deploy 1 additional Company from your garrison',
     muster: { influence: 1, swords: 2 },
+    incrementalDeckInsertion: true,
+    reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
+  },
+  {
+    id: 'warden-ithilien', name: 'Warden of Ithilien', copies: 2, cost: 4,
+    placementIcons: ['Wild', 'Stronghold'], journeyText: 'Place 1 Scout on an observation post connected to a Battle space',
+    muster: { influence: 2, swords: 1 },
     incrementalDeckInsertion: true,
     reviewedCapabilities: ['chronicle-market', 'agent-placement', 'reveal']
   }
