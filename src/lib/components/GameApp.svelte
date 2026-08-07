@@ -163,6 +163,18 @@
     }
   }
 
+  async function setWarEfforts(enabled: boolean) {
+    busy = true;
+    try {
+      await append('game/war-efforts-set', { enabled });
+      message = enabled
+        ? 'War Efforts enabled. Every Commander must confirm the module by readying again.'
+        : 'War Efforts disabled. Every Commander must confirm the base game by readying again.';
+    } finally {
+      busy = false;
+    }
+  }
+
   async function startMatch() {
     busy = true;
     try {
@@ -282,6 +294,16 @@
     }
   }
 
+  async function completeWarEffort(definitionId: string) {
+    busy = true;
+    try {
+      await append('war-effort/completed', { definitionId });
+      message = 'War Effort completed and discarded.';
+    } finally {
+      busy = false;
+    }
+  }
+
   onMount(() => {
     roomCodeInput = normalizeRoomCode(new URLSearchParams(location.search).get('room') ?? '');
     void initializeFirebase()
@@ -334,6 +356,7 @@
       onPassBattle={passBattle}
       onPassEndgame={passEndgame}
       onPlayFate={playFate}
+      onCompleteWarEffort={completeWarEffort}
       onToggleRematchReady={toggleRematchReady}
     />
   {:else}
@@ -361,6 +384,7 @@
           <div><span>Room code</span><strong data-testid="room-code">{game.roomCode}</strong></div>
           <div><span>Seats</span><strong>{game.players.length} / 4</strong></div>
           <div><span>Minimum</span><strong>3 players</strong></div>
+          <div><span>War Efforts</span><strong>{game.warEffortsEnabled ? 'Enabled' : 'Disabled'}</strong></div>
         </div>
 
         <section aria-labelledby="players-title">
@@ -405,6 +429,7 @@
         {#if game.hostUid === activeUid}
           <section class="start-panel" aria-labelledby="start-title">
             <div><h2 id="start-title">Commit the journey</h2><p>Three or four players must select unique identities and ready up.</p></div>
+            <label class="module-toggle"><input type="checkbox" checked={game.warEffortsEnabled} disabled={busy} onchange={(event) => void setWarEfforts(event.currentTarget.checked)} /> Enable optional War Efforts</label>
             <label for="match-seed">Match seed</label>
             <input id="match-seed" bind:value={seed} />
             <button type="button" disabled={!allReady || busy} onclick={() => void startMatch()}>Start seeded match</button>

@@ -11,9 +11,11 @@ import {
   OBSERVATION_POSTS,
   RESERVE_CARD_DEFINITIONS,
   STARTING_CARD_IDENTITIES,
+  WAR_EFFORT_DEFINITIONS,
   cardName,
   type CommanderId,
-  type ReserveCardId
+  type ReserveCardId,
+  type WarEffortId
 } from './manifest';
 import { shuffled } from './prng';
 
@@ -31,6 +33,7 @@ export type CardInstance = {
 };
 
 export type FateInstance = { id: string; definitionId: string };
+export type WarEffortInstance = { id: string; definitionId: WarEffortId };
 
 type PaidChronicleId = 'dwarven-smith' | 'uruk-hai-captain' | 'envoy-dale' | 'palantir-glimpse';
 type HandcraftChronicleId = 'ranger-north' | 'lore-imladris' | 'grey-pilgrim' | 'palantir-glimpse';
@@ -94,6 +97,7 @@ export type MatchPlayer = {
   councilSeat: boolean;
   entDraught: boolean;
   treebeardEntBonusUsed: boolean;
+  warEffort: WarEffortInstance | null;
 };
 
 export type AgentOccupation = {
@@ -181,6 +185,7 @@ export type MatchState = {
     additionalGarrisonSource: 'Khazad Guard' | 'Ride Now' | null;
   } | null;
   pendingBattleRewardChoices: Array<{ kind: 'standing' | 'place-scout' | 'fate-keep-one'; actorUid: string }>;
+  queuedWarEffortTakeUid: string | null;
   pendingChoice: null | {
     kind: 'commander-fate-foresight';
     actorUid: string;
@@ -422,9 +427,18 @@ export type MatchState = {
     ignoredResourceCost: boolean;
     postIds: readonly string[];
     options: readonly string[];
+  } | {
+    kind: 'take-war-effort';
+    actorUid: string;
+    instanceIds: readonly string[];
+    options: readonly string[];
   };
   reserveSupply: Record<ReserveCardId, number>;
   alliances: Record<'shadow' | 'dwarven' | 'elven' | 'wild', string | null>;
+  warEffortsEnabled: boolean;
+  warEffortDeck: WarEffortInstance[];
+  warEffortRow: WarEffortInstance[];
+  warEffortDiscard: WarEffortInstance[];
   activity: string[];
 };
 
@@ -438,6 +452,7 @@ export type GameState = {
   rematchReadyUids: string[];
   diagnostics: string[];
   eventCount: number;
+  warEffortsEnabled: boolean;
 };
 
 export const EMPTY_GAME: GameState = {
@@ -449,7 +464,8 @@ export const EMPTY_GAME: GameState = {
   finishedMatches: [],
   rematchReadyUids: [],
   diagnostics: [],
-  eventCount: 0
+  eventCount: 0,
+  warEffortsEnabled: false
 };
 
 function displayName(payload: Record<string, unknown>): string | null {
@@ -518,7 +534,8 @@ function createMatch(state: GameState, seed: string, epoch: number): MatchState 
           fateHand: [],
           councilSeat: false,
           entDraught: false,
-          treebeardEntBonusUsed: false
+          treebeardEntBonusUsed: false,
+          warEffort: null
         }
       ];
     })
@@ -543,6 +560,12 @@ function createMatch(state: GameState, seed: string, epoch: number): MatchState 
     chronicleInstances.splice(insertionPoints[0], 0, instance);
   }
   const selectedBattles = battleDeck(seed);
+  const warEffortInstances = state.warEffortsEnabled
+    ? shuffled(WAR_EFFORT_DEFINITIONS.map((definition) => ({
+      id: `match-${epoch}:war-effort:${definition.id}`,
+      definitionId: definition.id
+    })), `${seed}:war-efforts`)
+    : [];
   return {
     epoch,
     seed,
@@ -620,9 +643,14 @@ function createMatch(state: GameState, seed: string, epoch: number): MatchState 
     queuedScoutPlacementRestriction: null,
     queuedBattleDeployment: null,
     pendingBattleRewardChoices: [],
+    queuedWarEffortTakeUid: null,
     pendingChoice: null,
     reserveSupply: { 'muster-host': 8, 'deed-worthy-song': 10 },
     alliances: { shadow: null, dwarven: null, elven: null, wild: null },
+    warEffortsEnabled: state.warEffortsEnabled,
+    warEffortDeck: warEffortInstances.slice(2),
+    warEffortRow: warEffortInstances.slice(0, 2),
+    warEffortDiscard: [],
     activity: [
       `The seeded match begins. ${state.players.find((player) => player.uid === playerOrder[0])?.displayName ?? 'Seat 1'} acts first.`,
       selectedBattles[0] ? `${BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === selectedBattles[0])!.name} is the active Battle.` : 'No reviewed Battle remains.'
@@ -1465,6 +1493,21 @@ function drainQueuedFateDraw(match: MatchState): boolean {
   return true;
 }
 
+function openWarEffortTake(match: MatchState, actorUid: string): boolean {
+  if (!match.warEffortsEnabled) return false;
+  if (match.warEffortRow.length < 1) {
+    match.players[actorUid].resources.gold += 2;
+    match.activity.push('No War Effort remains, so the acting Commander gains 2 Gold instead.');
+    return false;
+  }
+  const instanceIds = match.warEffortRow.map((instance) => instance.id);
+  match.pendingChoice = {
+    kind: 'take-war-effort', actorUid, instanceIds,
+    options: [...instanceIds.map((id) => `take-war-effort:${id}`), 'decline-war-effort']
+  };
+  return true;
+}
+
 function finishAgentAction(match: MatchState, actorUid: string): void {
   if (openQueuedCommanderEngines(match)) return;
   const queuedAgentFollowup = match.queuedAgentFollowup;
@@ -1547,6 +1590,10 @@ function finishAgentAction(match: MatchState, actorUid: string): void {
       queued.additionalGarrisonSource
     );
     if (match.pendingChoice) return;
+  }
+  if (match.queuedWarEffortTakeUid === actorUid) {
+    match.queuedWarEffortTakeUid = null;
+    if (openWarEffortTake(match, actorUid)) return;
   }
   if (!match.pendingChoice) advanceToNextAgentPlayer(match);
 }
@@ -2021,9 +2068,14 @@ function resolveAgentEffects(
     const recruited = recruitCompanies(match, player, space.effect.recruitCompanies);
     resolution = `gaining 1 Dwarven standing and recruiting ${recruited} Companies for Battle`;
   } else if (space.effect.kind === 'tribute-shadow') {
-    player.resources.gold += space.effect.gainGold;
     gainStanding(match, player, 'shadow');
-    resolution = 'gaining 1 Shadow standing and 2 Gold';
+    if (match.warEffortsEnabled) {
+      match.queuedWarEffortTakeUid = actorUid;
+      resolution = 'gaining 1 Shadow standing and preparing to take a War Effort';
+    } else {
+      player.resources.gold += space.effect.gainGold;
+      resolution = 'gaining 1 Shadow standing and 2 Gold';
+    }
   } else if (space.effect.kind === 'pits-isengard') {
     gainStanding(match, player, 'shadow', seekAlliesCardId);
     const fate = drawFateOrOpenForesight(match, actorUid, 1, 'Pits of Isengard', { kind: 'finish-agent' });
@@ -2083,8 +2135,13 @@ function resolveAgentEffects(
   } else if (space.effect.kind === 'take-war-effort') {
     const drawn = player.drawPile.shift();
     if (drawn) player.hand.push(drawn);
-    player.resources.gold += space.effect.gainGoldWithoutModule;
-    resolution = `drawing ${drawn ? '1 card' : 'no card'} and gaining 2 Gold because War Efforts are disabled`;
+    if (match.warEffortsEnabled) {
+      match.queuedWarEffortTakeUid = actorUid;
+      resolution = `drawing ${drawn ? '1 card' : 'no card'} and preparing to take a War Effort`;
+    } else {
+      player.resources.gold += space.effect.gainGoldWithoutModule;
+      resolution = `drawing ${drawn ? '1 card' : 'no card'} and gaining 2 Gold because War Efforts are disabled`;
+    }
   } else if (space.effect.kind === 'muster-free-peoples') {
     const recruited = recruitCompanies(match, player, space.effect.recruitCompanies);
     resolution = `recruiting ${recruited} Companies`;
@@ -2349,9 +2406,18 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
 
   if (
     state.match &&
-    !['player/commander-selected', 'player/ready', 'match/started'].includes(event.type) &&
+    !['player/commander-selected', 'player/ready', 'game/war-efforts-set', 'match/started'].includes(event.type) &&
     event.payload.matchEpoch !== state.match.epoch
   ) return 'stale match epoch';
+
+  if (event.type === 'game/war-efforts-set') {
+    if (state.phase !== 'lobby' || event.actorUid !== state.hostUid || typeof event.payload.enabled !== 'boolean') {
+      return 'invalid War Effort setting';
+    }
+    state.warEffortsEnabled = event.payload.enabled;
+    for (const player of state.players) player.ready = false;
+    return null;
+  }
 
   if (event.type === 'player/commander-selected') {
     const requested = commanderId(event.payload.commanderId);
@@ -2385,6 +2451,30 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     ) return 'invalid match start';
     state.match = createMatch(state, seed.trim(), 1);
     state.phase = 'playing';
+    return null;
+  }
+
+  if (event.type === 'war-effort/completed') {
+    const definitionId = event.payload.definitionId;
+    if (
+      state.phase !== 'playing' || !state.match || state.match.pendingChoice ||
+      state.match.turnMode !== 'agent' || currentPlayerUid(state) !== event.actorUid ||
+      typeof definitionId !== 'string'
+    ) return 'illegal War Effort completion';
+    const player = state.match.players[event.actorUid];
+    const held = player.warEffort;
+    const definition = WAR_EFFORT_DEFINITIONS.find((candidate) => candidate.id === definitionId);
+    if (!held || held.definitionId !== definitionId || !definition) return 'illegal War Effort completion';
+    const cost = definition.completion;
+    if (player.resources[cost.resource] < cost.amount) return 'illegal War Effort completion';
+    player.resources[cost.resource] -= cost.amount;
+    player.renown += definition.reward.renown;
+    if (definition.reward.gold) player.resources.gold += definition.reward.gold;
+    if (definition.reward.mithril) player.resources.mithril += definition.reward.mithril;
+    if (definition.reward.recruitCompanies) recruitCompanies(state.match, player, definition.reward.recruitCompanies);
+    player.warEffort = null;
+    state.match.warEffortDiscard.push(held);
+    state.match.activity.push(`${actor.displayName} completes ${definition.name}: ${definition.rewardText}.`);
     return null;
   }
 
@@ -2477,6 +2567,25 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       !pending.options.some((option) => option === choice)
     ) return 'illegal choice resolution';
     const player = state.match.players[event.actorUid];
+    if (pending.kind === 'take-war-effort') {
+      state.match.pendingChoice = null;
+      if (choice !== 'decline-war-effort') {
+        const instanceId = choice.slice('take-war-effort:'.length);
+        if (!pending.instanceIds.includes(instanceId)) return 'illegal choice resolution';
+        const index = state.match.warEffortRow.findIndex((instance) => instance.id === instanceId);
+        if (index < 0) return 'illegal choice resolution';
+        if (player.warEffort) state.match.warEffortDiscard.push(player.warEffort);
+        const [taken] = state.match.warEffortRow.splice(index, 1);
+        player.warEffort = taken;
+        const replacement = state.match.warEffortDeck.shift();
+        if (replacement) state.match.warEffortRow.splice(index, 0, replacement);
+        state.match.activity.push(`${actor.displayName} takes ${WAR_EFFORT_DEFINITIONS.find((definition) => definition.id === taken.definitionId)?.name ?? 'a War Effort'}.`);
+      } else {
+        state.match.activity.push(`${actor.displayName} declines the available War Efforts.`);
+      }
+      finishAgentAction(state.match, event.actorUid);
+      return null;
+    }
     if (pending.kind === 'commander-fate-foresight') {
       if (!choice.startsWith('take-fate:')) return 'illegal choice resolution';
       const chosenId = choice.slice('take-fate:'.length);

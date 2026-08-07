@@ -6,6 +6,7 @@ export type GameEventType =
   | 'player/joined'
   | 'player/commander-selected'
   | 'player/ready'
+  | 'game/war-efforts-set'
   | 'match/started'
   | 'agent/placed'
   | 'choice/resolved'
@@ -16,6 +17,7 @@ export type GameEventType =
   | 'fate/played'
   | 'battle/passed'
   | 'endgame/passed'
+  | 'war-effort/completed'
   | 'match/rematch-ready';
 
 export type GameEvent = {

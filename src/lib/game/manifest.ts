@@ -417,6 +417,45 @@ export const RESERVE_CARD_DEFINITIONS: readonly ReserveCardDefinition[] = [
   }
 ];
 
+export type WarEffortId = 'arm-westfold' | 'mithril-cause' | 'stores-winter';
+
+export type WarEffortDefinition = {
+  id: WarEffortId;
+  name: string;
+  completionText: string;
+  rewardText: string;
+  completion: {
+    kind: 'pay-resource';
+    resource: 'gold' | 'mithril' | 'provisions';
+    amount: number;
+  };
+  reward: { renown: number; gold?: number; mithril?: number; recruitCompanies?: number };
+};
+
+export const WAR_EFFORT_DEFINITIONS: readonly WarEffortDefinition[] = [
+  {
+    id: 'arm-westfold', name: 'Arm the Westfold',
+    completionText: 'During your turn, pay 5 Gold',
+    rewardText: 'Gain 1 Renown and recruit 2 Companies',
+    completion: { kind: 'pay-resource', resource: 'gold', amount: 5 },
+    reward: { renown: 1, recruitCompanies: 2 }
+  },
+  {
+    id: 'mithril-cause', name: 'Mithril for the Cause',
+    completionText: 'During your turn, pay 5 Mithril',
+    rewardText: 'Gain 1 Renown and 3 Gold',
+    completion: { kind: 'pay-resource', resource: 'mithril', amount: 5 },
+    reward: { renown: 1, gold: 3 }
+  },
+  {
+    id: 'stores-winter', name: 'Stores for Winter',
+    completionText: 'During your turn, pay 3 Provisions',
+    rewardText: 'Gain 1 Renown and 2 Mithril',
+    completion: { kind: 'pay-resource', resource: 'provisions', amount: 3 },
+    reward: { renown: 1, mithril: 2 }
+  }
+];
+
 export type ChronicleCardId =
   | 'rider-rohan'
   | 'bree-land-guide'

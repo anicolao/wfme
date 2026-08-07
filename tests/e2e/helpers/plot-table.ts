@@ -11,7 +11,8 @@ export async function startPlotTable(
   steps: TestStepHelper,
   seed: string,
   roomCodes: { phone: string; desktop: string },
-  commanders: readonly [string, string, string] = ['Aragorn', 'Galadriel', 'Gandalf']
+  commanders: readonly [string, string, string] = ['Aragorn', 'Galadriel', 'Gandalf'],
+  warEffortsEnabled = false
 ) {
   const viewport = page.viewportSize() ?? { width: 1280, height: 960 };
   const guestAContext = await browser.newContext({ baseURL: 'http://127.0.0.1:5189', viewport, reducedMotion: 'reduce', serviceWorkers: 'block' });
@@ -124,6 +125,16 @@ export async function startPlotTable(
     }, [{ spec: 'Every connected lobby sees the joined seat', check: async () => {
       for (const observer of seats.slice(0, index + 2)) await expect(observer.page.getByText(seat.name, { exact: true })).toBeVisible();
     } }, converged(accepted.value + 1, seats.slice(0, index + 2))]);
+  }
+  if (warEffortsEnabled) {
+    await steps.gesture(page, 'enable-war-efforts', 'Mara enables the optional War Effort module', async () => {
+      await page.getByLabel('Enable optional War Efforts').check(); accepted.value += 1;
+    }, [
+      { spec: 'Every connected lobby publicly shows the enabled module before readiness', check: async () => {
+        for (const seat of seats) await expect(seat.page.getByText('Enabled', { exact: true })).toBeVisible();
+      } },
+      converged(accepted.value + 1)
+    ]);
   }
   for (const [index, seat] of seats.entries()) {
     const commander = commanders[index];

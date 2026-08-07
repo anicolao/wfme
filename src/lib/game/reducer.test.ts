@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createEvent } from './events';
-import { AGENT_CARD_DEFINITIONS, BATTLE_CARD_DEFINITIONS, CHRONICLE_CARD_DEFINITIONS, MUSTER_CARD_DEFINITIONS, OBSERVATION_POSTS } from './manifest';
+import { AGENT_CARD_DEFINITIONS, BATTLE_CARD_DEFINITIONS, CHRONICLE_CARD_DEFINITIONS, MUSTER_CARD_DEFINITIONS, OBSERVATION_POSTS, WAR_EFFORT_DEFINITIONS } from './manifest';
 import { battleStrength, blackBreathStrengthLoss, currentPlayerUid, eligibleHeirStandingOptions, fairSeemingPromiseGold, legalAgentSpaces, reduceGame, rousedAtLastEntCount } from './reducer';
 import { shuffled } from './prng';
 
@@ -42,6 +42,22 @@ function completedAgentRound(seed = 'road-2') {
       createEvent('choice/resolved', roadActor, 7, { choice: 'pay-2-gold' }, 15)
     ]
   };
+}
+
+function warEffortRoom(seed: string) {
+  return [
+    createEvent('game/created', 'host', 1, { roomCode: 'RIVEN', displayName: 'Mara' }, 1),
+    createEvent('player/joined', 'guest-a', 1, { displayName: 'Rin' }, 2),
+    createEvent('player/joined', 'guest-b', 1, { displayName: 'Pip' }, 3),
+    createEvent('player/commander-selected', 'host', 2, { commanderId: 'aragorn' }, 4),
+    createEvent('player/commander-selected', 'guest-a', 2, { commanderId: 'treebeard' }, 5),
+    createEvent('player/commander-selected', 'guest-b', 2, { commanderId: 'gandalf' }, 6),
+    createEvent('game/war-efforts-set', 'host', 3, { enabled: true }, 7),
+    createEvent('player/ready', 'host', 4, { ready: true }, 8),
+    createEvent('player/ready', 'guest-a', 3, { ready: true }, 9),
+    createEvent('player/ready', 'guest-b', 3, { ready: true }, 10),
+    createEvent('match/started', 'host', 5, { seed }, 11)
+  ];
 }
 
 describe('integrated Agent placement replay', () => {
@@ -601,6 +617,84 @@ describe('integrated Agent placement replay', () => {
     expect(after.match!.players[actor].hand).toHaveLength(5);
     expect(after.match!.players[actor].drawPile).toHaveLength(4);
     expect(after.match!.boardAgents['take-war-effort'][0].uid).toBe(actor);
+  });
+
+  it('enables, takes, replaces, pays, completes, and conserves the first executable War Effort batch', () => {
+    const selected = Array.from({ length: 100 }, (_, index) => warEffortRoom(`war-effort-batch-${index}`))
+      .map((stream) => ({ stream, state: reduceGame(stream) }))
+      .find(({ state }) => {
+        const uid = currentPlayerUid(state)!;
+        return state.match!.warEffortRow.some((effort) => effort.definitionId === 'stores-winter') &&
+          state.match!.players[uid].hand.some((card) => card.definitionId === 'the-open-road');
+      });
+    expect(selected).toBeDefined();
+    const stream = selected!.stream;
+    const target = currentPlayerUid(selected!.state)!;
+    const sequences: Record<string, number> = { host: 5, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 12;
+    const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      sequences[uid] += 1;
+      stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+    };
+    const started = reduceGame(stream);
+    expect(started.warEffortsEnabled).toBe(true);
+    expect(started.match!.warEffortsEnabled).toBe(true);
+    expect(started.match!.warEffortRow).toHaveLength(2);
+    expect(started.match!.warEffortDeck).toHaveLength(1);
+    expect(Object.values(started.match!.players).every((player) => player.warEffort === null)).toBe(true);
+
+    const road = started.match!.players[target].hand.find((card) => card.definitionId === 'the-open-road')!;
+    append(target, 'agent/placed', { cardInstanceId: road.id, spaceId: 'take-war-effort' });
+    let state = reduceGame(stream);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.players[target].resources.gold).toBe(0);
+    expect(state.match!.pendingChoice).toMatchObject({ kind: 'take-war-effort', actorUid: target });
+    const stores = state.match!.warEffortRow.find((effort) => effort.definitionId === 'stores-winter')!;
+    append(target, 'choice/resolved', { choice: `take-war-effort:${stores.id}` });
+    state = reduceGame(stream);
+    expect(state.match!.players[target].warEffort).toEqual(stores);
+    expect(state.match!.warEffortRow).toHaveLength(2);
+    expect(state.match!.warEffortDeck).toHaveLength(0);
+
+    let completed = false;
+    for (let guard = 0; guard < 500 && !completed; guard += 1) {
+      state = reduceGame(stream);
+      expect(state.diagnostics).toEqual([]);
+      const match = state.match!;
+      const pending = match.pendingChoice;
+      if (pending?.kind === 'seek-allies') append(pending.actorUid, 'choice/resolved', { choice: 'keep-card' });
+      else if (pending?.kind === 'battle-deployment') append(pending.actorUid, 'choice/resolved', { choice: 'deploy:0' });
+      else if (pending?.kind === 'critical-defense') append(pending.actorUid, 'choice/resolved', { choice: 'decline-defender' });
+      else if (pending) throw new Error(`Unexpected War Effort setup choice: ${pending.kind}`);
+      else if (match.turnMode === 'reveal') append(currentPlayerUid(state)!, 'reveal/finished', {});
+      else if (match.turnMode === 'battle') append(currentPlayerUid(state)!, 'battle/passed', {});
+      else {
+        const uid = currentPlayerUid(state)!;
+        const player = match.players[uid];
+        if (uid === target && player.resources.provisions >= 3) {
+          const before = { renown: player.renown, mithril: player.resources.mithril };
+          append(uid, 'war-effort/completed', { definitionId: 'stores-winter' });
+          const after = reduceGame(stream);
+          expect(after.match!.players[uid].resources.provisions).toBe(player.resources.provisions - 3);
+          expect(after.match!.players[uid].renown).toBe(before.renown + 1);
+          expect(after.match!.players[uid].resources.mithril).toBe(before.mithril + 2);
+          completed = true;
+        } else if (uid === target) {
+          const mission = player.hand.find((card) => card.definitionId === 'diplomatic-mission');
+          if (mission && legalAgentSpaces(state, uid, mission.id).includes('dwarven-caravans')) {
+            append(uid, 'agent/placed', { cardInstanceId: mission.id, spaceId: 'dwarven-caravans' });
+          } else append(uid, 'turn/revealed', {});
+        } else append(uid, 'turn/revealed', {});
+      }
+    }
+    expect(completed).toBe(true);
+    state = reduceGame(stream);
+    expect(state.match!.players[target].warEffort).toBeNull();
+    expect(state.match!.warEffortDiscard).toContainEqual(stores);
+    const all = [...state.match!.warEffortRow, ...state.match!.warEffortDeck, ...state.match!.warEffortDiscard, ...Object.values(state.match!.players).flatMap((player) => player.warEffort ? [player.warEffort] : [])];
+    expect(all).toHaveLength(WAR_EFFORT_DEFINITIONS.length);
+    expect(new Set(all.map((effort) => effort.id)).size).toBe(WAR_EFFORT_DEFINITIONS.length);
+    expect(reduceGame(stream)).toEqual(state);
   });
 
   it('collects the printed and accumulated Riches at Edoras', () => {
