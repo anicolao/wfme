@@ -632,7 +632,7 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
   if (!definition) return [];
   if (
     card?.definitionId === 'token-of-command' &&
-    !(['aragorn', 'theoden', 'galadriel', 'gandalf', 'eowyn'] as const).includes(state.players.find((candidate) => candidate.uid === actorUid)?.commander as 'aragorn' | 'theoden' | 'galadriel' | 'gandalf' | 'eowyn')
+    !(['aragorn', 'theoden', 'galadriel', 'gandalf', 'eowyn', 'saruman'] as const).includes(state.players.find((candidate) => candidate.uid === actorUid)?.commander as 'aragorn' | 'theoden' | 'galadriel' | 'gandalf' | 'eowyn' | 'saruman')
   ) return [];
   const ownedScoutCount = Object.values(match.boardScouts).filter((uid) => uid === actorUid).length;
   const canUsePaths = definition.journeyEffect?.kind === 'recall-scout-ignore-space-cost' && ownedScoutCount > 0;
@@ -1070,6 +1070,13 @@ export function eligibleHeirStandingOptions(
     .map((faction) => `standing-${faction}` as const);
 }
 
+export function fairSeemingPromiseGold(
+  player: Pick<MatchPlayer, 'standing'>
+): number {
+  const factions: readonly FactionId[] = ['shadow', 'dwarven', 'elven', 'wild'];
+  return Math.min(3, factions.filter((faction) => player.standing[faction] >= 2).length);
+}
+
 function openChronicleStandingGain(match: MatchState, actorUid: string): boolean {
   const options = eligibleHeirStandingOptions(match.players[actorUid]);
   if (options.length === 0) {
@@ -1097,6 +1104,13 @@ function openAragornRing(
 function applyTheodenRing(match: MatchState, actorUid: string): void {
   match.players[actorUid].resources.provisions += 1;
   match.activity.push('Théoden gains 1 Provision with Ride Now.');
+}
+
+function applySarumanRing(match: MatchState, actorUid: string): void {
+  const player = match.players[actorUid];
+  const gold = fairSeemingPromiseGold(player);
+  player.resources.gold += gold;
+  match.activity.push(`Saruman gains ${gold} Gold with A Fair-seeming Promise from ${gold} respected faction${gold === 1 ? '' : 's'}.`);
 }
 
 function resolveGaladrielRingDraw(match: MatchState, actorUid: string): void {
@@ -1427,6 +1441,8 @@ function finishAgentAction(match: MatchState, actorUid: string): void {
       return;
     } else if (match.players[actorUid].commander === 'eowyn') {
       if (openEowynRing(match, actorUid, null)) return;
+    } else if (match.players[actorUid].commander === 'saruman') {
+      applySarumanRing(match, actorUid);
     }
   }
   const queued = match.queuedBattleDeployment;
@@ -2083,7 +2099,9 @@ function beginAgentResolution(
           ? 'Kindle Courage'
           : commander === 'eowyn'
             ? 'Choose Deeds'
-            : 'Andúril Aflame';
+            : commander === 'saruman'
+              ? 'A Fair-seeming Promise'
+              : 'Andúril Aflame';
     state.match!.pendingChoice = {
       kind: 'token-command-order',
       actorUid,
@@ -2352,7 +2370,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === pending.spaceId);
       if (!card || card.definitionId !== 'token-of-command' || !space) return 'illegal choice resolution';
       const commander = player.commander;
-      if (commander !== 'aragorn' && commander !== 'theoden' && commander !== 'galadriel' && commander !== 'gandalf' && commander !== 'eowyn') {
+      if (commander !== 'aragorn' && commander !== 'theoden' && commander !== 'galadriel' && commander !== 'gandalf' && commander !== 'eowyn' && commander !== 'saruman') {
         return 'illegal choice resolution';
       }
       state.match.pendingChoice = null;
@@ -2385,11 +2403,16 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
             spaceId: space.id,
             ignoredResourceCost: pending.ignoredResourceCost
           });
-        } else if (!openEowynRing(state.match, event.actorUid, {
-          cardInstanceId: card.id,
-          spaceId: space.id,
-          ignoredResourceCost: pending.ignoredResourceCost
-        })) {
+        } else if (commander === 'eowyn') {
+          if (openEowynRing(state.match, event.actorUid, {
+            cardInstanceId: card.id,
+            spaceId: space.id,
+            ignoredResourceCost: pending.ignoredResourceCost
+          })) return null;
+          resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
+          if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
+        } else {
+          applySarumanRing(state.match, event.actorUid);
           resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
           if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
         }

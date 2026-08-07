@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createEvent } from './events';
 import { AGENT_CARD_DEFINITIONS, BATTLE_CARD_DEFINITIONS, CHRONICLE_CARD_DEFINITIONS, MUSTER_CARD_DEFINITIONS, OBSERVATION_POSTS } from './manifest';
-import { battleStrength, currentPlayerUid, eligibleHeirStandingOptions, legalAgentSpaces, reduceGame } from './reducer';
+import { battleStrength, currentPlayerUid, eligibleHeirStandingOptions, fairSeemingPromiseGold, legalAgentSpaces, reduceGame } from './reducer';
 import { shuffled } from './prng';
 
 function readyRoom(seed = 'road-2') {
@@ -10,7 +10,7 @@ function readyRoom(seed = 'road-2') {
     createEvent('player/joined', 'guest-a', 1, { displayName: 'Rin' }, 2),
     createEvent('player/joined', 'guest-b', 1, { displayName: 'Pip' }, 3),
     createEvent('player/commander-selected', 'host', 2, { commanderId: 'aragorn' }, 4),
-    createEvent('player/commander-selected', 'guest-a', 2, { commanderId: 'saruman' }, 5),
+    createEvent('player/commander-selected', 'guest-a', 2, { commanderId: 'treebeard' }, 5),
     createEvent('player/commander-selected', 'guest-b', 2, { commanderId: 'gandalf' }, 6),
     createEvent('player/ready', 'host', 3, { ready: true }, 7),
     createEvent('player/ready', 'guest-a', 3, { ready: true }, 8),
@@ -112,7 +112,7 @@ describe('integrated Agent placement replay', () => {
     const inactiveSetup = setup.map((event) => event.type !== 'player/commander-selected'
       ? event
       : event.actorUid === 'host'
-        ? createEvent('player/commander-selected', 'host', 2, { commanderId: 'saruman' }, 4)
+        ? createEvent('player/commander-selected', 'host', 2, { commanderId: 'witch-king' }, 4)
         : event.actorUid === 'guest-a'
           ? createEvent('player/commander-selected', 'guest-a', 2, { commanderId: 'aragorn' }, 5)
           : event);
@@ -2995,6 +2995,99 @@ describe('integrated Agent placement replay', () => {
     expect(afterDiscardTrash.match!.players.host.fateHand).toHaveLength(1);
     expect(afterDiscardTrash.match!.activity).toContain('Mara trashes one private card and draws 1 card with Choose Deeds.');
     expect(reduceGame(stream)).toEqual(afterDiscardTrash);
+  });
+
+  it('counts respected factions at Saruman’s exact Ring resolution and caps A Fair-seeming Promise at three Gold', () => {
+    expect(fairSeemingPromiseGold({ standing: { shadow: 0, dwarven: 0, elven: 0, wild: 0 } })).toBe(0);
+    expect(fairSeemingPromiseGold({ standing: { shadow: 2, dwarven: 1, elven: 0, wild: 6 } })).toBe(2);
+    expect(fairSeemingPromiseGold({ standing: { shadow: 2, dwarven: 2, elven: 2, wild: 0 } })).toBe(3);
+    expect(fairSeemingPromiseGold({ standing: { shadow: 6, dwarven: 2, elven: 4, wild: 5 } })).toBe(3);
+
+    const sarumanRoom = (seed: string) => readyRoom(seed).map((event) => event.type !== 'player/commander-selected'
+      ? event
+      : event.actorUid === 'host'
+        ? createEvent('player/commander-selected', 'host', 2, { commanderId: 'saruman' }, 4)
+        : event.actorUid === 'guest-a'
+          ? createEvent('player/commander-selected', 'guest-a', 2, { commanderId: 'aragorn' }, 5)
+          : event);
+
+    const zeroSetup = sarumanRoom('aragorn-ring-11');
+    const zeroStarted = reduceGame(zeroSetup);
+    const zeroToken = zeroStarted.match!.players.host.hand.find((card) => card.definitionId === 'token-of-command')!;
+    expect(zeroToken).toBeDefined();
+    expect(legalAgentSpaces(zeroStarted, 'host', zeroToken.id)).toContain('take-war-effort');
+    const zeroPlacement = createEvent('agent/placed', 'host', 5, {
+      cardInstanceId: zeroToken.id,
+      spaceId: 'take-war-effort'
+    }, 11);
+    const zeroOrder = createEvent('choice/resolved', 'host', 6, { choice: 'ring-first' }, 12);
+    const zeroResolved = reduceGame([...zeroSetup, zeroPlacement, zeroOrder]);
+    expect(zeroResolved.diagnostics).toEqual([]);
+    expect(zeroResolved.match!.players.host.resources.gold).toBe(2);
+    expect(zeroResolved.match!.activity).toContain('Saruman gains 0 Gold with A Fair-seeming Promise from 0 respected factions.');
+    expect(zeroResolved.match!.activity.findIndex((entry) => entry.includes('Saruman gains 0 Gold with A Fair-seeming Promise')))
+      .toBeLessThan(zeroResolved.match!.activity.findIndex((entry) => entry.includes('sends an Agent to Take Up a War Effort')));
+    expect(reduceGame([...zeroSetup, zeroPlacement, zeroOrder])).toEqual(zeroResolved);
+
+    const stream = sarumanRoom('aragorn-ring-11');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    let state = reduceGame(stream);
+    for (let guard = 0; guard < 120; guard += 1) {
+      const actorUid = currentPlayerUid(state)!;
+      const player = state.match!.players[actorUid];
+      if (
+        actorUid === 'host' &&
+        player.standing.dwarven >= 2 &&
+        player.hand.some((card) => card.definitionId === 'token-of-command')
+      ) break;
+      sequences[actorUid] += 1;
+      if (state.match!.turnMode === 'reveal') {
+        stream.push(createEvent('reveal/finished', actorUid, sequences[actorUid], {}, timestamp++));
+      } else {
+        const dwarvenCard = actorUid === 'host'
+          ? player.hand.find((card) => legalAgentSpaces(state, actorUid, card.id).includes('dwarven-caravans'))
+          : undefined;
+        if (dwarvenCard && player.standing.dwarven < 2) {
+          stream.push(createEvent('agent/placed', actorUid, sequences[actorUid], {
+            cardInstanceId: dwarvenCard.id,
+            spaceId: 'dwarven-caravans'
+          }, timestamp++));
+        } else {
+          stream.push(createEvent('turn/revealed', actorUid, sequences[actorUid], {}, timestamp++));
+        }
+      }
+      state = reduceGame(stream);
+      expect(state.diagnostics).toEqual([]);
+      if (state.match!.pendingChoice?.kind === 'seek-allies') {
+        sequences[actorUid] += 1;
+        stream.push(createEvent('choice/resolved', actorUid, sequences[actorUid], { choice: 'keep-card' }, timestamp++));
+        state = reduceGame(stream);
+        expect(state.diagnostics).toEqual([]);
+      }
+    }
+
+    expect(currentPlayerUid(state)).toBe('host');
+    expect(state.match!.players.host.standing.dwarven).toBe(2);
+    const token = state.match!.players.host.hand.find((card) => card.definitionId === 'token-of-command')!;
+    expect(token).toBeDefined();
+    const goldBefore = state.match!.players.host.resources.gold;
+    sequences.host += 1;
+    stream.push(createEvent('agent/placed', 'host', sequences.host, {
+      cardInstanceId: token.id,
+      spaceId: 'take-war-effort'
+    }, timestamp++));
+    sequences.host += 1;
+    stream.push(createEvent('choice/resolved', 'host', sequences.host, { choice: 'space-first' }, timestamp++));
+    const respectedResolved = reduceGame(stream);
+    expect(respectedResolved.diagnostics).toEqual([]);
+    expect(respectedResolved.match!.players.host.resources.gold).toBe(goldBefore + 3);
+    expect(respectedResolved.match!.activity).toContain('Saruman gains 1 Gold with A Fair-seeming Promise from 1 respected faction.');
+    expect(respectedResolved.match!.activity.findIndex((entry) => entry.includes('sends an Agent to Take Up a War Effort')))
+      .toBeLessThan(respectedResolved.match!.activity.findIndex((entry) => entry.includes('Saruman gains 1 Gold with A Fair-seeming Promise')));
+    expect(respectedResolved.match!.pendingChoice).toBeNull();
+    expect(currentPlayerUid(respectedResolved)).not.toBe('host');
+    expect(reduceGame(stream)).toEqual(respectedResolved);
   });
 
   it('pays for a Council seat, adds Reveal Influence, and resolves a repeat Fate visit', () => {
