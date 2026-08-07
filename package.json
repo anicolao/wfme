@@ -16,7 +16,7 @@
     "check:e2e-policy": "bash scripts/verify-e2e-policy.sh",
     "test:unit": "vitest run --config vitest.config.ts",
     "test:e2e": "firebase emulators:exec --project wfme-e2e --only auth,firestore \"playwright test\"",
-    "test:e2e:update-snapshots": "firebase emulators:exec --project wfme-e2e --only auth,firestore \"playwright test --update-snapshots\"",
+    "test:e2e:update-snapshots": "UPDATE_E2E_DOCS=true firebase emulators:exec --project wfme-e2e --only auth,firestore \"playwright test --update-snapshots\"",
     "test:rules": "firebase emulators:exec --project wfme-e2e --only firestore \"vitest run --config vitest.rules.config.ts\"",
     "emulators": "firebase emulators:start --project wfme-e2e",
     "verify:static": "bash scripts/verify-static.sh",

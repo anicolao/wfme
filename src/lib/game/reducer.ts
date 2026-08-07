@@ -566,7 +566,7 @@ function createMatch(state: GameState, seed: string, epoch: number): MatchState 
           revealInfluence: 0,
           revealedSwords: 0,
           revealedThisRound: false,
-          renown: 0,
+          renown: playerOrder.length === 4 ? 1 : 0,
           availableAgents: 2,
           captainUnlocked: false,
           captainAgentPending: false,
@@ -4325,10 +4325,9 @@ function runAutomatedRivals(state: GameState): void {
 export function reduceGame(events: readonly GameEvent[]): GameState {
   const state = structuredClone(EMPTY_GAME);
   const seenIds = new Set<string>();
-  const ordered = [...events].sort(
-    (left, right) => left.createdAtMillis - right.createdAtMillis || left.id.localeCompare(right.id)
-  );
-  for (const event of ordered) {
+  // Callers provide canonical order. The Firestore repository uses server
+  // commit time plus event ID; pure fixtures use their declared array order.
+  for (const event of events) {
     if (seenIds.has(event.id)) {
       state.diagnostics.push(`${event.id}: duplicate event ID`);
       continue;

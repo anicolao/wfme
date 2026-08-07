@@ -14,7 +14,11 @@ test('the game opens directly at a responsive construction lobby', async ({ page
       await expect(page.getByRole('button', { name: 'Create game' })).toBeEnabled();
       await expect(page.getByRole('button', { name: 'Join game' })).toBeEnabled();
     } },
-    { spec: 'The current tracer boundary is explicit', check: async () => await expect(page.getByText('Tracer 1 supports a real seeded room')).toBeVisible() },
+    { spec: 'The current release boundary is explicit', check: async () => await expect(page.getByText(/Play the complete seeded game/)).toBeVisible() },
+    { spec: 'The trusted-table privacy boundary is disclosed before room entry', check: async () => {
+      await expect(page.getByTestId('trusted-table-disclosure')).toBeVisible();
+      await expect(page.getByTestId('trusted-table-disclosure')).toContainText('Room codes are invitations');
+    } },
     { spec: 'The viewport has no horizontal document overflow', check: async () => {
       const size = await page.evaluate(() => ({ client: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth }));
       expect(size.scroll).toBeLessThanOrEqual(size.client);

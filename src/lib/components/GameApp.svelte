@@ -11,6 +11,7 @@
     randomRoomCode
   } from '$lib/game/repository';
   import { currentPlayerUid, EMPTY_GAME, reduceGame, type GameState } from '$lib/game/reducer';
+  import { projectSeatView } from '$lib/game/seat-view';
   import RealmBoard from './RealmBoard.svelte';
 
   let backendStatus: 'connecting' | 'ready' | 'syncing' | 'error' = 'connecting';
@@ -28,6 +29,7 @@
   let unsubscribe: (() => void) | null = null;
 
   $: localPlayer = game.players.find((player) => player.uid === activeUid) ?? null;
+  $: seatGame = projectSeatView(game, activeUid);
   $: currentUid = currentPlayerUid(game);
   $: validPlayerCount = game.rivalMode === 'solo'
     ? game.players.length === 1
@@ -79,13 +81,13 @@
       const preferredCode = normalizeRoomCode(roomCodeInput);
       if (roomCodeInput.trim() && preferredCode.length !== 5) {
         backendStatus = 'ready';
-        message = 'A private room code must contain exactly five letters or numbers.';
+        message = 'A room invitation code must contain exactly five letters or numbers.';
         return;
       }
       let code = preferredCode || randomRoomCode();
       if (preferredCode && await gameRoomExists(db, code)) {
         backendStatus = 'ready';
-        message = 'That private room code is already in use.';
+        message = 'That room invitation code is already in use.';
         return;
       }
       while (!preferredCode && await gameRoomExists(db, code)) code = randomRoomCode();
@@ -361,7 +363,7 @@
 
   {#if game.phase === 'playing' || game.phase === 'finished'}
     <RealmBoard
-      {game}
+      game={seatGame}
       {busy}
       localUid={activeUid}
       {selectedCardId}
@@ -386,7 +388,6 @@
         Play the complete seeded game with three or four humans, one human against two automated Rivals,
         or two humans sharing one Rival. Every printed card family and optional War Effort is live.
       </p>
-
       {#if !game.roomCode}
         <label for="display-name">Display name</label>
         <input id="display-name" bind:value={displayName} autocomplete="nickname" placeholder="Mara of Dale" />
@@ -472,6 +473,13 @@
       {/if}
 
       <p class="message" role="status">{message}</p>
+      {#if !game.roomCode && !displayName}
+        <p class="trust-note" data-testid="trusted-table-disclosure">
+          <strong>Trusted-table privacy:</strong> the interface hides hands, Fate, deck order, and unrevealed
+          choices from other seats, but every signed-in participant receives the shared event stream. Room
+          codes are invitations, not protection against a participant inspecting that data.
+        </p>
+      {/if}
     </section>
   {/if}
 
@@ -497,6 +505,7 @@
   h1 { max-width: 13ch; margin: 0; font-size: clamp(3rem, 9vw, 6.5rem); line-height: .86; }
   h2 { font-size: 2rem; }
   .lede { max-width: 48rem; font-size: 1.15rem; line-height: 1.5; }
+  .trust-note { max-width: 54rem; padding: .8rem 1rem; border-left: .3rem solid #6d452d; background: #e2d6ba; line-height: 1.45; }
   label { display: block; margin: .65rem 0 .3rem; font-weight: 700; }
   input, select { width: 100%; min-height: 50px; padding: .75rem; border: 2px solid #9d947e; border-radius: .45rem; background: #fff; font: inherit; }
   button { min-height: 50px; padding: .7rem 1rem; color: #fff; background: #6d452d; border: 0; border-radius: .45rem; font: 700 1rem inherit; cursor: pointer; }

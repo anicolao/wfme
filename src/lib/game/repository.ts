@@ -17,6 +17,20 @@ type StoredEvent = GameEvent & {
   committedAt?: { toMillis(): number };
 };
 
+export type CommittedGameEvent = {
+  event: GameEvent;
+  committedAtMillis: number;
+};
+
+/** Firestore commit time is the canonical room order; client clocks never participate. */
+export function orderCommittedGameEvents(records: readonly CommittedGameEvent[]): GameEvent[] {
+  return [...records]
+    .sort((left, right) =>
+      left.committedAtMillis - right.committedAtMillis || left.event.id.localeCompare(right.event.id)
+    )
+    .map((record) => record.event);
+}
+
 export async function gameRoomExists(db: Firestore, roomCode: string): Promise<boolean> {
   const snapshot = await getDocsFromServer(
     query(collection(db, 'games', roomCode, 'events'), limit(1))
@@ -46,15 +60,16 @@ export function createGameRepository(db: Firestore, roomCode: string, actorUid: 
       return onSnapshot(
         events,
         (snapshot) => {
-          const ordered = snapshot.docs
-            .map((entry) => entry.data() as StoredEvent)
-            .sort(
-              (left, right) =>
-                (left.committedAt?.toMillis() ?? left.createdAtMillis) -
-                  (right.committedAt?.toMillis() ?? right.createdAtMillis) ||
-                left.id.localeCompare(right.id)
-            )
-            .map(({ committedAt: _committedAt, roomCode: _roomCode, ...event }) => event);
+          const committed = snapshot.docs.flatMap((entry) => {
+            const { committedAt, roomCode: _roomCode, ...event } = entry.data() as StoredEvent;
+            const committedAtMillis = committedAt?.toMillis();
+            // A serverTimestamp is null while the local write is pending. Wait
+            // for the acknowledged snapshot instead of inventing client order.
+            return typeof committedAtMillis === 'number'
+              ? [{ event, committedAtMillis }]
+              : [];
+          });
+          const ordered = orderCommittedGameEvents(committed);
           onEvents(ordered);
         },
         onError

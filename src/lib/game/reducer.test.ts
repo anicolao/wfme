@@ -83,7 +83,68 @@ function twoPlayerRivalRoom(seed = 'rivals-two-player') {
   ];
 }
 
+function fourPlayerRoom(seed = 'four-player-setup') {
+  return [
+    createEvent('game/created', 'host', 1, { roomCode: 'RIVEN', displayName: 'Mara' }, 1),
+    createEvent('player/joined', 'guest-a', 1, { displayName: 'Rin' }, 2),
+    createEvent('player/joined', 'guest-b', 1, { displayName: 'Pip' }, 3),
+    createEvent('player/joined', 'guest-c', 1, { displayName: 'Tess' }, 4),
+    createEvent('player/commander-selected', 'host', 2, { commanderId: 'aragorn' }, 5),
+    createEvent('player/commander-selected', 'guest-a', 2, { commanderId: 'treebeard' }, 6),
+    createEvent('player/commander-selected', 'guest-b', 2, { commanderId: 'gandalf' }, 7),
+    createEvent('player/commander-selected', 'guest-c', 2, { commanderId: 'galadriel' }, 8),
+    createEvent('player/ready', 'host', 3, { ready: true }, 9),
+    createEvent('player/ready', 'guest-a', 3, { ready: true }, 10),
+    createEvent('player/ready', 'guest-b', 3, { ready: true }, 11),
+    createEvent('player/ready', 'guest-c', 3, { ready: true }, 12),
+    createEvent('match/started', 'host', 4, { seed }, 13)
+  ];
+}
+
 describe('integrated Agent placement replay', () => {
+  it('preserves canonical stream order when client clocks are skewed', () => {
+    const state = reduceGame([
+      createEvent('game/created', 'host', 1, { roomCode: 'RIVEN', displayName: 'Mara' }, 100),
+      createEvent('player/joined', 'guest-a', 1, { displayName: 'Rin' }, 50)
+    ]);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.players.map((player) => player.uid)).toEqual(['host', 'guest-a']);
+  });
+
+  it('applies exact setup across one-, two-, three-, and four-human formats', () => {
+    const solo = Array.from({ length: 100 }, (_, index) => reduceGame(soloRivalRoom(`setup-solo-${index}`)))
+      .find((state) => Object.keys(state.match!.boardAgents).length === 0)!;
+    const formats = [
+      { state: solo, humans: 1, participants: 3, startingRenown: 0 },
+      { state: reduceGame(twoPlayerRivalRoom('setup-two')), humans: 2, participants: 3, startingRenown: 0 },
+      { state: reduceGame(readyRoom('setup-three')), humans: 3, participants: 3, startingRenown: 0 },
+      { state: reduceGame(fourPlayerRoom()), humans: 4, participants: 4, startingRenown: 1 }
+    ];
+    for (const format of formats) {
+      expect(format.state.diagnostics).toEqual([]);
+      expect(format.state.players).toHaveLength(format.humans);
+      expect(format.state.match!.playerOrder).toHaveLength(format.participants);
+      expect(new Set(Object.values(format.state.match!.players).map((player) => player.objectiveId)).size).toBe(format.participants);
+      expect(format.state.match!.warEffortsEnabled).toBe(false);
+      for (const player of Object.values(format.state.match!.players)) {
+        expect(player.resources).toEqual({ gold: 0, mithril: 0, provisions: 1 });
+        expect(player.companies).toEqual({ supply: 9, garrison: 3 });
+        expect(player.availableAgents).toBe(2);
+        expect(player.renown).toBe(format.startingRenown);
+        if (player.isRival) {
+          expect(player.hand).toEqual([]);
+          expect(player.drawPile).toEqual([]);
+          expect(player.fateHand).toEqual([]);
+        } else {
+          expect(player.hand).toHaveLength(5);
+          expect(player.drawPile).toHaveLength(5);
+        }
+      }
+    }
+    expect(solo.match!.playerOrder).toEqual(['host', 'rival-1', 'rival-2']);
+    expect(reduceGame(twoPlayerRivalRoom('setup-two')).match!.playerOrder[1]).toBe('rival-1');
+  });
+
   it('sets up a deterministic solo game with two distinct Rivals, Objectives, and one conserved action deck', () => {
     const first = reduceGame(soloRivalRoom());
     const second = reduceGame(soloRivalRoom());

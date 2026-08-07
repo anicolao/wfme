@@ -15,7 +15,8 @@ Every numbered frame is captured only after its listed semantic validations pass
 - [x] The page is the game, not a marketing interstitial
 - [x] The Firebase session is ready before room controls are enabled
 - [x] A player can immediately create or join a room
-- [x] The current tracer boundary is explicit
+- [x] The current release boundary is explicit
+- [x] The trusted-table privacy boundary is disclosed before room entry
 - [x] The viewport has no horizontal document overflow
 
 ---

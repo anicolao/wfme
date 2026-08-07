@@ -52,6 +52,8 @@ export class TestStepHelper {
   }
 
   generateDocs(title: string, purpose: string, filename = 'README.md') {
+    if (process.env.UPDATE_E2E_DOCS !== 'true') return;
+
     const lines = [
       `# Test: ${title}`,
       '',

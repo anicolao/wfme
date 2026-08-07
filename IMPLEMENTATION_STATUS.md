@@ -4,6 +4,11 @@ This is the construction ledger for the one canonical game at the repository roo
 
 ## Current release boundary
 
+This is a trusted-table playable alpha. Seat-safe presentation redacts another
+seat's hands, Fate, deck order, and unrevealed choices, but signed-in clients
+still receive the shared event stream; room codes are invitations rather than
+an adversarial-secrecy boundary.
+
 | Capability | Complete | Evidence |
 | --- | ---: | --- |
 | Root lobby and live room | 1 / 1 | `002-dwarven-caravans` creates and joins with three isolated Firebase identities |

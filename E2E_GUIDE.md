@@ -41,7 +41,7 @@ waits, and caught `isEnabled()`/`isDisabled()` probes.
 
 - every player action is a real Playwright click, tap, fill, key, or navigation gesture against a visible control;
 - every gesture is immediately followed by semantic actor/observer validations and a zero-pixel screenshot;
-- every scenario generates its adjacent `README.md`, linking both phone and desktop frames so a reviewer can validate the journey without reading test code;
+- every scenario has an adjacent `README.md`, linking both phone and desktop frames so a reviewer can validate the journey without reading test code;
 - every scenario passes on phone and desktop projects;
 - semantic assertions prove the visible state and legal actions;
 - responsive checks show no overflow or clipped required controls;
@@ -58,6 +58,10 @@ assertions are reviewed. Run:
 ```sh
 nix develop --command bun run test:e2e:update-snapshots
 ```
+
+This explicit update command also regenerates the adjacent scenario walkthroughs.
+Ordinary E2E runs treat those files as retained evidence and do not mutate the
+source tree.
 
 Review every changed image, commit it with the scenario change, and confirm the
 macOS workflow passes. Do not generate or approve Linux baselines, loosen pixel
