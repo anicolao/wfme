@@ -8,6 +8,12 @@ Playwright scenarios are the primary proof that a player-visible capability work
 
 E2E uses the real built client and local Firebase Auth/Firestore emulators once multiplayer lands. It never reads or writes production data.
 
+Playwright builds that client once and serves the production bundle for the
+whole suite. Fresh browser contexts therefore exercise the same bundled module
+shape as a deployment without paying Vite development-module startup on every
+scenario; this keeps the strict 2,000 ms Firebase readiness assertion meaningful
+on macOS CI.
+
 The runner is installed and invoked through the checked-in Nix shell. The
 dedicated `E2E tests (macOS)` workflow runs on `macos-latest`, using
 `cachix/install-nix-action`, `nix develop --command bun install

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createEvent } from './events';
 import { AGENT_CARD_DEFINITIONS, BATTLE_CARD_DEFINITIONS, CHRONICLE_CARD_DEFINITIONS, MUSTER_CARD_DEFINITIONS, OBSERVATION_POSTS } from './manifest';
-import { battleStrength, currentPlayerUid, eligibleHeirStandingOptions, fairSeemingPromiseGold, legalAgentSpaces, reduceGame } from './reducer';
+import { battleStrength, blackBreathStrengthLoss, currentPlayerUid, eligibleHeirStandingOptions, fairSeemingPromiseGold, legalAgentSpaces, reduceGame } from './reducer';
 import { shuffled } from './prng';
 
 function readyRoom(seed = 'road-2') {
@@ -4231,6 +4231,25 @@ describe('integrated Agent placement replay', () => {
     expect(battleStrength(resolved.match!, target)).toBe(Math.max(0, strengthBefore - 3));
     expect(currentPlayerUid(resolved)).toBe(caster);
     expect(resolved.match!.consecutiveBattlePasses).toBe(0);
+
+    const witchStream = stream.map((event) => event.type === 'player/commander-selected' && event.actorUid === caster
+      ? createEvent('player/commander-selected', caster, 2, { commanderId: 'witch-king' }, event.createdAtMillis)
+      : event);
+    const witchAfterSorcery = reduceGame(witchStream);
+    expect(witchAfterSorcery.diagnostics).toEqual([]);
+    expect(battleStrength(witchAfterSorcery.match!, target)).toBe(Math.max(0, strengthBefore - 3));
+    expect(witchAfterSorcery.match!.pendingChoice).toMatchObject({
+      kind: 'commander-black-breath', actorUid: caster, strengthLoss: 1
+    });
+    const breathTarget = witchAfterSorcery.match!.battleParticipantUids.find((uid) => uid !== caster && uid !== target)!;
+    const breathStrengthBefore = battleStrength(witchAfterSorcery.match!, breathTarget);
+    const afterBreath = reduceGame([
+      ...witchStream,
+      createEvent('choice/resolved', caster, sequences[caster] + 1, { choice: `opponent:${breathTarget}` }, timestamp)
+    ]);
+    expect(afterBreath.diagnostics).toEqual([]);
+    expect(afterBreath.match!.pendingChoice).toBeNull();
+    expect(battleStrength(afterBreath.match!, breathTarget)).toBe(Math.max(0, breathStrengthBefore - 1));
   });
 
   it("answers an opponent's exact overtaking Combat Fate with No Living Man once per Battle", () => {
@@ -4354,6 +4373,95 @@ describe('integrated Agent placement replay', () => {
     expect(recalled.match!.round).toBe(2);
     expect(recalled.match!.eowynNoLivingManUsed).toBe(false);
     expect(reduceGame(stream)).toEqual(recalled);
+  });
+
+  it('makes Black Breath a mandatory once-per-Battle choice after the Witch-king plays Combat Fate', () => {
+    expect(blackBreathStrengthLoss(0)).toBe(1);
+    expect(blackBreathStrengthLoss(1)).toBe(2);
+    expect(blackBreathStrengthLoss(2)).toBe(3);
+
+    const stream = readyRoom('eowyn-living-371');
+    const initial = reduceGame(stream);
+    const witchUid = currentPlayerUid(initial)!;
+    const witchCommanderIndex = stream.findIndex((event) => event.type === 'player/commander-selected' && event.actorUid === witchUid);
+    stream[witchCommanderIndex] = createEvent(
+      'player/commander-selected', witchUid, 2, { commanderId: 'witch-king' }, stream[witchCommanderIndex].createdAtMillis
+    );
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const append = (uid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      sequences[uid] += 1;
+      stream.push(createEvent(type, uid, sequences[uid], payload, timestamp++));
+    };
+
+    let state = reduceGame(stream);
+    const witch = state.match!.players[witchUid];
+    const hallCard = witch.hand.find((card) => card.definitionId === 'armed-escort')!;
+    append(witchUid, 'agent/placed', { cardInstanceId: hallCard.id, spaceId: 'hall-fire' });
+    state = reduceGame(stream);
+    expect(state.match!.players[witchUid].fateHand).toContainEqual(expect.objectContaining({ definitionId: 'sudden-charge' }));
+
+    const firstOpponentUid = currentPlayerUid(state)!;
+    const minasCard = state.match!.players[firstOpponentUid].hand.find((card) => legalAgentSpaces(state, firstOpponentUid, card.id).includes('minas-tirith'))!;
+    append(firstOpponentUid, 'agent/placed', { cardInstanceId: minasCard.id, spaceId: 'minas-tirith' });
+    append(firstOpponentUid, 'choice/resolved', { choice: 'deploy:1' });
+
+    state = reduceGame(stream);
+    const secondOpponentUid = currentPlayerUid(state)!;
+    const osgiliathCard = state.match!.players[secondOpponentUid].hand.find((card) => card.definitionId === 'armed-escort')!;
+    append(secondOpponentUid, 'agent/placed', { cardInstanceId: osgiliathCard.id, spaceId: 'osgiliath' });
+    append(secondOpponentUid, 'choice/resolved', { choice: 'pay-0-mithril' });
+    append(secondOpponentUid, 'choice/resolved', { choice: 'deploy:2' });
+
+    state = reduceGame(stream);
+    expect(currentPlayerUid(state)).toBe(witchUid);
+    const hiddenPathsCard = state.match!.players[witchUid].hand.find((card) => card.definitionId === 'seek-allies')!;
+    append(witchUid, 'agent/placed', { cardInstanceId: hiddenPathsCard.id, spaceId: 'hidden-paths' });
+    append(witchUid, 'choice/resolved', { choice: 'keep-card' });
+    append(witchUid, 'choice/resolved', { choice: 'deploy:1' });
+
+    for (const uid of [firstOpponentUid, secondOpponentUid, witchUid]) {
+      append(uid, 'turn/revealed', {});
+      append(uid, 'reveal/finished', {});
+    }
+    state = reduceGame(stream);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.turnMode).toBe('battle');
+    expect(currentPlayerUid(state)).toBe(witchUid);
+
+    const charge = state.match!.players[witchUid].fateHand.find((card) => card.definitionId === 'sudden-charge')!;
+    const targetStrengthBefore = battleStrength(state.match!, firstOpponentUid);
+    append(witchUid, 'fate/played', { cardInstanceId: charge.id });
+    const pending = reduceGame(stream);
+    expect(pending.diagnostics).toEqual([]);
+    expect(pending.match!.witchKingBlackBreathUsed).toBe(true);
+    expect(pending.match!.pendingChoice).toMatchObject({
+      kind: 'commander-black-breath', actorUid: witchUid, strengthLoss: 1
+    });
+    expect(pending.match!.pendingChoice!.options).toEqual(expect.arrayContaining([
+      `opponent:${firstOpponentUid}`, `opponent:${secondOpponentUid}`
+    ]));
+
+    append(firstOpponentUid, 'choice/resolved', { choice: `opponent:${secondOpponentUid}` });
+    expect(reduceGame(stream).diagnostics.at(-1)).toContain('illegal choice resolution');
+    stream.pop();
+    sequences[firstOpponentUid] -= 1;
+    timestamp -= 1;
+
+    append(witchUid, 'choice/resolved', { choice: `opponent:${firstOpponentUid}` });
+    const resolved = reduceGame(stream);
+    expect(resolved.diagnostics).toEqual([]);
+    expect(resolved.match!.pendingChoice).toBeNull();
+    expect(battleStrength(resolved.match!, firstOpponentUid)).toBe(Math.max(0, targetStrengthBefore - 1));
+    expect(currentPlayerUid(resolved)).toBe(witchUid);
+    expect(resolved.match!.activity.filter((entry) => entry.includes('chooses') && entry.includes('lose 1 Strength to Black Breath'))).toHaveLength(1);
+    expect(reduceGame(stream)).toEqual(resolved);
+
+    for (const uid of [witchUid, firstOpponentUid, secondOpponentUid]) append(uid, 'battle/passed', {});
+    const recalled = reduceGame(stream);
+    expect(recalled.diagnostics).toEqual([]);
+    expect(recalled.match!.round).toBe(2);
+    expect(recalled.match!.witchKingBlackBreathUsed).toBe(false);
   });
 
   it('plays selected Age II Defence of Dale with exact Renown and Dwarven standing', () => {

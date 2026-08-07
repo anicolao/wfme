@@ -253,6 +253,9 @@
             {#if game.match.players[player.uid].commander === 'eowyn' && game.match.turnMode === 'battle'}
               <small>No Living Man · {game.match.eowynNoLivingManUsed ? 'spent this Battle' : 'ready'}</small>
             {/if}
+            {#if game.match.players[player.uid].commander === 'witch-king' && game.match.turnMode === 'battle'}
+              <small>Black Breath · {game.match.witchKingBlackBreathUsed ? 'spent this Battle' : 'ready'}</small>
+            {/if}
           </article>
         {/each}
       </div>
@@ -568,7 +571,23 @@
     </section>
   {/if}
 
-  {#if game.match?.pendingChoice && game.match.pendingChoice.kind !== 'place-scout' && game.match.pendingChoice.kind !== 'fell-sorcery' && game.match.pendingChoice.kind !== 'token-command-order' && game.match.pendingChoice.kind !== 'commander-ring-standing' && game.match.pendingChoice.kind !== 'commander-ring-gandalf' && game.match.pendingChoice.kind !== 'commander-ring-eowyn' && game.match.pendingChoice.kind !== 'commander-engines-isengard' && game.match.pendingChoice.kind !== 'commander-fate-foresight'}
+  {#if game.match?.pendingChoice?.kind === 'commander-black-breath'}
+    <section class="pending-choice" data-testid="pending-choice" aria-labelledby="black-breath-title">
+      <div>
+        <p class="eyebrow">Ordered Commander choice</p>
+        <h2 id="black-breath-title">Who suffers the Black Breath?</h2>
+        <p>The Witch-king played his first Combat Fate this Battle. Choose one opposing participant to lose {game.match.pendingChoice.strengthLoss} Strength: one, plus one for each of his Ents in this Battle.</p>
+      </div>
+      <div class="choice-actions">
+        {#each game.match.pendingChoice.options as option}
+          {@const targetUid = option.slice('opponent:'.length)}
+          <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid || busy} onclick={() => onResolveChoice(option)}>Afflict {game.players.find((player) => player.uid === targetUid)?.displayName ?? 'opponent'} · −{game.match.pendingChoice.strengthLoss} Strength</button>
+        {/each}
+      </div>
+    </section>
+  {/if}
+
+  {#if game.match?.pendingChoice && game.match.pendingChoice.kind !== 'place-scout' && game.match.pendingChoice.kind !== 'fell-sorcery' && game.match.pendingChoice.kind !== 'token-command-order' && game.match.pendingChoice.kind !== 'commander-ring-standing' && game.match.pendingChoice.kind !== 'commander-ring-gandalf' && game.match.pendingChoice.kind !== 'commander-ring-eowyn' && game.match.pendingChoice.kind !== 'commander-engines-isengard' && game.match.pendingChoice.kind !== 'commander-black-breath' && game.match.pendingChoice.kind !== 'commander-fate-foresight'}
     <section class="pending-choice" data-testid="pending-choice" aria-labelledby="choice-title">
       <div>
         <p class="eyebrow">Ordered {game.match.pendingChoice.kind === 'critical-defense' || game.match.pendingChoice.kind === 'battle-deployment' || game.match.pendingChoice.kind === 'battle-standing' || game.match.pendingChoice.kind === 'battle-fate-keep' ? 'Battle' : game.match.pendingChoice.kind === 'plot-discard' || game.match.pendingChoice.kind === 'gifts-tokens' || game.match.pendingChoice.kind === 'tidings-afar' || game.match.pendingChoice.kind === 'long-memory' || game.match.pendingChoice.kind.startsWith('divided-counsel') ? 'Plot Fate' : game.match.pendingChoice.kind === 'chronicle-payment' || game.match.pendingChoice.kind === 'chronicle-card-choice' || game.match.pendingChoice.kind === 'chronicle-muster-scout' || game.match.pendingChoice.kind === 'chronicle-muster-fate' || game.match.pendingChoice.kind === 'chronicle-standing-loss' || game.match.pendingChoice.kind === 'chronicle-standing-gain' || game.match.pendingChoice.kind === 'chronicle-messenger-moth' || game.match.pendingChoice.kind === 'chronicle-elven-foresight' || game.match.pendingChoice.kind === 'chronicle-paths-cost' ? 'Chronicle' : game.match.pendingChoice.kind === 'fangorn-moot' ? 'Fangorn Moot' : game.match.pendingChoice.kind === 'deep-fangorn' ? 'Deep Fangorn' : game.match.pendingChoice.kind === 'entwash' ? 'Entwash' : game.match.pendingChoice.kind === 'osgiliath' ? 'Osgiliath' : game.match.pendingChoice.kind === 'great-forge' ? 'Great Forge' : game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Council' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'Ranger' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Scout' : game.match.pendingChoice.kind === 'elven-favor' ? 'Elven favor' : game.match.pendingChoice.kind.startsWith('secret-bargain') ? 'Secret Bargain' : 'Journey'} choice</p>

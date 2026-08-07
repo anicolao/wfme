@@ -37,7 +37,10 @@ export default defineConfig({
   ],
   snapshotPathTemplate: '{testDir}/{testFileDir}/screenshots/{arg}.png',
   webServer: {
-    command: 'bun run dev:e2e',
+    // Exercise one production bundle instead of rebuilding Vite's development
+    // module graph for every fresh browser context. This keeps Firebase startup
+    // inside the strict 2-second readiness window on macOS CI.
+    command: 'bun run build && bun run preview:e2e',
     url: 'http://127.0.0.1:5189',
     timeout: 180_000,
     reuseExistingServer: false,

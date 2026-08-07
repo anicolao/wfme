@@ -143,7 +143,9 @@
                 ? 'Éowyn selected. No Living Man and Choose Deeds are active.'
                 : commanderId === 'saruman'
                   ? 'Saruman selected. A Fair-seeming Promise and Engines of Isengard are active.'
-                  : 'Commander identity selected. This Commander’s powers are not active yet.';
+                  : commanderId === 'witch-king'
+                    ? 'Witch-king selected. Black Breath is active; Terror Rides is inactive.'
+                    : 'Commander identity selected. This Commander’s powers are not active yet.';
     } finally {
       busy = false;
     }
@@ -376,7 +378,7 @@
           <section aria-labelledby="commander-title">
             <div class="section-heading">
               <div><p class="eyebrow">Power rollout</p><h2 id="commander-title">Choose your Commander</h2></div>
-              <p>Both printed powers for Aragorn, Théoden, Galadriel, Gandalf, Éowyn, and Saruman are active. The Witch-king’s and Treebeard’s powers stay visibly inactive until their complete tracers arrive.</p>
+              <p>Both printed powers for Aragorn, Théoden, Galadriel, Gandalf, Éowyn, and Saruman are active. The Witch-king’s Black Breath is active; Terror Rides and Treebeard’s powers stay visibly inactive until their complete tracers arrive.</p>
             </div>
             <div class="commanders">
               {#each COMMANDERS as commander}
@@ -388,7 +390,7 @@
                   aria-pressed={localPlayer.commander === commander.id}
                   onclick={() => void chooseCommander(commander.id)}
                 >
-                  <strong>{commander.name}</strong><span>{commander.epithet}</span><span>{commander.id === 'aragorn' ? 'Powers active · The Line Unbroken · Andúril Aflame' : commander.id === 'theoden' ? 'Powers active · Forth Eorlingas · Ride Now' : commander.id === 'galadriel' ? 'Powers active · Foresight · Mirror Unveiled' : commander.id === 'gandalf' ? 'Powers active · A Wizard Is Never Late · Kindle Courage' : commander.id === 'eowyn' ? 'Powers active · No Living Man · Choose Deeds' : commander.id === 'saruman' ? 'Powers active · A Fair-seeming Promise · Engines of Isengard' : 'Powers inactive'}</span>
+                  <strong>{commander.name}</strong><span>{commander.epithet}</span><span>{commander.id === 'aragorn' ? 'Powers active · The Line Unbroken · Andúril Aflame' : commander.id === 'theoden' ? 'Powers active · Forth Eorlingas · Ride Now' : commander.id === 'galadriel' ? 'Powers active · Foresight · Mirror Unveiled' : commander.id === 'gandalf' ? 'Powers active · A Wizard Is Never Late · Kindle Courage' : commander.id === 'eowyn' ? 'Powers active · No Living Man · Choose Deeds' : commander.id === 'saruman' ? 'Powers active · A Fair-seeming Promise · Engines of Isengard' : commander.id === 'witch-king' ? '1/2 active · Black Breath' : 'Powers inactive'}</span>
                 </button>
               {/each}
             </div>

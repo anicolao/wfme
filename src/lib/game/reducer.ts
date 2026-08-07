@@ -144,6 +144,7 @@ export type MatchState = {
   battleParticipantUids: string[];
   battleBonusStrength: Record<string, number>;
   eowynNoLivingManUsed: boolean;
+  witchKingBlackBreathUsed: boolean;
   consecutiveBattlePasses: number;
   consecutiveEndgamePasses: number;
   endgameTrigger: 'renown' | 'battle-deck' | null;
@@ -162,6 +163,7 @@ export type MatchState = {
   queuedChronicleStandingGain: { actorUid: string } | null;
   queuedCommanderRing: { actorUid: string } | null;
   queuedCommanderEngines: { actorUid: string; resume: 'agent' | 'battle' } | null;
+  queuedCommanderBlackBreath: { actorUid: string; strengthLoss: number } | null;
   queuedMessengerMothRecall: { actorUid: string } | null;
   queuedElvenForesight: { actorUid: string } | null;
   queuedFateDraws: QueuedFateDraw[];
@@ -407,6 +409,11 @@ export type MatchState = {
     strengthLoss: number;
     options: readonly string[];
   } | {
+    kind: 'commander-black-breath';
+    actorUid: string;
+    strengthLoss: number;
+    options: readonly string[];
+  } | {
     kind: 'gather-intelligence';
     actorUid: string;
     cardInstanceId: string;
@@ -588,6 +595,7 @@ function createMatch(state: GameState, seed: string, epoch: number): MatchState 
     battleParticipantUids: [],
     battleBonusStrength: {},
     eowynNoLivingManUsed: false,
+    witchKingBlackBreathUsed: false,
     consecutiveBattlePasses: 0,
     consecutiveEndgamePasses: 0,
     endgameTrigger: null,
@@ -602,6 +610,7 @@ function createMatch(state: GameState, seed: string, epoch: number): MatchState 
     queuedChronicleStandingGain: null,
     queuedCommanderRing: null,
     queuedCommanderEngines: null,
+    queuedCommanderBlackBreath: null,
     queuedMessengerMothRecall: null,
     queuedElvenForesight: null,
     queuedFateDraws: [],
@@ -1654,6 +1663,8 @@ function resolveBattle(match: MatchState): void {
   }
   match.battleParticipantUids = [];
   match.eowynNoLivingManUsed = false;
+  match.witchKingBlackBreathUsed = false;
+  match.queuedCommanderBlackBreath = null;
   match.activeBattleId = null;
   if (!match.pendingChoice) continueBattleRewardChoicesOrRecall(match);
 }
@@ -1672,6 +1683,8 @@ function beginBattleOrRecall(match: MatchState): void {
   match.turnMode = 'battle';
   match.battleParticipantUids = participants;
   match.eowynNoLivingManUsed = false;
+  match.witchKingBlackBreathUsed = false;
+  match.queuedCommanderBlackBreath = null;
   match.consecutiveBattlePasses = 0;
   match.currentPlayerIndex = match.playerOrder.indexOf(participants[0]);
   match.activity.push('The Combat Fate window opens with every participant at their revealed Strength.');
@@ -1692,6 +1705,39 @@ function resolveEowynNoLivingMan(
   match.battleBonusStrength[eowynUid] = (match.battleBonusStrength[eowynUid] ?? 0) + 2;
   match.eowynNoLivingManUsed = true;
   match.activity.push(`Éowyn answers ${fateActorName}'s Combat Fate with No Living Man and gains +2 Strength.`);
+}
+
+export function blackBreathStrengthLoss(entsInBattle: number): number {
+  return Math.max(0, entsInBattle) + 1;
+}
+
+function queueWitchKingBlackBreath(match: MatchState, actorUid: string): void {
+  const player = match.players[actorUid];
+  if (player.commander !== 'witch-king' || match.witchKingBlackBreathUsed) return;
+  match.witchKingBlackBreathUsed = true;
+  match.queuedCommanderBlackBreath = {
+    actorUid,
+    strengthLoss: blackBreathStrengthLoss(match.battleEnts[actorUid] ?? 0)
+  };
+  match.activity.push(`The Witch-king readies Black Breath after playing his first Combat Fate this Battle.`);
+}
+
+function openQueuedWitchKingBlackBreath(match: MatchState): boolean {
+  const queued = match.queuedCommanderBlackBreath;
+  if (!queued) return false;
+  match.queuedCommanderBlackBreath = null;
+  const options = match.battleParticipantUids
+    .filter((uid) => uid !== queued.actorUid)
+    .map((uid) => `opponent:${uid}`);
+  if (options.length === 0) return false;
+  match.pendingChoice = {
+    kind: 'commander-black-breath',
+    actorUid: queued.actorUid,
+    strengthLoss: queued.strengthLoss,
+    options
+  };
+  match.activity.push(`The Witch-king must choose an opponent to lose ${queued.strengthLoss} Strength to Black Breath.`);
+  return true;
 }
 
 function gainStanding(
@@ -2862,6 +2908,18 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       state.match.pendingChoice = null;
       state.match.consecutiveBattlePasses = 0;
       state.match.activity.push(`${actor.displayName} chooses ${state.players.find((candidate) => candidate.uid === targetUid)?.displayName ?? 'an opponent'} to lose ${pending.strengthLoss} Strength to Fell Sorcery.`);
+      openQueuedWitchKingBlackBreath(state.match);
+      return null;
+    }
+    if (pending.kind === 'commander-black-breath') {
+      const targetUid = choice.slice('opponent:'.length);
+      if (targetUid === event.actorUid || !state.match.battleParticipantUids.includes(targetUid)) {
+        return 'illegal choice resolution';
+      }
+      state.match.battleBonusStrength[targetUid] = (state.match.battleBonusStrength[targetUid] ?? 0) - pending.strengthLoss;
+      state.match.pendingChoice = null;
+      state.match.consecutiveBattlePasses = 0;
+      state.match.activity.push(`${actor.displayName} chooses ${state.players.find((candidate) => candidate.uid === targetUid)?.displayName ?? 'an opponent'} to lose ${pending.strengthLoss} Strength to Black Breath.`);
       return null;
     }
     if (pending.kind === 'fangorn-moot') {
@@ -3548,6 +3606,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     state.match.fateDiscard.push(card);
     const activeBattle = BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === state.match!.activeBattleId);
     const fateActorStrengthBefore = battleStrength(state.match, event.actorUid);
+    queueWitchKingBlackBreath(state.match, event.actorUid);
     let strengthBonus = 0;
     if (definition.effect.kind === 'fell-sorcery') {
       player.resources.mithril -= definition.effect.costMithril;
@@ -3591,6 +3650,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     state.match.battleBonusStrength[event.actorUid] = (state.match.battleBonusStrength[event.actorUid] ?? 0) + strengthBonus;
     resolveEowynNoLivingMan(state.match, event.actorUid, actor.displayName, fateActorStrengthBefore);
     state.match.consecutiveBattlePasses = 0;
+    openQueuedWitchKingBlackBreath(state.match);
     return null;
   }
 

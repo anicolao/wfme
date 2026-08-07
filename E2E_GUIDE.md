@@ -15,6 +15,12 @@ nix develop --command bunx playwright install chromium
 nix develop --command bun run test:e2e
 ```
 
+Playwright builds the client once with the emulator configuration and serves
+that production bundle on port 5189. Do not switch the gate to Vite's
+development server: repeated development-module startup can consume the entire
+2,000 ms Firebase readiness window on CI and does not represent the deployed
+artifact.
+
 The suite must pass with zero retries and no focused tests. Use observable
 Playwright assertions; never add sleeps, arbitrary polling, or screenshot-only
 proof. Keep the fixed locale, timezone, viewport, rendering flags, and test
