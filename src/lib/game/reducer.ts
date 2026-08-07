@@ -650,7 +650,7 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
   if (!definition) return [];
   if (
     card?.definitionId === 'token-of-command' &&
-    !(['aragorn', 'theoden', 'galadriel', 'gandalf', 'eowyn', 'saruman', 'witch-king'] as const).includes(state.players.find((candidate) => candidate.uid === actorUid)?.commander as 'aragorn' | 'theoden' | 'galadriel' | 'gandalf' | 'eowyn' | 'saruman' | 'witch-king')
+    !(['aragorn', 'theoden', 'galadriel', 'gandalf', 'eowyn', 'saruman', 'witch-king', 'treebeard'] as const).includes(state.players.find((candidate) => candidate.uid === actorUid)?.commander as CommanderId)
   ) return [];
   const ownedScoutCount = Object.values(match.boardScouts).filter((uid) => uid === actorUid).length;
   const canUsePaths = definition.journeyEffect?.kind === 'recall-scout-ignore-space-cost' && ownedScoutCount > 0;
@@ -1187,6 +1187,17 @@ function applyWitchKingRing(match: MatchState, actorUid: string, battleSpace: bo
   );
 }
 
+function applyTreebeardRing(match: MatchState, actorUid: string): void {
+  const player = match.players[actorUid];
+  player.resources.provisions += 1;
+  if (match.damBreached) player.resources.mithril += 1;
+  match.activity.push(
+    match.damBreached
+      ? 'Treebeard gains 1 Provision and 1 Mithril with Roots and Stone because the Dam is breached.'
+      : 'Treebeard gains 1 Provision with Roots and Stone while the Dam remains intact.'
+  );
+}
+
 function resolveGaladrielRingDraw(match: MatchState, actorUid: string): void {
   const observationPostCount = OBSERVATION_POSTS.filter(
     (post) => match.boardScouts[post.id] === actorUid
@@ -1521,6 +1532,8 @@ function finishAgentAction(match: MatchState, actorUid: string): void {
     } else if (match.players[actorUid].commander === 'witch-king') {
       const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === queuedRing.spaceId);
       applyWitchKingRing(match, actorUid, !!space && isBattleSpace(space));
+    } else if (match.players[actorUid].commander === 'treebeard') {
+      applyTreebeardRing(match, actorUid);
     }
   }
   const queued = match.queuedBattleDeployment;
@@ -2237,7 +2250,9 @@ function beginAgentResolution(
               ? 'A Fair-seeming Promise'
               : commander === 'witch-king'
                 ? 'Terror Rides'
-                : 'Andúril Aflame';
+                : commander === 'treebeard'
+                  ? 'Roots and Stone'
+                  : 'Andúril Aflame';
     state.match!.pendingChoice = {
       kind: 'token-command-order',
       actorUid,
@@ -2523,7 +2538,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === pending.spaceId);
       if (!card || card.definitionId !== 'token-of-command' || !space) return 'illegal choice resolution';
       const commander = player.commander;
-      if (commander !== 'aragorn' && commander !== 'theoden' && commander !== 'galadriel' && commander !== 'gandalf' && commander !== 'eowyn' && commander !== 'saruman' && commander !== 'witch-king') {
+      if (commander !== 'aragorn' && commander !== 'theoden' && commander !== 'galadriel' && commander !== 'gandalf' && commander !== 'eowyn' && commander !== 'saruman' && commander !== 'witch-king' && commander !== 'treebeard') {
         return 'illegal choice resolution';
       }
       state.match.pendingChoice = null;
@@ -2568,8 +2583,12 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
           applySarumanRing(state.match, event.actorUid);
           resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
           if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
-        } else {
+        } else if (commander === 'witch-king') {
           applyWitchKingRing(state.match, event.actorUid, isBattleSpace(space));
+          resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
+          if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
+        } else {
+          applyTreebeardRing(state.match, event.actorUid);
           resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
           if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
         }

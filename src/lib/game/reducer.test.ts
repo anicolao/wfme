@@ -101,24 +101,13 @@ describe('integrated Agent placement replay', () => {
     expect(rejectedFate.match!.fateDiscard).toEqual([]);
   });
 
-  it('lets Aragorn order Andúril Aflame before or after the destination and rejects inactive Rings', () => {
+  it('lets Aragorn order Andúril Aflame before or after the destination', () => {
     const setup = readyRoom('aragorn-ring-11');
     const started = reduceGame(setup);
     expect(currentPlayerUid(started)).toBe('host');
     const token = started.match!.players.host.hand.find((card) => card.definitionId === 'token-of-command')!;
     expect(token).toBeDefined();
     expect(legalAgentSpaces(started, 'host', token.id)).toContain('take-war-effort');
-
-    const inactiveSetup = setup.map((event) => event.type !== 'player/commander-selected'
-      ? event
-      : event.actorUid === 'host'
-        ? createEvent('player/commander-selected', 'host', 2, { commanderId: 'treebeard' }, 4)
-        : event.actorUid === 'guest-a'
-          ? createEvent('player/commander-selected', 'guest-a', 2, { commanderId: 'aragorn' }, 5)
-          : event);
-    const inactive = reduceGame(inactiveSetup);
-    const inactiveToken = inactive.match!.players.host.hand.find((card) => card.definitionId === 'token-of-command')!;
-    expect(legalAgentSpaces(inactive, 'host', inactiveToken.id)).toEqual([]);
 
     const placement = createEvent('agent/placed', 'host', 5, {
       cardInstanceId: token.id,
@@ -3220,6 +3209,7 @@ describe('integrated Agent placement replay', () => {
         else if (pending.kind === 'battle-deployment') append(pending.actorUid, 'choice/resolved', { choice: 'deploy:0' });
         else if (pending.kind === 'entwash') append(pending.actorUid, 'choice/resolved', { choice: 'summon-1-ent' });
         else if (pending.kind === 'critical-defense') append(pending.actorUid, 'choice/resolved', { choice: 'decline-defender' });
+        else if (pending.kind === 'token-command-order') append(pending.actorUid, 'choice/resolved', { choice: 'ring-first' });
         else throw new Error(`Unexpected Roused at Last choice: ${pending.kind}`);
         state = reduceGame(stream);
         expect(state.diagnostics).toEqual([]);
@@ -3264,6 +3254,100 @@ describe('integrated Agent placement replay', () => {
     expect(state.match!.activity.filter((entry) => entry.includes('takes Ent-draught with Roused at Last'))).toHaveLength(1);
     expect(state.match!.activity.filter((entry) => entry.includes('Roused at Last summons 1 additional Ent'))).toHaveLength(1);
     expect(reduceGame(stream)).toEqual(state);
+  });
+
+  it('lets Treebeard order Roots and Stone around a destination that breaches the Dam', () => {
+    const setup = readyRoom('roots-stone-5').map((event) => event.type !== 'player/commander-selected'
+      ? event
+      : event.actorUid === 'host'
+        ? createEvent('player/commander-selected', 'host', 2, { commanderId: 'treebeard' }, 4)
+        : event.actorUid === 'guest-a'
+          ? createEvent('player/commander-selected', 'guest-a', 2, { commanderId: 'aragorn' }, 5)
+          : event);
+    const stream = [...setup];
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const append = (actorUid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      sequences[actorUid] += 1;
+      stream.push(createEvent(type, actorUid, sequences[actorUid], payload, timestamp++));
+    };
+
+    let state = reduceGame(stream);
+    let token: { id: string; definitionId: string } | undefined;
+    for (let guard = 0; guard < 180; guard += 1) {
+      const match = state.match!;
+      const pending = match.pendingChoice;
+      if (pending?.kind === 'ranger-mustering-trash') append(pending.actorUid, 'choice/resolved', { choice: 'decline-trash' });
+      else if (pending?.kind === 'battle-deployment') append(pending.actorUid, 'choice/resolved', { choice: 'deploy:0' });
+      else if (pending?.kind === 'critical-defense') append(pending.actorUid, 'choice/resolved', { choice: 'decline-defender' });
+      else if (pending?.kind === 'seek-allies') append(pending.actorUid, 'choice/resolved', { choice: 'keep-card' });
+      else if (pending?.kind === 'gather-intelligence') append(pending.actorUid, 'choice/resolved', { choice: 'decline-intelligence' });
+      else if (pending) throw new Error(`Unexpected Roots and Stone setup choice: ${pending.kind}`);
+      else {
+        const actorUid = currentPlayerUid(state)!;
+        const player = match.players[actorUid];
+        if (match.turnMode === 'reveal') append(actorUid, 'reveal/finished', {});
+        else if (match.turnMode === 'battle') append(actorUid, 'battle/passed', {});
+        else if (actorUid !== 'host') append(actorUid, 'turn/revealed', {});
+        else {
+          token = player.hand.find((card) => card.definitionId === 'token-of-command');
+          if (player.standing.wild >= 2 && token && legalAgentSpaces(state, 'host', token.id).includes('fangorn-moot')) break;
+          const desiredSpace = player.standing.wild === 0
+            ? 'hidden-paths'
+            : player.standing.wild === 1 && player.resources.provisions < 2
+              ? 'dwarven-caravans'
+              : player.standing.wild === 1
+                ? 'ranger-mustering'
+                : null;
+          const card = desiredSpace
+            ? player.hand.find((candidate) => legalAgentSpaces(state, 'host', candidate.id).includes(desiredSpace))
+            : undefined;
+          if (card && desiredSpace) append('host', 'agent/placed', { cardInstanceId: card.id, spaceId: desiredSpace });
+          else append('host', 'turn/revealed', {});
+        }
+      }
+      state = reduceGame(stream);
+      expect(state.diagnostics).toEqual([]);
+    }
+
+    expect(token).toBeDefined();
+    expect(state.match!.damBreached).toBe(false);
+    expect(state.match!.players.host.standing.wild).toBeGreaterThanOrEqual(2);
+    const baseProvision = state.match!.players.host.resources.provisions;
+    const baseMithril = state.match!.players.host.resources.mithril;
+    const placement = createEvent('agent/placed', 'host', sequences.host + 1, {
+      cardInstanceId: token!.id,
+      spaceId: 'fangorn-moot'
+    }, timestamp);
+
+    const ringFirstEvents = [
+      ...stream,
+      placement,
+      createEvent('choice/resolved', 'host', sequences.host + 2, { choice: 'ring-first' }, timestamp + 1),
+      createEvent('choice/resolved', 'host', sequences.host + 3, { choice: 'gain-provision-breach-dam' }, timestamp + 2)
+    ];
+    const ringFirst = reduceGame(ringFirstEvents);
+    expect(ringFirst.diagnostics).toEqual([]);
+    expect(ringFirst.match!.damBreached).toBe(true);
+    expect(ringFirst.match!.players.host.resources.provisions).toBe(baseProvision + 2);
+    expect(ringFirst.match!.players.host.resources.mithril).toBe(baseMithril);
+    expect(ringFirst.match!.activity).toContain('Treebeard gains 1 Provision with Roots and Stone while the Dam remains intact.');
+
+    const spaceFirstEvents = [
+      ...stream,
+      placement,
+      createEvent('choice/resolved', 'host', sequences.host + 2, { choice: 'space-first' }, timestamp + 1),
+      createEvent('choice/resolved', 'host', sequences.host + 3, { choice: 'gain-provision-breach-dam' }, timestamp + 2)
+    ];
+    const spaceFirst = reduceGame(spaceFirstEvents);
+    expect(spaceFirst.diagnostics).toEqual([]);
+    expect(spaceFirst.match!.damBreached).toBe(true);
+    expect(spaceFirst.match!.players.host.resources.provisions).toBe(baseProvision + 2);
+    expect(spaceFirst.match!.players.host.resources.mithril).toBe(baseMithril + 1);
+    expect(spaceFirst.match!.activity).toContain('Treebeard gains 1 Provision and 1 Mithril with Roots and Stone because the Dam is breached.');
+    expect(spaceFirst.match!.activity.findIndex((entry) => entry.includes('breaches the Dam')))
+      .toBeLessThan(spaceFirst.match!.activity.findIndex((entry) => entry === 'Treebeard gains 1 Provision and 1 Mithril with Roots and Stone because the Dam is breached.'));
+    expect(reduceGame(spaceFirstEvents)).toEqual(spaceFirst);
   });
 
   it('offers Engines of Isengard once after the first two-Company effect and refreshes it at Recall', () => {
@@ -3816,7 +3900,7 @@ describe('integrated Agent placement replay', () => {
         append(state, 'scout/placed', { postId: emptyPost.id });
       } else if (match.turnMode === 'reveal') append(state, 'reveal/finished', {});
       else if (uid === osgiliathUid && !osgiliathComplete) {
-        const placement = player.hand.flatMap((card) => legalAgentSpaces(state, uid, card.id)
+        const placement = player.hand.filter((card) => card.definitionId !== 'token-of-command').flatMap((card) => legalAgentSpaces(state, uid, card.id)
           .filter((spaceId) => spaceId === 'osgiliath')
           .map((spaceId) => ({ card, spaceId })))[0];
         if (placement) {
@@ -3824,7 +3908,7 @@ describe('integrated Agent placement replay', () => {
           append(state, 'agent/placed', { cardInstanceId: placement.card.id, spaceId: placement.spaceId });
         } else append(state, 'turn/revealed', {});
       } else if (uid === archivesUid && !archivesComplete) {
-        const archivePlacement = player.hand.flatMap((card) => legalAgentSpaces(state, uid, card.id)
+        const archivePlacement = player.hand.filter((card) => card.definitionId !== 'token-of-command').flatMap((card) => legalAgentSpaces(state, uid, card.id)
           .filter((spaceId) => spaceId === 'archives-rivendell')
           .map((spaceId) => ({ card, spaceId })))[0];
         if (archivePlacement && player.resources.provisions >= 2) {
@@ -3839,7 +3923,7 @@ describe('integrated Agent placement replay', () => {
           archiveDrawProof = true;
           archivesComplete = true;
         } else {
-          const provisionPlacement = player.hand.flatMap((card) => legalAgentSpaces(state, uid, card.id)
+          const provisionPlacement = player.hand.filter((card) => card.definitionId !== 'token-of-command').flatMap((card) => legalAgentSpaces(state, uid, card.id)
             .filter((spaceId) => spaceId === 'dwarven-caravans')
             .map((spaceId) => ({ card, spaceId })))[0];
           if (player.resources.provisions < 2 && provisionPlacement) {
@@ -3847,7 +3931,7 @@ describe('integrated Agent placement replay', () => {
           } else append(state, 'turn/revealed', {});
         }
       } else if (uid === forgeUid && !forgeComplete) {
-        const forgePlacement = player.hand.flatMap((card) => legalAgentSpaces(state, uid, card.id)
+        const forgePlacement = player.hand.filter((card) => card.definitionId !== 'token-of-command').flatMap((card) => legalAgentSpaces(state, uid, card.id)
           .filter((spaceId) => spaceId === 'great-forge')
           .map((spaceId) => ({ card, spaceId })))[0];
         if (forgePlacement) {
@@ -3857,7 +3941,7 @@ describe('integrated Agent placement replay', () => {
           append(state, 'agent/placed', { cardInstanceId: forgePlacement.card.id, spaceId: forgePlacement.spaceId });
         } else {
           const desiredSpace = player.standing.dwarven < 2 ? 'dwarven-caravans' : 'edoras';
-          const setupPlacement = player.hand.flatMap((card) => legalAgentSpaces(state, uid, card.id)
+          const setupPlacement = player.hand.filter((card) => card.definitionId !== 'token-of-command').flatMap((card) => legalAgentSpaces(state, uid, card.id)
             .filter((spaceId) => spaceId === desiredSpace)
             .map((spaceId) => ({ card, spaceId })))[0];
           if (setupPlacement) append(state, 'agent/placed', { cardInstanceId: setupPlacement.card.id, spaceId: setupPlacement.spaceId });
