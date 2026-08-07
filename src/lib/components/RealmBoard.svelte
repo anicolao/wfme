@@ -554,7 +554,21 @@
     </section>
   {/if}
 
-  {#if game.match?.pendingChoice && game.match.pendingChoice.kind !== 'place-scout' && game.match.pendingChoice.kind !== 'fell-sorcery' && game.match.pendingChoice.kind !== 'token-command-order' && game.match.pendingChoice.kind !== 'commander-ring-standing' && game.match.pendingChoice.kind !== 'commander-ring-gandalf' && game.match.pendingChoice.kind !== 'commander-ring-eowyn' && game.match.pendingChoice.kind !== 'commander-fate-foresight'}
+  {#if game.match?.pendingChoice?.kind === 'commander-engines-isengard'}
+    <section class="pending-choice" data-testid="pending-choice" aria-labelledby="engines-title">
+      <div>
+        <p class="eyebrow">Ordered Commander choice</p>
+        <h2 id="engines-title">Power the Engines of Isengard?</h2>
+        <p>Saruman's first effect recruiting at least two Companies this round has resolved. Pay 1 Gold to recruit one additional finite Company, or decline; this opportunity does not return until next round.</p>
+      </div>
+      <div class="choice-actions">
+        <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid || busy} onclick={() => onResolveChoice('pay-engines')}>Pay 1 Gold · recruit 1 Company</button>
+        <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid || busy} onclick={() => onResolveChoice('decline-engines')}>Decline Engines</button>
+      </div>
+    </section>
+  {/if}
+
+  {#if game.match?.pendingChoice && game.match.pendingChoice.kind !== 'place-scout' && game.match.pendingChoice.kind !== 'fell-sorcery' && game.match.pendingChoice.kind !== 'token-command-order' && game.match.pendingChoice.kind !== 'commander-ring-standing' && game.match.pendingChoice.kind !== 'commander-ring-gandalf' && game.match.pendingChoice.kind !== 'commander-ring-eowyn' && game.match.pendingChoice.kind !== 'commander-engines-isengard' && game.match.pendingChoice.kind !== 'commander-fate-foresight'}
     <section class="pending-choice" data-testid="pending-choice" aria-labelledby="choice-title">
       <div>
         <p class="eyebrow">Ordered {game.match.pendingChoice.kind === 'critical-defense' || game.match.pendingChoice.kind === 'battle-deployment' || game.match.pendingChoice.kind === 'battle-standing' || game.match.pendingChoice.kind === 'battle-fate-keep' ? 'Battle' : game.match.pendingChoice.kind === 'plot-discard' || game.match.pendingChoice.kind === 'gifts-tokens' || game.match.pendingChoice.kind === 'tidings-afar' || game.match.pendingChoice.kind === 'long-memory' || game.match.pendingChoice.kind.startsWith('divided-counsel') ? 'Plot Fate' : game.match.pendingChoice.kind === 'chronicle-payment' || game.match.pendingChoice.kind === 'chronicle-card-choice' || game.match.pendingChoice.kind === 'chronicle-muster-scout' || game.match.pendingChoice.kind === 'chronicle-muster-fate' || game.match.pendingChoice.kind === 'chronicle-standing-loss' || game.match.pendingChoice.kind === 'chronicle-standing-gain' || game.match.pendingChoice.kind === 'chronicle-messenger-moth' || game.match.pendingChoice.kind === 'chronicle-elven-foresight' || game.match.pendingChoice.kind === 'chronicle-paths-cost' ? 'Chronicle' : game.match.pendingChoice.kind === 'fangorn-moot' ? 'Fangorn Moot' : game.match.pendingChoice.kind === 'deep-fangorn' ? 'Deep Fangorn' : game.match.pendingChoice.kind === 'entwash' ? 'Entwash' : game.match.pendingChoice.kind === 'osgiliath' ? 'Osgiliath' : game.match.pendingChoice.kind === 'great-forge' ? 'Great Forge' : game.match.pendingChoice.kind === 'muster-free-peoples' ? 'Council' : game.match.pendingChoice.kind === 'ranger-mustering-trash' ? 'Ranger' : game.match.pendingChoice.kind === 'gather-intelligence' ? 'Scout' : game.match.pendingChoice.kind === 'elven-favor' ? 'Elven favor' : game.match.pendingChoice.kind.startsWith('secret-bargain') ? 'Secret Bargain' : 'Journey'} choice</p>

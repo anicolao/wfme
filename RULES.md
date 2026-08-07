@@ -409,6 +409,8 @@ When you play **Token of Command** on an Agent turn, resolve your Commander's Ri
 
 Unless stated otherwise, each “once per round” ability refreshes at Round Start. A Commander rule overrides this rulebook only where the two directly conflict.
 
+For **Engines of Isengard**, a single effect qualifies only if it actually moves at least two Companies from Saruman's supply to his garrison. Separate recruitment effects in the same turn are not combined. Resolve any choice already opened by that effect before offering Engines of Isengard. Its first qualifying recruitment spends the once-per-round opportunity even if Saruman cannot pay, has no Company remaining, or declines. If he pays 1 Gold, move one additional Company from his supply to his garrison, then continue the interrupted Agent or Battle resolution. A doubled Ent Battle reward is one doubled effect for this purpose. The ability refreshes at Recall for the next round.
+
 ## 20. Optional War Effort module
 
 During setup, shuffle the 12 War Efforts, reveal two beside the board, and keep the rest facedown. When an effect tells you to take a War Effort, take one face-up card and immediately refill its slot. If no card is available, gain 2 Gold instead.

@@ -161,6 +161,7 @@ export type MatchState = {
   queuedChronicleStandingLoss: { actorUid: string } | null;
   queuedChronicleStandingGain: { actorUid: string } | null;
   queuedCommanderRing: { actorUid: string } | null;
+  queuedCommanderEngines: { actorUid: string; resume: 'agent' | 'battle' } | null;
   queuedMessengerMothRecall: { actorUid: string } | null;
   queuedElvenForesight: { actorUid: string } | null;
   queuedFateDraws: QueuedFateDraw[];
@@ -208,6 +209,11 @@ export type MatchState = {
     resumeSpace: { cardInstanceId: string; spaceId: string; ignoredResourceCost: boolean } | null;
     cardInstanceIds: readonly string[];
     options: readonly string[];
+  } | {
+    kind: 'commander-engines-isengard';
+    actorUid: string;
+    resume: 'agent' | 'battle';
+    options: readonly ('pay-engines' | 'decline-engines')[];
   } | {
     kind: 'chronicle-payment';
     actorUid: string;
@@ -595,6 +601,7 @@ function createMatch(state: GameState, seed: string, epoch: number): MatchState 
     queuedChronicleStandingLoss: null,
     queuedChronicleStandingGain: null,
     queuedCommanderRing: null,
+    queuedCommanderEngines: null,
     queuedMessengerMothRecall: null,
     queuedElvenForesight: null,
     queuedFateDraws: [],
@@ -752,6 +759,7 @@ function recallAndBeginNextRound(match: MatchState): void {
   match.boardAgents = {};
   match.pendingChoice = null;
   match.pendingBattleRewardChoices = [];
+  match.queuedCommanderEngines = null;
   match.turnMode = 'agent';
   for (const uid of match.playerOrder) {
     const player = match.players[uid];
@@ -831,12 +839,47 @@ function finishEndgame(match: MatchState): void {
   );
 }
 
-function recruitCompanies(player: MatchPlayer, amount: number): number {
+function recruitCompanies(match: MatchState, player: MatchPlayer, amount: number): number {
   const recruited = Math.min(amount, player.companies.supply);
   player.companies.supply -= recruited;
   player.companies.garrison += recruited;
   player.recruitedThisRound += recruited;
+  if (
+    recruited >= 2 &&
+    player.commander === 'saruman' &&
+    !player.commanderPersistentUsedThisRound
+  ) {
+    player.commanderPersistentUsedThisRound = true;
+    match.queuedCommanderEngines = {
+      actorUid: player.uid,
+      resume: match.turnMode === 'battle' ? 'battle' : 'agent'
+    };
+    match.activity.push(`Saruman's first effect recruiting at least 2 Companies this round readies Engines of Isengard.`);
+  }
   return recruited;
+}
+
+function openQueuedCommanderEngines(match: MatchState): boolean {
+  const queued = match.queuedCommanderEngines;
+  if (!queued) return false;
+  match.queuedCommanderEngines = null;
+  const player = match.players[queued.actorUid];
+  if (player.resources.gold < 1) {
+    match.activity.push(`Saruman cannot pay 1 Gold for Engines of Isengard after its first qualifying recruitment this round.`);
+    return false;
+  }
+  if (player.companies.supply < 1) {
+    match.activity.push(`Engines of Isengard finds no Company remaining in Saruman's supply.`);
+    return false;
+  }
+  match.pendingChoice = {
+    kind: 'commander-engines-isengard',
+    actorUid: queued.actorUid,
+    resume: queued.resume,
+    options: ['pay-engines', 'decline-engines']
+  };
+  match.activity.push(`Saruman may pay 1 Gold to recruit 1 additional Company with Engines of Isengard.`);
+  return true;
 }
 
 function isBattleSpace(space: (typeof BOARD_SPACE_DEFINITIONS)[number]): boolean {
@@ -1381,6 +1424,7 @@ function drainQueuedFateDraw(match: MatchState): boolean {
 }
 
 function finishAgentAction(match: MatchState, actorUid: string): void {
+  if (openQueuedCommanderEngines(match)) return;
   const queuedAgentFollowup = match.queuedAgentFollowup;
   if (queuedAgentFollowup?.actorUid === actorUid) {
     match.queuedAgentFollowup = null;
@@ -1484,7 +1528,6 @@ function applyBattleReward(match: MatchState, uid: string, rank: 0 | 1 | 2): voi
     if (reward.gold) player.resources.gold += reward.gold;
     if (reward.mithril) player.resources.mithril += reward.mithril;
     if (reward.provisions) player.resources.provisions += reward.provisions;
-    if (reward.recruitCompanies) recruitCompanies(player, reward.recruitCompanies);
     if (reward.renown) player.renown += reward.renown;
     if (reward.shadowStanding) {
       for (let step = 0; step < reward.shadowStanding; step += 1) gainStanding(match, player, 'shadow');
@@ -1512,11 +1555,13 @@ function applyBattleReward(match: MatchState, uid: string, rank: 0 | 1 | 2): voi
       drawFateOrOpenForesight(match, uid, reward.drawFate, 'a Battle reward', { kind: 'battle-reward' });
     }
   }
+  if (reward.recruitCompanies) recruitCompanies(match, player, reward.recruitCompanies * copies);
   if (reward.breachDam) match.damBreached = true;
   if (reward.controlLocationId) match.criticalControl[reward.controlLocationId] = uid;
 }
 
 function continueBattleRewardChoicesOrRecall(match: MatchState): void {
+  if (openQueuedCommanderEngines(match)) return;
   const next = match.pendingBattleRewardChoices.shift();
   if (next?.kind === 'standing') {
     match.pendingChoice = {
@@ -1667,12 +1712,12 @@ function gainStanding(
     !player.commanderPersistentUsedThisRound
   ) {
     player.commanderPersistentUsedThisRound = true;
-    const recruited = recruitCompanies(player, 1);
+    const recruited = recruitCompanies(match, player, 1);
     match.activity.push(`Aragorn's Line Unbroken recruits ${recruited} Company${recruited === 1 ? '' : 'ies'}.`);
   }
   if (before < 2 && after >= 2) player.renown += 1;
   if (before < 4 && after >= 4) {
-    if (faction === 'shadow') recruitCompanies(player, 2);
+    if (faction === 'shadow') recruitCompanies(match, player, 2);
     if (faction === 'dwarven') player.resources.provisions += 2;
     if (faction === 'elven') {
       const resume: FateDrawResume = {
@@ -1693,7 +1738,7 @@ function gainStanding(
     }
     if (faction === 'wild') {
       player.resources.provisions += 1;
-      recruitCompanies(player, 1);
+      recruitCompanies(match, player, 1);
     }
   }
   const holder = match.alliances[faction];
@@ -1753,7 +1798,7 @@ function resolveAgentEffects(
     !player.commanderPersistentUsedThisRound
   ) {
     player.commanderPersistentUsedThisRound = true;
-    const recruited = recruitCompanies(player, 1);
+    const recruited = recruitCompanies(match, player, 1);
     match.activity.push(`Théoden's Forth Eorlingas recruits ${recruited} Company${recruited === 1 ? '' : 'ies'}.`);
   }
   const seekAlliesCardId = cardDefinition.journeyEffect?.kind === 'optional-trash-self' ? card.id : null;
@@ -1766,7 +1811,7 @@ function resolveAgentEffects(
     : `paying ${printedCost}`;
   let resolution: string;
   if (!skipJourney && cardDefinition.journeyEffect?.kind === 'recruit-companies') {
-    recruitCompanies(player, cardDefinition.journeyEffect.amount);
+    recruitCompanies(match, player, cardDefinition.journeyEffect.amount);
   }
   if (!skipJourney && cardDefinition.journeyEffect?.kind === 'gain-provisions') {
     player.resources.provisions += cardDefinition.journeyEffect.amount;
@@ -1776,7 +1821,7 @@ function resolveAgentEffects(
   }
   if (!skipJourney && cardDefinition.journeyEffect?.kind === 'draw-card-battle-recruit') {
     for (let index = 0; index < cardDefinition.journeyEffect.draw; index += 1) drawOneCard(match, player.uid, cardDefinition.name);
-    if (isBattleSpace(space)) recruitCompanies(player, cardDefinition.journeyEffect.recruit);
+    if (isBattleSpace(space)) recruitCompanies(match, player, cardDefinition.journeyEffect.recruit);
   }
   if (!skipJourney && cardDefinition.journeyEffect?.kind === 'draw-fate-place-scout') {
     drawFateOrOpenForesight(
@@ -1793,7 +1838,7 @@ function resolveAgentEffects(
         ignoredResourceCost, commanderDeploymentAllowance
       }
     );
-    recruitCompanies(player, cardDefinition.journeyEffect.recruit);
+    recruitCompanies(match, player, cardDefinition.journeyEffect.recruit);
   }
   if (!skipJourney && cardDefinition.journeyEffect?.kind === 'council-seat-gold') {
     player.resources.gold += player.councilSeat
@@ -1805,7 +1850,7 @@ function resolveAgentEffects(
   }
   if (!skipJourney && cardDefinition.journeyEffect?.kind === 'gain-mithril-recruit') {
     player.resources.mithril += cardDefinition.journeyEffect.mithril;
-    recruitCompanies(player, cardDefinition.journeyEffect.recruit);
+    recruitCompanies(match, player, cardDefinition.journeyEffect.recruit);
   }
   if (!skipJourney && cardDefinition.journeyEffect?.kind === 'gain-gold-tax-richer') {
     player.resources.gold += cardDefinition.journeyEffect.gold;
@@ -1820,7 +1865,7 @@ function resolveAgentEffects(
     player.resources.gold += cardDefinition.journeyEffect.gainGold;
   }
   if (!skipJourney && cardDefinition.journeyEffect?.kind === 'recruit-lose-standing') {
-    recruitCompanies(player, cardDefinition.journeyEffect.recruit);
+    recruitCompanies(match, player, cardDefinition.journeyEffect.recruit);
   }
   if (!skipJourney && cardDefinition.journeyEffect?.kind === 'place-scout-optional-recall-draw') {
     match.queuedMessengerMothRecall = { actorUid };
@@ -1871,7 +1916,7 @@ function resolveAgentEffects(
     resolution = 'gaining 1 Dwarven standing and 1 Provision';
   } else if (space.effect.kind === 'deep-roads') {
     gainStanding(match, player, 'dwarven', seekAlliesCardId);
-    const recruited = recruitCompanies(player, space.effect.recruitCompanies);
+    const recruited = recruitCompanies(match, player, space.effect.recruitCompanies);
     resolution = `gaining 1 Dwarven standing and recruiting ${recruited} Companies for Battle`;
   } else if (space.effect.kind === 'tribute-shadow') {
     player.resources.gold += space.effect.gainGold;
@@ -1880,7 +1925,7 @@ function resolveAgentEffects(
   } else if (space.effect.kind === 'pits-isengard') {
     gainStanding(match, player, 'shadow', seekAlliesCardId);
     const fate = drawFateOrOpenForesight(match, actorUid, 1, 'Pits of Isengard', { kind: 'finish-agent' });
-    const recruited = recruitCompanies(player, space.effect.recruitCompanies);
+    const recruited = recruitCompanies(match, player, space.effect.recruitCompanies);
     resolution = `gaining 1 Shadow standing, drawing ${fate === null || fate.length > 0 ? '1 Fate' : 'no Fate'}, and recruiting ${recruited} Companies`;
   } else if (space.effect.kind === 'hidden-paths') {
     gainStanding(match, player, 'wild', seekAlliesCardId);
@@ -1888,7 +1933,7 @@ function resolveAgentEffects(
     resolution = `gaining 1 Wild standing and drawing ${drawn ? '1 card' : 'no card'} for Battle`;
   } else if (space.effect.kind === 'ranger-mustering') {
     gainStanding(match, player, 'wild');
-    const recruited = recruitCompanies(player, space.effect.recruitCompanies);
+    const recruited = recruitCompanies(match, player, space.effect.recruitCompanies);
     const trashable = [...player.hand, ...player.discardPile].map((candidate) => candidate.id);
     resolution = `gaining 1 Wild standing, recruiting ${recruited} Company for Battle, and preparing an optional trash`;
     if (trashable.length > 0) {
@@ -1939,7 +1984,7 @@ function resolveAgentEffects(
     player.resources.gold += space.effect.gainGoldWithoutModule;
     resolution = `drawing ${drawn ? '1 card' : 'no card'} and gaining 2 Gold because War Efforts are disabled`;
   } else if (space.effect.kind === 'muster-free-peoples') {
-    const recruited = recruitCompanies(player, space.effect.recruitCompanies);
+    const recruited = recruitCompanies(match, player, space.effect.recruitCompanies);
     resolution = `recruiting ${recruited} Companies`;
     if (player.resources.gold >= space.effect.optionalGoldCost) {
       match.pendingChoice = {
@@ -1952,11 +1997,11 @@ function resolveAgentEffects(
     const fate = drawFateOrOpenForesight(match, actorUid, 1, 'Hall of Fire', { kind: 'finish-agent' });
     resolution = `drawing ${fate === null || fate.length > 0 ? '1 Fate' : 'no Fate'} and gaining 1 Influence during this round's Reveal while the Agent remains`;
   } else if (space.effect.kind === 'minas-tirith') {
-    const recruited = recruitCompanies(player, space.effect.recruitCompanies);
+    const recruited = recruitCompanies(match, player, space.effect.recruitCompanies);
     const drawn = drawOneCard(match, player.uid, 'Minas Tirith');
     resolution = `recruiting ${recruited} Company, drawing ${drawn ? '1 card' : 'no card'}, and preparing forces for Battle`;
   } else if (space.effect.kind === 'archives-rivendell') {
-    const recruited = recruitCompanies(player, space.effect.recruitCompanies);
+    const recruited = recruitCompanies(match, player, space.effect.recruitCompanies);
     const drawn = Array.from({ length: space.effect.drawCards }, () => drawOneCard(match, player.uid, 'Archives of Rivendell')).filter(Boolean).length;
     resolution = `${costResolution('2 Provisions')}, recruiting ${recruited} Companies, drawing ${drawn} cards, and preparing forces for Battle`;
   } else if (space.effect.kind === 'osgiliath') {
@@ -2018,7 +2063,7 @@ function resolveAgentEffects(
   } else {
     player.resources.mithril += space.effect.repeatGainMithril;
     const fate = drawFateOrOpenForesight(match, actorUid, 1, 'Seat on the White Council', { kind: 'finish-agent' });
-    const recruited = recruitCompanies(player, space.effect.repeatRecruitCompanies);
+    const recruited = recruitCompanies(match, player, space.effect.repeatRecruitCompanies);
     resolution = `gaining 2 Mithril, drawing ${fate === null || fate.length > 0 ? '1 Fate' : 'no Fate'}, and recruiting ${recruited} Companies`;
   }
   if (
@@ -2318,6 +2363,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         pending.kind !== 'battle-standing' &&
         pending.kind !== 'battle-fate-keep' &&
         pending.kind !== 'commander-fate-foresight' &&
+        !(pending.kind === 'commander-engines-isengard' && pending.resume === 'battle') &&
         !(pending.kind === 'elven-favor' && pending.resumeBattleStanding) &&
         currentPlayerUid(state) !== event.actorUid
       ) ||
@@ -2363,6 +2409,22 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         state.match.activity.push(`${actor.displayName} declines to deploy a defending Company at ${BOARD_SPACE_DEFINITIONS.find((space) => space.id === pending.locationId)?.name}.`);
       }
       state.match.pendingChoice = null;
+      return null;
+    }
+    if (pending.kind === 'commander-engines-isengard') {
+      if (choice === 'pay-engines' && (player.resources.gold < 1 || player.companies.supply < 1)) {
+        return 'illegal choice resolution';
+      }
+      state.match.pendingChoice = null;
+      if (choice === 'pay-engines') {
+        player.resources.gold -= 1;
+        const recruited = recruitCompanies(state.match, player, 1);
+        state.match.activity.push(`${actor.displayName} pays 1 Gold and recruits ${recruited} additional Company with Engines of Isengard.`);
+      } else {
+        state.match.activity.push(`${actor.displayName} declines to power Engines of Isengard for this round.`);
+      }
+      if (pending.resume === 'battle') continueBattleRewardChoicesOrRecall(state.match);
+      else finishAgentAction(state.match, event.actorUid);
       return null;
     }
     if (pending.kind === 'token-command-order') {
@@ -2435,7 +2497,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         );
         state.match.activity.push(`Gandalf draws ${drawn?.length ? '1 private Fate' : 'no Fate'} with Kindle Courage.`);
       } else {
-        const recruited = recruitCompanies(player, 2);
+        const recruited = recruitCompanies(state.match, player, 2);
         state.match.activity.push(`Gandalf recruits ${recruited} ${recruited === 1 ? 'Company' : 'Companies'} with Kindle Courage.`);
       }
       if (pending.resumeSpace) {
@@ -2547,7 +2609,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
           player.resources.mithril += effect.gainMithril;
           state.match.activity.push(`${actor.displayName} pays ${costGold} Gold to gain ${effect.gainMithril} Mithril from Dwarven Smith.`);
         } else if (effect?.kind === 'optional-pay-gold-recruit') {
-          const recruited = recruitCompanies(player, effect.recruit);
+          const recruited = recruitCompanies(state.match, player, effect.recruit);
           state.match.activity.push(`${actor.displayName} pays ${costGold} Gold to recruit ${recruited} Companies with Uruk-hai Captain.`);
         } else if (effect?.kind === 'gain-gold-optional-pay-standing') {
           gainStanding(state.match, player, effect.faction);
@@ -2806,7 +2868,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       if (choice === 'take-ent-draught') {
         if (player.entDraught) return 'illegal choice resolution';
         player.entDraught = true;
-        const recruited = recruitCompanies(player, 1);
+        const recruited = recruitCompanies(state.match, player, 1);
         player.resources.provisions += 1;
         state.match.activity.push(`${actor.displayName} takes Ent-draught, recruits ${recruited} Company, and gains 1 Provision at Fangorn Moot.`);
       } else {

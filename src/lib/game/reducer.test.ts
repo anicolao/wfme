@@ -3090,6 +3090,112 @@ describe('integrated Agent placement replay', () => {
     expect(reduceGame(stream)).toEqual(respectedResolved);
   });
 
+  it('offers Engines of Isengard once after the first two-Company effect and refreshes it at Recall', () => {
+    const base = readyRoom('road-2');
+    const baseState = reduceGame(base);
+    const [sarumanUid, dwarfUid, shadowUid] = baseState.match!.playerOrder;
+    const setup = base.map((event) => event.type === 'player/commander-selected' && event.actorUid === sarumanUid
+      ? createEvent('player/commander-selected', sarumanUid, 2, { commanderId: 'saruman' }, event.createdAtMillis)
+      : event);
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const stream = [...setup];
+    const append = (actorUid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      sequences[actorUid] += 1;
+      stream.push(createEvent(type, actorUid, sequences[actorUid], payload, timestamp++));
+    };
+
+    let state = reduceGame(stream);
+    const road = state.match!.players[sarumanUid].hand.find((card) => card.definitionId === 'the-open-road')!;
+    append(sarumanUid, 'agent/placed', { cardInstanceId: road.id, spaceId: 'take-war-effort' });
+    state = reduceGame(stream);
+    const dwarfCard = state.match!.players[dwarfUid].hand.find((card) => card.definitionId === 'diplomatic-mission')!;
+    append(dwarfUid, 'agent/placed', { cardInstanceId: dwarfCard.id, spaceId: 'dwarven-caravans' });
+    state = reduceGame(stream);
+    const shadowCard = state.match!.players[shadowUid].hand.find((card) => card.definitionId === 'diplomatic-mission')!;
+    append(shadowUid, 'agent/placed', { cardInstanceId: shadowCard.id, spaceId: 'tribute-shadow' });
+    state = reduceGame(stream);
+    const escort = state.match!.players[sarumanUid].hand.find((card) => card.definitionId === 'armed-escort')!;
+    append(sarumanUid, 'agent/placed', { cardInstanceId: escort.id, spaceId: 'muster-free-peoples' });
+    state = reduceGame(stream);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.pendingChoice).toMatchObject({ kind: 'muster-free-peoples', actorUid: sarumanUid });
+    expect(state.match!.queuedCommanderEngines).toEqual({ actorUid: sarumanUid, resume: 'agent' });
+    expect(state.match!.players[sarumanUid].commanderPersistentUsedThisRound).toBe(true);
+    expect(state.match!.players[sarumanUid].companies).toEqual({ supply: 6, garrison: 6 });
+
+    append(sarumanUid, 'choice/resolved', { choice: 'decline' });
+    const offered = reduceGame(stream);
+    expect(offered.diagnostics).toEqual([]);
+    expect(offered.match!.pendingChoice).toEqual({
+      kind: 'commander-engines-isengard',
+      actorUid: sarumanUid,
+      resume: 'agent',
+      options: ['pay-engines', 'decline-engines']
+    });
+    expect(offered.match!.players[sarumanUid].resources.gold).toBe(2);
+
+    const observerUid = offered.match!.playerOrder.find((uid) => uid !== sarumanUid)!;
+    const unauthorized = reduceGame([...stream, createEvent('choice/resolved', observerUid, sequences[observerUid] + 1, {
+      choice: 'pay-engines'
+    }, timestamp)]);
+    expect(unauthorized.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(unauthorized.match!.pendingChoice).toEqual(offered.match!.pendingChoice);
+
+    append(sarumanUid, 'choice/resolved', { choice: 'pay-engines' });
+    state = reduceGame(stream);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.players[sarumanUid].resources.gold).toBe(1);
+    expect(state.match!.players[sarumanUid].companies).toEqual({ supply: 5, garrison: 7 });
+    expect(state.match!.activity).toContain(`${state.players.find((player) => player.uid === sarumanUid)!.displayName} pays 1 Gold and recruits 1 additional Company with Engines of Isengard.`);
+
+    for (let guard = 0; guard < 30 && (state.match!.round < 2 || currentPlayerUid(state) !== sarumanUid); guard += 1) {
+      const actorUid = currentPlayerUid(state)!;
+      if (state.match!.turnMode === 'agent') append(actorUid, 'turn/revealed', {});
+      else if (state.match!.turnMode === 'reveal') append(actorUid, 'reveal/finished', {});
+      else throw new Error(`Unexpected ${state.match!.turnMode} turn while reaching Recall`);
+      state = reduceGame(stream);
+      expect(state.diagnostics).toEqual([]);
+    }
+    expect(state.match!.round).toBe(2);
+    expect(currentPlayerUid(state)).toBe(sarumanUid);
+    expect(state.match!.players[sarumanUid].commanderPersistentUsedThisRound).toBe(false);
+
+    const secondEscort = state.match!.players[sarumanUid].hand.find((card) =>
+      card.definitionId !== 'token-of-command' && legalAgentSpaces(state, sarumanUid, card.id).includes('muster-free-peoples')
+    )!;
+    expect(secondEscort).toBeDefined();
+    append(sarumanUid, 'agent/placed', { cardInstanceId: secondEscort.id, spaceId: 'muster-free-peoples' });
+    const refreshed = reduceGame(stream);
+    expect(refreshed.diagnostics).toEqual([]);
+    expect(refreshed.match!.pendingChoice).toMatchObject({
+      kind: 'commander-engines-isengard', actorUid: sarumanUid, resume: 'agent'
+    });
+    expect(refreshed.match!.players[sarumanUid].commanderPersistentUsedThisRound).toBe(true);
+    expect(reduceGame(stream)).toEqual(refreshed);
+  });
+
+  it('spends an unaffordable Engines opportunity without adding a wait or a Company', () => {
+    const base = readyRoom('theoden-forth-3');
+    const sarumanUid = 'host';
+    const setup = base.map((event) => event.type === 'player/commander-selected' && event.actorUid === sarumanUid
+      ? createEvent('player/commander-selected', sarumanUid, 2, { commanderId: 'saruman' }, event.createdAtMillis)
+      : event);
+    const started = reduceGame(setup);
+    const escort = started.match!.players[sarumanUid].hand.find((card) => card.definitionId === 'armed-escort')!;
+    const resolved = reduceGame([...setup, createEvent('agent/placed', sarumanUid, 5, {
+      cardInstanceId: escort.id,
+      spaceId: 'muster-free-peoples'
+    }, 11)]);
+    expect(resolved.diagnostics).toEqual([]);
+    expect(resolved.match!.pendingChoice).toBeNull();
+    expect(resolved.match!.queuedCommanderEngines).toBeNull();
+    expect(resolved.match!.players[sarumanUid].companies).toEqual({ supply: 6, garrison: 6 });
+    expect(resolved.match!.players[sarumanUid].commanderPersistentUsedThisRound).toBe(true);
+    expect(resolved.match!.activity).toContain(`Saruman cannot pay 1 Gold for Engines of Isengard after its first qualifying recruitment this round.`);
+    expect(currentPlayerUid(resolved)).not.toBe(sarumanUid);
+  });
+
   it('pays for a Council seat, adds Reveal Influence, and resolves a repeat Fate visit', () => {
     let stream = readyRoom('council-economy');
     let sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
