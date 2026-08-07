@@ -59,6 +59,7 @@ type FateDrawResume =
   }
   | { kind: 'master-muster'; actorName: string; remainingCardInstanceIds: readonly string[] }
   | { kind: 'reveal-muster'; actorName: string; palantirFateDraws: number }
+  | { kind: 'finish-reveal'; actorName: string }
   | { kind: 'secret-bargain-recall'; actorName: string };
 
 type QueuedFateDraw = {
@@ -93,6 +94,9 @@ export type MatchPlayer = {
   pairedBattleIds: string[];
   scouts: { supply: number };
   scoutsRecalledThisRound: number;
+  scoutsRecalledThisTurn: number;
+  entsSummonedThisTurn: number;
+  visitedRoadsThisTurn: boolean;
   fateHand: FateInstance[];
   councilSeat: boolean;
   entDraught: boolean;
@@ -531,6 +535,9 @@ function createMatch(state: GameState, seed: string, epoch: number): MatchState 
           pairedBattleIds: [],
           scouts: { supply: 3 },
           scoutsRecalledThisRound: 0,
+          scoutsRecalledThisTurn: 0,
+          entsSummonedThisTurn: 0,
+          visitedRoadsThisTurn: false,
           fateHand: [],
           councilSeat: false,
           entDraught: false,
@@ -759,6 +766,96 @@ function drawOneCard(match: MatchState, uid: string, reason: string): CardInstan
   return drawn;
 }
 
+function completeTriggeredWarEffort(
+  match: MatchState,
+  player: MatchPlayer,
+  definitionId: WarEffortId,
+  fateResume: FateDrawResume = { kind: 'finish-agent' }
+): boolean {
+  const held = player.warEffort;
+  if (!held || held.definitionId !== definitionId) return false;
+  const definition = WAR_EFFORT_DEFINITIONS.find((candidate) => candidate.id === definitionId);
+  if (!definition || definition.completion.kind === 'pay-resource') return false;
+  player.warEffort = null;
+  match.warEffortDiscard.push(held);
+  if (definition.reward.renown) player.renown += definition.reward.renown;
+  if (definition.reward.gold) player.resources.gold += definition.reward.gold;
+  if (definition.reward.mithril) player.resources.mithril += definition.reward.mithril;
+  if (definition.reward.provisions) player.resources.provisions += definition.reward.provisions;
+  if (definition.reward.recruitCompanies) recruitCompanies(match, player, definition.reward.recruitCompanies);
+  for (let draw = 0; draw < (definition.reward.drawCards ?? 0); draw += 1) {
+    drawOneCard(match, player.uid, definition.name);
+  }
+  if (definition.reward.drawFate) {
+    match.queuedFateDraws.push({
+      actorUid: player.uid,
+      count: definition.reward.drawFate,
+      source: definition.name,
+      resume: fateResume
+    });
+  }
+  const commanderName = COMMANDERS.find((commander) => commander.id === player.commander)?.name ?? 'A Commander';
+  match.activity.push(`${commanderName} completes ${definition.name}: ${definition.rewardText}.`);
+  return true;
+}
+
+export type WarEffortTrigger =
+  | { kind: 'visit-roads' }
+  | { kind: 'standing-gained'; uniquelyLowestBefore: boolean }
+  | { kind: 'critical-control-gained' }
+  | { kind: 'battle-won'; companies: number }
+  | { kind: 'ents-summoned' }
+  | { kind: 'scout-recalled' }
+  | { kind: 'card-acquired'; cost: number }
+  | { kind: 'reveal-ended' };
+
+export function resolveWarEffortTrigger(
+  match: MatchState,
+  actorUid: string,
+  trigger: WarEffortTrigger,
+  fateResume: FateDrawResume = { kind: 'finish-agent' }
+): boolean {
+  const player = match.players[actorUid];
+  const held = player?.warEffort;
+  if (!player || !held) return false;
+  const definition = WAR_EFFORT_DEFINITIONS.find((candidate) => candidate.id === held.definitionId);
+  if (!definition) return false;
+  const completion = definition.completion;
+  const satisfied =
+    completion.kind === 'visit-roads-with-scouts'
+      ? trigger.kind === 'visit-roads' && player.visitedRoadsThisTurn && Object.values(match.boardScouts).filter((uid) => uid === actorUid).length >= completion.scouts
+      : completion.kind === 'standing-factions'
+        ? trigger.kind === 'standing-gained' && Object.values(player.standing).filter((standing) => standing >= completion.minimum).length >= completion.factions
+        : completion.kind === 'gain-uniquely-lowest-standing'
+          ? trigger.kind === 'standing-gained' && trigger.uniquelyLowestBefore
+          : completion.kind === 'gain-critical-control'
+            ? trigger.kind === 'critical-control-gained'
+            : completion.kind === 'win-battle-with-companies'
+              ? trigger.kind === 'battle-won' && trigger.companies >= completion.companies
+              : completion.kind === 'summon-ents-in-turn'
+                ? trigger.kind === 'ents-summoned' && player.entsSummonedThisTurn >= completion.ents
+                : completion.kind === 'recall-scouts-in-turn'
+                  ? trigger.kind === 'scout-recalled' && player.scoutsRecalledThisTurn >= completion.scouts
+                  : completion.kind === 'acquire-card-cost'
+                    ? trigger.kind === 'card-acquired' && trigger.cost >= completion.minimum
+                    : completion.kind === 'end-reveal-council-strength'
+                      ? trigger.kind === 'reveal-ended' && player.councilSeat && battleStrength(match, actorUid) >= completion.strength
+                      : false;
+  return satisfied ? completeTriggeredWarEffort(match, player, definition.id, fateResume) : false;
+}
+
+function recordScoutRecall(match: MatchState, player: MatchPlayer): void {
+  player.scoutsRecalledThisRound += 1;
+  if (match.turnMode !== 'agent' && match.turnMode !== 'reveal') return;
+  player.scoutsRecalledThisTurn += 1;
+  resolveWarEffortTrigger(match, player.uid, { kind: 'scout-recalled' });
+}
+
+function recordEntSummon(match: MatchState, player: MatchPlayer, amount: number): void {
+  player.entsSummonedThisTurn += amount;
+  resolveWarEffortTrigger(match, player.uid, { kind: 'ents-summoned' });
+}
+
 function resolveGandalfHighCostAcquisition(match: MatchState, player: MatchPlayer, cost: number): void {
   if (
     cost < 5 ||
@@ -811,6 +908,9 @@ function recallAndBeginNextRound(match: MatchState): void {
     player.recruitedThisRound = 0;
     player.commanderPersistentUsedThisRound = false;
     player.scoutsRecalledThisRound = 0;
+    player.scoutsRecalledThisTurn = 0;
+    player.entsSummonedThisTurn = 0;
+    player.visitedRoadsThisTurn = false;
     drawToFive(match, uid);
   }
   match.firstPlayerIndex = (match.firstPlayerIndex + 1) % match.playerOrder.length;
@@ -1480,6 +1580,10 @@ function resumeFateDraw(match: MatchState, request: QueuedFateDraw, drawn: FateI
     openRevealMusterChoices(match, request.actorUid);
     return;
   }
+  if (request.resume.kind === 'finish-reveal') {
+    finishRevealTurn(match, request.actorUid, request.resume.actorName);
+    return;
+  }
   match.activity.push(`${request.resume.actorName} cycles one Fate card through the public discard.`);
   beginSecretBargainRecall(match, request.actorUid);
 }
@@ -1579,6 +1683,7 @@ function finishAgentAction(match: MatchState, actorUid: string): void {
       applyTreebeardRing(match, actorUid);
     }
   }
+  if (drainQueuedFateDraw(match)) return;
   const queued = match.queuedBattleDeployment;
   if (queued?.actorUid === actorUid) {
     match.queuedBattleDeployment = null;
@@ -1591,11 +1696,18 @@ function finishAgentAction(match: MatchState, actorUid: string): void {
     );
     if (match.pendingChoice) return;
   }
+  const player = match.players[actorUid];
+  resolveWarEffortTrigger(match, actorUid, { kind: 'visit-roads' });
   if (match.queuedWarEffortTakeUid === actorUid) {
     match.queuedWarEffortTakeUid = null;
     if (openWarEffortTake(match, actorUid)) return;
   }
-  if (!match.pendingChoice) advanceToNextAgentPlayer(match);
+  if (!match.pendingChoice) {
+    player.scoutsRecalledThisTurn = 0;
+    player.entsSummonedThisTurn = 0;
+    player.visitedRoadsThisTurn = false;
+    advanceToNextAgentPlayer(match);
+  }
 }
 
 export function battleStrength(match: MatchState, uid: string): number {
@@ -1651,11 +1763,16 @@ function applyBattleReward(match: MatchState, uid: string, rank: 0 | 1 | 2): voi
   }
   if (reward.recruitCompanies) recruitCompanies(match, player, reward.recruitCompanies * copies);
   if (reward.breachDam) match.damBreached = true;
-  if (reward.controlLocationId) match.criticalControl[reward.controlLocationId] = uid;
+  if (reward.controlLocationId) {
+    const gainedControl = match.criticalControl[reward.controlLocationId] !== uid;
+    match.criticalControl[reward.controlLocationId] = uid;
+    if (gainedControl) resolveWarEffortTrigger(match, uid, { kind: 'critical-control-gained' }, { kind: 'battle-reward' });
+  }
 }
 
 function continueBattleRewardChoicesOrRecall(match: MatchState): void {
   if (openQueuedCommanderEngines(match)) return;
+  if (drainQueuedFateDraw(match)) return;
   const next = match.pendingBattleRewardChoices.shift();
   if (next?.kind === 'standing') {
     match.pendingChoice = {
@@ -1724,6 +1841,12 @@ function resolveBattle(match: MatchState): void {
   }
   if (winnerUid) {
     const winner = match.players[winnerUid];
+    resolveWarEffortTrigger(
+      match,
+      winnerUid,
+      { kind: 'battle-won', companies: match.battleCompanies[winnerUid] ?? 0 },
+      { kind: 'battle-reward' }
+    );
     const matchingFaceUpBattleId = winner.wonBattleIds.find((ownedBattleId) =>
       !winner.pairedBattleIds.includes(ownedBattleId) &&
       BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === ownedBattleId)?.standard === definition.standard
@@ -1773,6 +1896,23 @@ function beginBattleOrRecall(match: MatchState): void {
   match.consecutiveBattlePasses = 0;
   match.currentPlayerIndex = match.playerOrder.indexOf(participants[0]);
   match.activity.push('The Combat Fate window opens with every participant at their revealed Strength.');
+}
+
+function finishRevealTurn(match: MatchState, actorUid: string, actorName: string): void {
+  const player = match.players[actorUid];
+  player.discardPile.push(...player.journey.splice(0), ...player.muster.splice(0));
+  player.revealInfluence = 0;
+  player.revealedThisRound = true;
+  player.scoutsRecalledThisTurn = 0;
+  player.entsSummonedThisTurn = 0;
+  player.visitedRoadsThisTurn = false;
+  match.turnMode = 'agent';
+  match.activity.push(`${actorName} finishes their Reveal turn.`);
+  if (match.playerOrder.every((uid) => match.players[uid].revealedThisRound)) {
+    beginBattleOrRecall(match);
+  } else {
+    advanceToNextAgentPlayer(match);
+  }
 }
 
 function resolveEowynNoLivingMan(
@@ -1842,6 +1982,8 @@ function gainStanding(
   resumeBattleStanding = false
 ): void {
   const before = player.standing[faction];
+  const uniquelyLowestBefore = (Object.entries(player.standing) as [FactionId, number][])
+    .every(([otherFaction, standing]) => otherFaction === faction || before < standing);
   player.standing[faction] = Math.min(6, before + 1);
   const after = player.standing[faction];
   if (
@@ -1895,6 +2037,14 @@ function gainStanding(
     if (holder) match.players[holder].renown -= 1;
     match.alliances[faction] = player.uid;
     player.renown += 1;
+  }
+  if (after > before) {
+    resolveWarEffortTrigger(
+      match,
+      player.uid,
+      { kind: 'standing-gained', uniquelyLowestBefore },
+      resumeBattleStanding ? { kind: 'battle-reward' } : { kind: 'finish-agent' }
+    );
   }
 }
 
@@ -2271,7 +2421,7 @@ function resolveAgentEffects(
       : cardDeploymentAllowance > 0
         ? 'Khazad Guard' as const
         : null;
-    if (match.pendingChoice || match.queuedCommanderRing?.actorUid === actorUid) {
+    if (match.pendingChoice || match.queuedFateDraws.length > 0 || match.queuedCommanderRing?.actorUid === actorUid) {
       match.queuedBattleDeployment = {
         actorUid,
         spaceId: space.id,
@@ -2464,11 +2614,14 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     const player = state.match.players[event.actorUid];
     const held = player.warEffort;
     const definition = WAR_EFFORT_DEFINITIONS.find((candidate) => candidate.id === definitionId);
-    if (!held || held.definitionId !== definitionId || !definition) return 'illegal War Effort completion';
+    if (
+      !held || held.definitionId !== definitionId || !definition ||
+      definition.completion.kind !== 'pay-resource'
+    ) return 'illegal War Effort completion';
     const cost = definition.completion;
     if (player.resources[cost.resource] < cost.amount) return 'illegal War Effort completion';
     player.resources[cost.resource] -= cost.amount;
-    player.renown += definition.reward.renown;
+    player.renown += definition.reward.renown ?? 0;
     if (definition.reward.gold) player.resources.gold += definition.reward.gold;
     if (definition.reward.mithril) player.resources.mithril += definition.reward.mithril;
     if (definition.reward.recruitCompanies) recruitCompanies(state.match, player, definition.reward.recruitCompanies);
@@ -2510,7 +2663,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       ) return 'illegal Agent infiltration';
       delete state.match.boardScouts[post.id];
       player.scouts.supply += 1;
-      player.scoutsRecalledThisRound += 1;
+      recordScoutRecall(state.match, player);
       state.match.activity.push(`${actor.displayName} recalls their Scout from ${post.name} to infiltrate ${space.name}.`);
     } else if (infiltrationPostId !== undefined) {
       return 'illegal Agent infiltration';
@@ -2518,6 +2671,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     const cardIndex = player.hand.findIndex((candidate) => candidate.id === cardInstanceId);
     player.hand.splice(cardIndex, 1);
     player.journey.push(card);
+    player.visitedRoadsThisTurn = space.region === 'Roads';
     const agentNumber = 1 + Object.values(state.match.boardAgents).flat().filter((occupation) => occupation.uid === event.actorUid).length;
     player.availableAgents -= 1;
     state.match.boardAgents[spaceId] = [...occupants, { uid: event.actorUid, agentNumber }];
@@ -2796,7 +2950,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         }
         delete state.match.boardScouts[postId];
         player.scouts.supply += 1;
-        player.scoutsRecalledThisRound += 1;
+        recordScoutRecall(state.match, player);
         ignoredResourceCost = true;
         const postName = OBSERVATION_POSTS.find((post) => post.id === postId)?.name ?? postId;
         state.match.activity.push(`${actor.displayName} recalls their Scout from ${postName} through the Paths of the Dead and ignores ${pending.costAmount} ${pending.costResource}.`);
@@ -2904,7 +3058,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         }
         delete state.match.boardScouts[postId];
         player.scouts.supply += 1;
-        player.scoutsRecalledThisRound += 1;
+        recordScoutRecall(state.match, player);
         const drawn = drawOneCard(state.match, event.actorUid, 'Messenger Moth');
         const postName = OBSERVATION_POSTS.find((post) => post.id === postId)?.name ?? postId;
         state.match.activity.push(`${actor.displayName} recalls their Scout from ${postName} with Messenger Moth and draws ${drawn ? '1 card' : 'no card'}.`);
@@ -2941,7 +3095,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         const firstRecall = player.scoutsRecalledThisRound === 0;
         delete state.match.boardScouts[postId];
         player.scouts.supply += 1;
-        player.scoutsRecalledThisRound += 1;
+        recordScoutRecall(state.match, player);
         player.revealedSwords += 1;
         if (firstRecall) {
           player.revealInfluence += player.muster.filter((card) => card.definitionId === 'whispered-rumor').length;
@@ -3135,6 +3289,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         const summoned = rousedAtLastEntCount(player.commander, player.treebeardEntBonusUsed, 2);
         if (summoned > 2) player.treebeardEntBonusUsed = true;
         state.match.battleEnts[event.actorUid] = (state.match.battleEnts[event.actorUid] ?? 0) + summoned;
+        recordEntSummon(state.match, player, summoned);
         state.match.activity.push(`${actor.displayName} summons ${summoned} Ents from Deep Fangorn directly into the active Battle.`);
       } else {
         player.resources.mithril += 4;
@@ -3162,6 +3317,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         const rousedBonus = summoned > 1;
         if (rousedBonus) player.treebeardEntBonusUsed = true;
         state.match.battleEnts[event.actorUid] = (state.match.battleEnts[event.actorUid] ?? 0) + summoned;
+        recordEntSummon(state.match, player, summoned);
         state.match.activity.push(
           rousedBonus
             ? `${actor.displayName} summons 1 Ent from Entwash and Roused at Last summons 1 additional Ent directly into the active Battle.`
@@ -3329,7 +3485,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         }
         delete state.match.boardScouts[postId];
         player.scouts.supply += 1;
-        player.scoutsRecalledThisRound += 1;
+        recordScoutRecall(state.match, player);
         const drawn = player.drawPile.shift();
         if (drawn) player.hand.push(drawn);
         const postName = OBSERVATION_POSTS.find((post) => post.id === postId)!.name;
@@ -3421,7 +3577,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       }
       delete state.match.boardScouts[recallPostId];
       player.scouts.supply += 1;
-      player.scoutsRecalledThisRound += 1;
+      recordScoutRecall(state.match, player);
     } else if (recallPostId !== undefined) {
       return 'illegal Scout placement';
     }
@@ -3551,6 +3707,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       if (refill) state.match.chronicleRow.splice(chronicleIndex, 0, refill);
       state.match.activity.push(`${actor.displayName} acquires ${definition.name} from the Chronicle Row for ${definition.cost} Influence${refill ? ' and refills its place' : ''}.`);
       resolveGandalfHighCostAcquisition(state.match, player, definition.cost);
+      resolveWarEffortTrigger(state.match, event.actorUid, { kind: 'card-acquired', cost: definition.cost });
       return null;
     }
     const definition = RESERVE_CARD_DEFINITIONS.find((card) => card.id === definitionId);
@@ -3564,6 +3721,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     player.discardPile.push({ id: `match-${state.match.epoch}:reserve:${definition.id}:${copy}`, definitionId: definition.id });
     state.match.activity.push(`${actor.displayName} acquires ${definition.name} for ${definition.cost} Influence.`);
     resolveGandalfHighCostAcquisition(state.match, player, definition.cost);
+    resolveWarEffortTrigger(state.match, event.actorUid, { kind: 'card-acquired', cost: definition.cost });
     return null;
   }
 
@@ -3576,16 +3734,14 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       currentPlayerUid(state) !== event.actorUid
     ) return 'illegal Reveal finish';
     const player = state.match.players[event.actorUid];
-    player.discardPile.push(...player.journey.splice(0), ...player.muster.splice(0));
-    player.revealInfluence = 0;
-    player.revealedThisRound = true;
-    state.match.turnMode = 'agent';
-    state.match.activity.push(`${actor.displayName} finishes their Reveal turn.`);
-    if (state.match.playerOrder.every((uid) => state.match!.players[uid].revealedThisRound)) {
-      beginBattleOrRecall(state.match);
-    } else {
-      advanceToNextAgentPlayer(state.match);
-    }
+    resolveWarEffortTrigger(
+      state.match,
+      event.actorUid,
+      { kind: 'reveal-ended' },
+      { kind: 'finish-reveal', actorName: actor.displayName }
+    );
+    if (drainQueuedFateDraw(state.match)) return null;
+    finishRevealTurn(state.match, event.actorUid, actor.displayName);
     return null;
   }
 

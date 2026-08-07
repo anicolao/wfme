@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createEvent } from './events';
 import { AGENT_CARD_DEFINITIONS, BATTLE_CARD_DEFINITIONS, CHRONICLE_CARD_DEFINITIONS, MUSTER_CARD_DEFINITIONS, OBSERVATION_POSTS, WAR_EFFORT_DEFINITIONS } from './manifest';
-import { battleStrength, blackBreathStrengthLoss, currentPlayerUid, eligibleHeirStandingOptions, fairSeemingPromiseGold, legalAgentSpaces, reduceGame, rousedAtLastEntCount } from './reducer';
+import { battleStrength, blackBreathStrengthLoss, currentPlayerUid, eligibleHeirStandingOptions, fairSeemingPromiseGold, legalAgentSpaces, reduceGame, resolveWarEffortTrigger, rousedAtLastEntCount } from './reducer';
 import { shuffled } from './prng';
 
 function readyRoom(seed = 'road-2') {
@@ -640,7 +640,7 @@ describe('integrated Agent placement replay', () => {
     expect(started.warEffortsEnabled).toBe(true);
     expect(started.match!.warEffortsEnabled).toBe(true);
     expect(started.match!.warEffortRow).toHaveLength(2);
-    expect(started.match!.warEffortDeck).toHaveLength(1);
+    expect(started.match!.warEffortDeck).toHaveLength(WAR_EFFORT_DEFINITIONS.length - 2);
     expect(Object.values(started.match!.players).every((player) => player.warEffort === null)).toBe(true);
 
     const road = started.match!.players[target].hand.find((card) => card.definitionId === 'the-open-road')!;
@@ -654,7 +654,7 @@ describe('integrated Agent placement replay', () => {
     state = reduceGame(stream);
     expect(state.match!.players[target].warEffort).toEqual(stores);
     expect(state.match!.warEffortRow).toHaveLength(2);
-    expect(state.match!.warEffortDeck).toHaveLength(0);
+    expect(state.match!.warEffortDeck).toHaveLength(WAR_EFFORT_DEFINITIONS.length - 3);
 
     let completed = false;
     for (let guard = 0; guard < 500 && !completed; guard += 1) {
@@ -695,6 +695,94 @@ describe('integrated Agent placement replay', () => {
     expect(all).toHaveLength(WAR_EFFORT_DEFINITIONS.length);
     expect(new Set(all.map((effort) => effort.id)).size).toBe(WAR_EFFORT_DEFINITIONS.length);
     expect(reduceGame(stream)).toEqual(state);
+  });
+
+  it('resolves every trigger-based War Effort only at its printed condition with exact rewards', () => {
+    const prepared = (definitionId: (typeof WAR_EFFORT_DEFINITIONS)[number]['id']) => {
+      const state = reduceGame(warEffortRoom(`trigger-${definitionId}`));
+      const match = state.match!;
+      const actorUid = match.playerOrder[0];
+      const zones = [match.warEffortRow, match.warEffortDeck];
+      let held;
+      for (const zone of zones) {
+        const index = zone.findIndex((instance) => instance.definitionId === definitionId);
+        if (index >= 0) [held] = zone.splice(index, 1);
+      }
+      expect(held).toBeDefined();
+      match.players[actorUid].warEffort = held!;
+      return { match, actorUid, player: match.players[actorUid], held: held! };
+    };
+
+    {
+      const { match, actorUid, player, held } = prepared('hidden-supply-lines');
+      player.visitedRoadsThisTurn = true;
+      match.boardScouts = { 'amon-hen': actorUid };
+      expect(resolveWarEffortTrigger(match, actorUid, { kind: 'visit-roads' })).toBe(false);
+      match.boardScouts['weathertop'] = actorUid;
+      expect(resolveWarEffortTrigger(match, actorUid, { kind: 'visit-roads' })).toBe(true);
+      expect(player.resources.gold).toBe(4);
+      expect(match.warEffortDiscard).toContainEqual(held);
+    }
+    {
+      const { match, actorUid, player } = prepared('envoys-every-realm');
+      player.standing = { shadow: 2, dwarven: 2, elven: 1, wild: 0 };
+      expect(resolveWarEffortTrigger(match, actorUid, { kind: 'standing-gained', uniquelyLowestBefore: false })).toBe(false);
+      player.standing.elven = 2;
+      expect(resolveWarEffortTrigger(match, actorUid, { kind: 'standing-gained', uniquelyLowestBefore: false })).toBe(true);
+      expect(player.renown).toBe(1);
+    }
+    {
+      const { match, actorUid, player } = prepared('unlikely-alliance');
+      expect(resolveWarEffortTrigger(match, actorUid, { kind: 'standing-gained', uniquelyLowestBefore: false })).toBe(false);
+      expect(resolveWarEffortTrigger(match, actorUid, { kind: 'standing-gained', uniquelyLowestBefore: true })).toBe(true);
+      expect(player.renown).toBe(1);
+      expect(match.queuedFateDraws).toMatchObject([{ actorUid, count: 1, source: 'Unlikely Alliance' }]);
+    }
+    {
+      const { match, actorUid, player } = prepared('hold-crossing');
+      expect(resolveWarEffortTrigger(match, actorUid, { kind: 'critical-control-gained' })).toBe(true);
+      expect(player.resources).toMatchObject({ gold: 3, mithril: 1 });
+    }
+    {
+      const { match, actorUid, player } = prepared('break-host');
+      expect(resolveWarEffortTrigger(match, actorUid, { kind: 'battle-won', companies: 3 })).toBe(false);
+      expect(resolveWarEffortTrigger(match, actorUid, { kind: 'battle-won', companies: 4 })).toBe(true);
+      expect(player.renown).toBe(1);
+    }
+    {
+      const { match, actorUid, player } = prepared('trees-awaken');
+      player.entsSummonedThisTurn = 2;
+      expect(resolveWarEffortTrigger(match, actorUid, { kind: 'ents-summoned' })).toBe(true);
+      expect(player.renown).toBe(1);
+      expect(player.resources.provisions).toBe(2);
+    }
+    {
+      const { match, actorUid, player } = prepared('eyes-everywhere');
+      player.scoutsRecalledThisTurn = 1;
+      expect(resolveWarEffortTrigger(match, actorUid, { kind: 'scout-recalled' })).toBe(false);
+      player.scoutsRecalledThisTurn = 2;
+      expect(resolveWarEffortTrigger(match, actorUid, { kind: 'scout-recalled' })).toBe(true);
+      expect(player.renown).toBe(1);
+    }
+    {
+      const { match, actorUid, player } = prepared('worthy-company');
+      const handBefore = player.hand.length;
+      expect(resolveWarEffortTrigger(match, actorUid, { kind: 'card-acquired', cost: 6 })).toBe(false);
+      expect(resolveWarEffortTrigger(match, actorUid, { kind: 'card-acquired', cost: 7 })).toBe(true);
+      expect(player.renown).toBe(1);
+      expect(player.hand).toHaveLength(handBefore + 1);
+    }
+    {
+      const { match, actorUid, player } = prepared('counsel-before-battle');
+      player.councilSeat = true;
+      match.battleCompanies[actorUid] = 2;
+      player.revealedSwords = 1;
+      expect(resolveWarEffortTrigger(match, actorUid, { kind: 'reveal-ended' })).toBe(false);
+      player.revealedSwords = 2;
+      expect(resolveWarEffortTrigger(match, actorUid, { kind: 'reveal-ended' })).toBe(true);
+      expect(player.resources.gold).toBe(4);
+      expect(match.queuedFateDraws).toMatchObject([{ actorUid, count: 1, source: 'Counsel Before Battle' }]);
+    }
   });
 
   it('collects the printed and accumulated Riches at Edoras', () => {

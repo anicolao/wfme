@@ -13,9 +13,10 @@
     RESERVE_CARD_DEFINITIONS,
     WAR_EFFORT_DEFINITIONS,
     cardName,
-    type BoardRegion
+    type BoardRegion,
+    type WarEffortDefinition
   } from '$lib/game/manifest';
-  import { battleStrength, currentPlayerUid, legalAgentSpaces, type GameState } from '$lib/game/reducer';
+  import { battleStrength, currentPlayerUid, legalAgentSpaces, type GameState, type MatchPlayer } from '$lib/game/reducer';
 
   export let game: GameState;
   export let busy = false;
@@ -35,6 +36,11 @@
   export let onToggleRematchReady: () => void;
   let selectedScoutRecall = '';
   let selectedInfiltrationSpace = '';
+
+  function canPayWarEffort(holder: MatchPlayer, effort: WarEffortDefinition): boolean {
+    const completion = effort.completion;
+    return completion.kind === 'pay-resource' && holder.resources[completion.resource] >= completion.amount;
+  }
 
   const regions: BoardRegion[] = [
     'Shadow Hosts',
@@ -169,8 +175,9 @@
           {@const effort = WAR_EFFORT_DEFINITIONS.find((definition) => definition.id === held?.definitionId)}
           {#if effort}
             {@const holder = game.match.players[player.uid]}
-            {@const affordable = holder.resources[effort.completion.resource] >= effort.completion.amount}
-            <button type="button" disabled={player.uid !== localUid || currentUid !== localUid || game.match.turnMode !== 'agent' || Boolean(game.match.pendingChoice) || !affordable} onclick={() => onCompleteWarEffort(effort.id)}>
+            {@const payable = effort.completion.kind === 'pay-resource'}
+            {@const affordable = canPayWarEffort(holder, effort)}
+            <button type="button" disabled={!payable || player.uid !== localUid || currentUid !== localUid || game.match.turnMode !== 'agent' || Boolean(game.match.pendingChoice) || !affordable} onclick={() => onCompleteWarEffort(effort.id)}>
               <strong>{player.displayName} · {effort.name}</strong>
               <span>{effort.completionText} · {effort.rewardText}</span>
             </button>

@@ -270,11 +270,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin Reveals while the War Effort route cycles
+## Pip Reveals while the War Effort route cycles
 
-![Phone: Rin Reveals while the War Effort route cycles](./screenshots/021-reveal-waiting-4-phone.png)
+![Phone: Pip Reveals while the War Effort route cycles](./screenshots/021-reveal-waiting-4-phone.png)
 
-![Desktop: Rin Reveals while the War Effort route cycles](./screenshots/021-reveal-waiting-4-desktop.png)
+![Desktop: Pip Reveals while the War Effort route cycles](./screenshots/021-reveal-waiting-4-desktop.png)
 
 **Verifications:**
 
@@ -282,11 +282,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin finishes Reveal
+## Pip finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/022-finish-reveal-5-phone.png)
+![Phone: Pip finishes Reveal](./screenshots/022-finish-reveal-5-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/022-finish-reveal-5-desktop.png)
+![Desktop: Pip finishes Reveal](./screenshots/022-finish-reveal-5-desktop.png)
 
 **Verifications:**
 
@@ -294,11 +294,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip Reveals while the War Effort route cycles
+## Rin Reveals while the War Effort route cycles
 
-![Phone: Pip Reveals while the War Effort route cycles](./screenshots/023-reveal-waiting-6-phone.png)
+![Phone: Rin Reveals while the War Effort route cycles](./screenshots/023-reveal-waiting-6-phone.png)
 
-![Desktop: Pip Reveals while the War Effort route cycles](./screenshots/023-reveal-waiting-6-desktop.png)
+![Desktop: Rin Reveals while the War Effort route cycles](./screenshots/023-reveal-waiting-6-desktop.png)
 
 **Verifications:**
 
@@ -306,11 +306,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Pip finishes Reveal
+## Rin finishes Reveal
 
-![Phone: Pip finishes Reveal](./screenshots/024-finish-reveal-7-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/024-finish-reveal-7-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/024-finish-reveal-7-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/024-finish-reveal-7-desktop.png)
 
 **Verifications:**
 
@@ -318,83 +318,11 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara Reveals while the War Effort route cycles
-
-![Phone: Mara Reveals while the War Effort route cycles](./screenshots/025-reveal-waiting-8-phone.png)
-
-![Desktop: Mara Reveals while the War Effort route cycles](./screenshots/025-reveal-waiting-8-desktop.png)
-
-**Verifications:**
-
-- [x] Every connected browser replays 18 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal
-
-![Phone: Mara finishes Reveal](./screenshots/026-finish-reveal-9-phone.png)
-
-![Desktop: Mara finishes Reveal](./screenshots/026-finish-reveal-9-desktop.png)
-
-**Verifications:**
-
-- [x] Every connected browser replays 19 accepted events with no diagnostics
-
----
-
-## Rin Reveals while the War Effort route cycles
-
-![Phone: Rin Reveals while the War Effort route cycles](./screenshots/027-reveal-waiting-10-phone.png)
-
-![Desktop: Rin Reveals while the War Effort route cycles](./screenshots/027-reveal-waiting-10-desktop.png)
-
-**Verifications:**
-
-- [x] Every connected browser replays 20 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/028-finish-reveal-11-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/028-finish-reveal-11-desktop.png)
-
-**Verifications:**
-
-- [x] Every connected browser replays 21 accepted events with no diagnostics
-
----
-
-## Pip Reveals while the War Effort route cycles
-
-![Phone: Pip Reveals while the War Effort route cycles](./screenshots/029-reveal-waiting-12-phone.png)
-
-![Desktop: Pip Reveals while the War Effort route cycles](./screenshots/029-reveal-waiting-12-desktop.png)
-
-**Verifications:**
-
-- [x] Every connected browser replays 22 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal
-
-![Phone: Pip finishes Reveal](./screenshots/030-finish-reveal-13-phone.png)
-
-![Desktop: Pip finishes Reveal](./screenshots/030-finish-reveal-13-desktop.png)
-
-**Verifications:**
-
-- [x] Every connected browser replays 23 accepted events with no diagnostics
-
----
-
 ## Mara selects the physical card for tribute-shadow
 
-![Phone: Mara selects the physical card for tribute-shadow](./screenshots/031-select-tribute-shadow-14-phone.png)
+![Phone: Mara selects the physical card for tribute-shadow](./screenshots/025-select-tribute-shadow-8-phone.png)
 
-![Desktop: Mara selects the physical card for tribute-shadow](./screenshots/031-select-tribute-shadow-14-desktop.png)
+![Desktop: Mara selects the physical card for tribute-shadow](./screenshots/025-select-tribute-shadow-8-desktop.png)
 
 **Verifications:**
 
@@ -404,107 +332,59 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Mara visits tribute-shadow
 
-![Phone: Mara visits tribute-shadow](./screenshots/032-visit-tribute-shadow-15-phone.png)
+![Phone: Mara visits tribute-shadow](./screenshots/026-visit-tribute-shadow-9-phone.png)
 
-![Desktop: Mara visits tribute-shadow](./screenshots/032-visit-tribute-shadow-15-desktop.png)
+![Desktop: Mara visits tribute-shadow](./screenshots/026-visit-tribute-shadow-9-desktop.png)
 
 **Verifications:**
 
 - [x] The module opens its public take-or-decline decision only after the destination resolves
-- [x] Every connected browser replays 24 accepted events with no diagnostics
+- [x] Every connected browser replays 18 accepted events with no diagnostics
 
 ---
 
 ## Mara discards the incomplete effort and takes Stores for Winter
 
-![Phone: Mara discards the incomplete effort and takes Stores for Winter](./screenshots/033-replace-with-stores-16-phone.png)
+![Phone: Mara discards the incomplete effort and takes Stores for Winter](./screenshots/027-replace-with-stores-10-phone.png)
 
-![Desktop: Mara discards the incomplete effort and takes Stores for Winter](./screenshots/033-replace-with-stores-16-desktop.png)
+![Desktop: Mara discards the incomplete effort and takes Stores for Winter](./screenshots/027-replace-with-stores-10-desktop.png)
 
 **Verifications:**
 
 - [x] Only one incomplete War Effort is held and the replaced physical card enters the public discard
-- [x] Every connected browser replays 25 accepted events with no diagnostics
+- [x] Every connected browser replays 19 accepted events with no diagnostics
 
 ---
 
 ## Mara Reveals while the War Effort route cycles
 
-![Phone: Mara Reveals while the War Effort route cycles](./screenshots/034-reveal-waiting-17-phone.png)
+![Phone: Mara Reveals while the War Effort route cycles](./screenshots/028-reveal-waiting-11-phone.png)
 
-![Desktop: Mara Reveals while the War Effort route cycles](./screenshots/034-reveal-waiting-17-desktop.png)
+![Desktop: Mara Reveals while the War Effort route cycles](./screenshots/028-reveal-waiting-11-desktop.png)
 
 **Verifications:**
 
-- [x] Every connected browser replays 26 accepted events with no diagnostics
+- [x] Every connected browser replays 20 accepted events with no diagnostics
 
 ---
 
 ## Mara finishes Reveal
 
-![Phone: Mara finishes Reveal](./screenshots/035-finish-reveal-18-phone.png)
+![Phone: Mara finishes Reveal](./screenshots/029-finish-reveal-12-phone.png)
 
-![Desktop: Mara finishes Reveal](./screenshots/035-finish-reveal-18-desktop.png)
-
-**Verifications:**
-
-- [x] Every connected browser replays 27 accepted events with no diagnostics
-
----
-
-## Pip Reveals while the War Effort route cycles
-
-![Phone: Pip Reveals while the War Effort route cycles](./screenshots/036-reveal-waiting-19-phone.png)
-
-![Desktop: Pip Reveals while the War Effort route cycles](./screenshots/036-reveal-waiting-19-desktop.png)
+![Desktop: Mara finishes Reveal](./screenshots/029-finish-reveal-12-desktop.png)
 
 **Verifications:**
 
-- [x] Every connected browser replays 28 accepted events with no diagnostics
+- [x] Every connected browser replays 21 accepted events with no diagnostics
 
 ---
 
-## Pip finishes Reveal
+## Pip selects the physical card for take-war-effort
 
-![Phone: Pip finishes Reveal](./screenshots/037-finish-reveal-20-phone.png)
+![Phone: Pip selects the physical card for take-war-effort](./screenshots/030-select-take-war-effort-13-phone.png)
 
-![Desktop: Pip finishes Reveal](./screenshots/037-finish-reveal-20-desktop.png)
-
-**Verifications:**
-
-- [x] Every connected browser replays 29 accepted events with no diagnostics
-
----
-
-## Mara Reveals while the War Effort route cycles
-
-![Phone: Mara Reveals while the War Effort route cycles](./screenshots/038-reveal-waiting-21-phone.png)
-
-![Desktop: Mara Reveals while the War Effort route cycles](./screenshots/038-reveal-waiting-21-desktop.png)
-
-**Verifications:**
-
-- [x] Every connected browser replays 30 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal
-
-![Phone: Mara finishes Reveal](./screenshots/039-finish-reveal-22-phone.png)
-
-![Desktop: Mara finishes Reveal](./screenshots/039-finish-reveal-22-desktop.png)
-
-**Verifications:**
-
-- [x] Every connected browser replays 31 accepted events with no diagnostics
-
----
-
-## Rin selects the physical card for take-war-effort
-
-![Phone: Rin selects the physical card for take-war-effort](./screenshots/040-select-take-war-effort-23-phone.png)
-
-![Desktop: Rin selects the physical card for take-war-effort](./screenshots/040-select-take-war-effort-23-desktop.png)
+![Desktop: Pip selects the physical card for take-war-effort](./screenshots/030-select-take-war-effort-13-desktop.png)
 
 **Verifications:**
 
@@ -512,61 +392,61 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Rin visits take-war-effort
+## Pip visits take-war-effort
 
-![Phone: Rin visits take-war-effort](./screenshots/041-visit-take-war-effort-24-phone.png)
+![Phone: Pip visits take-war-effort](./screenshots/031-visit-take-war-effort-14-phone.png)
 
-![Desktop: Rin visits take-war-effort](./screenshots/041-visit-take-war-effort-24-desktop.png)
+![Desktop: Pip visits take-war-effort](./screenshots/031-visit-take-war-effort-14-desktop.png)
 
 **Verifications:**
 
 - [x] The module opens its public take-or-decline decision only after the destination resolves
-- [x] Every connected browser replays 32 accepted events with no diagnostics
+- [x] Every connected browser replays 22 accepted events with no diagnostics
 
 ---
 
-## Rin leaves both War Efforts in the row
+## Pip leaves both War Efforts in the row
 
-![Phone: Rin leaves both War Efforts in the row](./screenshots/042-decline-efforts-25-phone.png)
+![Phone: Pip leaves both War Efforts in the row](./screenshots/032-decline-efforts-15-phone.png)
 
-![Desktop: Rin leaves both War Efforts in the row](./screenshots/042-decline-efforts-25-desktop.png)
+![Desktop: Pip leaves both War Efforts in the row](./screenshots/032-decline-efforts-15-desktop.png)
 
 **Verifications:**
 
-- [x] Declining preserves the remaining face-up physical card and gives no fallback Gold
-- [x] Every connected browser replays 33 accepted events with no diagnostics
+- [x] Declining preserves both face-up physical cards and gives no fallback Gold
+- [x] Every connected browser replays 23 accepted events with no diagnostics
 
 ---
 
 ## Rin Reveals while the War Effort route cycles
 
-![Phone: Rin Reveals while the War Effort route cycles](./screenshots/043-reveal-waiting-26-phone.png)
+![Phone: Rin Reveals while the War Effort route cycles](./screenshots/033-reveal-waiting-16-phone.png)
 
-![Desktop: Rin Reveals while the War Effort route cycles](./screenshots/043-reveal-waiting-26-desktop.png)
+![Desktop: Rin Reveals while the War Effort route cycles](./screenshots/033-reveal-waiting-16-desktop.png)
 
 **Verifications:**
 
-- [x] Every connected browser replays 34 accepted events with no diagnostics
+- [x] Every connected browser replays 24 accepted events with no diagnostics
 
 ---
 
 ## Rin finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/044-finish-reveal-27-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/034-finish-reveal-17-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/044-finish-reveal-27-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/034-finish-reveal-17-desktop.png)
 
 **Verifications:**
 
-- [x] Every connected browser replays 35 accepted events with no diagnostics
+- [x] Every connected browser replays 25 accepted events with no diagnostics
 
 ---
 
 ## Mara selects the physical card for dwarven-caravans
 
-![Phone: Mara selects the physical card for dwarven-caravans](./screenshots/045-select-dwarven-caravans-28-phone.png)
+![Phone: Mara selects the physical card for dwarven-caravans](./screenshots/035-select-dwarven-caravans-18-phone.png)
 
-![Desktop: Mara selects the physical card for dwarven-caravans](./screenshots/045-select-dwarven-caravans-28-desktop.png)
+![Desktop: Mara selects the physical card for dwarven-caravans](./screenshots/035-select-dwarven-caravans-18-desktop.png)
 
 **Verifications:**
 
@@ -576,38 +456,159 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ## Mara visits dwarven-caravans
 
-![Phone: Mara visits dwarven-caravans](./screenshots/046-visit-dwarven-caravans-29-phone.png)
+![Phone: Mara visits dwarven-caravans](./screenshots/036-visit-dwarven-caravans-19-phone.png)
 
-![Desktop: Mara visits dwarven-caravans](./screenshots/046-visit-dwarven-caravans-29-desktop.png)
+![Desktop: Mara visits dwarven-caravans](./screenshots/036-visit-dwarven-caravans-19-desktop.png)
 
 **Verifications:**
 
 - [x] The base destination adds the Provision needed for the held effort
-- [x] Every connected browser replays 36 accepted events with no diagnostics
+- [x] Every connected browser replays 26 accepted events with no diagnostics
+
+---
+
+## Pip Reveals while the War Effort route cycles
+
+![Phone: Pip Reveals while the War Effort route cycles](./screenshots/037-reveal-waiting-20-phone.png)
+
+![Desktop: Pip Reveals while the War Effort route cycles](./screenshots/037-reveal-waiting-20-desktop.png)
+
+**Verifications:**
+
+- [x] Every connected browser replays 27 accepted events with no diagnostics
+
+---
+
+## Pip finishes Reveal
+
+![Phone: Pip finishes Reveal](./screenshots/038-finish-reveal-21-phone.png)
+
+![Desktop: Pip finishes Reveal](./screenshots/038-finish-reveal-21-desktop.png)
+
+**Verifications:**
+
+- [x] Every connected browser replays 28 accepted events with no diagnostics
+
+---
+
+## Mara Reveals while the War Effort route cycles
+
+![Phone: Mara Reveals while the War Effort route cycles](./screenshots/039-reveal-waiting-22-phone.png)
+
+![Desktop: Mara Reveals while the War Effort route cycles](./screenshots/039-reveal-waiting-22-desktop.png)
+
+**Verifications:**
+
+- [x] Every connected browser replays 29 accepted events with no diagnostics
+
+---
+
+## Mara finishes Reveal
+
+![Phone: Mara finishes Reveal](./screenshots/040-finish-reveal-23-phone.png)
+
+![Desktop: Mara finishes Reveal](./screenshots/040-finish-reveal-23-desktop.png)
+
+**Verifications:**
+
+- [x] Every connected browser replays 30 accepted events with no diagnostics
 
 ---
 
 ## Rin Reveals while the War Effort route cycles
 
-![Phone: Rin Reveals while the War Effort route cycles](./screenshots/047-reveal-waiting-30-phone.png)
+![Phone: Rin Reveals while the War Effort route cycles](./screenshots/041-reveal-waiting-24-phone.png)
 
-![Desktop: Rin Reveals while the War Effort route cycles](./screenshots/047-reveal-waiting-30-desktop.png)
+![Desktop: Rin Reveals while the War Effort route cycles](./screenshots/041-reveal-waiting-24-desktop.png)
 
 **Verifications:**
 
-- [x] Every connected browser replays 37 accepted events with no diagnostics
+- [x] Every connected browser replays 31 accepted events with no diagnostics
 
 ---
 
 ## Rin finishes Reveal
 
-![Phone: Rin finishes Reveal](./screenshots/048-finish-reveal-31-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/042-finish-reveal-25-phone.png)
 
-![Desktop: Rin finishes Reveal](./screenshots/048-finish-reveal-31-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/042-finish-reveal-25-desktop.png)
 
 **Verifications:**
 
-- [x] Every connected browser replays 38 accepted events with no diagnostics
+- [x] Every connected browser replays 32 accepted events with no diagnostics
+
+---
+
+## Mara Reveals while the War Effort route cycles
+
+![Phone: Mara Reveals while the War Effort route cycles](./screenshots/043-reveal-waiting-26-phone.png)
+
+![Desktop: Mara Reveals while the War Effort route cycles](./screenshots/043-reveal-waiting-26-desktop.png)
+
+**Verifications:**
+
+- [x] Every connected browser replays 33 accepted events with no diagnostics
+
+---
+
+## Mara finishes Reveal
+
+![Phone: Mara finishes Reveal](./screenshots/044-finish-reveal-27-phone.png)
+
+![Desktop: Mara finishes Reveal](./screenshots/044-finish-reveal-27-desktop.png)
+
+**Verifications:**
+
+- [x] Every connected browser replays 34 accepted events with no diagnostics
+
+---
+
+## Pip Reveals while the War Effort route cycles
+
+![Phone: Pip Reveals while the War Effort route cycles](./screenshots/045-reveal-waiting-28-phone.png)
+
+![Desktop: Pip Reveals while the War Effort route cycles](./screenshots/045-reveal-waiting-28-desktop.png)
+
+**Verifications:**
+
+- [x] Every connected browser replays 35 accepted events with no diagnostics
+
+---
+
+## Pip finishes Reveal
+
+![Phone: Pip finishes Reveal](./screenshots/046-finish-reveal-29-phone.png)
+
+![Desktop: Pip finishes Reveal](./screenshots/046-finish-reveal-29-desktop.png)
+
+**Verifications:**
+
+- [x] Every connected browser replays 36 accepted events with no diagnostics
+
+---
+
+## Mara selects the physical card for dwarven-caravans
+
+![Phone: Mara selects the physical card for dwarven-caravans](./screenshots/047-select-dwarven-caravans-30-phone.png)
+
+![Desktop: Mara selects the physical card for dwarven-caravans](./screenshots/047-select-dwarven-caravans-30-desktop.png)
+
+**Verifications:**
+
+- [x] The ordinary printed icon enables the intended destination
+
+---
+
+## Mara visits dwarven-caravans
+
+![Phone: Mara visits dwarven-caravans](./screenshots/048-visit-dwarven-caravans-31-phone.png)
+
+![Desktop: Mara visits dwarven-caravans](./screenshots/048-visit-dwarven-caravans-31-desktop.png)
+
+**Verifications:**
+
+- [x] The base destination adds the Provision needed for the held effort
+- [x] Every connected browser replays 37 accepted events with no diagnostics
 
 ---
 
@@ -619,7 +620,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 **Verifications:**
 
-- [x] Every connected browser replays 39 accepted events with no diagnostics
+- [x] Every connected browser replays 38 accepted events with no diagnostics
 
 ---
 
@@ -631,15 +632,27 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 **Verifications:**
 
+- [x] Every connected browser replays 39 accepted events with no diagnostics
+
+---
+
+## Rin Reveals while the War Effort route cycles
+
+![Phone: Rin Reveals while the War Effort route cycles](./screenshots/051-reveal-waiting-34-phone.png)
+
+![Desktop: Rin Reveals while the War Effort route cycles](./screenshots/051-reveal-waiting-34-desktop.png)
+
+**Verifications:**
+
 - [x] Every connected browser replays 40 accepted events with no diagnostics
 
 ---
 
-## Mara Reveals while the War Effort route cycles
+## Rin finishes Reveal
 
-![Phone: Mara Reveals while the War Effort route cycles](./screenshots/051-reveal-waiting-34-phone.png)
+![Phone: Rin finishes Reveal](./screenshots/052-finish-reveal-35-phone.png)
 
-![Desktop: Mara Reveals while the War Effort route cycles](./screenshots/051-reveal-waiting-34-desktop.png)
+![Desktop: Rin finishes Reveal](./screenshots/052-finish-reveal-35-desktop.png)
 
 **Verifications:**
 
@@ -647,186 +660,29 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 ---
 
-## Mara finishes Reveal
-
-![Phone: Mara finishes Reveal](./screenshots/052-finish-reveal-35-phone.png)
-
-![Desktop: Mara finishes Reveal](./screenshots/052-finish-reveal-35-desktop.png)
-
-**Verifications:**
-
-- [x] Every connected browser replays 42 accepted events with no diagnostics
-
----
-
-## Rin Reveals while the War Effort route cycles
-
-![Phone: Rin Reveals while the War Effort route cycles](./screenshots/053-reveal-waiting-36-phone.png)
-
-![Desktop: Rin Reveals while the War Effort route cycles](./screenshots/053-reveal-waiting-36-desktop.png)
-
-**Verifications:**
-
-- [x] Every connected browser replays 43 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/054-finish-reveal-37-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/054-finish-reveal-37-desktop.png)
-
-**Verifications:**
-
-- [x] Every connected browser replays 44 accepted events with no diagnostics
-
----
-
-## Pip Reveals while the War Effort route cycles
-
-![Phone: Pip Reveals while the War Effort route cycles](./screenshots/055-reveal-waiting-38-phone.png)
-
-![Desktop: Pip Reveals while the War Effort route cycles](./screenshots/055-reveal-waiting-38-desktop.png)
-
-**Verifications:**
-
-- [x] Every connected browser replays 45 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal
-
-![Phone: Pip finishes Reveal](./screenshots/056-finish-reveal-39-phone.png)
-
-![Desktop: Pip finishes Reveal](./screenshots/056-finish-reveal-39-desktop.png)
-
-**Verifications:**
-
-- [x] Every connected browser replays 46 accepted events with no diagnostics
-
----
-
-## Mara Reveals while the War Effort route cycles
-
-![Phone: Mara Reveals while the War Effort route cycles](./screenshots/057-reveal-waiting-40-phone.png)
-
-![Desktop: Mara Reveals while the War Effort route cycles](./screenshots/057-reveal-waiting-40-desktop.png)
-
-**Verifications:**
-
-- [x] Every connected browser replays 47 accepted events with no diagnostics
-
----
-
-## Mara finishes Reveal
-
-![Phone: Mara finishes Reveal](./screenshots/058-finish-reveal-41-phone.png)
-
-![Desktop: Mara finishes Reveal](./screenshots/058-finish-reveal-41-desktop.png)
-
-**Verifications:**
-
-- [x] Every connected browser replays 48 accepted events with no diagnostics
-
----
-
-## Pip Reveals while the War Effort route cycles
-
-![Phone: Pip Reveals while the War Effort route cycles](./screenshots/059-reveal-waiting-42-phone.png)
-
-![Desktop: Pip Reveals while the War Effort route cycles](./screenshots/059-reveal-waiting-42-desktop.png)
-
-**Verifications:**
-
-- [x] Every connected browser replays 49 accepted events with no diagnostics
-
----
-
-## Pip finishes Reveal
-
-![Phone: Pip finishes Reveal](./screenshots/060-finish-reveal-43-phone.png)
-
-![Desktop: Pip finishes Reveal](./screenshots/060-finish-reveal-43-desktop.png)
-
-**Verifications:**
-
-- [x] Every connected browser replays 50 accepted events with no diagnostics
-
----
-
-## Mara selects the physical card for dwarven-caravans
-
-![Phone: Mara selects the physical card for dwarven-caravans](./screenshots/061-select-dwarven-caravans-44-phone.png)
-
-![Desktop: Mara selects the physical card for dwarven-caravans](./screenshots/061-select-dwarven-caravans-44-desktop.png)
-
-**Verifications:**
-
-- [x] The ordinary printed icon enables the intended destination
-
----
-
-## Mara visits dwarven-caravans
-
-![Phone: Mara visits dwarven-caravans](./screenshots/062-visit-dwarven-caravans-45-phone.png)
-
-![Desktop: Mara visits dwarven-caravans](./screenshots/062-visit-dwarven-caravans-45-desktop.png)
-
-**Verifications:**
-
-- [x] The base destination adds the Provision needed for the held effort
-- [x] Every connected browser replays 51 accepted events with no diagnostics
-
----
-
-## Rin Reveals while the War Effort route cycles
-
-![Phone: Rin Reveals while the War Effort route cycles](./screenshots/063-reveal-waiting-46-phone.png)
-
-![Desktop: Rin Reveals while the War Effort route cycles](./screenshots/063-reveal-waiting-46-desktop.png)
-
-**Verifications:**
-
-- [x] Every connected browser replays 52 accepted events with no diagnostics
-
----
-
-## Rin finishes Reveal
-
-![Phone: Rin finishes Reveal](./screenshots/064-finish-reveal-47-phone.png)
-
-![Desktop: Rin finishes Reveal](./screenshots/064-finish-reveal-47-desktop.png)
-
-**Verifications:**
-
-- [x] Every connected browser replays 53 accepted events with no diagnostics
-
----
-
 ## Mara completes Stores for Winter
 
-![Phone: Mara completes Stores for Winter](./screenshots/065-complete-stores-48-phone.png)
+![Phone: Mara completes Stores for Winter](./screenshots/053-complete-stores-36-phone.png)
 
-![Desktop: Mara completes Stores for Winter](./screenshots/065-complete-stores-48-desktop.png)
+![Desktop: Mara completes Stores for Winter](./screenshots/053-complete-stores-36-desktop.png)
 
 **Verifications:**
 
 - [x] The during-turn payment spends exactly three Provisions and grants one Renown plus two Mithril
 - [x] The completed effort leaves the player slot and can never reward again
-- [x] Every connected browser replays 54 accepted events with no diagnostics
+- [x] Every connected browser replays 42 accepted events with no diagnostics
 
 ---
 
 ## Mara reloads the completed War Effort batch
 
-![Phone: Mara reloads the completed War Effort batch](./screenshots/066-reload-war-efforts-phone.png)
+![Phone: Mara reloads the completed War Effort batch](./screenshots/054-reload-war-efforts-phone.png)
 
-![Desktop: Mara reloads the completed War Effort batch](./screenshots/066-reload-war-efforts-desktop.png)
+![Desktop: Mara reloads the completed War Effort batch](./screenshots/054-reload-war-efforts-desktop.png)
 
 **Verifications:**
 
 - [x] Replay preserves the module, row, discard, exact reward, and no held effort
-- [x] Every connected browser replays 54 accepted events with no diagnostics
+- [x] Every connected browser replays 42 accepted events with no diagnostics
 
 ---

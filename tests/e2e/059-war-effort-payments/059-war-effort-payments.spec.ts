@@ -7,7 +7,7 @@ test('the table enables, takes, replaces, declines, and completes War Efforts', 
   test.setTimeout(900_000);
   const steps = new TestStepHelper(testInfo);
   const table = await startPlotTable(
-    browser, page, testInfo, steps, 'war-effort-batch-0',
+    browser, page, testInfo, steps, 'war-effort-full-998',
     { phone: 'WAR1P', desktop: 'WAR1D' },
     ['Aragorn', 'Treebeard', 'Gandalf'],
     true
@@ -67,8 +67,8 @@ test('the table enables, takes, replaces, declines, and completes War Efforts', 
           await record(actor, 'decline-efforts', `${actor.name} leaves both War Efforts in the row`, async () => {
             await actor.page.getByRole('button', { name: 'Leave the War Efforts' }).click(); accepted.value += 1;
             declined = true;
-          }, [{ spec: 'Declining preserves the remaining face-up physical card and gives no fallback Gold', check: async () => {
-            for (const observer of seats) await expect(observer.page.getByTestId('war-efforts').locator('[aria-label="Face-up War Efforts"] article')).toHaveCount(1);
+          }, [{ spec: 'Declining preserves both face-up physical cards and gives no fallback Gold', check: async () => {
+            for (const observer of seats) await expect(observer.page.getByTestId('war-efforts').locator('[aria-label="Face-up War Efforts"] article')).toHaveCount(2);
           } }]);
         }
         continue;

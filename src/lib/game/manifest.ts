@@ -417,19 +417,45 @@ export const RESERVE_CARD_DEFINITIONS: readonly ReserveCardDefinition[] = [
   }
 ];
 
-export type WarEffortId = 'arm-westfold' | 'mithril-cause' | 'stores-winter';
+export type WarEffortId =
+  | 'arm-westfold'
+  | 'mithril-cause'
+  | 'hidden-supply-lines'
+  | 'envoys-every-realm'
+  | 'unlikely-alliance'
+  | 'hold-crossing'
+  | 'break-host'
+  | 'trees-awaken'
+  | 'eyes-everywhere'
+  | 'worthy-company'
+  | 'stores-winter'
+  | 'counsel-before-battle';
 
 export type WarEffortDefinition = {
   id: WarEffortId;
   name: string;
   completionText: string;
   rewardText: string;
-  completion: {
-    kind: 'pay-resource';
-    resource: 'gold' | 'mithril' | 'provisions';
-    amount: number;
+  completion:
+    | { kind: 'pay-resource'; resource: 'gold' | 'mithril' | 'provisions'; amount: number }
+    | { kind: 'visit-roads-with-scouts'; scouts: number }
+    | { kind: 'standing-factions'; factions: number; minimum: number }
+    | { kind: 'gain-uniquely-lowest-standing' }
+    | { kind: 'gain-critical-control' }
+    | { kind: 'win-battle-with-companies'; companies: number }
+    | { kind: 'summon-ents-in-turn'; ents: number }
+    | { kind: 'recall-scouts-in-turn'; scouts: number }
+    | { kind: 'acquire-card-cost'; minimum: number }
+    | { kind: 'end-reveal-council-strength'; strength: number };
+  reward: {
+    renown?: number;
+    gold?: number;
+    mithril?: number;
+    provisions?: number;
+    recruitCompanies?: number;
+    drawCards?: number;
+    drawFate?: number;
   };
-  reward: { renown: number; gold?: number; mithril?: number; recruitCompanies?: number };
 };
 
 export const WAR_EFFORT_DEFINITIONS: readonly WarEffortDefinition[] = [
@@ -448,11 +474,74 @@ export const WAR_EFFORT_DEFINITIONS: readonly WarEffortDefinition[] = [
     reward: { renown: 1, gold: 3 }
   },
   {
+    id: 'hidden-supply-lines', name: 'Hidden Supply Lines',
+    completionText: 'After visiting a Roads space while you have 2 Scouts on the board',
+    rewardText: 'Gain 4 Gold',
+    completion: { kind: 'visit-roads-with-scouts', scouts: 2 },
+    reward: { gold: 4 }
+  },
+  {
+    id: 'envoys-every-realm', name: 'Envoys to Every Realm',
+    completionText: 'After reaching at least 2 standing with 3 factions',
+    rewardText: 'Gain 1 Renown',
+    completion: { kind: 'standing-factions', factions: 3, minimum: 2 },
+    reward: { renown: 1 }
+  },
+  {
+    id: 'unlikely-alliance', name: 'Unlikely Alliance',
+    completionText: 'After gaining standing with your uniquely lowest faction',
+    rewardText: 'Gain 1 Renown and draw 1 Fate',
+    completion: { kind: 'gain-uniquely-lowest-standing' },
+    reward: { renown: 1, drawFate: 1 }
+  },
+  {
+    id: 'hold-crossing', name: 'Hold the Crossing',
+    completionText: 'After gaining control of a critical location',
+    rewardText: 'Gain 3 Gold and 1 Mithril',
+    completion: { kind: 'gain-critical-control' },
+    reward: { gold: 3, mithril: 1 }
+  },
+  {
+    id: 'break-host', name: 'Break Their Host',
+    completionText: 'After winning a Battle containing at least 4 of your Companies',
+    rewardText: 'Gain 1 Renown',
+    completion: { kind: 'win-battle-with-companies', companies: 4 },
+    reward: { renown: 1 }
+  },
+  {
+    id: 'trees-awaken', name: 'The Trees Awaken',
+    completionText: 'After summoning 2 Ents in one turn',
+    rewardText: 'Gain 1 Renown and 1 Provision',
+    completion: { kind: 'summon-ents-in-turn', ents: 2 },
+    reward: { renown: 1, provisions: 1 }
+  },
+  {
+    id: 'eyes-everywhere', name: 'Eyes Everywhere',
+    completionText: 'After recalling 2 Scouts in one turn',
+    rewardText: 'Gain 1 Renown',
+    completion: { kind: 'recall-scouts-in-turn', scouts: 2 },
+    reward: { renown: 1 }
+  },
+  {
+    id: 'worthy-company', name: 'A Worthy Company',
+    completionText: 'After acquiring a card costing at least 7 Influence',
+    rewardText: 'Gain 1 Renown and draw 1 card',
+    completion: { kind: 'acquire-card-cost', minimum: 7 },
+    reward: { renown: 1, drawCards: 1 }
+  },
+  {
     id: 'stores-winter', name: 'Stores for Winter',
     completionText: 'During your turn, pay 3 Provisions',
     rewardText: 'Gain 1 Renown and 2 Mithril',
     completion: { kind: 'pay-resource', resource: 'provisions', amount: 3 },
     reward: { renown: 1, mithril: 2 }
+  },
+  {
+    id: 'counsel-before-battle', name: 'Counsel Before Battle',
+    completionText: 'At the end of Reveal with a Council seat and at least 6 Battle Strength',
+    rewardText: 'Gain 4 Gold and draw 1 Fate',
+    completion: { kind: 'end-reveal-council-strength', strength: 6 },
+    reward: { gold: 4, drawFate: 1 }
   }
 ];
 
