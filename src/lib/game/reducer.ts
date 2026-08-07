@@ -621,7 +621,7 @@ function createMatch(state: GameState, seed: string, epoch: number): MatchState 
     queuedBattleDeployment: null,
     pendingBattleRewardChoices: [],
     pendingChoice: null,
-    reserveSupply: { 'muster-host': 8 },
+    reserveSupply: { 'muster-host': 8, 'deed-worthy-song': 10 },
     alliances: { shadow: null, dwarven: null, elven: null, wild: null },
     activity: [
       `The seeded match begins. ${state.players.find((player) => player.uid === playerOrder[0])?.displayName ?? 'Seat 1'} acts first.`,

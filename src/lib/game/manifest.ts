@@ -367,6 +367,7 @@ export const MUSTER_CARD_DEFINITIONS: readonly MusterCardDefinition[] = [
   { id: 'seek-allies', name: 'Seek Allies', muster: { influence: 1, swords: 0 } },
   { id: 'token-of-command', name: 'Token of Command', muster: { influence: 1, swords: 0 } },
   { id: 'muster-host', name: 'Muster the Host', muster: { influence: 1, swords: 1 } },
+  { id: 'deed-worthy-song', name: 'Deed Worthy of Song', muster: { influence: 0, swords: 0 } },
   { id: 'rider-rohan', name: 'Rider of Rohan', muster: { influence: 1, swords: 1 } },
   { id: 'bree-land-guide', name: 'Bree-land Guide', muster: { influence: 1, swords: 0 } },
   { id: 'captain-gondor', name: 'Captain of Gondor', muster: { influence: 1, swords: 2 } },
@@ -396,7 +397,7 @@ export const MUSTER_CARD_DEFINITIONS: readonly MusterCardDefinition[] = [
   { id: 'heir-isildur', name: 'Heir of Isildur', muster: { influence: 5, swords: 2 } }
 ];
 
-export type ReserveCardId = 'muster-host';
+export type ReserveCardId = 'muster-host' | 'deed-worthy-song';
 
 export type ReserveCardDefinition = Omit<MusterCardDefinition, 'id'> & {
   id: ReserveCardId;
@@ -409,6 +410,10 @@ export const RESERVE_CARD_DEFINITIONS: readonly ReserveCardDefinition[] = [
   {
     id: 'muster-host', name: 'Muster the Host', copies: 8, cost: 2,
     onAcquireRenown: 0, muster: { influence: 1, swords: 1 }
+  },
+  {
+    id: 'deed-worthy-song', name: 'Deed Worthy of Song', copies: 10, cost: 9,
+    onAcquireRenown: 1, muster: { influence: 0, swords: 0 }
   }
 ];
 

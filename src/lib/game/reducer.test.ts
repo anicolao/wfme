@@ -958,7 +958,7 @@ describe('integrated Agent placement replay', () => {
     expect(respected.match!.players[dwarfActor].renown).toBe(1);
   });
 
-  it('rejects unavailable Reserve definitions without mutating the player', () => {
+  it('rejects an unaffordable Deed Worthy of Song without mutating the player', () => {
     const completed = completedAgentRound();
     const actor = completed.order.dwarfActor;
     const state = reduceGame([
@@ -968,7 +968,97 @@ describe('integrated Agent placement replay', () => {
     ]);
     expect(state.diagnostics.at(-1)).toContain('illegal acquisition');
     expect(state.match!.reserveSupply['muster-host']).toBe(8);
+    expect(state.match!.reserveSupply['deed-worthy-song']).toBe(10);
     expect(state.match!.players[actor].renown).toBe(0);
+  });
+
+  it('acquires a finite Deed Worthy of Song for nine real Influence and leaves a weak physical card', () => {
+    const stream = readyRoom('deed-worthy-9');
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const append = (actorUid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      sequences[actorUid] += 1;
+      stream.push(createEvent(type, actorUid, sequences[actorUid], payload, timestamp++));
+    };
+    const targetUid = 'host';
+    let acquired = false;
+    let influenceBefore = 0;
+    let renownBefore = 0;
+
+    for (let guard = 0; guard < 500 && !acquired; guard += 1) {
+      const state = reduceGame(stream);
+      expect(state.diagnostics).toEqual([]);
+      const match = state.match!;
+      const pending = match.pendingChoice;
+      if (pending?.kind === 'token-command-order') append(pending.actorUid, 'choice/resolved', { choice: 'ring-first' });
+      else if (pending?.kind === 'commander-ring-standing') append(pending.actorUid, 'choice/resolved', { choice: pending.options[0] });
+      else if (pending?.kind === 'commander-ring-gandalf') append(pending.actorUid, 'choice/resolved', { choice: 'gandalf-draw-fate' });
+      else if (pending?.kind === 'commander-ring-eowyn') append(pending.actorUid, 'choice/resolved', { choice: 'decline-trash' });
+      else if (pending?.kind === 'place-scout') {
+        const post = OBSERVATION_POSTS.find((candidate) => !match.boardScouts[candidate.id])!;
+        append(pending.actorUid, 'scout/placed', { postId: post.id });
+      } else if (pending?.kind === 'seek-allies') append(pending.actorUid, 'choice/resolved', { choice: 'keep-card' });
+      else if (pending?.kind === 'critical-defense') append(pending.actorUid, 'choice/resolved', { choice: 'decline-defender' });
+      else if (pending) throw new Error(`Unexpected Deed setup choice: ${pending.kind}`);
+      else {
+        const actorUid = currentPlayerUid(state)!;
+        const player = match.players[actorUid];
+        if (match.turnMode === 'reveal') {
+          if (actorUid === targetUid && player.revealInfluence >= 9) {
+            influenceBefore = player.revealInfluence;
+            renownBefore = player.renown;
+            append(actorUid, 'card/acquired', { definitionId: 'deed-worthy-song' });
+            acquired = true;
+          } else append(actorUid, 'reveal/finished', {});
+        } else if (match.turnMode === 'battle') append(actorUid, 'battle/passed', {});
+        else if (actorUid !== targetUid) append(actorUid, 'turn/revealed', {});
+        else if (match.boardAgents['hall-fire']?.some((occupation) => occupation.uid === targetUid)) {
+          append(actorUid, 'turn/revealed', {});
+        } else if (!player.councilSeat) {
+          const desiredSpaces = player.resources.gold >= 5
+            ? ['white-council-seat']
+            : ['take-war-effort', 'tribute-shadow'];
+          const placement = desiredSpaces.flatMap((spaceId) => player.hand
+            .filter((card) => card.definitionId !== 'token-of-command')
+            .filter((card) => legalAgentSpaces(state, actorUid, card.id).includes(spaceId))
+            .map((card) => ({ card, spaceId })))[0];
+          if (placement) append(actorUid, 'agent/placed', { cardInstanceId: placement.card.id, spaceId: placement.spaceId });
+          else append(actorUid, 'turn/revealed', {});
+        } else {
+          const hallPlacement = player.hand
+            .filter((card) => card.definitionId !== 'token-of-command')
+            .filter((card) => legalAgentSpaces(state, actorUid, card.id).includes('hall-fire'))
+            .sort((left, right) => {
+              const leftInfluence = MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === left.definitionId)?.muster.influence ?? 0;
+              const rightInfluence = MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === right.definitionId)?.muster.influence ?? 0;
+              return leftInfluence - rightInfluence;
+            })[0];
+          const remainingInfluence = hallPlacement
+            ? player.hand.filter((card) => card.id !== hallPlacement.id).reduce((total, card) =>
+              total + (MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === card.definitionId)?.muster.influence ?? 0), 0)
+            : 0;
+          if (hallPlacement && remainingInfluence + 3 >= 9) {
+            append(actorUid, 'agent/placed', { cardInstanceId: hallPlacement.id, spaceId: 'hall-fire' });
+          } else append(actorUid, 'turn/revealed', {});
+        }
+      }
+    }
+
+    expect(acquired).toBe(true);
+    const state = reduceGame(stream);
+    expect(state.diagnostics).toEqual([]);
+    const player = state.match!.players[targetUid];
+    expect(influenceBefore).toBeGreaterThanOrEqual(9);
+    expect(player.revealInfluence).toBe(influenceBefore - 9);
+    expect(player.renown).toBe(renownBefore + 1);
+    expect(state.match!.reserveSupply['deed-worthy-song']).toBe(9);
+    expect(player.discardPile).toContainEqual({
+      id: 'match-1:reserve:deed-worthy-song:1',
+      definitionId: 'deed-worthy-song'
+    });
+    expect(AGENT_CARD_DEFINITIONS.some((definition) => definition.id === 'deed-worthy-song')).toBe(false);
+    expect(MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === 'deed-worthy-song')?.muster).toEqual({ influence: 0, swords: 0 });
+    expect(reduceGame(stream)).toEqual(state);
   });
 
   it('buys, refills, reshuffles, draws, and executes every reviewed Chronicle card', () => {
