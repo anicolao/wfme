@@ -18,8 +18,10 @@ nix develop --command bun run test:e2e
 Playwright builds the client once with the emulator configuration and serves
 that production bundle on port 5189. Do not switch the gate to Vite's
 development server: repeated development-module startup can consume the entire
-2,000 ms Firebase readiness window on CI and does not represent the deployed
-artifact.
+2,000 ms application/Auth readiness window on CI and does not represent the
+deployed artifact. This readiness point restores the pre-seeded Firebase Auth
+session; later room queries, writes, and observer convergence prove real
+Firestore emulator traffic.
 
 The suite must pass with zero retries and no focused tests. Use observable
 Playwright assertions; never add sleeps, arbitrary polling, or screenshot-only

@@ -1,6 +1,6 @@
 import { expect, type Page } from '@playwright/test';
 
-export async function waitForFirebase(page: Page) {
+export async function waitForFirebaseSession(page: Page) {
   await expect(page.getByTestId('firebase-status')).toHaveText('Live Firebase ready', {
     timeout: 2_000
   });
@@ -53,7 +53,7 @@ export async function openFirebaseClients(pages: readonly Page[]) {
   await Promise.all(pages.map(async (page) => {
     await seedEmulatorAuth(page);
     await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 2_000 });
-    await waitForFirebase(page);
+    await waitForFirebaseSession(page);
   }));
 }
 
@@ -74,7 +74,7 @@ export async function reloadGameClient(page: Page) {
   });
   await page.evaluate(() => { history.scrollRestoration = 'manual'; });
   await page.reload({ waitUntil: 'domcontentloaded', timeout: 2_000 });
-  await waitForFirebase(page);
+  await waitForFirebaseSession(page);
   if (replayHealthBefore !== null) {
     await expect(page.getByTestId('replay-health')).toHaveText(replayHealthBefore, {
       timeout: 2_000

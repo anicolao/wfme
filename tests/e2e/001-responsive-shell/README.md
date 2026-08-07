@@ -13,7 +13,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] The page is the game, not a marketing interstitial
-- [x] Firebase is connected before room controls are enabled
+- [x] The Firebase session is ready before room controls are enabled
 - [x] A player can immediately create or join a room
 - [x] The current tracer boundary is explicit
 - [x] The viewport has no horizontal document overflow

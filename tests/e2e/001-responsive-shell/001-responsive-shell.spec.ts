@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { TestStepHelper } from '../helpers/test-step-helper';
-import { waitForFirebase } from '../helpers/firebase-readiness';
+import { waitForFirebaseSession } from '../helpers/firebase-readiness';
 
 test('the game opens directly at a responsive construction lobby', async ({ page }, testInfo) => {
   const steps = new TestStepHelper(testInfo);
@@ -9,7 +9,7 @@ test('the game opens directly at a responsive construction lobby', async ({ page
 
   await steps.observe(page, 'construction-lobby', 'The game opens at the playable lobby', [
     { spec: 'The page is the game, not a marketing interstitial', check: async () => await expect(page).toHaveTitle('Play — The War for Middle-earth') },
-    { spec: 'Firebase is connected before room controls are enabled', check: async () => await waitForFirebase(page) },
+    { spec: 'The Firebase session is ready before room controls are enabled', check: async () => await waitForFirebaseSession(page) },
     { spec: 'A player can immediately create or join a room', check: async () => {
       await expect(page.getByRole('button', { name: 'Create game' })).toBeEnabled();
       await expect(page.getByRole('button', { name: 'Join game' })).toBeEnabled();
