@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createEvent } from './events';
 import { AGENT_CARD_DEFINITIONS, BATTLE_CARD_DEFINITIONS, CHRONICLE_CARD_DEFINITIONS, MUSTER_CARD_DEFINITIONS, OBSERVATION_POSTS } from './manifest';
-import { battleStrength, blackBreathStrengthLoss, currentPlayerUid, eligibleHeirStandingOptions, fairSeemingPromiseGold, legalAgentSpaces, reduceGame } from './reducer';
+import { battleStrength, blackBreathStrengthLoss, currentPlayerUid, eligibleHeirStandingOptions, fairSeemingPromiseGold, legalAgentSpaces, reduceGame, rousedAtLastEntCount } from './reducer';
 import { shuffled } from './prng';
 
 function readyRoom(seed = 'road-2') {
@@ -3187,6 +3187,83 @@ describe('integrated Agent placement replay', () => {
     expect(nonBattle.match!.players.host.resources.gold).toBe(2);
     expect(nonBattle.match!.activity).toContain('The Witch-king recruits 1 Company with Terror Rides outside a Battle space.');
     expect(reduceGame([...setup, placement, spaceFirst])).toEqual(state);
+  });
+
+  it('rouses Treebeard at Wild standing two and doubles only his first exact one-Ent summon', () => {
+    expect(rousedAtLastEntCount('treebeard', false, 1)).toBe(2);
+    expect(rousedAtLastEntCount('treebeard', true, 1)).toBe(1);
+    expect(rousedAtLastEntCount('treebeard', false, 2)).toBe(2);
+    expect(rousedAtLastEntCount('aragorn', false, 1)).toBe(1);
+    const setup = readyRoom('roused-554').map((event) => event.type !== 'player/commander-selected'
+      ? event
+      : event.actorUid === 'host'
+        ? createEvent('player/commander-selected', 'host', 2, { commanderId: 'treebeard' }, 4)
+        : event.actorUid === 'guest-a'
+          ? createEvent('player/commander-selected', 'guest-a', 2, { commanderId: 'aragorn' }, 5)
+          : event);
+    const stream = [...setup];
+    const sequences: Record<string, number> = { host: 4, 'guest-a': 3, 'guest-b': 3 };
+    let timestamp = 11;
+    const append = (actorUid: string, type: Parameters<typeof createEvent>[0], payload: Record<string, unknown>) => {
+      sequences[actorUid] += 1;
+      stream.push(createEvent(type, actorUid, sequences[actorUid], payload, timestamp++));
+    };
+
+    let state = reduceGame(stream);
+    expect(currentPlayerUid(state)).toBe('host');
+    expect(BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === state.match!.activeBattleId)?.contestedLocationId).toBeNull();
+    for (let guard = 0; guard < 160 && !state.match!.players.host.treebeardEntBonusUsed; guard += 1) {
+      const pending = state.match!.pendingChoice;
+      if (pending) {
+        if (pending.kind === 'seek-allies') append(pending.actorUid, 'choice/resolved', { choice: 'keep-card' });
+        else if (pending.kind === 'ranger-mustering-trash') append(pending.actorUid, 'choice/resolved', { choice: 'decline-trash' });
+        else if (pending.kind === 'battle-deployment') append(pending.actorUid, 'choice/resolved', { choice: 'deploy:0' });
+        else if (pending.kind === 'entwash') append(pending.actorUid, 'choice/resolved', { choice: 'summon-1-ent' });
+        else if (pending.kind === 'critical-defense') append(pending.actorUid, 'choice/resolved', { choice: 'decline-defender' });
+        else throw new Error(`Unexpected Roused at Last choice: ${pending.kind}`);
+        state = reduceGame(stream);
+        expect(state.diagnostics).toEqual([]);
+        continue;
+      }
+
+      const actorUid = currentPlayerUid(state)!;
+      if (state.match!.turnMode === 'reveal') {
+        append(actorUid, 'reveal/finished', {});
+        state = reduceGame(stream);
+        expect(state.diagnostics).toEqual([]);
+        continue;
+      }
+      expect(state.match!.turnMode).toBe('agent');
+      if (actorUid !== 'host') {
+        append(actorUid, 'turn/revealed', {});
+        state = reduceGame(stream);
+        expect(state.diagnostics).toEqual([]);
+        continue;
+      }
+
+      const player = state.match!.players.host;
+      const desiredSpace = player.standing.wild === 0
+        ? 'hidden-paths'
+        : player.standing.wild === 1 && player.resources.provisions < 2
+          ? 'dwarven-caravans'
+          : player.standing.wild === 1
+            ? 'ranger-mustering'
+            : 'entwash';
+      const card = player.hand.find((candidate) => legalAgentSpaces(state, 'host', candidate.id).includes(desiredSpace));
+      if (card) append('host', 'agent/placed', { cardInstanceId: card.id, spaceId: desiredSpace });
+      else append('host', 'turn/revealed', {});
+      state = reduceGame(stream);
+      expect(state.diagnostics).toEqual([]);
+    }
+
+    const treebeard = state.match!.players.host;
+    expect(treebeard.standing.wild).toBeGreaterThanOrEqual(2);
+    expect(treebeard.entDraught).toBe(true);
+    expect(treebeard.treebeardEntBonusUsed).toBe(true);
+    expect(state.match!.battleEnts.host).toBe(2);
+    expect(state.match!.activity.filter((entry) => entry.includes('takes Ent-draught with Roused at Last'))).toHaveLength(1);
+    expect(state.match!.activity.filter((entry) => entry.includes('Roused at Last summons 1 additional Ent'))).toHaveLength(1);
+    expect(reduceGame(stream)).toEqual(state);
   });
 
   it('offers Engines of Isengard once after the first two-Company effect and refreshes it at Recall', () => {

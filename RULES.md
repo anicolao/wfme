@@ -415,6 +415,8 @@ For **Black Breath**, only a Combat-timing Fate card played by the Witch-king qu
 
 For **Terror Rides**, move one Company from the Witch-king's supply to his garrison when the Ring ability resolves. If Token of Command entered a Battle space, immediately move that newly recruited Company from the garrison to the active Battle; this mandatory movement is separate from and does not reduce the ordinary Battle deployment that follows the destination. Then draw one private Fate, even if no Company remained in supply to recruit. At a non-Battle space, the recruited Company remains in the garrison and no Fate is drawn. Resolve all three parts at the Ring's chosen point relative to the destination; when the destination resolves first, finish its ordered choices, then Terror Rides, then ordinary Battle deployment. If the Fate deck is empty, draw no card.
 
+For **Roused at Last**, when Treebeard first increases from below Wild standing 2 to Wild standing 2 or higher, give him Ent-draught immediately without requiring a visit to Fangorn Moot. If he already has Ent-draught, he keeps the one token and gains nothing else. The first time each game an effect would summon exactly one Ent for Treebeard, summon that Ent and one additional Ent into the same active Battle, then mark Roused at Last spent. An effect that summons two or more Ents does not receive or spend this bonus. The spent marker persists through Recall and Battle cleanup and resets only for a new match or rematch.
+
 ## 20. Optional War Effort module
 
 During setup, shuffle the 12 War Efforts, reveal two beside the board, and keep the rest facedown. When an effect tells you to take a War Effort, take one face-up card and immediately refill its slot. If no card is available, gain 2 Gold instead.

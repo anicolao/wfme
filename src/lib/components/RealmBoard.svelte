@@ -314,6 +314,9 @@
             <div><dt>Scouts</dt><dd>{matchPlayer?.scouts.supply ?? 0} supply</dd></div>
             <div><dt>Fate</dt><dd>{matchPlayer?.fateHand.length ?? 0}</dd></div>
             <div><dt>Ent-draught</dt><dd>{matchPlayer?.entDraught ? 'Ready' : '—'}</dd></div>
+            {#if matchPlayer?.commander === 'treebeard'}
+              <div><dt>Roused</dt><dd>{matchPlayer.treebeardEntBonusUsed ? 'Spent' : 'Ready'}</dd></div>
+            {/if}
             <div><dt>Council</dt><dd>{matchPlayer?.councilSeat ? 'Seated' : '—'}</dd></div>
             <div><dt>Captain</dt><dd>{matchPlayer?.captainUnlocked ? 'Appointed' : matchPlayer?.captainAgentPending ? 'Arriving next turn' : '—'}</dd></div>
           </dl>

@@ -93,6 +93,7 @@ export type MatchPlayer = {
   fateHand: FateInstance[];
   councilSeat: boolean;
   entDraught: boolean;
+  treebeardEntBonusUsed: boolean;
 };
 
 export type AgentOccupation = {
@@ -514,9 +515,10 @@ function createMatch(state: GameState, seed: string, epoch: number): MatchState 
           pairedBattleIds: [],
           scouts: { supply: 3 },
           scoutsRecalledThisRound: 0,
-      fateHand: [],
-      councilSeat: false,
-      entDraught: false
+          fateHand: [],
+          councilSeat: false,
+          entDraught: false,
+          treebeardEntBonusUsed: false
         }
       ];
     })
@@ -1734,6 +1736,14 @@ export function blackBreathStrengthLoss(entsInBattle: number): number {
   return Math.max(0, entsInBattle) + 1;
 }
 
+export function rousedAtLastEntCount(
+  commander: MatchPlayer['commander'],
+  bonusUsed: boolean,
+  printedEnts: number
+): number {
+  return commander === 'treebeard' && !bonusUsed && printedEnts === 1 ? 2 : printedEnts;
+}
+
 function queueWitchKingBlackBreath(match: MatchState, actorUid: string): void {
   const player = match.players[actorUid];
   if (player.commander !== 'witch-king' || match.witchKingBlackBreathUsed) return;
@@ -1785,6 +1795,16 @@ function gainStanding(
     match.activity.push(`Aragorn's Line Unbroken recruits ${recruited} Company${recruited === 1 ? '' : 'ies'}.`);
   }
   if (before < 2 && after >= 2) player.renown += 1;
+  if (
+    faction === 'wild' &&
+    before < 2 &&
+    after >= 2 &&
+    player.commander === 'treebeard' &&
+    !player.entDraught
+  ) {
+    player.entDraught = true;
+    match.activity.push('Treebeard reaches Wild standing 2 and takes Ent-draught with Roused at Last.');
+  }
   if (before < 4 && after >= 4) {
     if (faction === 'shadow') recruitCompanies(match, player, 2);
     if (faction === 'dwarven') player.resources.provisions += 2;
@@ -2984,8 +3004,10 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     if (pending.kind === 'deep-fangorn') {
       if (choice === 'summon-2-ents') {
         if (!canSummonEnts(state.match, player)) return 'illegal choice resolution';
-        state.match.battleEnts[event.actorUid] = (state.match.battleEnts[event.actorUid] ?? 0) + 2;
-        state.match.activity.push(`${actor.displayName} summons 2 Ents from Deep Fangorn directly into the active Battle.`);
+        const summoned = rousedAtLastEntCount(player.commander, player.treebeardEntBonusUsed, 2);
+        if (summoned > 2) player.treebeardEntBonusUsed = true;
+        state.match.battleEnts[event.actorUid] = (state.match.battleEnts[event.actorUid] ?? 0) + summoned;
+        state.match.activity.push(`${actor.displayName} summons ${summoned} Ents from Deep Fangorn directly into the active Battle.`);
       } else {
         player.resources.mithril += 4;
         state.match.activity.push(`${actor.displayName} gains 4 Mithril in Deep Fangorn.`);
@@ -3008,8 +3030,15 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     if (pending.kind === 'entwash') {
       if (choice === 'summon-1-ent') {
         if (!canSummonEnts(state.match, player)) return 'illegal choice resolution';
-        state.match.battleEnts[event.actorUid] = (state.match.battleEnts[event.actorUid] ?? 0) + 1;
-        state.match.activity.push(`${actor.displayName} summons 1 Ent from Entwash directly into the active Battle.`);
+        const summoned = rousedAtLastEntCount(player.commander, player.treebeardEntBonusUsed, 1);
+        const rousedBonus = summoned > 1;
+        if (rousedBonus) player.treebeardEntBonusUsed = true;
+        state.match.battleEnts[event.actorUid] = (state.match.battleEnts[event.actorUid] ?? 0) + summoned;
+        state.match.activity.push(
+          rousedBonus
+            ? `${actor.displayName} summons 1 Ent from Entwash and Roused at Last summons 1 additional Ent directly into the active Battle.`
+            : `${actor.displayName} summons 1 Ent from Entwash directly into the active Battle.`
+        );
       } else {
         player.resources.mithril += 2;
         state.match.activity.push(`${actor.displayName} gains 2 Mithril at Entwash.`);
