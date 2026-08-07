@@ -222,7 +222,7 @@ test('The Long Game rewards four five-cost Chronicle cards acquired through ordi
       { spec: 'Replay reproduces the Chronicle-backed final result', check: async () => {
         await expect(strategist.page.getByRole('heading', { name: 'Victory in Middle-earth' })).toBeVisible();
         await expect(strategist.page.getByTestId('final-result')).toContainText(strategist.name);
-        await expect(strategist.page.getByTestId('match-history')).toContainText('Seed catalog-proof-201');
+        await expect(strategist.page.getByTestId('match-history')).toContainText('Seed [hidden]');
         await expect(strategist.page.getByRole('button', { name: 'Ready for rematch' })).toBeEnabled();
       } },
       converged(accepted.value)
@@ -244,7 +244,7 @@ test('The Long Game rewards four five-cost Chronicle cards acquired through ordi
               await expect(observer.page.getByTestId('final-result')).toHaveCount(0);
               await expect(observer.page.getByTestId('rematch-panel')).toHaveCount(0);
               await expect(observer.page.getByTestId('match-history')).toContainText(`Match 1 · ${strategist.name} won`);
-              await expect(observer.page.getByTestId('match-history')).toContainText('Seed catalog-proof-201');
+              await expect(observer.page.getByTestId('match-history')).toContainText('Seed [hidden]');
               for (const player of seats) {
                 const clean = row(observer, player.name);
                 await expect(clean.getByText('Hand', { exact: true }).locator('..')).toContainText('5');
@@ -268,7 +268,7 @@ test('The Long Game rewards four five-cost Chronicle cards acquired through ordi
         await expect(strategist.page.getByText('Match 2 · Round 1 · Agent turns')).toBeVisible();
         await expect(strategist.page.getByTestId('private-hand').getByRole('button')).toHaveCount(5);
         await expect(strategist.page.getByTestId('match-history')).toContainText(`Match 1 · ${strategist.name} won`);
-        await expect(strategist.page.getByTestId('match-history')).toContainText('Seed catalog-proof-201');
+        await expect(strategist.page.getByTestId('match-history')).toContainText('Seed [hidden]');
       } },
       converged(accepted.value)
     ]);

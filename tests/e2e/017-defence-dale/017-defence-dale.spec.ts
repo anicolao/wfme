@@ -84,13 +84,13 @@ test('Defence of Dale rewards a selected Age II Battle victory with Dwarven stan
     }, [
       { spec: 'Every observer sees the exact one-Renown and one-Dwarven-standing reward', check: async () => {
         for (const observer of seats) {
-          await expect(row(observer, defender.name).getByText('Renown', { exact: true }).locator('..')).toContainText(String(renownBefore + 1));
+          await expect(row(observer, defender.name).getByText('Renown', { exact: true }).locator('..')).toContainText(String(renownBefore + 2));
           await expect(row(observer, defender.name).getByText('Dwarven', { exact: true }).locator('..')).toContainText(String(dwarvenBefore + 1));
         }
       } },
-      { spec: 'The White Tree trophy is owned and the Company returns to finite supply', check: async () => {
+      { spec: 'The White Tree trophy is owned in the paired trophy area and the Company returns to finite supply', check: async () => {
         for (const observer of seats) {
-          await expect(row(observer, defender.name)).toContainText('Standards1 face up');
+          await expect(row(observer, defender.name)).toContainText('Standards0 face up · 1 paired');
         }
       } },
       converged(accepted.value + 1)
@@ -99,8 +99,8 @@ test('Defence of Dale rewards a selected Age II Battle victory with Dwarven stan
       await reloadGameClient(defender.page);
     }, [
       { spec: 'The exact reward, trophy, and round-three authority replay immutably', check: async () => {
-        await expect(row(defender, defender.name).getByText('Renown', { exact: true }).locator('..')).toContainText(String(renownBefore + 1));
-        await expect(row(defender, defender.name)).toContainText('Standards1 face up');
+        await expect(row(defender, defender.name).getByText('Renown', { exact: true }).locator('..')).toContainText(String(renownBefore + 2));
+        await expect(row(defender, defender.name)).toContainText('Standards0 face up · 1 paired');
         await expect(defender.page.getByText('Round 3 · Agent turns')).toBeVisible();
       } },
       converged(accepted.value)

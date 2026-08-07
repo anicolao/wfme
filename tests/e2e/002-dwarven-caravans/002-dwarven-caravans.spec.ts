@@ -348,9 +348,9 @@ test('three humans create a room and complete Dwarven Caravans', async ({ browse
         { spec: 'Muster totals are exactly four Influence and one sword', check: async () => {
           await expect(actor!.page.getByTestId('reveal-panel')).toContainText('4 Influence remaining · 1 sword');
         } },
-        { spec: 'The reviewed Muster the Host Reserve batch is affordable and unavailable content is absent', check: async () => {
+        { spec: 'The reviewed Muster the Host Reserve batch is affordable while the nine-Influence Deed remains unaffordable', check: async () => {
           await expect(actor!.page.getByRole('button', { name: /^Muster the Host/ })).toBeEnabled();
-          await expect(actor!.page.getByRole('button', { name: /^Deed Worthy of Song/ })).toHaveCount(0);
+          await expect(actor!.page.getByRole('button', { name: /^Deed Worthy of Song/ })).toBeDisabled();
         } },
         convergedEvents(16)
       ]

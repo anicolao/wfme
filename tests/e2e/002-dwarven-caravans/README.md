@@ -395,7 +395,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 
 - [x] Every client sees the same four-card public Muster row
 - [x] Muster totals are exactly four Influence and one sword
-- [x] The reviewed Muster the Host Reserve batch is affordable and unavailable content is absent
+- [x] The reviewed Muster the Host Reserve batch is affordable while the nine-Influence Deed remains unaffordable
 - [x] Every connected replay has accepted exactly 16 events with no diagnostics
 
 ---

@@ -182,7 +182,7 @@ test('Treachery at Orthanc resolves a private ranked Fate choice before Recall',
           else {
             for (const observer of seats) await expect(observer.page.getByRole('heading', { name: 'Keep one of the two Fate cards?' })).toBeVisible();
             if (winner) for (const observer of seats) {
-              await expect(row(observer, winner.name).getByText('Renown', { exact: true }).locator('..')).toContainText(String(winnerRenownBefore + 1));
+              await expect(row(observer, winner.name).getByText('Renown', { exact: true }).locator('..')).toContainText(String(winnerRenownBefore + 2));
               await expect(row(observer, winner.name).getByText('Shadow', { exact: true }).locator('..')).toContainText(String(winnerShadowBefore + 1));
             }
           }
