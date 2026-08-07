@@ -413,6 +413,8 @@ For **Engines of Isengard**, a single effect qualifies only if it actually moves
 
 For **Black Breath**, only a Combat-timing Fate card played by the Witch-king qualifies. Resolve that card and any choice it opens first, then the Witch-king must choose one other current Battle participant. That opponent loses 1 Strength plus 1 for each of the Witch-king's Ents currently in the Battle, to a minimum total Strength of 0. The first qualifying Fate spends Black Breath for that Battle; Battle cleanup refreshes it for the next Battle.
 
+For **Terror Rides**, move one Company from the Witch-king's supply to his garrison when the Ring ability resolves. If Token of Command entered a Battle space, immediately move that newly recruited Company from the garrison to the active Battle; this mandatory movement is separate from and does not reduce the ordinary Battle deployment that follows the destination. Then draw one private Fate, even if no Company remained in supply to recruit. At a non-Battle space, the recruited Company remains in the garrison and no Fate is drawn. Resolve all three parts at the Ring's chosen point relative to the destination; when the destination resolves first, finish its ordered choices, then Terror Rides, then ordinary Battle deployment. If the Fate deck is empty, draw no card.
+
 ## 20. Optional War Effort module
 
 During setup, shuffle the 12 War Efforts, reveal two beside the board, and keep the rest facedown. When an effect tells you to take a War Effort, take one face-up card and immediately refill its slot. If no card is available, gain 2 Gold instead.

@@ -144,7 +144,7 @@
                 : commanderId === 'saruman'
                   ? 'Saruman selected. A Fair-seeming Promise and Engines of Isengard are active.'
                   : commanderId === 'witch-king'
-                    ? 'Witch-king selected. Black Breath is active; Terror Rides is inactive.'
+                    ? 'Witch-king selected. Black Breath and Terror Rides are active.'
                     : 'Commander identity selected. This Commander’s powers are not active yet.';
     } finally {
       busy = false;

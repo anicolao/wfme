@@ -161,7 +161,7 @@ export type MatchState = {
   } | null;
   queuedChronicleStandingLoss: { actorUid: string } | null;
   queuedChronicleStandingGain: { actorUid: string } | null;
-  queuedCommanderRing: { actorUid: string } | null;
+  queuedCommanderRing: { actorUid: string; spaceId: string } | null;
   queuedCommanderEngines: { actorUid: string; resume: 'agent' | 'battle' } | null;
   queuedCommanderBlackBreath: { actorUid: string; strengthLoss: number } | null;
   queuedMessengerMothRecall: { actorUid: string } | null;
@@ -648,7 +648,7 @@ export function legalAgentSpaces(state: GameState, actorUid: string, cardInstanc
   if (!definition) return [];
   if (
     card?.definitionId === 'token-of-command' &&
-    !(['aragorn', 'theoden', 'galadriel', 'gandalf', 'eowyn', 'saruman'] as const).includes(state.players.find((candidate) => candidate.uid === actorUid)?.commander as 'aragorn' | 'theoden' | 'galadriel' | 'gandalf' | 'eowyn' | 'saruman')
+    !(['aragorn', 'theoden', 'galadriel', 'gandalf', 'eowyn', 'saruman', 'witch-king'] as const).includes(state.players.find((candidate) => candidate.uid === actorUid)?.commander as 'aragorn' | 'theoden' | 'galadriel' | 'gandalf' | 'eowyn' | 'saruman' | 'witch-king')
   ) return [];
   const ownedScoutCount = Object.values(match.boardScouts).filter((uid) => uid === actorUid).length;
   const canUsePaths = definition.journeyEffect?.kind === 'recall-scout-ignore-space-cost' && ownedScoutCount > 0;
@@ -1165,6 +1165,26 @@ function applySarumanRing(match: MatchState, actorUid: string): void {
   match.activity.push(`Saruman gains ${gold} Gold with A Fair-seeming Promise from ${gold} respected faction${gold === 1 ? '' : 's'}.`);
 }
 
+function applyWitchKingRing(match: MatchState, actorUid: string, battleSpace: boolean): void {
+  const player = match.players[actorUid];
+  const recruited = recruitCompanies(match, player, 1);
+  let deployed = 0;
+  if (battleSpace && match.activeBattleId && recruited > 0) {
+    player.companies.garrison -= 1;
+    player.recruitedThisRound = Math.max(0, player.recruitedThisRound - 1);
+    match.battleCompanies[actorUid] = (match.battleCompanies[actorUid] ?? 0) + 1;
+    deployed = 1;
+  }
+  const drawn = battleSpace
+    ? drawFateOrOpenForesight(match, actorUid, 1, 'Terror Rides', { kind: 'finish-agent' })
+    : [];
+  match.activity.push(
+    battleSpace
+      ? `The Witch-king recruits ${recruited} ${recruited === 1 ? 'Company' : 'Companies'} with Terror Rides, immediately deploys ${deployed} ${deployed === 1 ? 'Company' : 'Companies'}, and privately draws ${drawn?.length ? '1 Fate' : 'no Fate'}.`
+      : `The Witch-king recruits ${recruited} ${recruited === 1 ? 'Company' : 'Companies'} with Terror Rides outside a Battle space.`
+  );
+}
+
 function resolveGaladrielRingDraw(match: MatchState, actorUid: string): void {
   const observationPostCount = OBSERVATION_POSTS.filter(
     (post) => match.boardScouts[post.id] === actorUid
@@ -1496,6 +1516,9 @@ function finishAgentAction(match: MatchState, actorUid: string): void {
       if (openEowynRing(match, actorUid, null)) return;
     } else if (match.players[actorUid].commander === 'saruman') {
       applySarumanRing(match, actorUid);
+    } else if (match.players[actorUid].commander === 'witch-king') {
+      const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === queuedRing.spaceId);
+      applyWitchKingRing(match, actorUid, !!space && isBattleSpace(space));
     }
   }
   const queued = match.queuedBattleDeployment;
@@ -2192,7 +2215,9 @@ function beginAgentResolution(
             ? 'Choose Deeds'
             : commander === 'saruman'
               ? 'A Fair-seeming Promise'
-              : 'Andúril Aflame';
+              : commander === 'witch-king'
+                ? 'Terror Rides'
+                : 'Andúril Aflame';
     state.match!.pendingChoice = {
       kind: 'token-command-order',
       actorUid,
@@ -2478,7 +2503,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       const space = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === pending.spaceId);
       if (!card || card.definitionId !== 'token-of-command' || !space) return 'illegal choice resolution';
       const commander = player.commander;
-      if (commander !== 'aragorn' && commander !== 'theoden' && commander !== 'galadriel' && commander !== 'gandalf' && commander !== 'eowyn' && commander !== 'saruman') {
+      if (commander !== 'aragorn' && commander !== 'theoden' && commander !== 'galadriel' && commander !== 'gandalf' && commander !== 'eowyn' && commander !== 'saruman' && commander !== 'witch-king') {
         return 'illegal choice resolution';
       }
       state.match.pendingChoice = null;
@@ -2519,13 +2544,17 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
           })) return null;
           resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
           if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
-        } else {
+        } else if (commander === 'saruman') {
           applySarumanRing(state.match, event.actorUid);
+          resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
+          if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
+        } else {
+          applyWitchKingRing(state.match, event.actorUid, isBattleSpace(space));
           resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
           if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
         }
       } else {
-        state.match.queuedCommanderRing = { actorUid: event.actorUid };
+        state.match.queuedCommanderRing = { actorUid: event.actorUid, spaceId: space.id };
         resolveAgentEffects(state.match, actor.displayName, event.actorUid, card, space, pending.ignoredResourceCost);
         if (!state.match.pendingChoice) finishAgentAction(state.match, event.actorUid);
       }

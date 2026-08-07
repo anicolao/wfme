@@ -112,7 +112,7 @@ describe('integrated Agent placement replay', () => {
     const inactiveSetup = setup.map((event) => event.type !== 'player/commander-selected'
       ? event
       : event.actorUid === 'host'
-        ? createEvent('player/commander-selected', 'host', 2, { commanderId: 'witch-king' }, 4)
+        ? createEvent('player/commander-selected', 'host', 2, { commanderId: 'treebeard' }, 4)
         : event.actorUid === 'guest-a'
           ? createEvent('player/commander-selected', 'guest-a', 2, { commanderId: 'aragorn' }, 5)
           : event);
@@ -3088,6 +3088,105 @@ describe('integrated Agent placement replay', () => {
     expect(respectedResolved.match!.pendingChoice).toBeNull();
     expect(currentPlayerUid(respectedResolved)).not.toBe('host');
     expect(reduceGame(stream)).toEqual(respectedResolved);
+  });
+
+  it('recruits through Terror Rides and immediately deploys only at a Battle space in either order', () => {
+    const witchRoom = (seed: string) => readyRoom(seed).map((event) => event.type !== 'player/commander-selected'
+      ? event
+      : event.actorUid === 'host'
+        ? createEvent('player/commander-selected', 'host', 2, { commanderId: 'witch-king' }, 4)
+        : event.actorUid === 'guest-a'
+          ? createEvent('player/commander-selected', 'guest-a', 2, { commanderId: 'aragorn' }, 5)
+          : event);
+    const setup = witchRoom('aragorn-ring-11');
+    const started = reduceGame(setup);
+    expect(currentPlayerUid(started)).toBe('host');
+    const token = started.match!.players.host.hand.find((card) => card.definitionId === 'token-of-command')!;
+    expect(token).toBeDefined();
+    expect(legalAgentSpaces(started, 'host', token.id)).toContain('minas-tirith');
+
+    const placement = createEvent('agent/placed', 'host', 5, {
+      cardInstanceId: token.id,
+      spaceId: 'minas-tirith'
+    }, 11);
+    const awaitingOrder = reduceGame([...setup, placement]);
+    expect(awaitingOrder.diagnostics).toEqual([]);
+    expect(awaitingOrder.match!.pendingChoice).toMatchObject({
+      kind: 'token-command-order',
+      actorUid: 'host',
+      options: ['ring-first', 'space-first']
+    });
+    expect(awaitingOrder.match!.players.host.companies).toEqual({ supply: 9, garrison: 3 });
+    expect(awaitingOrder.match!.players.host.fateHand).toHaveLength(0);
+    expect(awaitingOrder.match!.battleCompanies.host ?? 0).toBe(0);
+
+    const unauthorized = reduceGame([
+      ...setup,
+      placement,
+      createEvent('choice/resolved', 'guest-a', 4, { choice: 'ring-first' }, 12)
+    ]);
+    expect(unauthorized.diagnostics.at(-1)).toContain('illegal choice resolution');
+    expect(unauthorized.match!.pendingChoice).toEqual(awaitingOrder.match!.pendingChoice);
+    expect(unauthorized.match!.players.host.companies).toEqual({ supply: 9, garrison: 3 });
+
+    const ringFirst = createEvent('choice/resolved', 'host', 6, { choice: 'ring-first' }, 12);
+    let state = reduceGame([...setup, placement, ringFirst]);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.players.host.companies).toEqual({ supply: 7, garrison: 4 });
+    expect(state.match!.players.host.recruitedThisRound).toBe(1);
+    expect(state.match!.battleCompanies.host).toBe(1);
+    expect(state.match!.players.host.fateHand).toHaveLength(1);
+    expect(state.match!.fateDeck).toHaveLength(29);
+    expect(state.match!.pendingChoice).toMatchObject({
+      kind: 'battle-deployment',
+      actorUid: 'host',
+      maximum: 3
+    });
+    expect(state.match!.activity).toContain('The Witch-king recruits 1 Company with Terror Rides, immediately deploys 1 Company, and privately draws 1 Fate.');
+    expect(state.match!.activity.findIndex((entry) => entry.includes('recruits 1 Company with Terror Rides')))
+      .toBeLessThan(state.match!.activity.findIndex((entry) => entry.includes('sends an Agent to Minas Tirith')));
+
+    const declinedDeployment = reduceGame([
+      ...setup,
+      placement,
+      ringFirst,
+      createEvent('choice/resolved', 'host', 7, { choice: 'deploy:0' }, 13)
+    ]);
+    expect(declinedDeployment.diagnostics).toEqual([]);
+    expect(declinedDeployment.match!.battleCompanies.host).toBe(1);
+    expect(declinedDeployment.match!.players.host.companies).toEqual({ supply: 7, garrison: 4 });
+    expect(currentPlayerUid(declinedDeployment)).not.toBe('host');
+
+    const spaceFirst = createEvent('choice/resolved', 'host', 6, { choice: 'space-first' }, 12);
+    state = reduceGame([...setup, placement, spaceFirst]);
+    expect(state.diagnostics).toEqual([]);
+    expect(state.match!.players.host.companies).toEqual({ supply: 7, garrison: 4 });
+    expect(state.match!.players.host.recruitedThisRound).toBe(1);
+    expect(state.match!.battleCompanies.host).toBe(1);
+    expect(state.match!.players.host.fateHand).toHaveLength(1);
+    expect(state.match!.queuedCommanderRing).toBeNull();
+    expect(state.match!.queuedBattleDeployment).toBeNull();
+    expect(state.match!.pendingChoice).toMatchObject({ kind: 'battle-deployment', maximum: 3 });
+    expect(state.match!.activity.findIndex((entry) => entry.includes('recruits 1 Company with Terror Rides')))
+      .toBeGreaterThan(state.match!.activity.findIndex((entry) => entry.includes('sends an Agent to Minas Tirith')));
+
+    const nonBattlePlacement = createEvent('agent/placed', 'host', 5, {
+      cardInstanceId: token.id,
+      spaceId: 'take-war-effort'
+    }, 11);
+    const nonBattle = reduceGame([
+      ...setup,
+      nonBattlePlacement,
+      createEvent('choice/resolved', 'host', 6, { choice: 'ring-first' }, 12)
+    ]);
+    expect(nonBattle.diagnostics).toEqual([]);
+    expect(nonBattle.match!.players.host.companies).toEqual({ supply: 8, garrison: 4 });
+    expect(nonBattle.match!.players.host.fateHand).toHaveLength(0);
+    expect(nonBattle.match!.fateDeck).toHaveLength(30);
+    expect(nonBattle.match!.battleCompanies.host ?? 0).toBe(0);
+    expect(nonBattle.match!.players.host.resources.gold).toBe(2);
+    expect(nonBattle.match!.activity).toContain('The Witch-king recruits 1 Company with Terror Rides outside a Battle space.');
+    expect(reduceGame([...setup, placement, spaceFirst])).toEqual(state);
   });
 
   it('offers Engines of Isengard once after the first two-Company effect and refreshes it at Recall', () => {
