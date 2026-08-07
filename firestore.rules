@@ -27,7 +27,7 @@ service cloud.firestore {
         && request.resource.data.committedAt == request.time
         && request.resource.data.type in [
           'game/created', 'player/joined', 'player/commander-selected',
-          'player/ready', 'game/war-efforts-set', 'match/started',
+          'player/ready', 'game/war-efforts-set', 'game/rivals-set', 'match/started',
           'agent/placed', 'choice/resolved',
           'turn/revealed', 'card/acquired', 'reveal/finished', 'scout/placed',
           'battle/passed', 'fate/played', 'endgame/passed',

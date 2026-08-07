@@ -9,8 +9,11 @@
     COMMANDERS,
     FATE_CARD_DEFINITIONS,
     MUSTER_CARD_DEFINITIONS,
+    OBJECTIVE_DEFINITIONS,
     OBSERVATION_POSTS,
     RESERVE_CARD_DEFINITIONS,
+    RIVAL_ACTION_DEFINITIONS,
+    RIVAL_PROFILE_DEFINITIONS,
     WAR_EFFORT_DEFINITIONS,
     cardName,
     type BoardRegion,
@@ -63,6 +66,16 @@
     ? game.match.players[game.match.pendingChoice.actorUid]?.commander
     : undefined;
   $: tokenRingName = tokenCommander === 'theoden' ? 'Ride Now' : tokenCommander === 'galadriel' ? 'Mirror Unveiled' : tokenCommander === 'gandalf' ? 'Kindle Courage' : tokenCommander === 'eowyn' ? 'Choose Deeds' : tokenCommander === 'saruman' ? 'A Fair-seeming Promise' : tokenCommander === 'witch-king' ? 'Terror Rides' : tokenCommander === 'treebeard' ? 'Roots and Stone' : 'Andúril Aflame';
+  $: participants = game.match?.playerOrder.map((uid) => ({
+    uid,
+    displayName: game.players.find((player) => player.uid === uid)?.displayName ?? (uid === 'rival-1' ? 'Rival I' : 'Rival II'),
+    commander: game.match!.players[uid].commander
+  })) ?? game.players;
+
+  function nameFor(uid: string | null | undefined): string {
+    if (!uid) return 'Unclaimed';
+    return game.players.find((player) => player.uid === uid)?.displayName ?? (uid === 'rival-1' ? 'Rival I' : 'Rival II');
+  }
 
   function battleRewardText(reward: (typeof BATTLE_CARD_DEFINITIONS)[number]['rewards'][number]): string {
     return [
@@ -142,19 +155,33 @@
         {#if game.match?.finalResult}
           Final scoring is recorded for every Commander.
         {:else}
-          {game.players.find((player) => player.uid === currentUid)?.displayName ?? 'A player'} chooses the next road.
+          {nameFor(currentUid)} chooses the next road.
         {/if}
       </p>
     </div>
   </header>
 
   <dl class="alliances" aria-label="Reviewed faction Alliances">
-    <div data-testid="alliance-dwarven"><dt>Dwarven Alliance</dt><dd>{game.players.find((player) => player.uid === game.match?.alliances.dwarven)?.displayName ?? 'Unclaimed'}</dd></div>
-    <div data-testid="alliance-shadow"><dt>Shadow Alliance</dt><dd>{game.players.find((player) => player.uid === game.match?.alliances.shadow)?.displayName ?? 'Unclaimed'}</dd></div>
-    <div data-testid="alliance-elven"><dt>Elven Alliance</dt><dd>{game.players.find((player) => player.uid === game.match?.alliances.elven)?.displayName ?? 'Unclaimed'}</dd></div>
+    <div data-testid="alliance-dwarven"><dt>Dwarven Alliance</dt><dd>{nameFor(game.match?.alliances.dwarven)}</dd></div>
+    <div data-testid="alliance-shadow"><dt>Shadow Alliance</dt><dd>{nameFor(game.match?.alliances.shadow)}</dd></div>
+    <div data-testid="alliance-elven"><dt>Elven Alliance</dt><dd>{nameFor(game.match?.alliances.elven)}</dd></div>
     <div data-testid="fate-discard"><dt>Fate discard</dt><dd>{game.match?.fateDiscard.length ?? 0} cards</dd></div>
     <div data-testid="dam-status"><dt>Dam of Isengard</dt><dd>{game.match?.damBreached ? 'Breached' : 'Intact'}</dd></div>
   </dl>
+
+  {#if game.match && game.match.rivalMode !== 'none'}
+    {@const lastRivalAction = RIVAL_ACTION_DEFINITIONS.find((definition) => definition.id === game.match?.rivalActionDiscard.at(-1))}
+    <section class="market" data-testid="rival-status" aria-labelledby="rival-status-title">
+      <div>
+        <p class="eyebrow">Automated opposition · {game.match.rivalDifficulty}</p>
+        <h2 id="rival-status-title">Rivals</h2>
+        <p>{game.match.rivalActionDeck.length} action cards facedown · {game.match.rivalActionDiscard.length} discarded</p>
+      </div>
+      {#if lastRivalAction}
+        <article><strong>Latest action</strong><span>{BOARD_LAYOUT.find((space) => space.id === lastRivalAction.destinationId)?.name}</span></article>
+      {/if}
+    </section>
+  {/if}
 
   {#if game.match?.warEffortsEnabled}
     <section class="market war-efforts" data-testid="war-efforts" aria-labelledby="war-effort-title">
@@ -192,12 +219,12 @@
       <div>
         <p class="eyebrow">Final scoring · {game.match.finalResult.trigger === 'renown' ? '10 Renown reached' : 'Battle deck exhausted'}</p>
         <h2 id="final-result-title">{game.match.finalResult.winnerUids.length === 1 ? 'Victory in Middle-earth' : 'Shared victory in Middle-earth'}</h2>
-        <p>{game.match.finalResult.winnerUids.map((uid) => game.players.find((player) => player.uid === uid)?.displayName).join(' and ')} {game.match.finalResult.winnerUids.length === 1 ? 'wins the game.' : 'share the game.'}</p>
+        <p>{game.match.finalResult.winnerUids.map(nameFor).join(' and ')} {game.match.finalResult.winnerUids.length === 1 ? 'wins the game.' : 'share the game.'}</p>
       </div>
       <ol class="final-standings" aria-label="Final standings">
         {#each game.match.finalResult.standings as standing}
           <li data-testid={`final-standing-${standing.uid}`}>
-            <strong>#{standing.rank} {game.players.find((player) => player.uid === standing.uid)?.displayName}</strong>
+            <strong>#{standing.rank} {nameFor(standing.uid)}</strong>
             <span>{standing.renown} Renown · {standing.mithril} Mithril · {standing.gold} Gold · {standing.provisions} Provisions · {standing.totalStanding} standing</span>
           </li>
         {/each}
@@ -208,7 +235,7 @@
       <div>
         <p class="eyebrow">Final scoring window · {game.match.endgameTrigger === 'renown' ? '10 Renown reached' : 'Battle deck exhausted'}</p>
         <h2 id="endgame-title">The final reckoning</h2>
-        <p>{game.players.find((player) => player.uid === currentUid)?.displayName} may resolve Endgame Fate or pass. Scoring begins after every Commander passes consecutively.</p>
+        <p>{nameFor(currentUid)} may resolve Endgame Fate or pass. Scoring begins after every Commander passes consecutively.</p>
       </div>
       <div class="battle-actions">
         {#each localMatch?.fateHand ?? [] as fate}
@@ -249,9 +276,9 @@
       <ol>
         {#each game.finishedMatches as finished}
           <li>
-            <strong>Match {finished.epoch} · {finished.winnerUids.map((uid) => game.players.find((player) => player.uid === uid)?.displayName).join(' and ')} {finished.winnerUids.length === 1 ? 'won' : 'shared victory'}</strong>
+            <strong>Match {finished.epoch} · {finished.winnerUids.map(nameFor).join(' and ')} {finished.winnerUids.length === 1 ? 'won' : 'shared victory'}</strong>
             <span>Seed {finished.seed} · {finished.trigger === 'renown' ? '10 Renown' : 'Battle deck exhausted'}</span>
-            <span>{finished.standings.map((standing) => `#${standing.rank} ${game.players.find((player) => player.uid === standing.uid)?.displayName}: ${standing.renown} Renown, ${standing.mithril} Mithril, ${standing.gold} Gold, ${standing.provisions} Provisions, ${standing.totalStanding} standing`).join(' · ')}</span>
+            <span>{finished.standings.map((standing) => `#${standing.rank} ${nameFor(standing.uid)}: ${standing.renown} Renown, ${standing.mithril} Mithril, ${standing.gold} Gold, ${standing.provisions} Provisions, ${standing.totalStanding} standing`).join(' · ')}</span>
           </li>
         {/each}
       </ol>
@@ -284,7 +311,7 @@
         {#if activeBattle.contestedLocationId}<p><strong>Contested:</strong> {BOARD_LAYOUT.find((space) => space.id === activeBattle.contestedLocationId)?.name}</p>{/if}
       </div>
       <div class="battle-forces">
-        {#each game.players as player}
+        {#each participants as player}
           <article data-testid={`battle-force-${player.uid}`}>
             <strong>{player.displayName}</strong>
             <span>{game.match.battleCompanies[player.uid] ?? 0} Companies · {game.match.battleEnts[player.uid] ?? 0} Ents · {game.match.players[player.uid].revealedSwords} swords</span>
@@ -317,9 +344,10 @@
   {#if (game.match?.turnMode === 'battle' && BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === game.match?.activeBattleId)?.contestedLocationId) || Object.values(game.match?.criticalControl ?? {}).some(Boolean)}
     <dl class="critical-control" aria-label="Critical location control">
       {#each ['minas-tirith', 'osgiliath', 'edoras'] as locationId}
+        {@const controllerUid = game.match?.criticalControl[locationId as keyof NonNullable<typeof game.match>['criticalControl']]}
         <div data-testid={`control-${locationId}`}>
           <dt>{BOARD_LAYOUT.find((space) => space.id === locationId)?.name}</dt>
-          <dd>{game.players.find((player) => player.uid === game.match?.criticalControl[locationId as keyof typeof game.match.criticalControl])?.displayName ?? 'Uncontrolled'}</dd>
+          <dd>{controllerUid ? nameFor(controllerUid) : 'Uncontrolled'}</dd>
         </div>
       {/each}
     </dl>
@@ -327,11 +355,11 @@
 
   <div class="game-grid">
     <aside class="players" aria-label="Players">
-      {#each game.players as player}
+      {#each participants as player}
         {@const matchPlayer = game.match?.players[player.uid]}
         <article class:current={player.uid === currentUid} class:local={player.uid === localUid}>
           <strong>{player.displayName}</strong>
-          <span>{COMMANDERS.find((commander) => commander.id === player.commander)?.name ?? 'No Commander'}</span>
+          <span>{matchPlayer?.isRival ? RIVAL_PROFILE_DEFINITIONS.find((profile) => profile.id === matchPlayer.rivalProfile)?.name : COMMANDERS.find((commander) => commander.id === player.commander)?.name ?? 'No Commander'}</span>
           <dl>
             <div><dt>Hand</dt><dd>{matchPlayer?.hand.length ?? 0}</dd></div>
             <div><dt>Agents</dt><dd>{matchPlayer?.availableAgents ?? 0}</dd></div>
@@ -346,7 +374,7 @@
             <div><dt>Supply</dt><dd>{matchPlayer?.companies.supply ?? 0}</dd></div>
             <div><dt>Renown</dt><dd>{matchPlayer?.renown ?? 0}</dd></div>
             {#if matchPlayer?.wonBattleIds.length}
-              <div data-testid={`battle-trophies-${player.uid}`}><dt>Standards</dt><dd>{matchPlayer.wonBattleIds.length - matchPlayer.pairedBattleIds.length} face up · {matchPlayer.pairedBattleIds.length / 2} paired</dd></div>
+              <div data-testid={`battle-trophies-${player.uid}`}><dt>Standards</dt><dd>{matchPlayer.wonBattleIds.length - matchPlayer.pairedBattleIds.length} face up · {(matchPlayer.pairedBattleIds.length + (matchPlayer.objectivePaired ? 1 : 0)) / 2} paired</dd></div>
             {/if}
             <div><dt>Discard</dt><dd>{matchPlayer?.discardPile.length ?? 0}</dd></div>
             <div><dt>Trash</dt><dd>{matchPlayer?.trashPile.length ?? 0}</dd></div>
@@ -359,6 +387,10 @@
             <div><dt>Council</dt><dd>{matchPlayer?.councilSeat ? 'Seated' : '—'}</dd></div>
             <div><dt>Captain</dt><dd>{matchPlayer?.captainUnlocked ? 'Appointed' : matchPlayer?.captainAgentPending ? 'Arriving next turn' : '—'}</dd></div>
           </dl>
+          {#if matchPlayer}
+            {@const objective = OBJECTIVE_DEFINITIONS.find((definition) => definition.id === matchPlayer.objectiveId)}
+            <small>{objective?.name} · {objective?.standard}{matchPlayer.objectivePaired ? ' · paired' : ''}</small>
+          {/if}
           {#if player.uid === localUid}<small>Your seat · private hand below</small>{/if}
           {#if matchPlayer?.revealedThisRound}<small>Reveal complete · waiting for Recall</small>{/if}
         </article>
@@ -375,7 +407,7 @@
               {#each BOARD_LAYOUT.filter((space) => space.region === region) as space}
                 {@const implemented = BOARD_SPACE_DEFINITIONS.some((definition) => definition.id === space.id)}
                 {@const definition = BOARD_SPACE_DEFINITIONS.find((candidate) => candidate.id === space.id)}
-                {@const occupants = (game.match?.boardAgents[space.id] ?? []).map((occupation) => game.players.find((player) => player.uid === occupation.uid)?.displayName).filter(Boolean)}
+                {@const occupants = (game.match?.boardAgents[space.id] ?? []).map((occupation) => nameFor(occupation.uid)).filter(Boolean)}
                 {@const infiltrationPosts = OBSERVATION_POSTS.filter((post) => post.connectedSpaceIds.includes(space.id) && game.match?.boardScouts[post.id] === localUid)}
                 <button
                   type="button"
@@ -518,7 +550,7 @@
       <div class="choice-actions">
         {#each game.match.pendingChoice.options as option}
           {@const targetUid = option.slice('opponent:'.length)}
-          <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid || busy} onclick={() => onResolveChoice(option)}>Choose {game.players.find((player) => player.uid === targetUid)?.displayName} · lose 3 Strength</button>
+          <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid || busy} onclick={() => onResolveChoice(option)}>Choose {nameFor(targetUid)} · lose 3 Strength</button>
         {/each}
       </div>
     </section>
@@ -623,7 +655,7 @@
       <div class="choice-actions">
         {#each game.match.pendingChoice.options as option}
           {@const targetUid = option.slice('opponent:'.length)}
-          <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid || busy} onclick={() => onResolveChoice(option)}>Afflict {game.players.find((player) => player.uid === targetUid)?.displayName ?? 'opponent'} · −{game.match.pendingChoice.strengthLoss} Strength</button>
+          <button type="button" disabled={game.match.pendingChoice.actorUid !== localUid || busy} onclick={() => onResolveChoice(option)}>Afflict {nameFor(targetUid)} · −{game.match.pendingChoice.strengthLoss} Strength</button>
         {/each}
       </div>
     </section>
@@ -822,7 +854,7 @@
     <section class="reveal-panel" data-testid="reveal-panel" aria-labelledby="reveal-title">
       <div>
         <p class="eyebrow">Public Muster row</p>
-        <h2 id="reveal-title">{game.players.find((player) => player.uid === currentUid)?.displayName} Reveals</h2>
+        <h2 id="reveal-title">{nameFor(currentUid)} Reveals</h2>
         <div class="muster-row">
           {#each revealPlayer.muster as card}
             {@const muster = MUSTER_CARD_DEFINITIONS.find((definition) => definition.id === card.definitionId)?.muster}

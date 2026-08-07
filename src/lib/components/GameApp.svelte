@@ -3,7 +3,7 @@
   import { replaceState } from '$app/navigation';
   import { initializeFirebase } from '$lib/firebase';
   import { createEvent, type GameEventType } from '$lib/game/events';
-  import { COMMANDERS } from '$lib/game/manifest';
+  import { COMMANDERS, type RivalDifficulty, type RivalMode } from '$lib/game/manifest';
   import {
     createGameRepository,
     gameRoomExists,
@@ -29,7 +29,12 @@
 
   $: localPlayer = game.players.find((player) => player.uid === activeUid) ?? null;
   $: currentUid = currentPlayerUid(game);
-  $: allReady = game.players.length >= 3 && game.players.every((player) => player.ready);
+  $: validPlayerCount = game.rivalMode === 'solo'
+    ? game.players.length === 1
+    : game.rivalMode === 'two-player'
+      ? game.players.length === 2
+      : game.players.length >= 3;
+  $: allReady = validPlayerCount && game.players.every((player) => player.ready);
 
   function attach(code: string) {
     if (!db || !activeUid) throw new Error('Firebase is not ready');
@@ -170,6 +175,20 @@
       message = enabled
         ? 'War Efforts enabled. Every Commander must confirm the module by readying again.'
         : 'War Efforts disabled. Every Commander must confirm the base game by readying again.';
+    } finally {
+      busy = false;
+    }
+  }
+
+  async function setRivals(mode: RivalMode, difficulty: RivalDifficulty) {
+    busy = true;
+    try {
+      await append('game/rivals-set', { mode, difficulty });
+      message = mode === 'solo'
+        ? 'Solo play selected: one human will face two automated Rivals.'
+        : mode === 'two-player'
+          ? 'Two-player Rivals selected: one automated Rival will sit between both humans.'
+          : 'Rivals disabled: the room requires three or four human players.';
     } finally {
       busy = false;
     }
@@ -364,8 +383,8 @@
       <p class="eyebrow">Integrated construction game</p>
       <h1 id="lobby-title">Gather at the real table.</h1>
       <p class="lede">
-        This preview grows one final capability at a time. Tracer 1 supports a real seeded room,
-        production board, private decks, ordinary Agent actions, Reveal, acquisition, reshuffle, and Recall.
+        Play the complete seeded game with three or four humans, one human against two automated Rivals,
+        or two humans sharing one Rival. Every printed card family and optional War Effort is live.
       </p>
 
       {#if !game.roomCode}
@@ -383,7 +402,7 @@
         <div class="room-meta">
           <div><span>Room code</span><strong data-testid="room-code">{game.roomCode}</strong></div>
           <div><span>Seats</span><strong>{game.players.length} / 4</strong></div>
-          <div><span>Minimum</span><strong>3 players</strong></div>
+          <div><span>Format</span><strong>{game.rivalMode === 'solo' ? 'Solo + 2 Rivals' : game.rivalMode === 'two-player' ? '2 humans + Rival' : '3–4 humans'}</strong></div>
           <div><span>War Efforts</span><strong>{game.warEffortsEnabled ? 'Enabled' : 'Disabled'}</strong></div>
         </div>
 
@@ -428,7 +447,22 @@
 
         {#if game.hostUid === activeUid}
           <section class="start-panel" aria-labelledby="start-title">
-            <div><h2 id="start-title">Commit the journey</h2><p>Three or four players must select unique identities and ready up.</p></div>
+            <div><h2 id="start-title">Commit the journey</h2><p>{game.rivalMode === 'solo' ? 'One human' : game.rivalMode === 'two-player' ? 'Two humans' : 'Three or four humans'} must select unique identities and ready up.</p></div>
+            <label for="rival-mode">Game format</label>
+            <select id="rival-mode" value={game.rivalMode} disabled={busy} onchange={(event) => void setRivals(event.currentTarget.value as RivalMode, game.rivalDifficulty)}>
+              <option value="none">3–4 humans</option>
+              <option value="solo">Solo + 2 Rivals</option>
+              <option value="two-player">2 humans + 1 Rival</option>
+            </select>
+            {#if game.rivalMode !== 'none'}
+              <label for="rival-difficulty">Rival difficulty</label>
+              <select id="rival-difficulty" value={game.rivalDifficulty} disabled={busy} onchange={(event) => void setRivals(game.rivalMode, event.currentTarget.value as RivalDifficulty)}>
+                <option value="wayfarer">Wayfarer</option>
+                <option value="captain">Captain</option>
+                <option value="nazgul">Nazgûl</option>
+                <option value="dark-lord">Dark Lord</option>
+              </select>
+            {/if}
             <label class="module-toggle"><input type="checkbox" checked={game.warEffortsEnabled} disabled={busy} onchange={(event) => void setWarEfforts(event.currentTarget.checked)} /> Enable optional War Efforts</label>
             <label for="match-seed">Match seed</label>
             <input id="match-seed" bind:value={seed} />
@@ -445,7 +479,7 @@
     <p class="message board-message" role="status">{message}</p>
   {/if}
   <footer>
-    Room {roomCode || '—'} · {game.phase === 'finished' ? 'Final result recorded' : currentUid ? `Current actor ${game.players.find((player) => player.uid === currentUid)?.displayName}` : 'Lobby'} · Schema 2
+    Room {roomCode || '—'} · {game.phase === 'finished' ? 'Final result recorded' : currentUid ? `Current actor ${game.players.find((player) => player.uid === currentUid)?.displayName ?? (currentUid === 'rival-1' ? 'Rival I' : 'Rival II')}` : 'Lobby'} · Schema 2
     <span data-testid="replay-health" title={game.diagnostics.join(' | ')}> · {game.eventCount} accepted events · {game.diagnostics.length} replay diagnostics</span>
   </footer>
 </main>
@@ -464,7 +498,7 @@
   h2 { font-size: 2rem; }
   .lede { max-width: 48rem; font-size: 1.15rem; line-height: 1.5; }
   label { display: block; margin: .65rem 0 .3rem; font-weight: 700; }
-  input { width: 100%; min-height: 50px; padding: .75rem; border: 2px solid #9d947e; border-radius: .45rem; font: inherit; }
+  input, select { width: 100%; min-height: 50px; padding: .75rem; border: 2px solid #9d947e; border-radius: .45rem; background: #fff; font: inherit; }
   button { min-height: 50px; padding: .7rem 1rem; color: #fff; background: #6d452d; border: 0; border-radius: .45rem; font: 700 1rem inherit; cursor: pointer; }
   button:disabled { cursor: not-allowed; opacity: .45; }
   .entry-actions { display: grid; grid-template-columns: 1fr 2fr; gap: 1rem; align-items: end; margin-top: 1rem; }

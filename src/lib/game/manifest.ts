@@ -1390,6 +1390,77 @@ export const BOARD_SPACE_DEFINITIONS: readonly BoardSpaceDefinition[] = [
   }
 ];
 
+export type ObjectiveDefinition = {
+  id: 'hope-kindled' | 'riders-at-dawn' | 'light-in-darkness' | 'council-free';
+  name: string;
+  standard: 'White Tree' | 'Horse' | 'Star';
+};
+
+export const OBJECTIVE_DEFINITIONS: readonly ObjectiveDefinition[] = [
+  { id: 'hope-kindled', name: 'Hope Kindled', standard: 'White Tree' },
+  { id: 'riders-at-dawn', name: 'Riders at Dawn', standard: 'Horse' },
+  { id: 'light-in-darkness', name: 'Light in Darkness', standard: 'Star' },
+  { id: 'council-free', name: 'Council of the Free', standard: 'White Tree' }
+];
+
+export type RivalMode = 'none' | 'solo' | 'two-player';
+export type RivalDifficulty = 'wayfarer' | 'captain' | 'nazgul' | 'dark-lord';
+export type RivalProfileId = 'black-captain' | 'mountain-king' | 'far-seer' | 'border-marshal';
+
+export type RivalProfileDefinition = {
+  id: RivalProfileId;
+  name: string;
+  factionPriority: readonly ('shadow' | 'dwarven' | 'elven' | 'wild')[];
+  captainRound: 4 | 5;
+  ability: string;
+};
+
+export const RIVAL_PROFILE_DEFINITIONS: readonly RivalProfileDefinition[] = [
+  { id: 'black-captain', name: 'The Black Captain', factionPriority: ['shadow', 'wild', 'dwarven', 'elven'], captainRound: 5, ability: '+1 Battle Strength while participating.' },
+  { id: 'mountain-king', name: 'The Mountain King', factionPriority: ['dwarven', 'elven', 'wild', 'shadow'], captainRound: 4, ability: 'The first Mithril gained each round is doubled.' },
+  { id: 'far-seer', name: 'The Far-seer', factionPriority: ['elven', 'shadow', 'dwarven', 'wild'], captainRound: 4, ability: 'The first non-battle action each round that gains Gold gains 1 additional Gold.' },
+  { id: 'border-marshal', name: 'The Border Marshal', factionPriority: ['wild', 'dwarven', 'elven', 'shadow'], captainRound: 5, ability: 'The first battle action each round deploys 1 extra Company from the garrison if possible.' }
+];
+
+export type RivalActionDefinition = {
+  id: string;
+  destinationId: string;
+  standing?: 'shadow' | 'dwarven' | 'elven' | 'wild' | 'priority';
+  gold?: number;
+  mithril?: number;
+  provisions?: number;
+  recruit?: number;
+  battle?: true;
+  takeRiches?: true;
+  breachDam?: true;
+  controllerIncome?: true;
+};
+
+export const RIVAL_ACTION_DEFINITIONS: readonly RivalActionDefinition[] = [
+  { id: 'rival-tribute-shadow', destinationId: 'tribute-shadow', standing: 'shadow', gold: 2 },
+  { id: 'rival-pits-isengard', destinationId: 'pits-isengard', standing: 'shadow', gold: 1, recruit: 4 },
+  { id: 'rival-dwarven-caravans', destinationId: 'dwarven-caravans', standing: 'dwarven', provisions: 1 },
+  { id: 'rival-deep-roads', destinationId: 'deep-roads', standing: 'dwarven', recruit: 5, battle: true },
+  { id: 'rival-hidden-counsel', destinationId: 'hidden-counsel', standing: 'elven', gold: 1 },
+  { id: 'rival-mirror-galadriel', destinationId: 'mirror-galadriel', standing: 'elven', gold: 2 },
+  { id: 'rival-hidden-paths', destinationId: 'hidden-paths', standing: 'wild', battle: true },
+  { id: 'rival-ranger-mustering', destinationId: 'ranger-mustering', standing: 'wild', recruit: 1, battle: true },
+  { id: 'rival-hall-fire', destinationId: 'hall-fire', gold: 2 },
+  { id: 'rival-muster-free-peoples', destinationId: 'muster-free-peoples', recruit: 2, provisions: 1 },
+  { id: 'rival-white-council-seat', destinationId: 'white-council-seat', mithril: 2, gold: 1, recruit: 3 },
+  { id: 'rival-secret-bargain', destinationId: 'secret-bargain', gold: 3 },
+  { id: 'rival-captain-host', destinationId: 'captain-host', recruit: 2, gold: 2 },
+  { id: 'rival-minas-tirith', destinationId: 'minas-tirith', recruit: 1, battle: true, controllerIncome: true },
+  { id: 'rival-archives-rivendell', destinationId: 'archives-rivendell', recruit: 2, gold: 1, battle: true },
+  { id: 'rival-fangorn-moot', destinationId: 'fangorn-moot', recruit: 1, provisions: 1, battle: true, breachDam: true },
+  { id: 'rival-osgiliath', destinationId: 'osgiliath', gold: 4, battle: true, controllerIncome: true },
+  { id: 'rival-take-war-effort', destinationId: 'take-war-effort', gold: 2 },
+  { id: 'rival-great-forge', destinationId: 'great-forge', gold: 5, standing: 'priority' },
+  { id: 'rival-deep-fangorn', destinationId: 'deep-fangorn', mithril: 4, battle: true, takeRiches: true },
+  { id: 'rival-entwash', destinationId: 'entwash', mithril: 2, battle: true, takeRiches: true },
+  { id: 'rival-edoras', destinationId: 'edoras', mithril: 1, battle: true, takeRiches: true, controllerIncome: true }
+];
+
 export function cardName(id: string): string {
   return STARTING_CARD_IDENTITIES.find((card) => card.id === id)?.name
     ?? RESERVE_CARD_DEFINITIONS.find((card) => card.id === id)?.name

@@ -18,11 +18,12 @@ This is the construction ledger for the one canonical game at the repository roo
 | Commander powers | 16 / 16 | Both printed powers for all eight Commanders are active, deterministic, replayable, and covered by focused browser tracers |
 | Fate physical instances | 30 / 30; effects 30 / 30 | Deterministically shuffled deck, private hands, public discard, keep-one choice, deterministic transfer and cycle, conservation, and replay; all six Plot, six Combat, and three Endgame definitions are complete, including their exact prerequisites and rewards |
 | Battle cards | 16 / 16 | Every Battle has final setup, Standard, exact ranked rewards, ownership/discard, ordered choices, and cleanup |
+| Objective cards | 4 / 4 | Every participant receives one deterministic public Objective; matching Objective/Battle Standards pair once for Renown and remain replayable |
 | Chronicle cards | 54 / 54 instances; 27 / 27 definitions | Every listed definition through Heir of Isildur has executable placement icons, Journey and Muster boxes, costs, physical copies, public Row acquisition, immediate refill, deterministic reshuffle, and later draw |
 | War Effort cards | 12 / 12 definitions | The full deterministic deck has a public row/deck/discard lifecycle, take/replace/decline choices, three exact resource payments, nine native timing triggers, one-shot rewards, replay, and focused browser evidence |
-| Rival content | 0 | Introduced only with the tracer that makes each automated opponent executable |
+| Rival content | 4 / 4 profiles; 22 / 22 actions; 4 / 4 difficulties | Solo and two-player setup, automatic Agent turns, shared deck/discard/reshuffle, recruitment, Battle deployment/escalation/reward conversion, critical defense, Riches blocking, Captain rounds, Endgame rules, and profile powers are deterministic and replayable; `061-rivals` proves both formats on phone and desktop |
 | Round phases | Agent, Reveal, ordinary Battle, Riches, Recall, Endgame, finished | Combat passing, ranked resolution, all three Riches pools, both Ent summon spaces, doubled rewards, cleanup, redraw, first-player rotation, deck-exhaustion Endgame turns, and final scoring are live |
-| Complete matches | Final scoring 1 / 1; history 1 / 1; rematch 1 / 1 | Three humans can exhaust the production Battle deck, pass Endgame clockwise, agree on the deterministic winner or shared victory, inspect every tiebreak, reload the finished result, retain it in room history, unanimously start a clean epoch-two match, and reload that rematch |
+| Complete matches | Human, solo, and two-player scoring; history 1 / 1; rematch 1 / 1 | Three/four-human scoring uses normal tiebreaks, solo ties correctly defeat the human, two-player scoring excludes the Rival, and every format retains immutable history and clean rematches |
 
 ## Implemented rules coverage
 
@@ -116,7 +117,10 @@ This is the construction ledger for the one canonical game at the repository roo
 | Recall, first-player rotation, redraw, and deterministic reshuffle | two-round reducer replay and 11-instance conservation | gestures 035–049 reach round 3 and use the acquired card |
 | Immutable event replay after reload | repository ordering tests | gestures 020 and 023 reload the acting browsers |
 | Append-only authenticated event storage | Firestore emulator rule suite | the entire room journey uses the emulators/live backend |
+| Objectives and Standard pairing | deterministic four-card setup, unique dealing, Battle-first and Objective-first pairing, face-up/paired conservation, Renown, and replay | `061-rivals` displays one public Objective for every human and Rival; existing Battle journeys retain their exact deterministic pair outcomes |
+| Solo Rivals | distinct seeded profiles, random first seat, two ready Agents, Captain-round third Agent, all 22 action effects, occupied-card skipping, deck reshuffle, profile priority, four difficulty adjustments, Battle escalation, unusable-reward conversion, auto defense/Recall/Endgame, strict human victory, and replay | `061-rivals` configures one human plus two Rivals, completes a full automatic round, resolves Rival-only Battle, reaches round two, and reloads on phone and desktop |
+| Two-player Rival | deterministic human–Rival–human seating, alternating first human, one automatic middle-seat action, Rival Renown trigger exclusion, human-only final comparison, and replay | `061-rivals` connects two isolated humans, proves the middle occupation and second-human authority, then reloads the exact boundary on phone and desktop |
 
 ## Next accepted tracer
 
-The entire reviewed base game and all twelve optional War Efforts now have current deterministic coverage and focused browser evidence. The next accepted tracer begins automated Rivals for one- and two-player games.
+The complete reviewed ruleset—including Objectives, all twelve optional War Efforts, and automated Rivals for solo and two-player play—has deterministic reducer coverage and focused browser evidence. The next accepted tracer is durable production hardening: offline recovery, conflict/version handling, accessibility, broader responsive layouts, and performance budgets.

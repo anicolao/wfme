@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createEvent } from './events';
-import { AGENT_CARD_DEFINITIONS, BATTLE_CARD_DEFINITIONS, CHRONICLE_CARD_DEFINITIONS, MUSTER_CARD_DEFINITIONS, OBSERVATION_POSTS, WAR_EFFORT_DEFINITIONS } from './manifest';
-import { battleStrength, blackBreathStrengthLoss, currentPlayerUid, eligibleHeirStandingOptions, fairSeemingPromiseGold, legalAgentSpaces, reduceGame, resolveWarEffortTrigger, rousedAtLastEntCount } from './reducer';
+import { AGENT_CARD_DEFINITIONS, BATTLE_CARD_DEFINITIONS, CHRONICLE_CARD_DEFINITIONS, MUSTER_CARD_DEFINITIONS, OBJECTIVE_DEFINITIONS, OBSERVATION_POSTS, RIVAL_ACTION_DEFINITIONS, RIVAL_PROFILE_DEFINITIONS, WAR_EFFORT_DEFINITIONS } from './manifest';
+import { battleStrength, blackBreathStrengthLoss, currentPlayerUid, eligibleHeirStandingOptions, fairSeemingPromiseGold, finishEndgame, hasRenownEndgameTrigger, legalAgentSpaces, reduceGame, resolveRivalAction, resolveWarEffortTrigger, rousedAtLastEntCount } from './reducer';
 import { shuffled } from './prng';
 
 function readyRoom(seed = 'road-2') {
@@ -60,7 +60,202 @@ function warEffortRoom(seed: string) {
   ];
 }
 
+function soloRivalRoom(seed = 'rivals-solo', difficulty: 'wayfarer' | 'captain' | 'nazgul' | 'dark-lord' = 'captain') {
+  return [
+    createEvent('game/created', 'host', 1, { roomCode: 'RIVEN', displayName: 'Mara' }, 1),
+    createEvent('player/commander-selected', 'host', 2, { commanderId: 'aragorn' }, 2),
+    createEvent('game/rivals-set', 'host', 3, { mode: 'solo', difficulty }, 3),
+    createEvent('player/ready', 'host', 4, { ready: true }, 4),
+    createEvent('match/started', 'host', 5, { seed }, 5)
+  ];
+}
+
+function twoPlayerRivalRoom(seed = 'rivals-two-player') {
+  return [
+    createEvent('game/created', 'host', 1, { roomCode: 'RIVEN', displayName: 'Mara' }, 1),
+    createEvent('player/joined', 'guest-a', 1, { displayName: 'Rin' }, 2),
+    createEvent('player/commander-selected', 'host', 2, { commanderId: 'aragorn' }, 3),
+    createEvent('player/commander-selected', 'guest-a', 2, { commanderId: 'treebeard' }, 4),
+    createEvent('game/rivals-set', 'host', 3, { mode: 'two-player', difficulty: 'captain' }, 5),
+    createEvent('player/ready', 'host', 4, { ready: true }, 6),
+    createEvent('player/ready', 'guest-a', 3, { ready: true }, 7),
+    createEvent('match/started', 'host', 5, { seed }, 8)
+  ];
+}
+
 describe('integrated Agent placement replay', () => {
+  it('sets up a deterministic solo game with two distinct Rivals, Objectives, and one conserved action deck', () => {
+    const first = reduceGame(soloRivalRoom());
+    const second = reduceGame(soloRivalRoom());
+    expect(first).toEqual(second);
+    expect(first.diagnostics).toEqual([]);
+    expect(first.match!.playerOrder).toEqual(['host', 'rival-1', 'rival-2']);
+    expect(currentPlayerUid(first)).toBe('host');
+    const rivals = ['rival-1', 'rival-2'].map((uid) => first.match!.players[uid]);
+    expect(rivals.every((rival) => rival.isRival && rival.hand.length === 0 && rival.availableAgents >= 1 && rival.availableAgents <= 2)).toBe(true);
+    expect(new Set(rivals.map((rival) => rival.rivalProfile)).size).toBe(2);
+    expect(new Set(Object.values(first.match!.players).map((player) => player.objectiveId)).size).toBe(3);
+    expect(first.match!.rivalActionDeck.length + first.match!.rivalActionDiscard.length).toBe(22);
+    expect(new Set([...first.match!.rivalActionDeck, ...first.match!.rivalActionDiscard])).toEqual(new Set(RIVAL_ACTION_DEFINITIONS.map((action) => action.id)));
+    expect(RIVAL_PROFILE_DEFINITIONS).toHaveLength(4);
+    const rivalAgentsBefore = Object.values(first.match!.boardAgents).flat().filter((occupation) => occupation.uid.startsWith('rival-')).length;
+
+    const actor = first.match!.players.host;
+    const safeSpaces = new Set(['tribute-shadow', 'dwarven-caravans', 'hidden-counsel', 'hall-fire']);
+    const playable = actor.hand.filter((card) => card.definitionId === 'diplomatic-mission').flatMap((card) => legalAgentSpaces(first, 'host', card.id)
+      .filter((spaceId) => safeSpaces.has(spaceId))
+      .map((spaceId) => ({ card, spaceId })))[0];
+    expect(playable).toBeDefined();
+    const advanced = reduceGame([...soloRivalRoom(), createEvent('agent/placed', 'host', 6, {
+      cardInstanceId: playable.card.id,
+      spaceId: playable.spaceId
+    }, 6)]);
+    expect(advanced.diagnostics).toEqual([]);
+    expect(currentPlayerUid(advanced)).toBe('host');
+    expect(Object.values(advanced.match!.boardAgents).flat().filter((occupation) => occupation.uid.startsWith('rival-'))).toHaveLength(rivalAgentsBefore + 2);
+    expect(advanced.match!.rivalActionDeck.length + advanced.match!.rivalActionDiscard.length).toBe(22);
+  });
+
+  it('applies every Rival action and all four profile and difficulty adjustments without private card systems', () => {
+    const setup = reduceGame(soloRivalRoom('rival-action-domain'));
+    for (const action of RIVAL_ACTION_DEFINITIONS) {
+      const match = structuredClone(setup.match!);
+      const rival = match.players['rival-1'];
+      rival.rivalProfile = 'black-captain';
+      rival.availableAgents = 2;
+      rival.resources = { gold: 0, mithril: 0, provisions: 1 };
+      rival.companies = { supply: 9, garrison: 3 };
+      match.battleCompanies[rival.uid] = 0;
+      match.boardAgents = {};
+      expect(resolveRivalAction(match, rival.uid, action.id)).toBe(true);
+      expect(match.boardAgents[action.destinationId]).toEqual([{ uid: rival.uid, agentNumber: 1 }]);
+      expect(rival.availableAgents).toBe(1);
+      expect(rival.hand).toEqual([]);
+      expect(rival.fateHand).toEqual([]);
+      expect(rival.scouts.supply).toBe(0);
+      expect(rival.companies.supply + rival.companies.garrison + (match.battleCompanies[rival.uid] ?? 0)).toBe(12);
+    }
+
+    const mountain = structuredClone(setup.match!);
+    mountain.players['rival-1'].rivalProfile = 'mountain-king';
+    mountain.players['rival-1'].availableAgents = 2;
+    mountain.players['rival-1'].resources.mithril = 0;
+    mountain.boardAgents = {};
+    expect(resolveRivalAction(mountain, 'rival-1', 'rival-edoras')).toBe(true);
+    expect(mountain.players['rival-1'].resources.mithril).toBe(2);
+    expect(resolveRivalAction(mountain, 'rival-1', 'rival-entwash')).toBe(true);
+    expect(mountain.players['rival-1'].resources.mithril).toBe(4);
+
+    const farSeer = structuredClone(setup.match!);
+    farSeer.players['rival-1'].rivalProfile = 'far-seer';
+    farSeer.players['rival-1'].availableAgents = 2;
+    farSeer.players['rival-1'].resources.gold = 0;
+    farSeer.boardAgents = {};
+    resolveRivalAction(farSeer, 'rival-1', 'rival-hall-fire');
+    resolveRivalAction(farSeer, 'rival-1', 'rival-secret-bargain');
+    expect(farSeer.players['rival-1'].resources.gold).toBe(6);
+
+    const border = structuredClone(setup.match!);
+    border.players['rival-1'].rivalProfile = 'border-marshal';
+    border.players['rival-1'].availableAgents = 2;
+    border.players['rival-1'].companies = { supply: 7, garrison: 5 };
+    border.boardAgents = {};
+    border.battleCompanies['rival-1'] = 0;
+    resolveRivalAction(border, 'rival-1', 'rival-hidden-paths');
+    expect(border.battleCompanies['rival-1']).toBe(3);
+
+    const normalStrength = structuredClone(setup.match!);
+    normalStrength.players['rival-1'].rivalProfile = 'border-marshal';
+    normalStrength.battleCompanies['rival-1'] = 1;
+    const base = battleStrength(normalStrength, 'rival-1');
+    normalStrength.players['rival-1'].rivalProfile = 'black-captain';
+    expect(battleStrength(normalStrength, 'rival-1')).toBe(base + 1);
+    normalStrength.rivalDifficulty = 'dark-lord';
+    expect(battleStrength(normalStrength, 'rival-1')).toBe(base + 2);
+  });
+
+  it('unlocks profile Captains and deterministically reshuffles the shared Rival action deck', () => {
+    const stream = soloRivalRoom('rival-captain-reshuffle');
+    let sequence = 5;
+    let timestamp = 6;
+    let state = reduceGame(stream);
+    for (let guard = 0; guard < 8 && state.match!.round < 6; guard += 1) {
+      expect(currentPlayerUid(state)).toBe('host');
+      sequence += 1;
+      stream.push(createEvent('turn/revealed', 'host', sequence, {}, timestamp++));
+      sequence += 1;
+      stream.push(createEvent('reveal/finished', 'host', sequence, {}, timestamp++));
+      state = reduceGame(stream);
+      expect(state.diagnostics).toEqual([]);
+    }
+    expect(state.match!.round).toBe(6);
+    for (const uid of ['rival-1', 'rival-2']) {
+      const rival = state.match!.players[uid];
+      const committed = Object.values(state.match!.boardAgents).flat().filter((occupation) => occupation.uid === uid).length;
+      expect(rival.captainUnlocked).toBe(true);
+      expect(rival.availableAgents + committed).toBe(3);
+    }
+    expect(state.match!.rivalActionReshuffles).toBeGreaterThanOrEqual(1);
+    expect(state.match!.rivalActionDeck.length + state.match!.rivalActionDiscard.length).toBe(22);
+    expect(new Set([...state.match!.rivalActionDeck, ...state.match!.rivalActionDiscard])).toEqual(new Set(RIVAL_ACTION_DEFINITIONS.map((action) => action.id)));
+  });
+
+  it('applies solo difficulties and keeps the two-player Rival outside victory triggering', () => {
+    const wayfarer = reduceGame(soloRivalRoom('rivals-wayfarer', 'wayfarer'));
+    expect(wayfarer.match!.players['rival-1'].companies.garrison).toBe(0);
+    expect(wayfarer.match!.players.host.fateHand).toHaveLength(1);
+    expect(wayfarer.match!.fateDeck.length + wayfarer.match!.players.host.fateHand.length).toBe(30);
+    const nazgul = reduceGame(soloRivalRoom('rivals-nazgul', 'nazgul'));
+    expect(nazgul.match!.players['rival-1']).toMatchObject({ renown: 1, resources: { gold: 1, mithril: 0, provisions: 1 } });
+
+    const twoPlayer = reduceGame(twoPlayerRivalRoom());
+    expect(twoPlayer.diagnostics).toEqual([]);
+    expect(twoPlayer.match!.playerOrder[1]).toBe('rival-1');
+    twoPlayer.match!.players['rival-1'].renown = 10;
+    expect(hasRenownEndgameTrigger(twoPlayer.match!)).toBe(false);
+    twoPlayer.match!.players.host.renown = 10;
+    expect(hasRenownEndgameTrigger(twoPlayer.match!)).toBe(true);
+
+    const firstHuman = currentPlayerUid(twoPlayer)!;
+    const otherHuman = twoPlayer.match!.playerOrder[2];
+    const sequence = firstHuman === 'host' ? 6 : 4;
+    const afterFirstReveal = reduceGame([
+      ...twoPlayerRivalRoom(),
+      createEvent('turn/revealed', firstHuman, sequence, {}, 9),
+      createEvent('reveal/finished', firstHuman, sequence + 1, {}, 10)
+    ]);
+    expect(afterFirstReveal.diagnostics).toEqual([]);
+    expect(currentPlayerUid(afterFirstReveal)).toBe(otherHuman);
+    expect(Object.values(afterFirstReveal.match!.boardAgents).flat().filter((occupation) => occupation.uid === 'rival-1')).toHaveLength(1);
+
+    const otherSequence = otherHuman === 'host' ? 6 : 4;
+    const nextRound = reduceGame([
+      ...twoPlayerRivalRoom(),
+      createEvent('turn/revealed', firstHuman, sequence, {}, 9),
+      createEvent('reveal/finished', firstHuman, sequence + 1, {}, 10),
+      createEvent('turn/revealed', otherHuman, otherSequence, {}, 11),
+      createEvent('reveal/finished', otherHuman, otherSequence + 1, {}, 12)
+    ]);
+    expect(nextRound.diagnostics).toEqual([]);
+    expect(nextRound.match!.round).toBe(2);
+    expect(nextRound.match!.playerOrder).toEqual([otherHuman, 'rival-1', firstHuman]);
+
+    const twoPlayerScoring = structuredClone(twoPlayer.match!);
+    twoPlayerScoring.players.host.renown = 5;
+    twoPlayerScoring.players['guest-a'].renown = 4;
+    twoPlayerScoring.players['rival-1'].renown = 99;
+    finishEndgame(twoPlayerScoring);
+    expect(twoPlayerScoring.finalResult!.winnerUids).toEqual(['host']);
+    expect(twoPlayerScoring.finalResult!.standings.map((standing) => standing.uid).sort()).toEqual(['guest-a', 'host']);
+
+    const soloTie = structuredClone(wayfarer.match!);
+    soloTie.players.host.renown = 5;
+    soloTie.players['rival-1'].renown = 5;
+    soloTie.players['rival-2'].renown = 4;
+    finishEndgame(soloTie);
+    expect(soloTie.finalResult!.winnerUids).toEqual(['rival-1']);
+  });
+
   it('creates a deterministic three-player match with conserved starting cards', () => {
     const first = reduceGame(readyRoom());
     const second = reduceGame(readyRoom());
@@ -5050,12 +5245,13 @@ describe('integrated Agent placement replay', () => {
     expect(combat.match!.battleParticipantUids).toEqual([winner]);
     const renownBefore = combat.match!.players[winner].renown;
     const dwarvenBefore = combat.match!.players[winner].standing.dwarven;
+    const objectivePair = OBJECTIVE_DEFINITIONS.find((objective) => objective.id === combat.match!.players[winner].objectiveId)?.standard === 'White Tree' ? 1 : 0;
     append(winner, 'battle/passed', {});
     const resolved = reduceGame(stream);
     expect(resolved.diagnostics).toEqual([]);
     expect(resolved.match!.battleHistory.at(-1)).toMatchObject({ battleId: 'defence-dale', winnerUid: winner });
     expect(resolved.match!.players[winner].wonBattleIds).toContain('defence-dale');
-    expect(resolved.match!.players[winner].renown).toBe(renownBefore + 1);
+    expect(resolved.match!.players[winner].renown).toBe(renownBefore + 1 + objectivePair);
     expect(resolved.match!.players[winner].standing.dwarven).toBe(dwarvenBefore + 1);
   });
 
@@ -5177,12 +5373,13 @@ describe('integrated Agent placement replay', () => {
     expect(combat.match!.battleParticipantUids).toEqual([winner]);
     const renownBefore = combat.match!.players[winner].renown;
     const wildBefore = combat.match!.players[winner].standing.wild;
+    const objectivePair = OBJECTIVE_DEFINITIONS.find((objective) => objective.id === combat.match!.players[winner].objectiveId)?.standard === 'Horse' ? 1 : 0;
     append(winner, 'battle/passed', {});
     const resolved = reduceGame(stream);
     expect(resolved.diagnostics).toEqual([]);
     expect(resolved.match!.battleHistory.at(-1)).toMatchObject({ battleId: 'assault-fords', winnerUid: winner });
     expect(resolved.match!.players[winner].wonBattleIds).toContain('assault-fords');
-    expect(resolved.match!.players[winner].renown).toBe(renownBefore + 1);
+    expect(resolved.match!.players[winner].renown).toBe(renownBefore + 1 + objectivePair);
     expect(resolved.match!.players[winner].standing.wild).toBe(wildBefore + 1);
     expect(resolved.match!.round).toBe(6);
   });
@@ -5511,10 +5708,11 @@ describe('integrated Agent placement replay', () => {
     expect(combat.match!.battleParticipantUids).toEqual([winner]);
     const renownBefore = combat.match!.players[winner].renown;
     const shadowBefore = combat.match!.players[winner].standing.shadow;
+    const objectivePair = OBJECTIVE_DEFINITIONS.find((objective) => objective.id === combat.match!.players[winner].objectiveId)?.standard === 'Star' ? 1 : 0;
     append(winner, 'battle/passed', {});
     const resolved = reduceGame(stream);
     expect(resolved.diagnostics).toEqual([]);
-    expect(resolved.match!.players[winner].renown).toBe(renownBefore + 1);
+    expect(resolved.match!.players[winner].renown).toBe(renownBefore + 1 + objectivePair);
     expect(resolved.match!.players[winner].standing.shadow).toBe(shadowBefore + 1);
     expect(resolved.match!.players[winner].wonBattleIds).toContain('treachery-orthanc');
     expect(resolved.match!.pendingBattleRewardChoices).toEqual([]);
@@ -6317,12 +6515,9 @@ describe('integrated Agent placement replay', () => {
       'siege-minas-tirith',
       'battle-pelennor-fields'
     ]));
-    expect(afterPelennor.match!.players[controller!].pairedBattleIds).toEqual([
-      'siege-minas-tirith',
-      'battle-pelennor-fields'
-    ]);
-    expect(afterPelennor.match!.players[controller!].renown).toBe(renownBeforePelennor + 3);
-    expect(afterPelennor.match!.activity).toContain('White Tree Standards are paired face down for 1 Renown.');
+    expect(afterPelennor.match!.players[controller!].objectivePaired).toBe(true);
+    expect(afterPelennor.match!.players[controller!].pairedBattleIds).toEqual(['siege-minas-tirith']);
+    expect(afterPelennor.match!.players[controller!].renown).toBe(renownBeforePelennor + 2);
 
     const controllerGold = afterPelennor.match!.players[controller!].resources.gold;
     for (let guard = 0; guard < 12; guard += 1) {

@@ -51,7 +51,7 @@ export class TestStepHelper {
     await this.observe(page, id, description, verifications);
   }
 
-  generateDocs(title: string, purpose: string) {
+  generateDocs(title: string, purpose: string, filename = 'README.md') {
     const lines = [
       `# Test: ${title}`,
       '',
@@ -76,6 +76,6 @@ export class TestStepHelper {
         ''
       );
     }
-    writeFileSync(join(dirname(this.testInfo.file), 'README.md'), `${lines.join('\n').trimEnd()}\n`);
+    writeFileSync(join(dirname(this.testInfo.file), filename), `${lines.join('\n').trimEnd()}\n`);
   }
 }

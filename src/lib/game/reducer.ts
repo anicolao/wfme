@@ -8,13 +8,19 @@ import {
   COMMANDERS,
   FATE_CARD_DEFINITIONS,
   MUSTER_CARD_DEFINITIONS,
+  OBJECTIVE_DEFINITIONS,
   OBSERVATION_POSTS,
   RESERVE_CARD_DEFINITIONS,
+  RIVAL_ACTION_DEFINITIONS,
+  RIVAL_PROFILE_DEFINITIONS,
   STARTING_CARD_IDENTITIES,
   WAR_EFFORT_DEFINITIONS,
   cardName,
   type CommanderId,
   type ReserveCardId,
+  type RivalDifficulty,
+  type RivalMode,
+  type RivalProfileId,
   type WarEffortId
 } from './manifest';
 import { shuffled } from './prng';
@@ -71,7 +77,11 @@ type QueuedFateDraw = {
 
 export type MatchPlayer = {
   uid: string;
-  commander: CommanderId;
+  commander: CommanderId | null;
+  isRival: boolean;
+  rivalProfile: RivalProfileId | null;
+  objectiveId: string;
+  objectivePaired: boolean;
   hand: CardInstance[];
   drawPile: CardInstance[];
   discardPile: CardInstance[];
@@ -102,6 +112,9 @@ export type MatchPlayer = {
   entDraught: boolean;
   treebeardEntBonusUsed: boolean;
   warEffort: WarEffortInstance | null;
+  rivalMithrilAbilityUsedThisRound: boolean;
+  rivalGoldAbilityUsedThisRound: boolean;
+  rivalBattleAbilityUsedThisRound: boolean;
 };
 
 export type AgentOccupation = {
@@ -443,6 +456,11 @@ export type MatchState = {
   warEffortDeck: WarEffortInstance[];
   warEffortRow: WarEffortInstance[];
   warEffortDiscard: WarEffortInstance[];
+  rivalMode: RivalMode;
+  rivalDifficulty: RivalDifficulty;
+  rivalActionDeck: string[];
+  rivalActionDiscard: string[];
+  rivalActionReshuffles: number;
   activity: string[];
 };
 
@@ -457,6 +475,8 @@ export type GameState = {
   diagnostics: string[];
   eventCount: number;
   warEffortsEnabled: boolean;
+  rivalMode: RivalMode;
+  rivalDifficulty: RivalDifficulty;
 };
 
 export const EMPTY_GAME: GameState = {
@@ -469,7 +489,9 @@ export const EMPTY_GAME: GameState = {
   rematchReadyUids: [],
   diagnostics: [],
   eventCount: 0,
-  warEffortsEnabled: false
+  warEffortsEnabled: false,
+  rivalMode: 'none',
+  rivalDifficulty: 'captain'
 };
 
 function displayName(payload: Record<string, unknown>): string | null {
@@ -500,19 +522,41 @@ function battleDeck(seed: string): string[] {
   return selectedByAge.map((battle) => battle.id);
 }
 
+function rivalName(uid: string): string {
+  return uid === 'rival-1' ? 'Rival I' : 'Rival II';
+}
+
+export function participantName(state: GameState, uid: string): string {
+  return state.players.find((player) => player.uid === uid)?.displayName ?? rivalName(uid);
+}
+
 function createMatch(state: GameState, seed: string, epoch: number): MatchState {
-  const playerOrder = shuffled(
-    state.players.map((player) => player.uid),
-    `${seed}:player-order`
-  );
-  const players = Object.fromEntries(
+  const humanUids = state.players.map((player) => player.uid);
+  const rivalUids = state.rivalMode === 'solo' ? ['rival-1', 'rival-2'] : state.rivalMode === 'two-player' ? ['rival-1'] : [];
+  const shuffledHumans = shuffled(humanUids, `${seed}:player-order`);
+  const playerOrder = state.rivalMode === 'solo'
+    ? [shuffledHumans[0], ...rivalUids]
+    : state.rivalMode === 'two-player'
+      ? [shuffledHumans[0], rivalUids[0], shuffledHumans[1]]
+      : shuffledHumans;
+  const initialFirstPlayerIndex = state.rivalMode === 'solo'
+    ? shuffled([0, 1, 2], `${seed}:first-player`)[0]
+    : 0;
+  const objectiveIds = shuffled(OBJECTIVE_DEFINITIONS.map((definition) => definition.id), `${seed}:objectives`);
+  const rivalProfiles = shuffled(RIVAL_PROFILE_DEFINITIONS.map((definition) => definition.id), `${seed}:rival-profiles`);
+  const players: Record<string, MatchPlayer> = Object.fromEntries(
     state.players.map((player) => {
       const deck = startingDeck(player.uid, player.seat, seed, epoch);
+      const participantIndex = playerOrder.indexOf(player.uid);
       return [
         player.uid,
         {
           uid: player.uid,
           commander: player.commander!,
+          isRival: false,
+          rivalProfile: null,
+          objectiveId: objectiveIds[participantIndex],
+          objectivePaired: false,
           hand: deck.slice(0, 5),
           drawPile: deck.slice(5),
           discardPile: [],
@@ -542,11 +586,42 @@ function createMatch(state: GameState, seed: string, epoch: number): MatchState 
           councilSeat: false,
           entDraught: false,
           treebeardEntBonusUsed: false,
-          warEffort: null
+          warEffort: null,
+          rivalMithrilAbilityUsedThisRound: false,
+          rivalGoldAbilityUsedThisRound: false,
+          rivalBattleAbilityUsedThisRound: false
         }
       ];
     })
   );
+  for (const [index, uid] of rivalUids.entries()) {
+    const profileId = rivalProfiles[index];
+    const hardSetup = state.rivalDifficulty === 'nazgul' || state.rivalDifficulty === 'dark-lord';
+    const startingGarrison = state.rivalDifficulty === 'wayfarer' ? 0 : 3;
+    players[uid] = {
+      uid,
+      commander: null,
+      isRival: true,
+      rivalProfile: profileId,
+      objectiveId: objectiveIds[playerOrder.indexOf(uid)],
+      objectivePaired: false,
+      hand: [], drawPile: [], discardPile: [], trashPile: [], journey: [], muster: [],
+      revealInfluence: 0, revealedSwords: 0, revealedThisRound: false,
+      renown: hardSetup ? 1 : 0,
+      availableAgents: 2, captainUnlocked: false, captainAgentPending: false,
+      resources: { gold: hardSetup ? 1 : 0, mithril: 0, provisions: 1 },
+      standing: { shadow: 0, dwarven: 0, elven: 0, wild: 0 },
+      companies: { supply: 12 - startingGarrison, garrison: startingGarrison },
+      recruitedThisRound: 0, commanderPersistentUsedThisRound: false,
+      wonBattleIds: [], pairedBattleIds: [], scouts: { supply: 0 },
+      scoutsRecalledThisRound: 0, scoutsRecalledThisTurn: 0, entsSummonedThisTurn: 0,
+      visitedRoadsThisTurn: false, fateHand: [], councilSeat: false, entDraught: false,
+      treebeardEntBonusUsed: false, warEffort: null,
+      rivalMithrilAbilityUsedThisRound: false,
+      rivalGoldAbilityUsedThisRound: false,
+      rivalBattleAbilityUsedThisRound: false
+    };
+  }
   const chronicleFoundation = CHRONICLE_CARD_DEFINITIONS.filter((definition) => !definition.incrementalDeckInsertion);
   const chronicleExtensions = CHRONICLE_CARD_DEFINITIONS.filter((definition) => definition.incrementalDeckInsertion);
   const chronicleInstances = shuffled(chronicleFoundation.flatMap((definition) =>
@@ -573,18 +648,7 @@ function createMatch(state: GameState, seed: string, epoch: number): MatchState 
       definitionId: definition.id
     })), `${seed}:war-efforts`)
     : [];
-  return {
-    epoch,
-    seed,
-    round: 1,
-    playerOrder,
-    currentPlayerIndex: 0,
-    firstPlayerIndex: 0,
-    turnMode: 'agent',
-    players,
-    boardAgents: {},
-    boardScouts: {},
-    fateDeck: shuffled(Array.from({ length: 30 }, (_, index) => ({
+  const fateDeck = shuffled(Array.from({ length: 30 }, (_, index) => ({
       id: `match-${epoch}:fate:${index + 1}`,
       definitionId: index < 2
         ? 'sudden-charge'
@@ -615,7 +679,22 @@ function createMatch(state: GameState, seed: string, epoch: number): MatchState 
                   : index === 24 || index === 26
                     ? 'keeper-oaths'
                     : 'the-long-game'
-    })), `${seed}:fate-deck`),
+    })), `${seed}:fate-deck`);
+  if (state.rivalMode === 'solo' && state.rivalDifficulty === 'wayfarer') {
+    players[humanUids[0]].fateHand = [fateDeck.shift()!];
+  }
+  return {
+    epoch,
+    seed,
+    round: 1,
+    playerOrder,
+    currentPlayerIndex: initialFirstPlayerIndex,
+    firstPlayerIndex: initialFirstPlayerIndex,
+    turnMode: 'agent',
+    players,
+    boardAgents: {},
+    boardScouts: {},
+    fateDeck,
     fateDiscard: [],
     chronicleDeck: chronicleInstances.slice(5),
     chronicleRow: chronicleInstances.slice(0, 5),
@@ -658,8 +737,15 @@ function createMatch(state: GameState, seed: string, epoch: number): MatchState 
     warEffortDeck: warEffortInstances.slice(2),
     warEffortRow: warEffortInstances.slice(0, 2),
     warEffortDiscard: [],
+    rivalMode: state.rivalMode,
+    rivalDifficulty: state.rivalDifficulty,
+    rivalActionDeck: state.rivalMode === 'none'
+      ? []
+      : shuffled(RIVAL_ACTION_DEFINITIONS.map((definition) => definition.id), `${seed}:rival-actions`),
+    rivalActionDiscard: [],
+    rivalActionReshuffles: 0,
     activity: [
-      `The seeded match begins. ${state.players.find((player) => player.uid === playerOrder[0])?.displayName ?? 'Seat 1'} acts first.`,
+      `The seeded match begins. ${participantName(state, playerOrder[initialFirstPlayerIndex])} acts first.`,
       selectedBattles[0] ? `${BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === selectedBattles[0])!.name} is the active Battle.` : 'No reviewed Battle remains.'
     ]
   };
@@ -873,12 +959,18 @@ function resolveGandalfHighCostAcquisition(match: MatchState, player: MatchPlaye
   );
 }
 
+export function hasRenownEndgameTrigger(match: MatchState): boolean {
+  return Object.values(match.players).some((player) =>
+    player.renown >= 10 && (match.rivalMode !== 'two-player' || !player.isRival)
+  );
+}
+
 function recallAndBeginNextRound(match: MatchState): void {
-  if (Object.values(match.players).some((player) => player.renown >= 10) || match.battleDeck.length === 0) {
+  if (hasRenownEndgameTrigger(match) || match.battleDeck.length === 0) {
     match.turnMode = 'endgame';
     match.currentPlayerIndex = match.firstPlayerIndex;
     match.consecutiveEndgamePasses = 0;
-    match.endgameTrigger = Object.values(match.players).some((player) => player.renown >= 10) ? 'renown' : 'battle-deck';
+    match.endgameTrigger = hasRenownEndgameTrigger(match) ? 'renown' : 'battle-deck';
     match.activity.push(
       match.endgameTrigger === 'renown'
         ? 'Endgame begins because a Commander has reached 10 Renown.'
@@ -899,9 +991,16 @@ function recallAndBeginNextRound(match: MatchState): void {
   match.turnMode = 'agent';
   for (const uid of match.playerOrder) {
     const player = match.players[uid];
-    player.availableAgents = player.captainUnlocked || player.captainAgentPending ? 3 : 2;
-    player.captainUnlocked ||= player.captainAgentPending;
-    player.captainAgentPending = false;
+    if (player.isRival) {
+      const profile = RIVAL_PROFILE_DEFINITIONS.find((definition) => definition.id === player.rivalProfile)!;
+      player.captainUnlocked ||= match.round >= profile.captainRound;
+      player.availableAgents = player.captainUnlocked ? 3 : 2;
+      player.captainAgentPending = false;
+    } else {
+      player.availableAgents = player.captainUnlocked || player.captainAgentPending ? 3 : 2;
+      player.captainUnlocked ||= player.captainAgentPending;
+      player.captainAgentPending = false;
+    }
     player.revealedThisRound = false;
     player.revealInfluence = 0;
     player.revealedSwords = 0;
@@ -911,14 +1010,28 @@ function recallAndBeginNextRound(match: MatchState): void {
     player.scoutsRecalledThisTurn = 0;
     player.entsSummonedThisTurn = 0;
     player.visitedRoadsThisTurn = false;
-    drawToFive(match, uid);
+    player.rivalMithrilAbilityUsedThisRound = false;
+    player.rivalGoldAbilityUsedThisRound = false;
+    player.rivalBattleAbilityUsedThisRound = false;
+    if (!player.isRival) drawToFive(match, uid);
   }
-  match.firstPlayerIndex = (match.firstPlayerIndex + 1) % match.playerOrder.length;
-  match.currentPlayerIndex = match.firstPlayerIndex;
+  if (match.rivalMode === 'two-player') {
+    const humans = match.playerOrder.filter((uid) => !match.players[uid].isRival);
+    match.playerOrder = [humans[1], match.playerOrder.find((uid) => match.players[uid].isRival)!, humans[0]];
+    match.firstPlayerIndex = 0;
+    match.currentPlayerIndex = 0;
+  } else {
+    match.firstPlayerIndex = (match.firstPlayerIndex + 1) % match.playerOrder.length;
+    match.currentPlayerIndex = match.firstPlayerIndex;
+  }
   match.activeBattleId = match.battleDeck.shift() ?? null;
   const nextBattle = BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === match.activeBattleId);
   const defender = nextBattle?.contestedLocationId ? match.criticalControl[nextBattle.contestedLocationId] : null;
-  if (defender && match.players[defender].companies.supply > 0) {
+  if (defender && match.players[defender].companies.supply > 0 && match.players[defender].isRival) {
+    match.players[defender].companies.supply -= 1;
+    match.battleCompanies[defender] = (match.battleCompanies[defender] ?? 0) + 1;
+    match.activity.push(`The Rival controller automatically deploys 1 Company to defend ${BOARD_SPACE_DEFINITIONS.find((space) => space.id === nextBattle?.contestedLocationId)?.name}.`);
+  } else if (defender && match.players[defender].companies.supply > 0) {
     match.pendingChoice = {
       kind: 'critical-defense',
       actorUid: defender,
@@ -951,8 +1064,11 @@ function sameFinalScore(left: FinalStanding, right: FinalStanding): boolean {
     && left.totalStanding === right.totalStanding;
 }
 
-function finishEndgame(match: MatchState): void {
-  const standings = match.playerOrder.map((uid) => finalStanding(match, uid)).sort((left, right) =>
+export function finishEndgame(match: MatchState): void {
+  const scoringUids = match.rivalMode === 'two-player'
+    ? match.playerOrder.filter((uid) => !match.players[uid].isRival)
+    : match.playerOrder;
+  const standings = scoringUids.map((uid) => finalStanding(match, uid)).sort((left, right) =>
     right.renown - left.renown
     || right.mithril - left.mithril
     || right.gold - left.gold
@@ -965,7 +1081,10 @@ function finishEndgame(match: MatchState): void {
       ? standings[index - 1].rank
       : index + 1;
   }
-  const winnerUids = standings.filter((standing) => standing.rank === 1).map((standing) => standing.uid);
+  let winnerUids = standings.filter((standing) => standing.rank === 1).map((standing) => standing.uid);
+  if (match.rivalMode === 'solo' && winnerUids.some((uid) => match.players[uid].isRival)) {
+    winnerUids = winnerUids.filter((uid) => match.players[uid].isRival);
+  }
   match.finalResult = {
     trigger: match.endgameTrigger ?? 'battle-deck',
     winnerUids,
@@ -1710,18 +1829,120 @@ function finishAgentAction(match: MatchState, actorUid: string): void {
   }
 }
 
+function rivalPriorityFaction(player: MatchPlayer): FactionId {
+  const profile = RIVAL_PROFILE_DEFINITIONS.find((definition) => definition.id === player.rivalProfile)!;
+  return profile.factionPriority.find((faction) => player.standing[faction] < 6) ?? profile.factionPriority[0];
+}
+
+function gainRivalAwareMithril(player: MatchPlayer, amount: number): void {
+  const doubled = player.isRival && player.rivalProfile === 'mountain-king' && !player.rivalMithrilAbilityUsedThisRound;
+  player.resources.mithril += doubled ? amount * 2 : amount;
+  if (player.isRival && amount > 0) player.rivalMithrilAbilityUsedThisRound = true;
+}
+
+function drawRivalAction(match: MatchState): (typeof RIVAL_ACTION_DEFINITIONS)[number] | null {
+  if (RIVAL_ACTION_DEFINITIONS.every((action) => (match.boardAgents[action.destinationId]?.length ?? 0) > 0)) return null;
+  for (let guard = 0; guard < RIVAL_ACTION_DEFINITIONS.length * 2; guard += 1) {
+    if (match.rivalActionDeck.length === 0) {
+      match.rivalActionReshuffles += 1;
+      match.rivalActionDeck = shuffled(
+        match.rivalActionDiscard,
+        `${match.seed}:round-${match.round}:rival-reshuffle-${match.rivalActionReshuffles}`
+      );
+      match.rivalActionDiscard = [];
+    }
+    const id = match.rivalActionDeck.shift();
+    if (!id) return null;
+    match.rivalActionDiscard.push(id);
+    const action = RIVAL_ACTION_DEFINITIONS.find((definition) => definition.id === id)!;
+    if ((match.boardAgents[action.destinationId]?.length ?? 0) === 0) return action;
+  }
+  return null;
+}
+
+export function resolveRivalAction(match: MatchState, uid: string, actionId: string): boolean {
+  const player = match.players[uid];
+  const action = RIVAL_ACTION_DEFINITIONS.find((definition) => definition.id === actionId);
+  if (!player?.isRival || !action || player.availableAgents < 1 || (match.boardAgents[action.destinationId]?.length ?? 0) > 0) return false;
+  const agentNumber = 1 + Object.values(match.boardAgents).flat().filter((occupation) => occupation.uid === uid).length;
+  player.availableAgents -= 1;
+  match.boardAgents[action.destinationId] = [{ uid, agentNumber }];
+
+  const priorGarrison = player.companies.garrison;
+  const recruited = action.recruit ? recruitCompanies(match, player, action.recruit) : 0;
+  if (action.standing) gainStanding(match, player, action.standing === 'priority' ? rivalPriorityFaction(player) : action.standing);
+  let actionGold = action.gold ?? 0;
+  if (actionGold > 0 && !action.battle && player.rivalProfile === 'far-seer' && !player.rivalGoldAbilityUsedThisRound) {
+    actionGold += 1;
+    player.rivalGoldAbilityUsedThisRound = true;
+  }
+  player.resources.gold += actionGold;
+  player.resources.provisions += action.provisions ?? 0;
+  let actionMithril = action.mithril ?? 0;
+  if (action.takeRiches) {
+    const location = action.destinationId as keyof MatchState['richesMithril'];
+    actionMithril += match.richesMithril[location] ?? 0;
+    match.richesMithril[location] = 0;
+  }
+  if (actionMithril) gainRivalAwareMithril(player, actionMithril);
+  if (action.breachDam) match.damBreached = true;
+
+  if (action.controllerIncome) {
+    const controllerUid = match.criticalControl[action.destinationId as keyof MatchState['criticalControl']];
+    if (controllerUid) {
+      const controller = match.players[controllerUid];
+      if (action.destinationId === 'edoras') gainRivalAwareMithril(controller, 1);
+      else controller.resources.gold += 1;
+      match.activity.push(`The controller gains income from ${BOARD_SPACE_DEFINITIONS.find((space) => space.id === action.destinationId)?.name}.`);
+    }
+  }
+
+  if (action.battle && match.activeBattleId) {
+    let veteranAllowance = Math.min(2, priorGarrison);
+    if (player.rivalProfile === 'border-marshal' && !player.rivalBattleAbilityUsedThisRound) {
+      veteranAllowance = Math.min(3, priorGarrison);
+      player.rivalBattleAbilityUsedThisRound = true;
+    }
+    const deployed = Math.min(player.companies.garrison, recruited + veteranAllowance);
+    player.companies.garrison -= deployed;
+    match.battleCompanies[uid] = (match.battleCompanies[uid] ?? 0) + deployed;
+  }
+  match.activity.push(`${rivalName(uid)} occupies ${BOARD_SPACE_DEFINITIONS.find((space) => space.id === action.destinationId)?.name} and resolves ${action.id.replace('rival-', '').replaceAll('-', ' ')}.`);
+  return true;
+}
+
+function takeRivalAgentTurn(match: MatchState, uid: string): void {
+  const player = match.players[uid];
+  const action = drawRivalAction(match);
+  if (!action) {
+    player.availableAgents = 0;
+    match.activity.push(`${rivalName(uid)} finds no unoccupied destination and ends its Agent turns for the round.`);
+    return;
+  }
+  resolveRivalAction(match, uid, action.id);
+}
+
 export function battleStrength(match: MatchState, uid: string): number {
   const companies = match.battleCompanies[uid] ?? 0;
   const ents = match.battleEnts[uid] ?? 0;
   if (companies + ents < 1) return 0;
-  return Math.max(0, companies * 2 + ents * 3 + match.players[uid].revealedSwords + (match.battleBonusStrength[uid] ?? 0));
+  const player = match.players[uid];
+  const battleAge = BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === match.activeBattleId)?.age ?? 1;
+  const rivalBonus = player.isRival
+    ? (battleAge - 1) + (player.rivalProfile === 'black-captain' ? 1 : 0) + (match.rivalDifficulty === 'dark-lord' ? 1 : 0)
+    : 0;
+  return Math.max(0, companies * 2 + ents * 3 + player.revealedSwords + (match.battleBonusStrength[uid] ?? 0) + rivalBonus);
+}
+
+function battlefieldParticipants(match: MatchState): string[] {
+  return Array.from({ length: match.playerOrder.length }, (_, offset) =>
+    match.playerOrder[(match.firstPlayerIndex + offset) % match.playerOrder.length]
+  ).filter((uid) => (match.battleCompanies[uid] ?? 0) + (match.battleEnts[uid] ?? 0) > 0);
 }
 
 function clockwiseParticipants(match: MatchState): string[] {
   if (match.turnMode === 'battle' && match.battleParticipantUids.length > 0) return match.battleParticipantUids;
-  return Array.from({ length: match.playerOrder.length }, (_, offset) =>
-    match.playerOrder[(match.firstPlayerIndex + offset) % match.playerOrder.length]
-  ).filter((uid) => (match.battleCompanies[uid] ?? 0) + (match.battleEnts[uid] ?? 0) > 0);
+  return battlefieldParticipants(match).filter((uid) => !match.players[uid].isRival);
 }
 
 function applyBattleReward(match: MatchState, uid: string, rank: 0 | 1 | 2): void {
@@ -1729,10 +1950,10 @@ function applyBattleReward(match: MatchState, uid: string, rank: 0 | 1 | 2): voi
   if (!definition) return;
   const reward = definition.rewards[rank];
   const player = match.players[uid];
-  const copies = (match.battleEnts[uid] ?? 0) > 0 ? 2 : 1;
+  const copies = !player.isRival && (match.battleEnts[uid] ?? 0) > 0 ? 2 : 1;
   for (let copy = 0; copy < copies; copy += 1) {
     if (reward.gold) player.resources.gold += reward.gold;
-    if (reward.mithril) player.resources.mithril += reward.mithril;
+    if (reward.mithril) gainRivalAwareMithril(player, reward.mithril);
     if (reward.provisions) player.resources.provisions += reward.provisions;
     if (reward.renown) player.renown += reward.renown;
     if (reward.shadowStanding) {
@@ -1744,20 +1965,28 @@ function applyBattleReward(match: MatchState, uid: string, rank: 0 | 1 | 2): voi
     if (reward.wildStanding) {
       for (let step = 0; step < reward.wildStanding; step += 1) gainStanding(match, player, 'wild');
     }
-    if (reward.chooseFactionStanding) {
+    if (reward.chooseFactionStanding && player.isRival) {
+      for (let step = 0; step < reward.chooseFactionStanding; step += 1) gainStanding(match, player, rivalPriorityFaction(player));
+    } else if (reward.chooseFactionStanding) {
       for (let step = 0; step < reward.chooseFactionStanding; step += 1) {
         match.pendingBattleRewardChoices.push({ kind: 'standing', actorUid: uid });
       }
     }
-    if (reward.placeScouts) {
+    if (reward.placeScouts && player.isRival) {
+      player.resources.gold += reward.placeScouts;
+    } else if (reward.placeScouts) {
       for (let step = 0; step < reward.placeScouts; step += 1) {
         match.pendingBattleRewardChoices.push({ kind: 'place-scout', actorUid: uid });
       }
     }
-    if (reward.drawTwoFateKeepOne) {
+    if (reward.drawTwoFateKeepOne && player.isRival) {
+      player.resources.gold += 1;
+    } else if (reward.drawTwoFateKeepOne) {
       match.pendingBattleRewardChoices.push({ kind: 'fate-keep-one', actorUid: uid });
     }
-    if (reward.drawFate) {
+    if (reward.drawFate && player.isRival) {
+      player.resources.gold += reward.drawFate;
+    } else if (reward.drawFate) {
       drawFateOrOpenForesight(match, uid, reward.drawFate, 'a Battle reward', { kind: 'battle-reward' });
     }
   }
@@ -1813,7 +2042,7 @@ function resolveBattle(match: MatchState): void {
     recallAndBeginNextRound(match);
     return;
   }
-  const participants = clockwiseParticipants(match);
+  const participants = battlefieldParticipants(match);
   const strengths = Object.fromEntries(participants.map((uid) => [uid, battleStrength(match, uid)]));
   const positive = participants.filter((uid) => strengths[uid] > 0);
   const groups = [...new Set(positive.map((uid) => strengths[uid]))]
@@ -1851,11 +2080,18 @@ function resolveBattle(match: MatchState): void {
       !winner.pairedBattleIds.includes(ownedBattleId) &&
       BATTLE_CARD_DEFINITIONS.find((battle) => battle.id === ownedBattleId)?.standard === definition.standard
     );
+    const objective = OBJECTIVE_DEFINITIONS.find((candidate) => candidate.id === winner.objectiveId);
+    const matchesObjective = !winner.objectivePaired && objective?.standard === definition.standard;
     winner.wonBattleIds.push(battleId);
     if (matchingFaceUpBattleId) {
       winner.pairedBattleIds.push(matchingFaceUpBattleId, battleId);
       winner.renown += 1;
       match.activity.push(`${definition.standard} Standards are paired face down for 1 Renown.`);
+    } else if (matchesObjective) {
+      winner.objectivePaired = true;
+      winner.pairedBattleIds.push(battleId);
+      winner.renown += 1;
+      match.activity.push(`${objective.name} and ${definition.name} pair ${definition.standard} Standards for 1 Renown.`);
     }
     match.activity.push(`${definition.name} is won at ${strengths[winnerUid]} Strength.`);
   } else {
@@ -1878,8 +2114,9 @@ function resolveBattle(match: MatchState): void {
 }
 
 function beginBattleOrRecall(match: MatchState): void {
-  const participants = clockwiseParticipants(match);
-  if (!match.activeBattleId || participants.length === 0) {
+  const allParticipants = battlefieldParticipants(match);
+  const participants = allParticipants.filter((uid) => !match.players[uid].isRival);
+  if (!match.activeBattleId || allParticipants.length === 0) {
     if (match.activeBattleId) {
       match.battleDiscard.push(match.activeBattleId);
       match.activity.push('The active Battle passes without participating forces.');
@@ -1894,8 +2131,13 @@ function beginBattleOrRecall(match: MatchState): void {
   match.witchKingBlackBreathUsed = false;
   match.queuedCommanderBlackBreath = null;
   match.consecutiveBattlePasses = 0;
+  if (participants.length === 0) {
+    match.activity.push('Only automated Rivals participate, so the Battle resolves without a Combat Fate window.');
+    resolveBattle(match);
+    return;
+  }
   match.currentPlayerIndex = match.playerOrder.indexOf(participants[0]);
-  match.activity.push('The Combat Fate window opens with every participant at their revealed Strength.');
+  match.activity.push('The Combat Fate window opens for human participants at their revealed Strength.');
 }
 
 function finishRevealTurn(match: MatchState, actorUid: string, actorName: string): void {
@@ -1959,7 +2201,7 @@ function openQueuedWitchKingBlackBreath(match: MatchState): boolean {
   const queued = match.queuedCommanderBlackBreath;
   if (!queued) return false;
   match.queuedCommanderBlackBreath = null;
-  const options = match.battleParticipantUids
+  const options = battlefieldParticipants(match)
     .filter((uid) => uid !== queued.actorUid)
     .map((uid) => `opponent:${uid}`);
   if (options.length === 0) return false;
@@ -2011,20 +2253,24 @@ function gainStanding(
     if (faction === 'shadow') recruitCompanies(match, player, 2);
     if (faction === 'dwarven') player.resources.provisions += 2;
     if (faction === 'elven') {
-      const resume: FateDrawResume = {
-        kind: 'elven-favor', followupSeekAlliesCardId, followupPlaceScout, resumeBattleStanding
-      };
-      const drawn = drawFateOrOpenForesight(match, player.uid, 2, 'Elven favor', resume);
-      if (drawn && drawn.length > 1) {
-        match.pendingChoice = {
-          kind: 'elven-favor',
-          actorUid: player.uid,
-          drawnFateIds: drawn.map((fate) => fate.id),
-          followupSeekAlliesCardId,
-          followupPlaceScout,
-          resumeBattleStanding,
-          options: drawn.map((fate) => `keep:${fate.id}`)
+      if (player.isRival) {
+        player.resources.gold += 1;
+      } else {
+        const resume: FateDrawResume = {
+          kind: 'elven-favor', followupSeekAlliesCardId, followupPlaceScout, resumeBattleStanding
         };
+        const drawn = drawFateOrOpenForesight(match, player.uid, 2, 'Elven favor', resume);
+        if (drawn && drawn.length > 1) {
+          match.pendingChoice = {
+            kind: 'elven-favor',
+            actorUid: player.uid,
+            drawnFateIds: drawn.map((fate) => fate.id),
+            followupSeekAlliesCardId,
+            followupPlaceScout,
+            resumeBattleStanding,
+            options: drawn.map((fate) => `keep:${fate.id}`)
+          };
+        }
       }
     }
     if (faction === 'wild') {
@@ -2495,7 +2741,8 @@ function continuePlacedAgent(
   if (controllerResource) {
     const controllerUid = match.criticalControl[controllerResource.locationId];
     if (controllerUid) {
-      match.players[controllerUid].resources[controllerResource.resource] += 1;
+      if (controllerResource.resource === 'mithril') gainRivalAwareMithril(match.players[controllerUid], 1);
+      else match.players[controllerUid].resources.gold += 1;
       match.activity.push(`${state.players.find((candidate) => candidate.uid === controllerUid)?.displayName ?? 'The controller'} gains 1 ${controllerResource.label} from ${space.name}.`);
     }
   }
@@ -2556,7 +2803,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
 
   if (
     state.match &&
-    !['player/commander-selected', 'player/ready', 'game/war-efforts-set', 'match/started'].includes(event.type) &&
+    !['player/commander-selected', 'player/ready', 'game/war-efforts-set', 'game/rivals-set', 'match/started'].includes(event.type) &&
     event.payload.matchEpoch !== state.match.epoch
   ) return 'stale match epoch';
 
@@ -2565,6 +2812,20 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
       return 'invalid War Effort setting';
     }
     state.warEffortsEnabled = event.payload.enabled;
+    for (const player of state.players) player.ready = false;
+    return null;
+  }
+
+  if (event.type === 'game/rivals-set') {
+    const mode = event.payload.mode;
+    const difficulty = event.payload.difficulty;
+    if (
+      state.phase !== 'lobby' || event.actorUid !== state.hostUid ||
+      (mode !== 'none' && mode !== 'solo' && mode !== 'two-player') ||
+      (difficulty !== 'wayfarer' && difficulty !== 'captain' && difficulty !== 'nazgul' && difficulty !== 'dark-lord')
+    ) return 'invalid Rival setting';
+    state.rivalMode = mode;
+    state.rivalDifficulty = difficulty;
     for (const player of state.players) player.ready = false;
     return null;
   }
@@ -2591,10 +2852,15 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
 
   if (event.type === 'match/started') {
     const seed = event.payload.seed;
+    const validPlayerCount = state.rivalMode === 'solo'
+      ? state.players.length === 1
+      : state.rivalMode === 'two-player'
+        ? state.players.length === 2
+        : state.players.length >= 3;
     if (
       state.phase !== 'lobby' ||
       event.actorUid !== state.hostUid ||
-      state.players.length < 3 ||
+      !validPlayerCount ||
       !state.players.every((player) => player.commander && player.ready) ||
       typeof seed !== 'string' ||
       seed.trim().length < 3
@@ -3232,7 +3498,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     }
     if (pending.kind === 'fell-sorcery') {
       const targetUid = choice.slice('opponent:'.length);
-      if (targetUid === event.actorUid || !state.match.battleParticipantUids.includes(targetUid)) {
+      if (targetUid === event.actorUid || !battlefieldParticipants(state.match).includes(targetUid)) {
         return 'illegal choice resolution';
       }
       state.match.battleBonusStrength[targetUid] = (state.match.battleBonusStrength[targetUid] ?? 0) - pending.strengthLoss;
@@ -3244,7 +3510,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     }
     if (pending.kind === 'commander-black-breath') {
       const targetUid = choice.slice('opponent:'.length);
-      if (targetUid === event.actorUid || !state.match.battleParticipantUids.includes(targetUid)) {
+      if (targetUid === event.actorUid || !battlefieldParticipants(state.match).includes(targetUid)) {
         return 'illegal choice resolution';
       }
       state.match.battleBonusStrength[targetUid] = (state.match.battleBonusStrength[targetUid] ?? 0) - pending.strengthLoss;
@@ -3913,7 +4179,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
           kind: 'divided-counsel-opponent',
           actorUid: event.actorUid,
           resumeTurn: state.match.turnMode,
-          options: state.match.playerOrder.filter((uid) => uid !== event.actorUid).map((uid) => `opponent:${uid}`)
+          options: state.match.playerOrder.filter((uid) => uid !== event.actorUid && !state.match!.players[uid].isRival).map((uid) => `opponent:${uid}`)
         };
         state.match.activity.push(`${actor.displayName} plays ${definition.name} during their ${state.match.turnMode === 'agent' ? 'Agent' : 'Reveal'} turn and must choose an opponent.`);
       } else if (definition.effect.kind === 'cycle-chronicle') {
@@ -3941,7 +4207,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
     if (definition.effect.kind === 'fell-sorcery') {
       if (
         player.resources.mithril < definition.effect.costMithril ||
-        !state.match.battleParticipantUids.some((uid) => uid !== event.actorUid)
+        !battlefieldParticipants(state.match).some((uid) => uid !== event.actorUid)
       ) return 'illegal Fate play';
     }
     player.fateHand.splice(cardIndex, 1);
@@ -3956,7 +4222,7 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
         kind: 'fell-sorcery',
         actorUid: event.actorUid,
         strengthLoss: definition.effect.strengthLoss,
-        options: state.match.battleParticipantUids.filter((uid) => uid !== event.actorUid).map((uid) => `opponent:${uid}`)
+        options: battlefieldParticipants(state.match).filter((uid) => uid !== event.actorUid).map((uid) => `opponent:${uid}`)
       };
       state.match.activity.push(`${actor.displayName} plays ${definition.name}, pays ${definition.effect.costMithril} Mithril, and must choose an opposing Battle participant.`);
       return null;
@@ -3999,6 +4265,63 @@ function applyEvent(state: GameState, event: GameEvent): string | null {
   return 'unsupported event';
 }
 
+function runAutomatedRivals(state: GameState): void {
+  for (let guard = 0; guard < 100 && state.phase === 'playing' && state.match; guard += 1) {
+    const match = state.match;
+    const uid = match.playerOrder[match.currentPlayerIndex];
+    const player = match.players[uid];
+    if (!player?.isRival) return;
+
+    if (match.pendingChoice) {
+      const pending = match.pendingChoice;
+      if (pending.actorUid !== uid) return;
+      if (pending.kind === 'critical-defense') {
+        if (player.companies.supply > 0) {
+          player.companies.supply -= 1;
+          match.battleCompanies[uid] = (match.battleCompanies[uid] ?? 0) + 1;
+        }
+        match.pendingChoice = null;
+        continue;
+      }
+      if (pending.kind === 'battle-standing') {
+        match.pendingChoice = null;
+        gainStanding(match, player, rivalPriorityFaction(player), null, false, true);
+        continueBattleRewardChoicesOrRecall(match);
+        continue;
+      }
+      return;
+    }
+
+    if (match.turnMode === 'agent') {
+      if (player.availableAgents > 0) {
+        takeRivalAgentTurn(match, uid);
+        advanceToNextAgentPlayer(match);
+      } else {
+        player.revealedThisRound = true;
+        match.activity.push(`${rivalName(uid)} has used every ready Agent and skips Reveal.`);
+        if (match.playerOrder.every((participantUid) => match.players[participantUid].revealedThisRound)) beginBattleOrRecall(match);
+        else advanceToNextAgentPlayer(match);
+      }
+      continue;
+    }
+
+    if (match.turnMode === 'endgame') {
+      match.consecutiveEndgamePasses += 1;
+      match.activity.push(`${rivalName(uid)} has no Endgame Fate and passes.`);
+      if (match.consecutiveEndgamePasses >= match.playerOrder.length) {
+        finishEndgame(match);
+        state.finishedMatches.push({ epoch: match.epoch, seed: match.seed, ...structuredClone(match.finalResult!) });
+        state.rematchReadyUids = [];
+        state.phase = 'finished';
+      } else {
+        match.currentPlayerIndex = (match.currentPlayerIndex + 1) % match.playerOrder.length;
+      }
+      continue;
+    }
+    return;
+  }
+}
+
 export function reduceGame(events: readonly GameEvent[]): GameState {
   const state = structuredClone(EMPTY_GAME);
   const seenIds = new Set<string>();
@@ -4022,6 +4345,7 @@ export function reduceGame(events: readonly GameEvent[]): GameState {
       state.diagnostics.push(`${event.id}: ${error}`);
       continue;
     }
+    runAutomatedRivals(state);
     state.eventCount += 1;
   }
   return state;

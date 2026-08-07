@@ -7,6 +7,7 @@ export type GameEventType =
   | 'player/commander-selected'
   | 'player/ready'
   | 'game/war-efforts-set'
+  | 'game/rivals-set'
   | 'match/started'
   | 'agent/placed'
   | 'choice/resolved'

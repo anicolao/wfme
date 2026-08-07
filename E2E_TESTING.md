@@ -96,7 +96,7 @@ Number scenarios by coherent user journey. Extend an existing scenario when a sl
 | `008-ents-dam-and-doubled-reward` | Protected summon rejection, breach, Ent Strength and exact doubled exclusions. |
 | `009-complete-match` | Riches, Recall, end trigger, Endgame Fate, tiebreak, rematch. |
 | `010-war-efforts` | Optional module lifecycle. |
-| `011-rivals` | Solo and two-player deterministic automation. |
+| `011-rivals` / current `061-rivals` | Solo full-round automation and two-player middle-seat authority with deterministic reload. |
 | `012-reconnect-conflicts-and-versioning` | Offline recovery, duplicate/stale events, incompatible versions. |
 | `013-responsive-accessible-complete-game` | Complete game at phone portrait, landscape, tablet, and desktop. |
 
