@@ -183,9 +183,7 @@ test('Treebeard takes Ent-draught at Wild standing two and doubles his first one
     }
 
     expect({ draughtAwarded, bonusSummoned, deploymentFinished }).toEqual({ draughtAwarded: true, bonusSummoned: true, deploymentFinished: true });
-    await steps.gesture(treebeard.page, 'scroll-to-roused-force', `${treebeard.name} scrolls to the completed Roused force`, async () => {
-      await treebeard.page.mouse.wheel(0, -1_200);
-    }, [
+    await steps.gesture(treebeard.page, 'scroll-to-roused-force', `${treebeard.name} scrolls to the completed Roused force`, async () => {}, [
       { spec: 'The unobscured board visibly shows exactly two Ents and six Strength', check: async () => {
         const force = treebeard.page.getByTestId('active-battle').locator('.battle-forces article').filter({ hasText: treebeard.name });
         await expect(force).toContainText('2 Ents');
@@ -193,7 +191,7 @@ test('Treebeard takes Ent-draught at Wild standing two and doubles his first one
       } },
       { spec: 'No ordered deployment remains after the explicit zero-Company choice', check: async () => await expect(treebeard.page.getByTestId('pending-choice')).toHaveCount(0) },
       converged(accepted.value)
-    ]);
+    ], 'top');
     await steps.gesture(treebeard.page, 'reload-roused-result', `${treebeard.name} reloads the completed Roused at Last result`, async () => {
       await reloadGameClient(treebeard.page);
     }, [

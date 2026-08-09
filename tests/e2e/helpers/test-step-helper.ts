@@ -13,6 +13,8 @@ type DocumentedStep = {
   specs: string[];
 };
 
+type ScrollBoundary = 'top' | 'bottom';
+
 /**
  * Keeps the executable proof, zero-pixel screenshot, and reviewer-facing
  * walkthrough inseparable. A gesture is not complete until every semantic
@@ -23,11 +25,20 @@ export class TestStepHelper {
 
   constructor(private readonly testInfo: TestInfo) {}
 
-  async observe(page: Page, id: string, description: string, verifications: Verification[]) {
+  async observe(page: Page, id: string, description: string, verifications: Verification[], scrollBoundary?: ScrollBoundary) {
     for (const verification of verifications) await verification.check();
     await expect(page.locator('main.game-shell')).toHaveAttribute('data-busy', 'false', {
       timeout: 2_000
     });
+    if (scrollBoundary) {
+      const target = await page.evaluate((boundary) => {
+        const scrollingElement = document.scrollingElement ?? document.documentElement;
+        const next = boundary === 'top' ? 0 : Math.max(0, scrollingElement.scrollHeight - innerHeight);
+        scrollTo(0, next);
+        return next;
+      }, scrollBoundary);
+      await expect.poll(() => page.evaluate(() => scrollY)).toBe(target);
+    }
     const index = String(this.steps.length).padStart(3, '0');
     const safeId = id.replaceAll('_', '-');
     const screenshot = await page.screenshot({
@@ -48,10 +59,11 @@ export class TestStepHelper {
     id: string,
     description: string,
     perform: () => Promise<void>,
-    verifications: Verification[]
+    verifications: Verification[],
+    scrollBoundary?: ScrollBoundary
   ) {
     await perform();
-    await this.observe(page, id, description, verifications);
+    await this.observe(page, id, description, verifications, scrollBoundary);
   }
 
   generateDocs(title: string, purpose: string, filename = 'README.md') {

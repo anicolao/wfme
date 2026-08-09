@@ -50,7 +50,7 @@ test('a human buys from the public Chronicle Row, refills it, reshuffles, and pl
         }
       } },
       converged(accepted.value + 1)
-    ]);
+    ], 'bottom');
 
     await steps.gesture(buyer.page, 'reload-acquired-market', `${buyer.name} reloads after the market refill`, async () => {
       await reloadGameClient(buyer.page);

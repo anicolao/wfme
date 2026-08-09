@@ -99,7 +99,7 @@ test('Ranger of the North is acquired, drawn, and completes its mandatory privat
             await expect(buyer.page.getByTestId('chronicle-market')).toContainText(`deck ${deckBefore - 1}`);
           } },
           converged(accepted.value + 1)
-        ]);
+        ], 'bottom');
       }
       await finishReveal(actor);
     }

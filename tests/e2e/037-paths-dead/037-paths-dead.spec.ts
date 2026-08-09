@@ -61,7 +61,7 @@ test('Paths of the Dead recalls a Scout to enter an otherwise unaffordable space
         await expect(buyer.page.getByTestId('chronicle-market')).toContainText('deck 48');
       } },
       converged(accepted.value + 1)
-    ]);
+    ], 'bottom');
     await finishReveal(buyer);
 
     for (let guard = 0; guard < 160 && !played; guard += 1) {

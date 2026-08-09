@@ -168,7 +168,7 @@ test('four economy Chronicle cards are acquired, drawn, and executed through the
             { spec: target ? `${target} enters the real discard pile as an exact physical card` : 'An affordable card cycles the physical market toward the remaining batch', check: async () => await expect(buyer.page.getByTestId('activity-log')).toContainText(`${buyer.name} acquires ${name}`) },
             { spec: 'The public Row refills immediately when its deck has cards', check: async () => await expect(buyer.page.getByTestId('chronicle-market')).toContainText(`deck ${Math.max(0, deckBefore - 1)}`) },
             converged(accepted.value + 1)
-          ]);
+          ], gestureNumber === 2 ? 'bottom' : undefined);
         }
       }
       await finishReveal(actor);
