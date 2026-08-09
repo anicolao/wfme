@@ -44,6 +44,14 @@ export class TestStepHelper {
       }, evidenceBoundary);
       await expect.poll(() => page.evaluate(() => scrollY)).toBe(target);
     }
+    // A locator verification may scroll the document immediately before this
+    // helper regains control. Chromium can report the final scroll position
+    // before every overflow layer has repainted, producing a partially blank
+    // capture even though the DOM and application state are settled. Cross two
+    // paint boundaries so the screenshot records the final composited frame.
+    await page.evaluate(() => new Promise<void>((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    }));
     const index = String(this.steps.length).padStart(3, '0');
     const safeId = id.replaceAll('_', '-');
     const screenshot = await page.screenshot({
