@@ -434,7 +434,7 @@ Every numbered frame is captured only after its listed semantic validations pass
 **Verifications:**
 
 - [x] Every observer sees the exact one-Renown and one-Dwarven-standing reward
-- [x] The White Tree trophy is owned and the Company returns to finite supply
+- [x] The White Tree trophy is owned in the paired trophy area and the Company returns to finite supply
 - [x] Every connected browser replays 26 accepted events with no diagnostics
 
 ---

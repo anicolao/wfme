@@ -4,6 +4,18 @@ import { openFirebaseClients, waitForCurrentSeat } from './firebase-readiness';
 
 export type PlotSeat = { name: string; page: Page; context?: BrowserContext };
 
+const roomCodeOwners = new Map<string, string>();
+
+function claimRoomCodes(seed: string, roomCodes: { phone: string; desktop: string }) {
+  for (const code of [roomCodes.phone, roomCodes.desktop]) {
+    const owner = roomCodeOwners.get(code);
+    if (owner && owner !== seed) {
+      throw new Error(`E2E room code ${code} is already claimed by seed ${owner}; ${seed} must use a unique code.`);
+    }
+    roomCodeOwners.set(code, seed);
+  }
+}
+
 export async function startPlotTable(
   browser: Browser,
   page: Page,
@@ -14,6 +26,7 @@ export async function startPlotTable(
   commanders: readonly [string, string, string] = ['Aragorn', 'Galadriel', 'Gandalf'],
   warEffortsEnabled = false
 ) {
+  claimRoomCodes(seed, roomCodes);
   const viewport = page.viewportSize() ?? { width: 1280, height: 960 };
   const guestAContext = await browser.newContext({ baseURL: 'http://127.0.0.1:5189', viewport, reducedMotion: 'reduce', serviceWorkers: 'block' });
   const guestBContext = await browser.newContext({ baseURL: 'http://127.0.0.1:5189', viewport, reducedMotion: 'reduce', serviceWorkers: 'block' });

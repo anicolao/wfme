@@ -7,7 +7,7 @@ test('Deed Worthy of Song costs nine Influence, grants Renown, and weakens the d
   const steps = new TestStepHelper(testInfo);
   const table = await startPlotTable(
     browser, page, testInfo, steps, 'deed-worthy-9',
-    { phone: 'DEEDP', desktop: 'DEEDD' },
+    { phone: 'SONGP', desktop: 'SONGD' },
     ['Aragorn', 'Treebeard', 'Gandalf']
   );
   const { seats, accepted, converged, currentSeat, row } = table;

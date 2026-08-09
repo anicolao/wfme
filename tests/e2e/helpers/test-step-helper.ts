@@ -34,7 +34,10 @@ export class TestStepHelper {
       animations: 'disabled',
       caret: 'hide',
       scale: 'css',
-      timeout: 2_000
+      // Capturing and encoding a tall evidence frame is filesystem work, not
+      // an application-state wait. Semantic assertions above retain the
+      // strict two-second ceiling; the PNG write must be allowed to finish.
+      timeout: 0
     });
     expect(screenshot).toMatchSnapshot(`${index}-${safeId}-${this.testInfo.project.name}`, { maxDiffPixels: 0 });
     this.steps.push({ id: `${index}-${safeId}`, description, specs: verifications.map(({ spec }) => spec) });
