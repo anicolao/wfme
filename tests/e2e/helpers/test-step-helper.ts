@@ -30,13 +30,18 @@ export class TestStepHelper {
     await expect(page.locator('main.game-shell')).toHaveAttribute('data-busy', 'false', {
       timeout: 2_000
     });
-    if (scrollBoundary) {
+    const evidenceBoundary = scrollBoundary ?? (
+      this.testInfo.project.name === 'phone' && (id.startsWith('acquire-') || id === 'buy-rider' || id === 'buy-eagle')
+        ? 'bottom'
+        : undefined
+    );
+    if (evidenceBoundary) {
       const target = await page.evaluate((boundary) => {
         const scrollingElement = document.scrollingElement ?? document.documentElement;
         const next = boundary === 'top' ? 0 : Math.max(0, scrollingElement.scrollHeight - innerHeight);
         scrollTo(0, next);
         return next;
-      }, scrollBoundary);
+      }, evidenceBoundary);
       await expect.poll(() => page.evaluate(() => scrollY)).toBe(target);
     }
     const index = String(this.steps.length).padStart(3, '0');
