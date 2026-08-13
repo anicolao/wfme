@@ -8,8 +8,8 @@ test('three humans execute every final printed board destination', async ({ brow
   test.setTimeout(900_000);
   const steps = new TestStepHelper(testInfo);
   const viewport = page.viewportSize() ?? { width: 1280, height: 960 };
-  const guestAContext = await browser.newContext({ baseURL: 'http://127.0.0.1:5189', viewport, reducedMotion: 'reduce', serviceWorkers: 'block' });
-  const guestBContext = await browser.newContext({ baseURL: 'http://127.0.0.1:5189', viewport, reducedMotion: 'reduce', serviceWorkers: 'block' });
+  const guestAContext = await browser.newContext({ baseURL: 'http://127.0.0.1:5190', viewport, reducedMotion: 'reduce', serviceWorkers: 'block' });
+  const guestBContext = await browser.newContext({ baseURL: 'http://127.0.0.1:5190', viewport, reducedMotion: 'reduce', serviceWorkers: 'block' });
   const seats: Seat[] = [
     { name: 'Mara', page },
     { name: 'Rin', page: await guestAContext.newPage(), context: guestAContext },

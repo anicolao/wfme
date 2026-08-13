@@ -8,7 +8,7 @@ export default defineConfig({
   retries: 0,
   reporter: [['html', { open: 'never' }]],
   use: {
-    baseURL: 'http://127.0.0.1:5189',
+    baseURL: 'http://127.0.0.1:5190',
     trace: 'retain-on-failure',
     serviceWorkers: 'block',
     deviceScaleFactor: 1,
@@ -41,7 +41,7 @@ export default defineConfig({
     // module graph for every fresh browser context. This keeps application boot
     // and Firebase Auth hydration inside the strict 2-second readiness window.
     command: 'bun run build && bun run preview:e2e',
-    url: 'http://127.0.0.1:5189',
+    url: 'http://127.0.0.1:5190',
     timeout: 180_000,
     reuseExistingServer: false,
     env: {
@@ -53,9 +53,9 @@ export default defineConfig({
       VITE_FIREBASE_APP_ID: '1:123456789:web:e2e',
       VITE_USE_FIREBASE_EMULATORS: 'true',
       VITE_FIRESTORE_EMULATOR_HOST: '127.0.0.1',
-      VITE_FIRESTORE_EMULATOR_PORT: '8190',
+      VITE_FIRESTORE_EMULATOR_PORT: '8191',
       VITE_FIREBASE_AUTH_EMULATOR_HOST: '127.0.0.1',
-      VITE_FIREBASE_AUTH_EMULATOR_PORT: '9204',
+      VITE_FIREBASE_AUTH_EMULATOR_PORT: '9205',
       VITE_GIT_HASH: 'e2e-test-commit'
     }
   },

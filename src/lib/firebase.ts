@@ -30,13 +30,13 @@ export async function initializeFirebase(): Promise<FirebaseServices> {
   if (usesEmulators) {
     connectAuthEmulator(
       auth,
-      `http://${import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_HOST ?? '127.0.0.1'}:${import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_PORT ?? '9204'}`,
+      `http://${import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_HOST ?? '127.0.0.1'}:${import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_PORT ?? '9205'}`,
       { disableWarnings: true }
     );
     connectFirestoreEmulator(
       db,
       import.meta.env.VITE_FIRESTORE_EMULATOR_HOST ?? '127.0.0.1',
-      Number(import.meta.env.VITE_FIRESTORE_EMULATOR_PORT ?? '8190')
+      Number(import.meta.env.VITE_FIRESTORE_EMULATOR_PORT ?? '8191')
     );
   }
   await auth.authStateReady();

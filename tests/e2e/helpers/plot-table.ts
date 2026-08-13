@@ -28,8 +28,8 @@ export async function startPlotTable(
 ) {
   claimRoomCodes(seed, roomCodes);
   const viewport = page.viewportSize() ?? { width: 1280, height: 960 };
-  const guestAContext = await browser.newContext({ baseURL: 'http://127.0.0.1:5189', viewport, reducedMotion: 'reduce', serviceWorkers: 'block' });
-  const guestBContext = await browser.newContext({ baseURL: 'http://127.0.0.1:5189', viewport, reducedMotion: 'reduce', serviceWorkers: 'block' });
+  const guestAContext = await browser.newContext({ baseURL: 'http://127.0.0.1:5190', viewport, reducedMotion: 'reduce', serviceWorkers: 'block' });
+  const guestBContext = await browser.newContext({ baseURL: 'http://127.0.0.1:5190', viewport, reducedMotion: 'reduce', serviceWorkers: 'block' });
   const seats: PlotSeat[] = [
     { name: 'Mara', page },
     { name: 'Rin', page: await guestAContext.newPage(), context: guestAContext },

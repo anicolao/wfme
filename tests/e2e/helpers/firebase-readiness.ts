@@ -10,7 +10,7 @@ export async function waitForFirebaseSession(page: Page) {
 }
 
 async function seedEmulatorAuth(page: Page) {
-  const response = await fetch('http://127.0.0.1:9204/identitytoolkit.googleapis.com/v1/accounts:signUp?key=e2e-api-key', {
+  const response = await fetch('http://127.0.0.1:9205/identitytoolkit.googleapis.com/v1/accounts:signUp?key=e2e-api-key', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ returnSecureToken: true }),

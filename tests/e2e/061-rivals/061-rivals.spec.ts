@@ -83,7 +83,7 @@ test('one human completes a round against two deterministic Rivals', async ({ pa
 test('two humans alternate around one Rival', async ({ browser, page }, testInfo) => {
   const steps = new TestStepHelper(testInfo);
   const viewport = page.viewportSize() ?? { width: 1280, height: 960 };
-  const guestContext = await browser.newContext({ baseURL: 'http://127.0.0.1:5189', viewport, reducedMotion: 'reduce', serviceWorkers: 'block' });
+  const guestContext = await browser.newContext({ baseURL: 'http://127.0.0.1:5190', viewport, reducedMotion: 'reduce', serviceWorkers: 'block' });
   const guestPage = await guestContext.newPage();
   const seats = [{ name: 'Mara', page }, { name: 'Rin', page: guestPage }];
   const accepted = { value: 0 };

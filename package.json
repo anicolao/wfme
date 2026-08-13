@@ -7,8 +7,8 @@
   "scripts": {
     "prepare": "svelte-kit sync && husky",
     "dev": "vite dev --host 127.0.0.1 --port 5189 --strictPort",
-    "dev:e2e": "vite dev --host 127.0.0.1 --port 5189 --strictPort",
-    "preview:e2e": "vite preview --host 127.0.0.1 --port 5189 --strictPort",
+    "dev:e2e": "vite dev --host 127.0.0.1 --port 5190 --strictPort",
+    "preview:e2e": "vite preview --host 127.0.0.1 --port 5190 --strictPort",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1 --port 4189 --strictPort",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",

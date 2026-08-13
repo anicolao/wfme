@@ -9,10 +9,10 @@ test('Hall of Fire grants private Fate and temporary Reveal Influence', async ({
   const steps = new TestStepHelper(testInfo);
   const viewport = page.viewportSize() ?? { width: 1280, height: 960 };
   const guestAContext = await browser.newContext({
-    baseURL: 'http://127.0.0.1:5189', viewport, reducedMotion: 'reduce', serviceWorkers: 'block'
+    baseURL: 'http://127.0.0.1:5190', viewport, reducedMotion: 'reduce', serviceWorkers: 'block'
   });
   const guestBContext = await browser.newContext({
-    baseURL: 'http://127.0.0.1:5189', viewport, reducedMotion: 'reduce', serviceWorkers: 'block'
+    baseURL: 'http://127.0.0.1:5190', viewport, reducedMotion: 'reduce', serviceWorkers: 'block'
   });
   const seats: Seat[] = [
     { name: 'Mara', page },

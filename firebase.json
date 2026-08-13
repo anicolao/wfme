@@ -3,8 +3,10 @@
     "rules": "firestore.rules"
   },
   "emulators": {
-    "auth": { "port": 9204 },
-    "firestore": { "port": 8190, "websocketPort": 9255 },
+    "auth": { "port": 9205 },
+    "firestore": { "port": 8191, "websocketPort": 9256 },
+    "hub": { "port": 4405 },
+    "logging": { "port": 4505 },
     "ui": { "enabled": false },
     "singleProjectMode": true
   },
